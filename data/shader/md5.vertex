@@ -1,0 +1,52 @@
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
+
+layout (location = 0) in vec4 vertex;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec3 normal;
+layout (location = 5) in vec4 bone_index;
+layout (location = 6) in vec4 bone_weight;
+
+#define MAX_NUM_TOTAL_MATRIX 100
+layout(std140) uniform matrix_block
+{
+    mat4 matrix[MAX_NUM_TOTAL_MATRIX];
+    int size;
+} matrix_buffer;
+
+out vec2 out_uv;
+out vec3 out_vertex_camera;
+out vec3 out_normal_camera;
+flat out mat4 out_view;
+
+void main(void)
+{
+    // Get the model matrix from the uniform buffer
+    mat4 pv = matrix_buffer.matrix[0];
+    mat4 view = matrix_buffer.matrix[1];
+    mat4 model = matrix_buffer.matrix[2];
+
+    // Perform vertex skinning
+    mat4 bone_transform = matrix_buffer.matrix[int(bone_index.x) + 3] * bone_weight.x;
+	bone_transform += matrix_buffer.matrix[int(bone_index.y) + 3] * bone_weight.y;
+	bone_transform += matrix_buffer.matrix[int(bone_index.z) + 3] * bone_weight.z;
+	bone_transform += matrix_buffer.matrix[int(bone_index.w) + 3] * bone_weight.w;
+
+    // Extract the rotation matrix from bone transform; use inverse-transpose here if object is scaled
+    mat3 normal_matrix = mat3(bone_transform);
+
+    // Calculate the vertex camera coordinates
+    out_vertex_camera = (view * model * bone_transform * vertex).xyz;
+
+    // Calculate the normal in camera coordinates
+    out_normal_camera = normalize(view * model * vec4(normal_matrix * normal, 1)).xyz;
+
+	// Calculate transformed position
+	gl_Position =  pv * model * bone_transform * vertex;
+
+	// Pass texture coordinates to fragment shader
+	out_uv = uv;
+
+    // Pass the view matrix to the fragment shader
+    out_view = view;
+}

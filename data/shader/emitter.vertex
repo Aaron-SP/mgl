@@ -1,0 +1,43 @@
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
+
+layout (location = 0) in vec4 position;
+
+#define MAX_NUM_TOTAL_MATRIX 1
+layout(std140) uniform matrix_block
+{
+    mat4 matrix[MAX_NUM_TOTAL_MATRIX];
+    int size;
+} matrix_buffer;
+
+out vec4 vcolor;
+
+void main(void)
+{
+	// Get the proj_view matrix from the uniform buffer
+	mat4 pv = matrix_buffer.matrix[0];
+
+	// Set particle size by distance from camera
+	gl_PointSize = max(30.0 - 0.50 * length(vec4(-1.0, 40.0, 0.0, 1.0) - position), 1.0);
+
+	// Set a gradient based on particle distance from origin
+	float len = length(position);
+	if(len > 1.0 && len < 5.0)
+	{
+		float d = clamp(10.0 / len - 1.0, 0.0, 2.0);
+		vcolor = vec4(d*1.5, d, d*0.667, 1.0);
+	}
+	else if(len > 5.5 && len < 10.0)
+	{
+		float d = clamp(11.0 / len - 1.0, 0.0, 2.0);
+		vcolor = vec4(d*4, d*1.333, d*0.8333, 1.0);
+	}
+	else if(len > 10.15)
+	{
+		float d = clamp(17.5 / len - 1.0, 0.0, 2.0);
+		vcolor = vec4(d*1.5, d*0.333, d*0.333, 1.0);
+	}
+
+	// Calculate transformed position
+	gl_Position =  pv * position;
+}

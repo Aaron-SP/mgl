@@ -1,0 +1,11 @@
+#version 330
+
+// UV coordinate
+in vec2 out_uv;
+
+// Texture input
+uniform sampler2D in_texture;
+
+void main(void) {
+  gl_FragColor = vec4(0.0, 0.0, 0.0, texture2D(in_texture, out_uv).r);
+}

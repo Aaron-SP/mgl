@@ -1,0 +1,48 @@
+#version 430 core
+
+layout (quads, fractional_odd_spacing) in;
+
+uniform sampler2D height_map;
+
+#define MAX_NUM_TOTAL_MATRIX 2
+layout(std140) uniform matrix_block
+{
+    mat4 matrix[MAX_NUM_TOTAL_MATRIX];
+    int size;
+} matrix_buffer;
+
+in control_out
+{
+    vec2 uv;
+} eval_in[];
+
+out eval_out
+{
+    vec2 uv;
+} eval_out;
+
+void main(void)
+{
+    float dmap_depth = 20.0;
+    mat4 mvp = matrix_buffer.matrix[0];
+
+    // Interpolate between the X values
+    vec2 uv1 = mix(eval_in[0].uv, eval_in[1].uv, gl_TessCoord.x);
+    vec2 uv2 = mix(eval_in[2].uv, eval_in[3].uv, gl_TessCoord.x);
+    
+    // Interpolate between the Y Values
+    eval_out.uv = mix(uv2, uv1, gl_TessCoord.y);
+
+    // Interpolate between the X values
+    vec4 p1 = mix(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_TessCoord.x);
+    vec4 p2 = mix(gl_in[2].gl_Position, gl_in[3].gl_Position, gl_TessCoord.x);
+    
+    // Interpolate between the Y Values
+    vec4 p = mix(p2, p1, gl_TessCoord.y);
+
+    // Add height based on the R value 
+    p.y += texture(height_map, eval_out.uv).r * dmap_depth;
+    
+    // Transform position to clip space
+    gl_Position = mvp * p;
+}

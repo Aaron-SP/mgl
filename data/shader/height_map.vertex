@@ -1,0 +1,27 @@
+#version 430 core
+
+out vertex_out
+{
+    vec2 uv;
+} v_out;
+
+void main(void)
+{
+    const vec4 vertices[] = vec4[](vec4(-0.5, 0.0, -0.5, 1.0),
+                                   vec4( 0.5, 0.0, -0.5, 1.0),
+                                   vec4(-0.5, 0.0, 0.5, 1.0),
+                                   vec4( 0.5, 0.0, 0.5, 1.0));
+
+    // Generate tile x and y values
+    int x = gl_InstanceID & 63;
+    int z = gl_InstanceID >> 6;
+    vec2 offsets = vec2(x, z) + vec2(0.5);
+
+    // Between -1.0 and 1.0
+    v_out.uv = (vertices[gl_VertexID].xz + offsets) / 64.0;
+    
+    // Set position -32 to 32
+    float xp = float(x - 32);
+    float zp = float(z - 32);
+    gl_Position = vertices[gl_VertexID] + vec4(xp, 0.0, zp, 1.0);
+}

@@ -1,0 +1,14 @@
+#version 430 core
+
+layout(binding = 1) uniform sampler2D in_texture;
+out vec4 color;
+
+in eval_out
+{
+    vec2 uv;
+} frag_in;
+
+void main(void)
+{
+    color = vec4(texture(in_texture, 20 * frag_in.uv).rgb, 1.0);
+}

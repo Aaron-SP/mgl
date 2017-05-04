@@ -1,0 +1,73 @@
+#version 430 core
+
+layout (vertices = 4) out;
+
+in vertex_out
+{
+    vec2 uv;
+} c_in[];
+
+out control_out
+{
+    vec2 uv;
+} c_out[];
+
+#define MAX_NUM_TOTAL_MATRIX 2
+layout(std140) uniform matrix_block
+{
+    mat4 matrix[MAX_NUM_TOTAL_MATRIX];
+    int size;
+} matrix_buffer;
+
+void main(void)
+{
+    mat4 mvp = matrix_buffer.matrix[0];
+
+    if (gl_InvocationID == 0)
+    {
+        // Convert 4 quads into clip space
+        vec4 p0 = mvp * gl_in[0].gl_Position;
+        vec4 p1 = mvp * gl_in[1].gl_Position;
+        vec4 p2 = mvp * gl_in[2].gl_Position;
+        vec4 p3 = mvp * gl_in[3].gl_Position;
+
+        // Convert to NDC
+        p0 /= p0.w;
+        p1 /= p1.w;
+        p2 /= p2.w;
+        p3 /= p3.w;
+
+        // Do not tessellate if outside clip space
+        if (p0.z > 0.0 || p1.z > 0.0 || p2.z > 0.0 || p3.z > 0.0)
+        {
+            gl_TessLevelOuter[0] = 0.0;
+            gl_TessLevelOuter[1] = 0.0;
+            gl_TessLevelOuter[2] = 0.0;
+            gl_TessLevelOuter[3] = 0.0;
+        }
+        else
+        {
+            // Calculate length between corners of tile
+            float l0 = length(p2.xy - p0.xy) * 16.0 + 1.0;
+            float l1 = length(p3.xy - p2.xy) * 16.0 + 1.0;
+            float l2 = length(p3.xy - p1.xy) * 16.0 + 1.0;
+            float l3 = length(p1.xy - p0.xy) * 16.0 + 1.0;
+                
+            // Calculate outer and inner tessellation levels
+            gl_TessLevelOuter[0] = l0;
+            gl_TessLevelOuter[1] = l1;
+            gl_TessLevelOuter[2] = l2;
+            gl_TessLevelOuter[3] = l3;
+            gl_TessLevelInner[0] = min(l1, l3);
+            gl_TessLevelInner[1] = min(l0, l2);
+        }        
+    }
+
+    // Copy input to output
+
+    // UV's
+    c_out[gl_InvocationID].uv = c_in[gl_InvocationID].uv;
+
+    // Vertices
+    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+}

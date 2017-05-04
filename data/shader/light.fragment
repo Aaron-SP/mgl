@@ -1,0 +1,17 @@
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
+
+// Inputs from vertex shader
+in vec2 out_uv;
+in vec4 out_color;
+
+// Texture input
+uniform sampler2D in_texture;
+
+// Output color
+out vec4 color;
+
+void main(void)
+{
+	color = texture(in_texture, out_uv).rgba * out_color;
+}

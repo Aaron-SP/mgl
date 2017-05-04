@@ -1,0 +1,443 @@
+/* Copyright [2013-2016] [Aaron Springstroh, Minimal Graphics Library]
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+#ifndef __TESTAABBTREE__
+#define __TESTAABBTREE__
+
+#include <min/test.h>
+#include <min/vec3.h>
+#include <min/aabbox.h>
+#include <min/tree.h>
+#include <stdexcept>
+
+bool test_aabb_tree()
+{
+    bool out = true;
+
+    // vec2 tree
+    {
+        // Local variables
+        min::vec2<double> minW(-10.0, -10.0);
+        min::vec2<double> maxW(10.0, 10.0);
+        min::vec2<double> min;
+        min::vec2<double> max;
+        min::vec2<double> p;
+        std::vector<uint16_t> hits;
+        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        min::aabbox<double, min::vec2> world(minW, maxW);
+        std::vector<min::aabbox<double, min::vec2>> items;
+        min::tree<double, uint16_t, uint32_t, min::vec2, min::aabbox, min::aabbox> t(world);
+
+        // Create three boxes and insert into vector
+
+        // Box A
+        min = min::vec2<double>(-1.0, -1.0);
+        max = min::vec2<double>(1.0, 1.0);
+        items.push_back(min::aabbox<double, min::vec2>(min, max));
+
+        // Box B
+        min = min::vec2<double>(-2.0, -2.0);
+        max = min::vec2<double>(2.0, 2.0);
+        items.push_back(min::aabbox<double, min::vec2>(min, max));
+
+        // Box C
+        min = min::vec2<double>(-3.0, -3.0);
+        max = min::vec2<double>(3.0, 3.0);
+        items.push_back(min::aabbox<double, min::vec2>(min, max));
+
+        t.insert(items);
+
+        // Maximum extent is sqrt(2*6^2) = sqrt(72) = 8.485 - Box A
+        // Extent depth 2 is sqrt(800)/2/2 = 7.071
+        int depth = t.get_depth();
+        out = out && compare(2, depth);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 optimum depth");
+        }
+
+        // Test set_depth
+        t.set_depth(5);
+
+        // Insert into tree twice, should reset and rebuild
+        t.insert(items);
+
+        // Test point inside
+        p = min::vec2<double>(2.9, 2.9);
+        hits = t.point_inside(p);
+        out = out && compare(1, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 point_inside 1 hit");
+        }
+
+        // Test get_cell center
+        auto *node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.8125, p.x(), 1E-4);
+        out = out && compare(2.8125, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get_cell 1 get_center");
+        }
+
+        // Check the cell extents
+        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        p = node->get_cell().get_extent();
+        out = out && compare(0.625, p.x(), 1E-4);
+        out = out && compare(0.625, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get_cell 1 cell_extents");
+        }
+
+        // Test point inside
+        p = min::vec2<double>(1.9, 1.9);
+        hits = t.point_inside(p);
+        out = out && compare(2, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 point_inside 2 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.1875, p.x(), 1E-4);
+        out = out && compare(2.1875, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get_cell 2 get_center");
+        }
+
+        // Test point inside
+        p = min::vec2<double>(0.9, 0.9);
+        hits = t.point_inside(p);
+        out = out && compare(3, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 point_inside 3 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(0.9375, p.x(), 1E-4);
+        out = out && compare(0.9375, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get_cell 3 get_center");
+        }
+
+        // Test get collisions
+        // A int B and B int C and A int C
+        collisions = t.get_collisions();
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get collisions");
+        }
+
+        // Test get collisions
+        // B int C
+        p = min::vec2<double>(1.9, 1.9);
+        collisions = t.get_collisions(p);
+        out = out && compare(1, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec2 get collision point");
+        }
+    }
+
+    // vec3 tree
+    {
+        // Local variables
+        min::vec3<double> minW(-10.0, -10.0, -10.0);
+        min::vec3<double> maxW(10.0, 10.0, 10.0);
+        min::vec3<double> min;
+        min::vec3<double> max;
+        min::vec3<double> p;
+        std::vector<uint16_t> hits;
+        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        min::aabbox<double, min::vec3> world(minW, maxW);
+        std::vector<min::aabbox<double, min::vec3>> items;
+        min::tree<double, uint16_t, uint32_t, min::vec3, min::aabbox, min::aabbox> t(world);
+
+        // Create three boxes and insert into vector
+
+        // Box A
+        min = min::vec3<double>(-1.0, -1.0, -1.0);
+        max = min::vec3<double>(1.0, 1.0, 1.0);
+        items.push_back(min::aabbox<double, min::vec3>(min, max));
+
+        // Box B
+        min = min::vec3<double>(-2.0, -2.0, -2.0);
+        max = min::vec3<double>(2.0, 2.0, 2.0);
+        items.push_back(min::aabbox<double, min::vec3>(min, max));
+
+        // Box C
+        min = min::vec3<double>(-3.0, -3.0, -3.0);
+        max = min::vec3<double>(3.0, 3.0, 3.0);
+        items.push_back(min::aabbox<double, min::vec3>(min, max));
+
+        t.insert(items);
+
+        // Maximum extent is sqrt(3*6^2) = sqrt(108) = 10.392 - Box A
+        // Extent depth 2 is sqrt(1200)/2/2 = 8.660
+        int depth = t.get_depth();
+        out = out && compare(2, depth);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 optimum depth");
+        }
+
+        // Test set_depth
+        t.set_depth(5);
+
+        // Insert into tree twice, should reset and rebuild
+        t.insert(items);
+
+        // Test point inside
+        p = min::vec3<double>(2.9, 2.9, 2.9);
+        hits = t.point_inside(p);
+        out = out && compare(1, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 point_inside 1 hit");
+        }
+
+        // Test get_cell center
+        auto *node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.8125, p.x(), 1E-4);
+        out = out && compare(2.8125, p.y(), 1E-4);
+        out = out && compare(2.8125, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get_cell 1 get_center");
+        }
+
+        // Check the cell extents
+        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        p = node->get_cell().get_extent();
+        out = out && compare(0.625, p.x(), 1E-4);
+        out = out && compare(0.625, p.y(), 1E-4);
+        out = out && compare(0.625, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get_cell 1 cell_extents");
+        }
+
+        // Test point inside
+        p = min::vec3<double>(1.9, 1.9, 1.9);
+        hits = t.point_inside(p);
+        out = out && compare(2, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 point_inside 2 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.1875, p.x(), 1E-4);
+        out = out && compare(2.1875, p.y(), 1E-4);
+        out = out && compare(2.1875, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get_cell 2 get_center");
+        }
+
+        // Test point inside
+        p = min::vec3<double>(0.9, 0.9, 0.9);
+        hits = t.point_inside(p);
+        out = out && compare(3, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 point_inside 3 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(0.9375, p.x(), 1E-4);
+        out = out && compare(0.9375, p.y(), 1E-4);
+        out = out && compare(0.9375, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get_cell 3 get_center");
+        }
+
+        // Test get collisions
+        // A int B and B int C and A int C
+        collisions = t.get_collisions();
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get collisions");
+        }
+
+        // Test get collisions
+        // B int C
+        p = min::vec3<double>(1.9, 1.9, 1.9);
+        collisions = t.get_collisions(p);
+        out = out && compare(1, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec3 get collision point");
+        }
+    }
+
+    // vec4 tree
+    {
+        // Local variables
+        min::vec4<double> minW(-10.0, -10.0, -10.0, 0.0);
+        min::vec4<double> maxW(10.0, 10.0, 10.0, 0.0);
+        min::vec4<double> min;
+        min::vec4<double> max;
+        min::vec4<double> p;
+        std::vector<uint16_t> hits;
+        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        min::aabbox<double, min::vec4> world(minW, maxW);
+        std::vector<min::aabbox<double, min::vec4>> items;
+        min::tree<double, uint16_t, uint32_t, min::vec4, min::aabbox, min::aabbox> t(world);
+
+        // Create three boxes and insert into vector
+
+        // Box A
+        min = min::vec4<double>(-1.0, -1.0, -1.0, 0.0);
+        max = min::vec4<double>(1.0, 1.0, 1.0, 0.0);
+        items.push_back(min::aabbox<double, min::vec4>(min, max));
+
+        // Box B
+        min = min::vec4<double>(-2.0, -2.0, -2.0, 0.0);
+        max = min::vec4<double>(2.0, 2.0, 2.0, 0.0);
+        items.push_back(min::aabbox<double, min::vec4>(min, max));
+
+        // Box C
+        min = min::vec4<double>(-3.0, -3.0, -3.0, 0.0);
+        max = min::vec4<double>(3.0, 3.0, 3.0, 0.0);
+        items.push_back(min::aabbox<double, min::vec4>(min, max));
+
+        t.insert(std::move(items));
+
+        // Maximum extent is sqrt(3*6^2) = sqrt(108) = 10.392 - Box A
+        // Extent depth 2 is sqrt(1200)/2/2 = 8.660
+        int depth = t.get_depth();
+        out = out && compare(2, depth);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 optimum depth");
+        }
+
+        // Test set_depth
+        t.set_depth(5);
+
+        // Insert into tree twice, should reset and rebuild
+        t.insert(items);
+
+        // Test point inside
+        p = min::vec4<double>(2.9, 2.9, 2.9, 1.0);
+        hits = t.point_inside(p);
+        out = out && compare(1, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 point_inside 1 hit");
+        }
+
+        // Test get_cell center
+        auto *node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.8125, p.x(), 1E-4);
+        out = out && compare(2.8125, p.y(), 1E-4);
+        out = out && compare(2.8125, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get_cell 1 get_center");
+        }
+
+        // Check the cell extents
+        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        p = node->get_cell().get_extent();
+        out = out && compare(0.625, p.x(), 1E-4);
+        out = out && compare(0.625, p.y(), 1E-4);
+        out = out && compare(0.625, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get_cell 1 cell_extents");
+        }
+
+        // Test point inside
+        p = min::vec4<double>(1.9, 1.9, 1.9, 1.0);
+        hits = t.point_inside(p);
+        out = out && compare(2, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 point_inside 2 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(2.1875, p.x(), 1E-4);
+        out = out && compare(2.1875, p.y(), 1E-4);
+        out = out && compare(2.1875, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get_cell 2 get_center");
+        }
+
+        // Test point inside
+        p = min::vec4<double>(0.9, 0.9, 0.9, 1.0);
+        hits = t.point_inside(p);
+        out = out && compare(3, hits.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 point_inside 3 hit");
+        }
+
+        // Test get leaf center
+        node = &t.get_node(p);
+        p = node->get_cell().get_center();
+        out = out && compare(0.9375, p.x(), 1E-4);
+        out = out && compare(0.9375, p.y(), 1E-4);
+        out = out && compare(0.9375, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get_cell 3 get_center");
+        }
+
+        // Test get collisions
+        // A int B and B int C and A int C
+        collisions = t.get_collisions();
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get collisions");
+        }
+
+        // Test get collisions
+        // B int C
+        p = min::vec4<double>(1.9, 1.9, 1.9, 1.0);
+        collisions = t.get_collisions(p);
+        out = out && compare(1, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed aabb tree vec4 get collision point");
+        }
+    }
+    return out;
+}
+
+#endif

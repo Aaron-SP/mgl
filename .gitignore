@@ -1,0 +1,13 @@
+gcc.txt
+gl_test.txt
+wl_test.txt
+gcc_bench.txt
+min_ex1.txt
+min_ex2.txt
+min_ex3.txt
+min_ex4.txt
+min_ex5.txt
+source/*.o
+source/*/*.o
+test/*.o
+.vscode/

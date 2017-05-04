@@ -1,0 +1,11 @@
+#version 330 core
+#extension GL_ARB_explicit_uniform_location : require
+
+in vec2 out_uv;
+uniform sampler2D in_texture;
+out vec4 color;
+
+void main(void)
+{
+	color = texture(in_texture, out_uv).rgba;
+}
