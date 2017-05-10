@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTMATRIX3__
 #define __TESTMATRIX3__
 
-#include <min/test.h>
 #include <min/mat3.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_mat3()

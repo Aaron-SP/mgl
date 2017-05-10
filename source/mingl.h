@@ -45,8 +45,8 @@ limitations under the License.
 #include <min/camera.h>
 #include <min/grid.h>
 #include <min/light.h>
-#include <min/model.h>
 #include <min/md5_model.h>
+#include <min/model.h>
 #include <min/tree.h>
 
 // file

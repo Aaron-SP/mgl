@@ -12,19 +12,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <min/settings.h>
-#include <min/texture_compressor.h>
-#include <min/window.h>
-#include <min/loop_sync.h>
-#include <min/shader.h>
-#include <min/program.h>
 #include <min/emitter_buffer.h>
+#include <min/loop_sync.h>
+#include <min/program.h>
+#include <min/settings.h>
+#include <min/shader.h>
 #include <min/skeletal_vertex.h>
 #include <min/static_vertex.h>
 #include <min/text_buffer.h>
 #include <min/texture_buffer.h>
+#include <min/texture_compressor.h>
 #include <min/uniform_buffer.h>
 #include <min/vertex_buffer.h>
+#include <min/window.h>
 
 template class min::emitter_buffer<float, GL_FLOAT>;
 template class min::vertex_buffer<float, uint16_t, min::skeletal_vertex, GL_FLOAT, GL_UNSIGNED_SHORT>;

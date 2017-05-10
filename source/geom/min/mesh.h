@@ -17,8 +17,8 @@ limitations under the License.
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace min
 {

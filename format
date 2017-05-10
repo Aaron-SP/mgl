@@ -1,0 +1,7 @@
+#!/bin/bash
+find example/ -type f \( -name '*.h' -or -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+find source/ -type f \( \( -name '*.h' -or -name '*.cpp' \) ! -name 'eglew.h' ! -name 'glew.cpp' ! -name 'glew.h' ! -name 'glxew.h' ! -name 'wglew.h' \) -print0 | xargs -0 clang-format -i
+find test/ -type f \( -name '*.h' -or -name '*.cpp' \) -print0 | xargs -0 clang-format -i
+
+# CLANG bug, leaves behind .TMP files
+find . -type f -name '*.TMP' -print0 | xargs -0 rm -f

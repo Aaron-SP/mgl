@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __MODEL__
 #define __MODEL__
 
+#include <algorithm>
+#include <min/mesh.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
-#include <min/mesh.h>
 #include <vector>
-#include <algorithm>
 
 namespace min
 {

@@ -12,15 +12,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#include <algorithm>
+#include <map>
 #include <min/bmp.h>
 #include <min/dds.h>
 #include <min/strtoken.h>
 #include <min/texture_compressor.h>
 #include <min/window.h>
-#include <algorithm>
-#include <map>
-#include <string>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 void write_file(const std::string &file_path, const min::dds &d)

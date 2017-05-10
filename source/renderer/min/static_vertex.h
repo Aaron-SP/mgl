@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __STATICVERTEX__
 #define __STATICVERTEX__
 
+#include <cstring>
 #include <min/mesh.h>
 #include <min/window.h>
-#include <cstring>
 
 namespace min
 {

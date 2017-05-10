@@ -21,36 +21,36 @@ namespace min
 template <typename T, template <typename> class vec>
 class sample
 {
-private:
-  vec<T> _src;
-  vec<T> _dst;
-  T _t;
+  private:
+    vec<T> _src;
+    vec<T> _dst;
+    T _t;
 
-public:
-  sample() : _t(0.0) {}
-  sample(const vec<T> &src, const vec<T> &dst) : _src(src), _dst(dst), _t(0.0) {}
+  public:
+    sample() : _t(0.0) {}
+    sample(const vec<T> &src, const vec<T> &dst) : _src(src), _dst(dst), _t(0.0) {}
 
-  // Calls interpolate which is the slower, more accurate interpolation mechanism of 'vec'
-  vec<T> interpolate(const T dt)
-  {
-    // Adds dt to the current time and interpolates from _src to _dst
-    // values of _t > 1.0 are valid
-    _t += dt;
-    return vec<T>::interpolate(_src, _dst, _t);
-  }
+    // Calls interpolate which is the slower, more accurate interpolation mechanism of 'vec'
+    vec<T> interpolate(const T dt)
+    {
+        // Adds dt to the current time and interpolates from _src to _dst
+        // values of _t > 1.0 are valid
+        _t += dt;
+        return vec<T>::interpolate(_src, _dst, _t);
+    }
 
-  // Calls strictly lerp on the type of 'vec'
-  vec<T> lerp(const T dt)
-  {
-    // Adds dt to the current time and lerps from _src to _dst
-    // values of _t > 1.0 are valid
-    _t += dt;
-    return vec<T>::lerp(_src, _dst, _t);
-  }
-  void reset()
-  {
-    _t = 0.0;
-  }
+    // Calls strictly lerp on the type of 'vec'
+    vec<T> lerp(const T dt)
+    {
+        // Adds dt to the current time and lerps from _src to _dst
+        // values of _t > 1.0 are valid
+        _t += dt;
+        return vec<T>::lerp(_src, _dst, _t);
+    }
+    void reset()
+    {
+        _t = 0.0;
+    }
 };
 }
 

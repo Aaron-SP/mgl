@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __SKELETALVERTEX__
 #define __SKELETALVERTEX__
 
+#include <cstring>
 #include <min/mesh.h>
 #include <min/window.h>
-#include <cstring>
 
 namespace min
 {

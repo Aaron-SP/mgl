@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __TESTFRUSTUM__
 #define __TESTFRUSTUM__
 
-#include <min/test.h>
-#include <min/mat4.h>
 #include <min/frustum.h>
+#include <min/mat4.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_frustum()

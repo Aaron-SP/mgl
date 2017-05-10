@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __TESTFRUSTUMINTERSECT__
 #define __TESTFRUSTUMINTERSECT__
 
-#include <min/test.h>
-#include <min/mat4.h>
-#include <min/sphere.h>
 #include <min/aabbox.h>
 #include <min/frustum.h>
 #include <min/intersect.h>
+#include <min/mat4.h>
+#include <min/sphere.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_frustum_intersect()

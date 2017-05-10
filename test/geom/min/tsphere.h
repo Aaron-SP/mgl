@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTSPHERE__
 #define __TESTSPHERE__
 
-#include <min/test.h>
 #include <min/sphere.h>
+#include <min/test.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>

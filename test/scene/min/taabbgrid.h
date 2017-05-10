@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTAABBGRID__
 #define __TESTAABBGRID__
 
-#include <min/test.h>
-#include <min/vec3.h>
 #include <min/aabbox.h>
 #include <min/grid.h>
+#include <min/test.h>
+#include <min/vec3.h>
 #include <stdexcept>
 
 bool test_aabb_grid()

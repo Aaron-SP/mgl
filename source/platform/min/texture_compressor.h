@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __TEXTURECOMPRESSOR__
 #define __TEXTURECOMPRESSOR__
 
-#include <min/bmp.h>
-#include <min/dds.h>
-#include <min/window.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <min/bmp.h>
+#include <min/dds.h>
+#include <min/window.h>
 #include <stdexcept>
 #include <string>
 #include <vector>

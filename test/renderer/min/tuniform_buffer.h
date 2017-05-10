@@ -15,21 +15,21 @@ limitations under the License.
 #ifndef __TESTUNIFORMBUFFER__
 #define __TESTUNIFORMBUFFER__
 
-#include <min/test.h>
-#include <min/camera.h>
+#include <iostream>
 #include <min/bmp.h>
+#include <min/camera.h>
 #include <min/program.h>
 #include <min/settings.h>
 #include <min/shader.h>
 #include <min/static_vertex.h>
+#include <min/test.h>
 #include <min/texture_buffer.h>
 #include <min/uniform_buffer.h>
 #include <min/vertex_buffer.h>
 #include <min/wavefront.h>
 #include <min/window.h>
-#include <string>
 #include <stdexcept>
-#include <iostream>
+#include <string>
 
 class uniform_test
 {

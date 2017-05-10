@@ -27,10 +27,10 @@ namespace min
 template <typename T>
 class quat;
 }
-#include <min/quat.h>
-#include <cmath>
-#include <utility>
 #include <algorithm>
+#include <cmath>
+#include <min/quat.h>
+#include <utility>
 #include <vector>
 
 namespace min

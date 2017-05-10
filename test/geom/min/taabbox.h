@@ -15,11 +15,11 @@ limitations under the License.
 #ifndef __TESTAABBOX__
 #define __TESTAABBOX__
 
+#include <min/aabbox.h>
 #include <min/test.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
-#include <min/aabbox.h>
 #include <stdexcept>
 #include <vector>
 

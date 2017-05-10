@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __KEYBOARD__
 #define __KEYBOARD__
 
-#include <unordered_map>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace min
 {

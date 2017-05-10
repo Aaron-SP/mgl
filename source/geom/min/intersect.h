@@ -15,11 +15,11 @@ limitations under the License.
 #ifndef __INTERSECT__
 #define __INTERSECT__
 
-#include <min/sphere.h>
-#include <min/ray.h>
+#include <cmath>
 #include <min/aabbox.h>
 #include <min/frustum.h>
-#include <cmath>
+#include <min/ray.h>
+#include <min/sphere.h>
 
 namespace min
 {

@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTMD5MESH__
 #define __TESTMD5MESH__
 
-#include <min/test.h>
 #include <min/md5_mesh.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_md5_mesh()

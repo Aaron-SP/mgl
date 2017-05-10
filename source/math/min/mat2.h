@@ -27,8 +27,8 @@ namespace min
 template <typename T>
 class mat3;
 }
-#include <min/mat3.h>
 #include <cmath>
+#include <min/mat3.h>
 
 // This matrix is left handed and follows the following conventions:
 // (+) angle -> CCW

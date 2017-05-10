@@ -15,11 +15,11 @@ limitations under the License.
 #ifndef __TEXTUREBUFFER__
 #define __TEXTUREBUFFER__
 
+#include <algorithm>
+#include <cstdint>
 #include <min/bmp.h>
 #include <min/dds.h>
 #include <min/window.h>
-#include <algorithm>
-#include <cstdint>
 #include <stdexcept>
 
 namespace min

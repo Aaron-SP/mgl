@@ -15,7 +15,6 @@ limitations under the License.
 #ifndef __TESTTEXTUREBUFFER__
 #define __TESTTEXTUREBUFFER__
 
-#include <min/test.h>
 #include <min/bmp.h>
 #include <min/camera.h>
 #include <min/convert.h>
@@ -24,11 +23,12 @@ limitations under the License.
 #include <min/settings.h>
 #include <min/shader.h>
 #include <min/static_vertex.h>
+#include <min/test.h>
 #include <min/texture_buffer.h>
 #include <min/vertex_buffer.h>
 #include <min/window.h>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 class texture_test
 {

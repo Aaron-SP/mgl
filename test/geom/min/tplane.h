@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTPLANE__
 #define __TESTPLANE__
 
-#include <min/test.h>
 #include <min/plane.h>
+#include <min/test.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>

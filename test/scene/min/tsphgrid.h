@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTSPHEREGRID__
 #define __TESTSPHEREGRID__
 
+#include <min/grid.h>
+#include <min/sphere.h>
 #include <min/test.h>
 #include <min/vec3.h>
-#include <min/sphere.h>
-#include <min/grid.h>
 #include <stdexcept>
 
 bool test_sphere_grid()

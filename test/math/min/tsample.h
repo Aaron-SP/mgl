@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __TESTSAMPLE__
 #define __TESTSAMPLE__
 
+#include <min/quat.h>
+#include <min/sample.h>
 #include <min/test.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
-#include <min/quat.h>
-#include <min/sample.h>
 #include <stdexcept>
 
 bool test_sample()

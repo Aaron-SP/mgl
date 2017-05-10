@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTBMP__
 #define __TESTBMP__
 
-#include <min/test.h>
 #include <min/bmp.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_bmp()

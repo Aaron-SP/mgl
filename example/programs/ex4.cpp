@@ -12,8 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <min/camera.h>
+#include <iostream>
 #include <min/bmp.h>
+#include <min/camera.h>
 #include <min/emitter_buffer.h>
 #include <min/loop_sync.h>
 #include <min/program.h>
@@ -24,7 +25,6 @@ limitations under the License.
 #include <min/wavefront.h>
 #include <min/window.h>
 #include <string>
-#include <iostream>
 
 class particle_test
 {

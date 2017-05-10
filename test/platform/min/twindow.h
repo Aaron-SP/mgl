@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTWINDOW__
 #define __TESTWINDOW__
 
+#include <iostream>
 #include <min/test.h>
 #include <min/window.h>
 #include <stdexcept>
-#include <iostream>
 
 bool key_press_test = false;
 

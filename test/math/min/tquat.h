@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTQUATERNION__
 #define __TESTQUATERNION__
 
-#include <min/test.h>
 #include <min/quat.h>
+#include <min/test.h>
 #include <min/vec3.h>
 #include <stdexcept>
 

@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __GRID__
 #define __GRID__
 
+#include <cmath>
 #include <min/intersect.h>
 #include <min/utility.h>
-#include <cmath>
 #include <numeric>
 #include <vector>
 

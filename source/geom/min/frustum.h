@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __FRUSTUM__
 #define __FRUSTUM__
 
-#include <min/vec3.h>
+#include <cmath>
 #include <min/mat4.h>
 #include <min/plane.h>
-#include <cmath>
+#include <min/vec3.h>
 
 namespace min
 {

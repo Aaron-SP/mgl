@@ -12,38 +12,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <min/tvec2.h>
-#include <min/tvec3.h>
-#include <min/tvec4.h>
-#include <min/tquat.h>
+#include <iostream>
+#include <min/taabbgrid.h>
+#include <min/taabbox.h>
+#include <min/taabboxinter.h>
+#include <min/taabbtree.h>
+#include <min/tbitflag.h>
+#include <min/tbmp.h>
+#include <min/tcamera.h>
+#include <min/tdds.h>
+#include <min/tfrustinter.h>
+#include <min/tfrustum.h>
 #include <min/tmat2.h>
 #include <min/tmat3.h>
 #include <min/tmat4.h>
-#include <min/ttran2.h>
-#include <min/ttran3.h>
-#include <min/tplane.h>
-#include <min/tray.h>
-#include <min/tsphere.h>
-#include <min/taabbox.h>
-#include <min/tsphinter.h>
-#include <min/taabboxinter.h>
-#include <min/tfrustum.h>
-#include <min/tfrustinter.h>
-#include <min/tcamera.h>
-#include <min/tsample.h>
-#include <min/twavefront.h>
-#include <min/tmodel.h>
-#include <min/tbmp.h>
-#include <min/tdds.h>
-#include <min/taabbtree.h>
-#include <min/tsphtree.h>
-#include <min/tbitflag.h>
-#include <min/taabbgrid.h>
-#include <min/tsphgrid.h>
 #include <min/tmd5anim.h>
 #include <min/tmd5mesh.h>
 #include <min/tmd5model.h>
-#include <iostream>
+#include <min/tmodel.h>
+#include <min/tplane.h>
+#include <min/tquat.h>
+#include <min/tray.h>
+#include <min/tsample.h>
+#include <min/tsphere.h>
+#include <min/tsphgrid.h>
+#include <min/tsphinter.h>
+#include <min/tsphtree.h>
+#include <min/ttran2.h>
+#include <min/ttran3.h>
+#include <min/tvec2.h>
+#include <min/tvec3.h>
+#include <min/tvec4.h>
+#include <min/twavefront.h>
 
 int main()
 {

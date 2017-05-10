@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#include <chrono>
+#include <iostream>
 #include <min/camera.h>
 #include <min/program.h>
 #include <min/settings.h>
@@ -20,9 +22,7 @@ limitations under the License.
 #include <min/uniform_buffer.h>
 #include <min/vertex_buffer.h>
 #include <min/window.h>
-#include <chrono>
 #include <string>
-#include <iostream>
 
 class screen_draw_test
 {

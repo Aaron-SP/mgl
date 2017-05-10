@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTCAMERA__
 #define __TESTCAMERA__
 
-#include <min/test.h>
-#include <min/mat4.h>
-#include <min/frustum.h>
 #include <min/camera.h>
+#include <min/frustum.h>
+#include <min/mat4.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_camera()

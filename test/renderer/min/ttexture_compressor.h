@@ -15,13 +15,13 @@ limitations under the License.
 #ifndef __TESTTEXTURECOMPRESSOR__
 #define __TESTTEXTURECOMPRESSOR__
 
-#include <min/test.h>
 #include <min/bmp.h>
 #include <min/dds.h>
+#include <min/test.h>
 #include <min/texture_compressor.h>
 #include <min/window.h>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 bool test_texture_compressor()
 {

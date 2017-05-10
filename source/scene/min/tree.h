@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __TREE__
 #define __TREE__
 
+#include <cmath>
 #include <min/intersect.h>
 #include <min/utility.h>
-#include <cmath>
 #include <numeric>
 #include <vector>
 

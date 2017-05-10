@@ -21,8 +21,8 @@ namespace min
 template <typename T>
 class vec3;
 }
-#include <min/vec3.h>
 #include <cmath>
+#include <min/vec3.h>
 #include <stdexcept>
 
 namespace min

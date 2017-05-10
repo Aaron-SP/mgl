@@ -44,8 +44,8 @@ namespace min
 template <typename T>
 class mat4;
 }
-#include <min/mat4.h>
 #include <cmath>
+#include <min/mat4.h>
 
 // This matrix is left handed and follows the following conventions:
 // x-axis: (+) angle -> CW

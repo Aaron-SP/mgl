@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __SHADER__
 #define __SHADER__
 
+#include <fstream>
 #include <min/window.h>
 #include <string>
-#include <fstream>
 
 namespace min
 {

@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __WAVEFRONT__
 #define __WAVEFRONT__
 
-#include <min/mesh.h>
-#include <min/strtoken.h>
 #include <array>
 #include <fstream>
 #include <limits>
 #include <map>
+#include <min/mesh.h>
+#include <min/strtoken.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>

@@ -27,10 +27,10 @@ namespace min
 template <typename T>
 class vec4;
 }
-#include <min/vec4.h>
-#include <cmath>
-#include <utility>
 #include <algorithm>
+#include <cmath>
+#include <min/vec4.h>
+#include <utility>
 #include <vector>
 
 namespace min

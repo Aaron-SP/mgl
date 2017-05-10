@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __EMITTERBUFFER__
 #define __EMITTERBUFFER__
 
+#include <cmath>
 #include <min/vec3.h>
 #include <min/window.h>
-#include <cmath>
 #include <random>
 #include <stdexcept>
 #include <utility>

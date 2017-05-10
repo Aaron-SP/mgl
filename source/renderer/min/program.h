@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __PROGRAM__
 #define __PROGRAM__
 
-#include <min/window.h>
 #include <min/shader.h>
+#include <min/window.h>
 #include <string>
 #include <vector>
 

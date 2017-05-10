@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTSPHERETREE__
 #define __TESTSPHERETREE__
 
-#include <min/test.h>
-#include <min/vec3.h>
 #include <min/sphere.h>
+#include <min/test.h>
 #include <min/tree.h>
+#include <min/vec3.h>
 #include <stdexcept>
 
 bool test_sphere_tree()

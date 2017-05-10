@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTAABBTREE__
 #define __TESTAABBTREE__
 
-#include <min/test.h>
-#include <min/vec3.h>
 #include <min/aabbox.h>
+#include <min/test.h>
 #include <min/tree.h>
+#include <min/vec3.h>
 #include <stdexcept>
 
 bool test_aabb_tree()

@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTAABBOXINTERSECT__
 #define __TESTAABOXINTERSECT__
 
-#include <min/test.h>
 #include <min/intersect.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_aabbox_intersect()

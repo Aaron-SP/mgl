@@ -15,13 +15,13 @@ limitations under the License.
 #ifndef __MD5_MESH__
 #define __MD5_MESH__
 
+#include <array>
 #include <min/mat4.h>
+#include <min/md5_anim.h>
 #include <min/mesh.h>
 #include <min/quat.h>
-#include <min/vec3.h>
-#include <min/md5_anim.h>
 #include <min/strtoken.h>
-#include <array>
+#include <min/vec3.h>
 #include <sstream>
 #include <stdexcept>
 #include <string>

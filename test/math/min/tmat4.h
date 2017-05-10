@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTMATRIX4__
 #define __TESTMATRIX4__
 
-#include <min/test.h>
 #include <min/mat4.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_mat4()

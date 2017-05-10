@@ -32,8 +32,8 @@ namespace min
 template <typename T>
 class mat4;
 }
-#include <min/mat4.h>
 #include <cmath>
+#include <min/mat4.h>
 
 namespace min
 {

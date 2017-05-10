@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __UTILITY__
 #define __UTILITY__
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 namespace min
 {

@@ -12,13 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include <min/twindow.h>
-#include <min/ttexture_buffer.h>
-#include <min/tuniform_buffer.h>
-#include <min/ttexture_compressor.h>
+#include <iostream>
 #include <min/tstatic_instance.h>
 #include <min/ttessellation.h>
-#include <iostream>
+#include <min/ttexture_buffer.h>
+#include <min/ttexture_compressor.h>
+#include <min/tuniform_buffer.h>
+#include <min/twindow.h>
 
 int main()
 {

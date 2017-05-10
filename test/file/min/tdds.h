@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTDDS__
 #define __TESTDDS__
 
-#include <min/test.h>
 #include <min/dds.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_dds()

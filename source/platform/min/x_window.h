@@ -15,16 +15,16 @@ limitations under the License.
 #ifndef __XWINDOW__
 #define __XWINDOW__
 
-#include <min/keyboard.h>
+#include <X11/XKBlib.h>
+#include <X11/keysym.h>
 #include <cstdio>
 #include <iostream>
+#include <min/glew.h>
+#include <min/glxew.h>
+#include <min/keyboard.h>
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <min/glew.h>
-#include <min/glxew.h>
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>
 
 namespace min
 {

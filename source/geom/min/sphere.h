@@ -17,8 +17,8 @@ limitations under the License.
 
 #include <cmath>
 #include <cstdio>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace min
 {

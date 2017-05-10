@@ -15,10 +15,11 @@ limitations under the License.
 #ifndef __TESTMODEL__
 #define __TESTMODEL__
 
+#include <min/aabbox.h>
+#include <min/model.h>
 #include <min/test.h>
 #include <min/vec4.h>
-#include <min/model.h>
-#include <min/aabbox.h>
+#include <min/wavefront.h>
 #include <stdexcept>
 
 bool test_model()

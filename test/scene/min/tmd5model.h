@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __TESTMD5MODEL__
 #define __TESTMD5MODEL__
 
-#include <min/test.h>
 #include <min/md5_mesh.h>
 #include <min/md5_model.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_md5_model()

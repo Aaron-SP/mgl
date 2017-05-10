@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __VECTOR2__
 #define __VECTOR2__
 
-#include <min/utility.h>
-#include <cmath>
-#include <utility>
 #include <algorithm>
+#include <cmath>
+#include <min/utility.h>
+#include <utility>
 #include <vector>
 
 namespace min

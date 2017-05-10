@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __UNIFORMBUFFER__
 #define __UNIFORMBUFFER__
 
-#include <min/mat4.h>
-#include <min/light.h>
-#include <min/window.h>
-#include <min/program.h>
 #include <cstdint>
 #include <limits>
+#include <min/light.h>
+#include <min/mat4.h>
+#include <min/program.h>
+#include <min/window.h>
 #include <stdexcept>
 
 namespace min

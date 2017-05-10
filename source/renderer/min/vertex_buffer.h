@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef __VERTEXBUFFER__
 #define __VERTEXBUFFER__
 
+#include <cstdint>
 #include <min/mesh.h>
 #include <min/window.h>
-#include <cstdint>
 #include <stdexcept>
 #include <utility>
 

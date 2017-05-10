@@ -15,10 +15,10 @@ limitations under the License.
 #ifndef __TESTBITFLAG__
 #define __TESTBITFLAG__
 
+#include <cstdint>
 #include <min/test.h>
 #include <min/utility.h>
 #include <stdexcept>
-#include <cstdint>
 
 bool test_bit_flag()
 {

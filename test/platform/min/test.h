@@ -17,9 +17,9 @@ limitations under the License.
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <utility>
-#include <iostream>
 
 bool compare(double one, double two, double threshold)
 {

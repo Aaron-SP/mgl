@@ -15,11 +15,11 @@ limitations under the License.
 #ifndef __CAMERA__
 #define __CAMERA__
 
-#include <min/vec3.h>
-#include <min/quat.h>
-#include <min/mat4.h>
-#include <min/frustum.h>
 #include <cmath>
+#include <min/frustum.h>
+#include <min/mat4.h>
+#include <min/quat.h>
+#include <min/vec3.h>
 
 namespace min
 {

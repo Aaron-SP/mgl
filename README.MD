@@ -34,3 +34,7 @@ pacman -S freetype2 xorg-server xorg-server-devel
 To verify freetype has been installed properly, query it using the following command:
 
 freetype-config --cflags
+
+To perform code formatting, run the formatting script command in the project root (clang is required):
+
+./format

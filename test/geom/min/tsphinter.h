@@ -15,8 +15,8 @@ limitations under the License.
 #ifndef __TESTSPHEREINTERSECT__
 #define __TESTSPHEREINTERSECT__
 
-#include <min/test.h>
 #include <min/intersect.h>
+#include <min/test.h>
 #include <stdexcept>
 
 bool test_sphere_intersect()
