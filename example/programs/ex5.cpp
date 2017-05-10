@@ -283,7 +283,7 @@ class md5_render_loop_test
             _cam.move_look_at(x, y);
 
             // Move the light to be in front of the camera
-            min::vec3<float> position = _cam.get_position() + _cam.get_direction();
+            min::vec3<float> position = _cam.get_position() + _cam.get_forward();
             min::light<float> move_light(_light_color, position, _light_power);
             _ubuffer.set_light(move_light, _light_id);
 

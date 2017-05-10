@@ -61,9 +61,17 @@ class camera
 
   public:
     camera() : _look(0.0, 0.0, 1.0), _dirty(true), _proj_ortho(true) {}
-    inline vec3<T> get_direction() const
+    inline const vec3<T> &get_forward() const
     {
-        return (_look - _p).normalize();
+        return _f.get_forward();
+    }
+    inline const vec3<T> &get_right() const
+    {
+        return _f.get_right();
+    }
+    inline const vec3<T> &get_up() const
+    {
+        return _f.get_up();
     }
     inline frustum<T> &get_frustum()
     {
@@ -153,11 +161,11 @@ class camera
     }
     inline void set_position(const vec3<T> &p)
     {
+        // Change lookat based on updated position
+        _look += p - _p;
+
         // Update position
         _p = p;
-
-        // Change lookat based on updated position
-        _look += p;
 
         // Camera has moved
         _dirty = true;

@@ -215,19 +215,19 @@ class frustum
         // Calculate the closest point on this frustum
         return _plane[index].get_point(p, min);
     }
-    const vec3<T> &get_center() const
+    inline const vec3<T> &get_center() const
     {
         return _center;
     }
-    const vec3<T> &get_forward() const
+    inline const vec3<T> &get_forward() const
     {
         return _forward;
     }
-    const vec3<T> &get_right() const
+    inline const vec3<T> &get_right() const
     {
         return _right;
     }
-    const vec3<T> &get_up() const
+    inline const vec3<T> &get_up() const
     {
         return _up;
     }
@@ -311,7 +311,7 @@ class frustum
 
         return _view;
     }
-    void make_dirty()
+    inline void make_dirty()
     {
         _dirty = true;
     }
@@ -336,27 +336,27 @@ class frustum
 
         return true;
     }
-    void set_aspect_ratio(const T x, const T y)
+    inline void set_aspect_ratio(const T x, const T y)
     {
         _ratio = x / y;
         _dirty = true;
     }
-    void set_fov(const T fov)
+    inline void set_fov(const T fov)
     {
         _fov = fov;
         _dirty = true;
     }
-    void set_near(const T near)
+    inline void set_near(const T near)
     {
         _near.z(near);
         _dirty = true;
     }
-    void set_far(const T far)
+    inline void set_far(const T far)
     {
         _far.z(far);
         _dirty = true;
     }
-    void zoom(const T zoom)
+    inline void zoom(const T zoom)
     {
         _zoom = 1.0 / zoom;
         _dirty = true;

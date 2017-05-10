@@ -65,11 +65,11 @@ class key
         _up_data = data;
         _key_up = on_up;
     }
-    void set_per_frame(bool flag)
+    void set_per_frame(const bool flag)
     {
         _per_frame = flag;
     }
-    void update(K step) const
+    void update(const K step) const
     {
         if (_per_frame)
         {
@@ -114,7 +114,7 @@ class keyboard
         // No key in the map
         return false;
     }
-    void key_down(const T &code, K step)
+    void key_down(const T &code, const K step)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -123,7 +123,7 @@ class keyboard
             i->second.down(step);
         }
     }
-    void key_up(const T &code, K step)
+    void key_up(const T &code, const K step)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -158,7 +158,7 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void set_per_frame(const T &code, bool flag)
+    void set_per_frame(const T &code, const bool flag)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -169,6 +169,14 @@ class keyboard
         else
         {
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
+        }
+    }
+    void update(const K step)
+    {
+        // Update all keys per frame
+        for (const auto &k : _keys)
+        {
+            k.second.update(step);
         }
     }
 };
