@@ -15,6 +15,7 @@ limitations under the License.
 #include <chrono>
 #include <iostream>
 #include <min/camera.h>
+#include <min/loop_sync.h>
 #include <min/program.h>
 #include <min/settings.h>
 #include <min/shader.h>
@@ -168,11 +169,18 @@ int test_screen_draw()
     // Load static buffer for drawing points
     test.load_vertex_buffer();
 
+    // Setup controller to run at 60 frames per second
+    const int frames = 60;
+    min::loop_sync sync(frames);
+
     // User can close with Q or use window manager
     while (!test.is_closed())
     {
         for (int i = 0; i < 60; i++)
         {
+            // Start synchronizing the loop
+            sync.start();
+
             // Clear the background color
             test.clear_background();
 
@@ -181,6 +189,9 @@ int test_screen_draw()
 
             // Update the window after draw command
             test.window_update();
+
+            // Calculate needed delay to hit target
+            sync.sync();
         }
     }
 
