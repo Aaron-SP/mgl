@@ -173,7 +173,7 @@ class uniform_buffer
             glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
         }
     }
-    void update_lights() const
+    void update_light_buffer() const
     {
         // Check for empty matrix array and return
         if (_lights.size() == 0)
@@ -208,7 +208,7 @@ class uniform_buffer
         // Send the data to the GPU with light_bytes calculated
         glBufferData(GL_UNIFORM_BUFFER, light_bytes, &data[0], GL_DYNAMIC_DRAW);
     }
-    void update_matrix() const
+    void update_matrix_buffer() const
     {
         // Check for empty matrix array and return
         if (_matrix.size() == 0)
@@ -319,7 +319,7 @@ class uniform_buffer
     {
         _matrix[id] = mat;
     }
-    void set_program(const program &p)
+    inline void set_program(const program &p)
     {
         // set the light buffer
         set_lights(p);
@@ -327,13 +327,23 @@ class uniform_buffer
         // set the matrix buffer
         set_matrix(p);
     }
-    void update() const
+    inline void update() const
     {
         // Update the light buffer
-        update_lights();
+        update_light_buffer();
 
         // Update the matrix buffer
-        update_matrix();
+        update_matrix_buffer();
+    }
+    inline void update_lights() const
+    {
+        // Update the light buffer
+        update_light_buffer();
+    }
+    inline void update_matrix() const
+    {
+        // Update the light buffer
+        update_matrix_buffer();
     }
 };
 }
