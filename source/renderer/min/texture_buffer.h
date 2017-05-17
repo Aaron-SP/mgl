@@ -19,6 +19,7 @@ limitations under the License.
 #include <cstdint>
 #include <min/bmp.h>
 #include <min/dds.h>
+#include <min/program.h>
 #include <min/window.h>
 #include <stdexcept>
 
