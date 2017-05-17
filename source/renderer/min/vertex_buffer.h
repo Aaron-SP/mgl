@@ -270,7 +270,7 @@ class vertex_buffer
     {
         // Draw object at index 'n'
         const auto &n = _element_index[index];
-        size_t byte_offset = n.second * sizeof(K);
+        const size_t byte_offset = n.second * sizeof(K);
         glDrawElements(mode, n.first, INT_TYPE, (GLvoid *)byte_offset);
     }
     inline void draw_all(const GLenum mode) const
@@ -278,11 +278,20 @@ class vertex_buffer
         // Draw all objects in the static buffer
         glDrawElements(mode, _element.size(), INT_TYPE, nullptr);
     }
+    inline void draw_all_after(const GLenum mode, const size_t index) const
+    {
+        // Draw all objects after index 'n' to end
+        const auto &n = _element_index[index];
+        const size_t draw_offset = (n.first + n.second);
+        const size_t draw_size = _element.size() - draw_offset;
+        const size_t byte_offset = draw_offset * sizeof(K);
+        glDrawElements(mode, draw_size, INT_TYPE, (GLvoid *)byte_offset);
+    }
     inline void draw_many(const GLenum mode, const size_t index, const size_t count) const
     {
         // Draw 'count' times objects at index 'n'
         const auto &n = _element_index[index];
-        size_t byte_offset = n.second * sizeof(K);
+        const size_t byte_offset = n.second * sizeof(K);
         glDrawElementsInstanced(mode, n.first, INT_TYPE, (GLvoid *)byte_offset, count);
     }
     void upload() const
