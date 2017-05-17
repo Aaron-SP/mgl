@@ -77,7 +77,7 @@ class texture_test
 
         // Load textures
         const min::bmp b = min::bmp("data/texture/sphere_grad.bmp");
-        const min::dds d = min::dds("data/texture/cube.dds");
+        const min::dds d = min::dds("data/texture/stone.dds");
 
         // Load texture buffer
         _bmp_id = _tbuffer.add_bmp_texture(b);

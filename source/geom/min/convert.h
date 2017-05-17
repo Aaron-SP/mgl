@@ -628,30 +628,30 @@ inline min::mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
 
     // Create uv coordinates
     m.uv = std::vector<vec2<T>>{
-        vec2<T>(0.5, 0.5),
+        vec2<T>(1, 0),
         vec2<T>(0, 1),
-        vec2<T>(0, 0.5),
-        vec2<T>(0.5, 0.5),
+        vec2<T>(0, 0),
+        vec2<T>(1, 0),
         vec2<T>(0, 1),
-        vec2<T>(0, 0.5),
-        vec2<T>(0.5, 0.5),
+        vec2<T>(0, 0),
+        vec2<T>(1, 0),
         vec2<T>(0, 1),
-        vec2<T>(0, 0.5),
-        vec2<T>(0.5, 0.5),
+        vec2<T>(0, 0),
+        vec2<T>(1, 0),
         vec2<T>(0, 1),
-        vec2<T>(0, 0.5),
-        vec2<T>(0, 0.5),
-        vec2<T>(0.5, 1),
+        vec2<T>(0, 0),
+        vec2<T>(0, 0),
+        vec2<T>(1, 1),
         vec2<T>(0, 1),
-        vec2<T>(0.5, 0.5),
+        vec2<T>(1, 0),
         vec2<T>(0, 1),
-        vec2<T>(0, 0.5),
-        vec2<T>(0.5, 1),
-        vec2<T>(0.5, 1),
-        vec2<T>(0.5, 1),
-        vec2<T>(0.5, 1),
-        vec2<T>(0.5, 0.5),
-        vec2<T>(0.5, 1)};
+        vec2<T>(0, 0),
+        vec2<T>(1, 1),
+        vec2<T>(1, 1),
+        vec2<T>(1, 1),
+        vec2<T>(1, 1),
+        vec2<T>(1, 0),
+        vec2<T>(1, 1)};
 
     // Create indices
     m.index = std::vector<K>{

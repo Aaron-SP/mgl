@@ -28,20 +28,20 @@ bool test_dds()
     int w;
     int h;
     std::vector<uint8_t> data;
-    const min::dds image = min::dds("data/texture/cube.dds");
+    const min::dds image = min::dds("data/texture/stone.dds");
     s = image.get_size();
     w = image.get_width();
     h = image.get_height();
-    out = out && compare(183, w);
-    out = out && compare(275, h);
-    out = out && compare(25392, s);
+    out = out && compare(256, w);
+    out = out && compare(256, h);
+    out = out && compare(43704, s);
     if (!out)
     {
         throw std::runtime_error("Failed dds image constructor properties");
     }
 
     data = image.get_pixels();
-    out = out && compare(25392, data.size());
+    out = out && compare(43704, data.size());
     if (!out)
     {
         throw std::runtime_error("Failed dds image size");
