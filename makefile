@@ -35,9 +35,9 @@ else
 	LINKER = -lX11 -lGL -lfreetype
 endif
 
-# Override if LD_LIBRARY_PATH specified
-ifdef LD_LIBRARY_PATH
-	MGL_PATH = $(LD_LIBRARY_PATH)/mgl
+# Override if MGL_DESTDIR specified
+ifdef MGL_DESTDIR
+	MGL_PATH = $(MGL_DESTDIR)/mgl
 endif
 
 # Default run target
@@ -45,9 +45,10 @@ default: tests benchmarks examples
 
 # All run targets
 install:
-	rm -rI $(MGL_PATH)
 	mkdir -p $(MGL_PATH)
 	cp -r source/* $(MGL_PATH)
+uninstall:
+	rm -rI $(MGL_PATH)
 lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
 tests:
