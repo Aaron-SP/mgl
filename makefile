@@ -45,6 +45,7 @@ default: tests benchmarks examples
 
 # All run targets
 install:
+	rm -rI $(MGL_PATH)
 	mkdir -p $(MGL_PATH)
 	cp -r source/* $(MGL_PATH)
 lib: $(OBJGRAPH_SOURCES)
