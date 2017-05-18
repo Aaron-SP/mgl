@@ -28,15 +28,25 @@ EX5 = $(EXTRA) example/programs/ex5.cpp
 
 # Linker parameters
 ifeq ($(OS),Windows_NT)
-	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype
+	MGL_PATH = C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
+	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll
 else
+	MGL_PATH = /usr/include/mgl
 	LINKER = -lX11 -lGL -lfreetype
+endif
+
+# Override if LD_LIBRARY_PATH specified
+ifdef LD_LIBRARY_PATH
+	MGL_PATH = $(LD_LIBRARY_PATH)/mgl
 endif
 
 # Default run target
 default: tests benchmarks examples
 
 # All run targets
+install:
+	mkdir -p $(MGL_PATH)
+	cp -r source/* $(MGL_PATH)
 lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
 tests:
