@@ -1,5 +1,4 @@
 #version 330 core
-#extension GL_ARB_explicit_uniform_location : require
 
 uniform sampler2D in_texture;
 in vec4 vcolor;

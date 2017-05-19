@@ -1,5 +1,4 @@
 #version 330 core
-#extension GL_ARB_explicit_uniform_location : require
 
 // Inputs from vertex shader
 in vec2 out_uv;

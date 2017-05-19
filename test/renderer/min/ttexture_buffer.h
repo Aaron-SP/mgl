@@ -101,7 +101,15 @@ class texture_test
         _cam.set_perspective();
 
         // Get the projection-view matrix and update its uniform
-        glUniformMatrix4fv(17, 1, GL_FALSE, (float *)&_cam.get_pv_matrix());
+        GLint location = glGetUniformLocation(_prog.id(), "pvm");
+        if (location != -1)
+        {
+            glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&_cam.get_pv_matrix());
+        }
+        else
+        {
+            throw std::runtime_error("Failed setting matrix uniform");
+        }
     }
     void draw_one()
     {
@@ -130,7 +138,15 @@ class texture_test
         _cam.set_orthographic();
 
         // Update matrix to orthographic mode
-        glUniformMatrix4fv(17, 1, GL_FALSE, (float *)&_cam.get_pv_matrix());
+        GLint location = glGetUniformLocation(_prog.id(), "pvm");
+        if (location != -1)
+        {
+            glUniformMatrix4fv(location, 1, GL_FALSE, (float *)&_cam.get_pv_matrix());
+        }
+        else
+        {
+            throw std::runtime_error("Failed setting matrix uniform");
+        }
 
         // Color the background as we just cleared it
         clear_background();

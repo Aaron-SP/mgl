@@ -1,9 +1,8 @@
 #version 330 core
-#extension GL_ARB_explicit_uniform_location : require
 
 layout (location = 0) in vec4 position;
 layout (location = 1) in vec2 uv;
-layout (location = 17) uniform mat4 pvm;
+uniform mat4 pvm;
 
 out vec2 out_uv;
 
