@@ -661,23 +661,22 @@ class md5_anim
         _time += step;
 
         // If time exceeds the animation length, loop
-        if (_time > _animation_length)
+        if (_time >= _animation_length)
         {
             _time = std::fmod(_time, _animation_length);
         }
 
         // Calculate the two frames to interpolate between
         const T frame_time = _time * _frame_rate;
-        const unsigned frame0 = std::floor(frame_time);
-        const unsigned frame1 = std::ceil(frame_time);
-
-        if (frame0 >= _frames.size() || frame1 >= _frames.size())
-        {
-            throw std::runtime_error("md5_anim: frame overflow");
-        }
+        const unsigned frame_low = std::floor(frame_time);
+        const unsigned frame_high = std::ceil(frame_time);
 
         // Calculate position between the two frames for interpolation
-        const T ratio = (frame_time - frame0) / (frame1 - frame0);
+        const T ratio = (frame_time - frame_low) / (frame_high - frame_low);
+
+        const size_t frames = _frames.size();
+        const unsigned frame0 = frame_low % frames;
+        const unsigned frame1 = frame_high % frames;
 
         // Interpolate between the two frames
         interpolate_current_frame(_frames[frame0], _frames[frame1], ratio);

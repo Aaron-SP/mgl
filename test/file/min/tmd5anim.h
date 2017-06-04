@@ -23,7 +23,7 @@ bool test_md5_anim()
 {
     bool out = true;
 
-    // Local variables
+    // Low polygon box character animation
     const min::md5_anim<float> anim = min::md5_anim<float>("data/models/bob.md5anim");
 
     // Test the hierarchy node count
@@ -45,49 +45,115 @@ bool test_md5_anim()
     out = out && compare("l_forearm", anim.get_nodes()[14].get_name());
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim node size");
+        throw std::runtime_error("Failed md5 box anim node size");
     }
 
     // Test the base frame count
     out = out && compare(15, anim.get_transforms().size());
-    out = out && compare(-0.9840, anim.get_transforms()[0].get_position().y(), 1E-4);
+    out = out && compare(-0.2397, anim.get_transforms()[0].get_position().y(), 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim base frame size");
+        throw std::runtime_error("Failed md5 box anim base frame size");
     }
 
     // Test the frame rate
     out = out && compare(24, anim.get_frame_rate());
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim frame rate");
+        throw std::runtime_error("Failed md5 box anim frame rate");
     }
 
     // Test the frame bounds count
     out = out && compare(32, anim.get_bounds().size());
-    out = out && compare(-2.6032, anim.get_bounds()[0].get_min().y(), 1E-4);
+    out = out && compare(-2.7041, anim.get_bounds()[0].get_min().y(), 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim bounds size");
+        throw std::runtime_error("Failed md5 box anim bounds size");
     }
 
     // Test the frame bounds count
     out = out && compare(32, anim.get_frame_data().size());
-    out = out && compare(-0.9925, anim.get_frame_data()[0].get_data()[4], 1E-4);
+    out = out && compare(-0.7018, anim.get_frame_data()[0].get_data()[4], 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim frame data size");
+        throw std::runtime_error("Failed md5 box anim frame data size");
     }
 
     // Test the frame count
     out = out && compare(32, anim.get_frames().size());
     if (!out)
     {
-        throw std::runtime_error("Failed md5 anim frame size");
+        throw std::runtime_error("Failed md5 box anim frame size");
     }
 
     // Test interpolate for 0.5 seconds
     anim.step(0.5);
+
+    // Higher polygon mech warrior mesh
+    const min::md5_anim<float> mech_anim = min::md5_anim<float>("data/models/mech_warrior.md5anim");
+
+    // Test the hierarchy node count
+    out = out && compare(15, mech_anim.get_nodes().size());
+    out = out && compare("root", mech_anim.get_nodes()[0].get_name());
+    out = out && compare("spine", mech_anim.get_nodes()[1].get_name());
+    out = out && compare("head", mech_anim.get_nodes()[2].get_name());
+    out = out && compare("left_shoulder", mech_anim.get_nodes()[3].get_name());
+    out = out && compare("left_upper_arm", mech_anim.get_nodes()[4].get_name());
+    out = out && compare("left_lower_arm", mech_anim.get_nodes()[5].get_name());
+    out = out && compare("right_shoulder", mech_anim.get_nodes()[6].get_name());
+    out = out && compare("right_upper_arm", mech_anim.get_nodes()[7].get_name());
+    out = out && compare("right_lower_arm", mech_anim.get_nodes()[8].get_name());
+    out = out && compare("left_thigh", mech_anim.get_nodes()[9].get_name());
+    out = out && compare("left_calf", mech_anim.get_nodes()[10].get_name());
+    out = out && compare("left_foot", mech_anim.get_nodes()[11].get_name());
+    out = out && compare("right_thigh", mech_anim.get_nodes()[12].get_name());
+    out = out && compare("right_calf", mech_anim.get_nodes()[13].get_name());
+    out = out && compare("right_foot", mech_anim.get_nodes()[14].get_name());
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim node size");
+    }
+
+    // Test the base frame count
+    out = out && compare(15, mech_anim.get_transforms().size());
+    out = out && compare(0.0014, mech_anim.get_transforms()[0].get_position().y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim base frame size");
+    }
+
+    // Test the frame rate
+    out = out && compare(60, mech_anim.get_frame_rate());
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim frame rate");
+    }
+
+    // Test the frame bounds count
+    out = out && compare(60, mech_anim.get_bounds().size());
+    out = out && compare(-3.6695, mech_anim.get_bounds()[0].get_min().y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim bounds size");
+    }
+
+    // Test the frame bounds count
+    out = out && compare(60, mech_anim.get_frame_data().size());
+    out = out && compare(0.5282, mech_anim.get_frame_data()[0].get_data()[4], 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim frame data size");
+    }
+
+    // Test the frame count
+    out = out && compare(60, mech_anim.get_frames().size());
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech anim frame size");
+    }
+
+    // Test interpolate for 0.5 seconds
+    mech_anim.step(0.5);
 
     return out;
 }

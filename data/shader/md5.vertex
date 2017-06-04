@@ -14,8 +14,8 @@ layout(std140) uniform matrix_block
 } matrix_buffer;
 
 out vec2 out_uv;
-out vec3 out_vertex_camera;
-out vec3 out_normal_camera;
+out vec4 out_vertex;
+out vec3 out_normal;
 flat out mat4 out_view;
 
 void main(void)
@@ -35,13 +35,13 @@ void main(void)
     mat3 normal_matrix = mat3(bone_transform);
 
     // Calculate the vertex camera coordinates
-    out_vertex_camera = (view * model * bone_transform * vertex).xyz;
+    out_vertex = model * bone_transform * vertex;
 
     // Calculate the normal in camera coordinates
-    out_normal_camera = normalize(view * model * vec4(normal_matrix * normal, 1)).xyz;
+    out_normal = normalize(model * vec4(normal_matrix * normal, 1)).xyz;
 
 	// Calculate transformed position
-	gl_Position =  pv * model * bone_transform * vertex;
+	gl_Position =  pv * out_vertex;
 
 	// Pass texture coordinates to fragment shader
 	out_uv = uv;

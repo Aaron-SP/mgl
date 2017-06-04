@@ -428,8 +428,8 @@ class md5_mesh
                 s >> x;
                 s >> y;
 
-                // Store this UV in the mesh
-                m.uv.emplace_back(x, y);
+                // Store this UV in the mesh, reverse the uv.y coordinate to match opengl
+                m.uv.emplace_back(x, 1.0 - y);
 
                 // Throw away ')'
                 s >> junk;
@@ -478,10 +478,10 @@ class md5_mesh
                 s >> i2;
                 s >> i3;
 
-                // Store the triangle indices in the mesh
-                m.index.push_back(i1);
-                m.index.push_back(i2);
+                // Store the triangle indices in the mesh, MD5 is CCW so reverse the winding order to be CW here
                 m.index.push_back(i3);
+                m.index.push_back(i2);
+                m.index.push_back(i1);
 
                 // Check for errors
                 if (s.fail())

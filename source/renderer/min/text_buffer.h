@@ -214,7 +214,7 @@ class text_buffer
         // Upload all glyphs into the texture buffer
         upload_character_glyphs(face);
     }
-    void process_text(const std::string &text, const float pos_x, const float pos_y, const float screen_x, const float screen_y) const
+    unsigned process_text(const std::string &text, const float pos_x, const float pos_y, const float screen_x, const float screen_y) const
     {
         // Create conversion to screen coordinates using screen size
         const float scale_x = 2.0 / screen_x;
@@ -223,6 +223,9 @@ class text_buffer
         // Convert x & y to screen coordinates, start from bottom left corner
         float x = pos_x * scale_x - 1.0;
         float y = pos_y * scale_y - 1.0;
+
+        // Starting triangle offset for this string
+        const unsigned start = _data.size();
 
         // For all characters in string
         for (const auto &ch : text)
@@ -263,6 +266,9 @@ class text_buffer
             x += c.adv_x * scale_x;
             y += c.adv_y * scale_y;
         }
+
+        // Return the number of triangles added to buffer for this string
+        return _data.size() - start;
     }
 
   public:
@@ -444,6 +450,13 @@ class text_buffer
         // Get the number of strings to render
         const size_t size = _text.size();
 
+        // Do nothing if no data to upload
+        if (size == 0)
+        {
+            // Fail silently
+            return;
+        }
+
         // Reserve space for the text, 2 triangles for each character
         _data.reserve(6 * _char_count);
 
@@ -455,11 +468,12 @@ class text_buffer
         for (size_t i = 0; i < size; i++)
         {
             // Draw text at location and scale
-            auto loc = _location[i];
-            process_text(_text[i], loc.first, loc.second, _screen_x, _screen_y);
+            const auto loc = _location[i];
+
+            // count = number of triangles (char * 6) added to buffer
+            const size_t count = process_text(_text[i], loc.first, loc.second, _screen_x, _screen_y);
 
             // Calculate the index parameters
-            const size_t count = 6 * _text[i].size();
             _data_index.push_back(std::make_pair(offset, count));
 
             // Calculate the next offset
@@ -473,14 +487,14 @@ class text_buffer
         const size_t text_bytes = _data.size() * sizeof(vec4<float>);
         glBufferData(GL_ARRAY_BUFFER, text_bytes, &_data[0], GL_DYNAMIC_DRAW);
 
-        // Data is on the GPU, so we throw this away
-        _data.clear();
-
-        // Check that the character count matches cached sized
-        if (offset != 6 * _char_count)
+        // Check that the expected character count did not overflow
+        if (_data.size() > 6 * _char_count)
         {
             throw std::runtime_error("text_buffer: invalid character count");
         }
+
+        // Data is on the GPU, so we throw this away
+        _data.clear();
     }
 };
 }

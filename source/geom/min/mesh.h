@@ -254,6 +254,20 @@ class mesh
             }
         }
     }
+    void flip_uv_x_axis()
+    {
+        for (auto &a : uv)
+        {
+            a.x(1.0 - a.x());
+        }
+    }
+    void flip_uv_y_axis()
+    {
+        for (auto &a : uv)
+        {
+            a.y(1.0 - a.y());
+        }
+    }
     const std::string &get_name() const
     {
         return _name;

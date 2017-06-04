@@ -24,29 +24,59 @@ bool test_md5_model()
 {
     bool out = true;
 
-    // Local variables
-    min::md5_mesh<float, uint16_t> md5 = min::md5_mesh<float, uint16_t>("data/models/bob.md5mesh");
-    min::md5_model<float, uint16_t, min::vec4, min::aabbox> model(std::move(md5));
+    // Low polygon box character mesh
+    min::md5_mesh<float, uint16_t> box_md5 = min::md5_mesh<float, uint16_t>("data/models/bob.md5mesh");
+    min::md5_model<float, uint16_t, min::vec4, min::aabbox> box_model(std::move(box_md5));
 
     // Check for mesh steal
-    out = out && compare(0, md5.get_meshes().size());
+    out = out && compare(0, box_md5.get_meshes().size());
     if (!out)
     {
-        throw std::runtime_error("Failed md5 model steal mesh");
+        throw std::runtime_error("Failed md5 box model steal mesh");
     }
 
     // Test load animation
-    model.load_animation("data/models/bob.md5anim");
+    box_model.load_animation("data/models/bob.md5anim");
 
     // Test step
-    model.step(0.5);
+    box_model.step(0.5);
 
     // Test the bone count
-    out = out && compare(15, model.get_bones().size());
+    out = out && compare(15, box_model.get_bones().size());
     if (!out)
     {
-        throw std::runtime_error("Failed md5 model bone count");
+        throw std::runtime_error("Failed md5 box model bone count");
     }
+
+    // Higher polygon mech warrior mesh
+    min::md5_mesh<float, uint16_t> mech_md5 = min::md5_mesh<float, uint16_t>("data/models/mech_warrior.md5mesh");
+    min::md5_model<float, uint16_t, min::vec4, min::aabbox> mech_model(std::move(mech_md5));
+
+    // Check for mesh steal
+    out = out && compare(0, mech_md5.get_meshes().size());
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech model steal mesh");
+    }
+
+    // Test load animation
+    mech_model.load_animation("data/models/mech_warrior.md5anim");
+
+    // Test step
+    mech_model.step(0.5);
+
+    // Test the bone count
+    out = out && compare(15, mech_model.get_bones().size());
+    if (!out)
+    {
+        throw std::runtime_error("Failed md5 mech model bone count");
+    }
+
+    // Calculate normals and tangents for the model
+    min::mesh<float, uint16_t> &mech_mesh = mech_model.get_meshes()[0];
+    mech_mesh.scale_uv(10.0);
+    mech_mesh.calculate_normals();
+    mech_mesh.calculate_tangents();
 
     return out;
 }

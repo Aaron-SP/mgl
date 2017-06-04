@@ -84,9 +84,9 @@ class md5_render_loop_test
           _text_fragment("data/shader/text.fragment", GL_FRAGMENT_SHADER),
           _vert_prog(_vert_vertex, _vert_fragment),
           _text_prog(_text_vertex, _text_fragment),
-          _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/bob.md5mesh"))),
+          _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
           _text_buffer("data/fonts/open_sans.ttf", 14),
-          _ubuffer(100, 100),
+          _ubuffer(1, 100),
           _light_color(1.0, 1.0, 1.0, 1.0),
           _light_position(-9.0, 10.0, 0.0, 1.0),
           _light_power(0.1, 200.0, 100.0, 1.0)
@@ -137,11 +137,10 @@ class md5_render_loop_test
         std::cout << "Opening an md5 model: " << std::endl;
 
         // Load animation
-        _md5_model.load_animation("data/models/bob.md5anim");
+        _md5_model.load_animation("data/models/mech_warrior.md5anim");
 
         // Setup the md5 mesh
         min::mesh<float, uint32_t> &md5 = _md5_model.get_meshes()[0];
-        md5.scale_uv(10.0);
         md5.calculate_normals();
         md5.calculate_tangents();
 
@@ -157,7 +156,7 @@ class md5_render_loop_test
     void load_textures()
     {
         // Load textures
-        const min::bmp b = min::bmp("data/texture/stone.bmp");
+        const min::bmp b = min::bmp("data/texture/mech_warrior.bmp");
 
         // Set the texture channel for this program, we need to do this here because we render textures on channel '0'
         // _vert_prog will be in use by the end of this call
@@ -197,8 +196,11 @@ class md5_render_loop_test
         _proj_view_id = _ubuffer.add_matrix(_cam.get_pv_matrix());
         _view_id = _ubuffer.add_matrix(_cam.get_v_matrix());
 
+        // Set initial model orientation
+        _model_matrix = min::mat4<float>(min::mat3<float>().set_rotation_x(-90.0));
+
         // Get model ID for later use
-        _model_id = _ubuffer.add_matrix(min::mat4<float>());
+        _model_id = _ubuffer.add_matrix(_model_matrix);
 
         // Add bones matrices to uniform buffer
         for (const auto &bone : _md5_model.get_bones())
@@ -213,7 +215,7 @@ class md5_render_loop_test
     void draw(double time_step)
     {
         // Rotate the model around the Z axis
-        _model_matrix *= min::mat4<float>(min::mat3<float>().set_rotation_y(350.0 * time_step));
+        _model_matrix *= min::mat4<float>(min::mat3<float>().set_rotation_y(10.0 * time_step));
 
         // Update matrix uniforms
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
@@ -234,11 +236,11 @@ class md5_render_loop_test
         // Update the matrix and light buffer
         _ubuffer.update();
 
-        // Change back to the vertex buffer
-        _skbuffer.bind();
-
         // Change program back to vertex shaders
         _vert_prog.use();
+
+        // Change back to the vertex buffer
+        _skbuffer.bind();
 
         // Bind this texture for drawing on channel '0'
         _texture_buffer.bind(_bmp_id, 0);
@@ -246,11 +248,11 @@ class md5_render_loop_test
         // Draw md5 model
         _skbuffer.draw(GL_TRIANGLES, 0);
 
-        // Bind the text_buffer vao, and textures on channel '1'
-        _text_buffer.bind(1);
-
         // Change program to text shaders
         _text_prog.use();
+
+        // Bind the text_buffer vao, and textures on channel '1'
+        _text_buffer.bind(1);
 
         // Draw the FPS text
         _text_buffer.draw(_fps_id);
@@ -281,11 +283,6 @@ class md5_render_loop_test
 
             // Adjust the camera by the offset from screen center
             _cam.move_look_at(x, y);
-
-            // Move the light to be in front of the camera
-            min::vec3<float> position = _cam.get_position() + _cam.get_forward();
-            min::light<float> move_light(_light_color, position, _light_power);
-            _ubuffer.set_light(move_light, _light_id);
 
             // Move the cursor back
             update_cursor();
@@ -335,6 +332,9 @@ int test_render_loop()
 
     // Load the camera and fill uniform buffers with light and model matrix
     test.load_camera_uniforms();
+
+    // Initialize FPS text
+    test.update_text(60.0, 60.0);
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;

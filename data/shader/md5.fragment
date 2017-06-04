@@ -2,13 +2,13 @@
 
 // Inputs from vertex shader
 in vec2 out_uv;
-in vec3 out_vertex_camera;
-in vec3 out_normal_camera;
+in vec4 out_vertex;
+in vec3 out_normal;
 flat in mat4 out_view;
 
 // Create the light struct and the uniform blocks
 // This is the maximum light count and is needed since UBO expires an explicit array count
-#define MAX_NUM_TOTAL_LIGHTS 100
+#define MAX_NUM_TOTAL_LIGHTS 1
 struct light
 {
     vec4 color;
@@ -33,7 +33,7 @@ void main(void)
 	// Compute lighting in fragment shader
 
     // Calculate the camera direction
-    vec3 eye_camera = normalize(vec3(0,0,0) - out_vertex_camera);
+    vec3 eye_camera = normalize(vec3(0,0,0) - (out_view * out_vertex).xyz);
 
     // Initialize reference color
     vec4 color = vec4(0, 0, 0, 1.0);
@@ -42,13 +42,13 @@ void main(void)
     for(int i = 0; i < light_buffer.size; i++)
     {
         // Calculate the light camera coordinates
-        vec3 light_direction = (out_view * light_buffer.lights[i].position).xyz - out_vertex_camera;
+        vec3 light_direction = light_buffer.lights[i].position.xyz - out_vertex.xyz;
         float inv_d2 = 1.0 / dot(light_direction, light_direction);
         light_direction = normalize(light_direction);
 
         // Calculate reflection and drop off
-        float cos_theta = max(dot(out_normal_camera, light_direction), 0);
-        vec3 reflection = -reflect(light_direction , out_normal_camera);
+        float cos_theta = max(dot(out_normal, light_direction), 0);
+        vec3 reflection = -reflect(light_direction , out_normal);
         float cos_alpha = max(dot(eye_camera, reflection), 0);
 
         // Calculate ambient, diffuse and specular
