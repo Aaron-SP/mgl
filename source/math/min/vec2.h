@@ -57,6 +57,13 @@ class vec2
 
         return *this;
     }
+    inline vec2<T> &abs()
+    {
+        _x = std::abs(_x);
+        _y = std::abs(_y);
+
+        return *this;
+    }
     inline bool any_zero() const
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6);
@@ -67,6 +74,13 @@ class vec2
         min::clamp(_y, min.y(), max.y());
 
         return *this;
+    }
+    inline vec2<T> clamp_direction(const vec2<T> &min, const vec2<T> &max)
+    {
+        T x = min::clamp_direction(_x, min.x(), max.x());
+        T y = min::clamp_direction(_y, min.y(), max.y());
+
+        return vec2<T>(x, y);
     }
     inline T cross(const vec2<T> &A) const
     {
@@ -267,6 +281,11 @@ class vec2
 
         return out;
     }
+    inline bool inside(const vec3<T> &min, const vec3<T> &max) const
+    {
+        // Return true if this vector is inside the min and max vector range
+        return (_x > min.x() && _x < max.x() && _y > min.y() && _y < max.y());
+    }
     inline vec2<T> inverse() const
     {
         return vec2<T>(1.0 / _x, 1.0 / _y);
@@ -343,13 +362,9 @@ class vec2
     }
     inline vec2<T> &normalize()
     {
-        T mag = magnitude();
-        if (mag > 1E-3)
-        {
-            mag = 1.0 / mag;
-            _x *= mag;
-            _y *= mag;
-        }
+        T mag = 1.0 / magnitude();
+        _x *= mag;
+        _y *= mag;
 
         return *this;
     }

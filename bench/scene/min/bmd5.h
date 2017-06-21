@@ -15,24 +15,25 @@ limitations under the License.
 #ifndef __BENCHMD5__
 #define __BENCHMD5__
 
+#include <chrono>
+#include <min/md5_anim.h>
 #include <min/md5_mesh.h>
 #include <min/md5_model.h>
-#include <min/md5_anim.h>
-#include <chrono>
 
 double bench_md5()
 {
     // Running wavefront test
-    std::cout << "wavefront: Opening a very large model: blender_suzanne.obj" << std::endl;
+    std::cout << std::endl
+              << "md5: Opening a very large model: mech_warrior.md5mesh" << std::endl;
 
     // Start the time clock
     auto start = std::chrono::high_resolution_clock::now();
 
     // Load md5 model
-    min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/bob.md5mesh")));
+    min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")));
 
     // Load animation
-    md5_model.load_animation("data/models/bob.md5anim");
+    md5_model.load_animation("data/models/mech_warrior.md5anim");
 
     // Calculate tangents
     min::mesh<float, uint32_t> &md5 = md5_model.get_meshes()[0];
@@ -45,7 +46,7 @@ double bench_md5()
 
     // Print the execution time
     double out = std::chrono::duration<double, std::milli>(dtime).count();
-    std::cout << "wavefront: MD5 mesh loaded in: " << out << " ms" << std::endl;
+    std::cout << "md5: MD5 mesh loaded in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
     return out;

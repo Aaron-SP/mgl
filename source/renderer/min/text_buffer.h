@@ -272,7 +272,7 @@ class text_buffer
     }
 
   public:
-    text_buffer(const std::string &file, const int font_height) : _w(0), _h(0), _tid(0), _vao(0), _vbo(0), _char_count(0)
+    text_buffer(const std::string &file, const int font_height) : _w(0), _h(0), _char_count(0), _screen_x(0.0), _screen_y(0.0)
     {
         // Initialize the FreeType library
         FT_Library lib;

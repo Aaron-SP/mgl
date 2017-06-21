@@ -59,7 +59,7 @@ class loop_sync
     }
 
   public:
-    loop_sync(const double fps) : _fps_count(0), _fps_time(0.0), _frame_time(1000.0 / fps), _accum_time(0.0) {}
+    loop_sync(const double fps) : _fps_count(0), _fps_time(0.0), _frame_time(1000.0 / fps), _accum_time(0.0), _idle_time(0.0) {}
     double get_fps()
     {
         // Calculate the frames per second, time is in milliseconds

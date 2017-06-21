@@ -31,12 +31,8 @@ class plane
     T _constant;
 
   public:
-    plane()
-    {
-        // Default plane == xz plane
-        _normal = vec<T>::up();
-        _constant = 0;
-    }
+    // Default plane == xz plane
+    plane() : _normal(vec<T>::up()), _constant(0.0) {}
     plane(const vec<T> &a, const vec<T> &b)
     {
         // 2D only

@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef __MD5_ANIM__
 #define __MD5_ANIM__
 
+#include <fstream>
 #include <min/aabbox.h>
 #include <min/mat4.h>
 #include <min/quat.h>

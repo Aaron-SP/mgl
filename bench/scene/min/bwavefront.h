@@ -15,13 +15,14 @@ limitations under the License.
 #ifndef __BENCHWAVEFRONT__
 #define __BENCHWAVEFRONT__
 
-#include <min/wavefront.h>
 #include <chrono>
+#include <min/wavefront.h>
 
 double bench_wavefront()
 {
     // Running wavefront test
-    std::cout << "wavefront: Opening a very large model: blender_suzanne.obj" << std::endl;
+    std::cout << std::endl
+              << "wavefront: Opening a very large model: blender_suzanne.obj" << std::endl;
 
     // Start the time clock
     auto start = std::chrono::high_resolution_clock::now();

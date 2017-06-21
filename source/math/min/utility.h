@@ -67,6 +67,30 @@ inline void clamp(T &val, T min, T max)
 }
 
 template <typename T>
+inline T clamp_direction(T &val, T min, T max)
+{
+    // Clamps val between min and max
+    if (val < min)
+    {
+        val = min;
+        return -1.0;
+    }
+    else if (val > max)
+    {
+        val = max;
+        return -1.0;
+    }
+
+    return 1.0;
+}
+
+template <typename T>
+int sgn(T val)
+{
+    return (T(0) < val) - (val < T(0));
+}
+
+template <typename T>
 inline void swap(T &a, T &b)
 {
     // Swaps a and b
@@ -92,7 +116,7 @@ inline void move(std::vector<T> &&src, std::vector<T> &dst)
 }
 
 // Typename must be an unsigned integer type
-template <typename K, typename T>
+template <typename K, typename L>
 class bit_flag
 {
   private:
@@ -100,15 +124,15 @@ class bit_flag
     K _col;
     std::vector<uint8_t> _flags;
 
-    inline std::pair<T, uint8_t> get_address(K row, K col) const
+    inline std::pair<L, uint8_t> get_address(const L row, const L col) const
     {
         // Divide by 8 to get into bytes
-        T position = (row * _col) + col;
-        T byte = position >> 3;
+        const L position = (row * _col) + col;
+        const L byte = position >> 3;
 
         // Get the offset
         // 0-7 value
-        uint8_t offset = position % 8;
+        const uint8_t offset = position % 8;
 
         // Return address
         return std::make_pair(byte, offset);
@@ -116,30 +140,30 @@ class bit_flag
 
   public:
     bit_flag() : _row(0), _col(0) {}
-    bit_flag(K row, K col) : _row(row), _col(col), _flags((row * col >> 3) + 1, 0) {}
+    bit_flag(const L row, const L col) : _row(row), _col(col), _flags((row * col >> 3) + 1, 0) {}
     inline void clear()
     {
         // Zero out the bit buffer
         std::fill(_flags.begin(), _flags.end(), 0);
     }
-    inline bool get(K row, K col) const
+    inline bool get(const K row, const K col) const
     {
         // Get the address
-        std::pair<T, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint8_t> addr = get_address(row, col);
 
         // Return 1 if on and zero if off
         return (_flags[addr.first] >> addr.second) & 0x1;
     }
-    inline void set_on(K row, K col)
+    inline void set_on(const K row, const K col)
     {
         // Get the address
-        std::pair<T, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint8_t> addr = get_address(row, col);
         _flags[addr.first] |= (0x1 << addr.second);
     }
-    inline void set_off(K row, K col)
+    inline void set_off(const K row, const K col)
     {
         // Get the address
-        std::pair<T, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint8_t> addr = get_address(row, col);
         _flags[addr.first] &= ~(0x1 << addr.second);
     }
 };

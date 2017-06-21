@@ -57,7 +57,7 @@ class sphere
     }
 
   public:
-    sphere() : _radius(0.0) {}
+    sphere() : _radius(0.0), _radius2(0.0) {}
     sphere(const vec<T> &c, const T r) : _center(c), _radius(r), _radius2(r * r) {}
     sphere(const vec<T> &min, const vec<T> &max)
     {
@@ -146,6 +146,10 @@ class sphere
     {
         vec<T> d = p - _center;
         return (d.dot(d) <= _radius2);
+    }
+    inline void set_position(const vec<T> &pos)
+    {
+        _center = pos;
     }
     inline T square_distance(const vec<T> &p) const
     {

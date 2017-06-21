@@ -16,6 +16,7 @@ limitations under the License.
 #include <min/taabbgrid.h>
 #include <min/taabbox.h>
 #include <min/taabboxinter.h>
+#include <min/taabbresolve.h>
 #include <min/taabbtree.h>
 #include <min/tbitflag.h>
 #include <min/tbmp.h>
@@ -30,6 +31,7 @@ limitations under the License.
 #include <min/tmd5mesh.h>
 #include <min/tmd5model.h>
 #include <min/tmodel.h>
+#include <min/tphysics.h>
 #include <min/tplane.h>
 #include <min/tquat.h>
 #include <min/tray.h>
@@ -37,6 +39,7 @@ limitations under the License.
 #include <min/tsphere.h>
 #include <min/tsphgrid.h>
 #include <min/tsphinter.h>
+#include <min/tsphresolve.h>
 #include <min/tsphtree.h>
 #include <min/ttran2.h>
 #include <min/ttran3.h>
@@ -64,7 +67,9 @@ int main()
         out = out && test_sphere();
         out = out && test_aabbox();
         out = out && test_sphere_intersect();
+        out = out && test_sphere_resolve();
         out = out && test_aabbox_intersect();
+        out = out && test_aabb_resolve();
         out = out && test_frustum();
         out = out && test_frustum_intersect();
         out = out && test_camera();
@@ -81,6 +86,7 @@ int main()
         out = out && test_md5_anim();
         out = out && test_md5_mesh();
         out = out && test_md5_model();
+        out = out && test_physics_aabb_grid();
         if (out)
         {
             std::cout << "Graphics tests passed!" << std::endl;

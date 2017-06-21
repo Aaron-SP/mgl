@@ -61,16 +61,6 @@ class quat
         _z -= q.z();
         return *this;
     }
-    inline quat<T> &normalize()
-    {
-        T mag = magnitude();
-        _w /= mag;
-        _x /= mag;
-        _y /= mag;
-        _z /= mag;
-
-        return *this;
-    }
 
   public:
     quat() : _w(1.0), _x(0.0), _y(0.0), _z(0.0) {}
@@ -172,6 +162,16 @@ class quat
     inline static quat<T> interpolate(const quat<T> &v0, const quat<T> &v1, const T t)
     {
         return slerp(v0, v1, t);
+    }
+    inline quat<T> &normalize()
+    {
+        T mag = magnitude();
+        _w /= mag;
+        _x /= mag;
+        _y /= mag;
+        _z /= mag;
+
+        return *this;
     }
     // Spherical interpolation
     inline static quat<T> slerp(const quat<T> &v0, const quat<T> &v1, const T t)

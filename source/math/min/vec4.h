@@ -96,6 +96,14 @@ class vec4
         vec3<T> temp(_x, _y, _z);
         return temp;
     }
+    inline vec4<T> &abs()
+    {
+        _x = std::abs(_x);
+        _y = std::abs(_y);
+        _z = std::abs(_z);
+
+        return *this;
+    }
     inline bool any_zero() const
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6) || (std::abs(_z) <= 1E-6);
@@ -107,6 +115,14 @@ class vec4
         min::clamp(_z, min.z(), max.z());
 
         return *this;
+    }
+    inline vec4<T> clamp_direction(const vec4<T> &min, const vec4<T> &max)
+    {
+        T x = min::clamp_direction(_x, min.x(), max.x());
+        T y = min::clamp_direction(_y, min.y(), max.y());
+        T z = min::clamp_direction(_z, min.z(), max.z());
+
+        return vec4<T>(x, y, z, 1.0);
     }
     inline vec4 cross(const vec4<T> &A) const
     {
@@ -433,6 +449,11 @@ class vec4
 
         return std::make_pair(vec4<T>(), vec4<T>());
     }
+    inline bool inside(const vec3<T> &min, const vec3<T> &max) const
+    {
+        // Return true if this vector is inside the min and max vector range
+        return (_x > min.x() && _x < max.x() && _y > min.y() && _y < max.y() && _z > min.z() && _z < max.z());
+    }
     inline vec4<T> inverse() const
     {
         return vec4<T>(1.0 / _x, 1.0 / _y, 1.0 / _z, 1.0);
@@ -520,14 +541,10 @@ class vec4
     }
     inline vec4<T> &normalize()
     {
-        T mag = magnitude();
-        if (mag > 1E-3)
-        {
-            mag = 1.0 / mag;
-            _x *= mag;
-            _y *= mag;
-            _z *= mag;
-        }
+        T mag = 1.0 / magnitude();
+        _x *= mag;
+        _y *= mag;
+        _z *= mag;
 
         return *this;
     }

@@ -231,6 +231,73 @@ inline bool intersect(const frustum<T> &f, const aabbox<T, vec3> &box, vec3<T> &
     p = box.closest_point(f.get_center());
     return f.point_inside(p);
 }
+
+// This function is only valid if s1 is intersecting s2
+// Calculates the collision normal vector that points toward s1
+// Calculates the closest point on s2 to s1's center
+// returns the translation offset of s1 needed to eliminate penetration between s1 and s2
+template <typename T, template <typename> class vec>
+inline vec<T> resolve(const sphere<T, vec> &s1, const sphere<T, vec> &s2, vec<T> &normal, vec<T> &p, const T tolerance)
+{
+    // Calculate the collision normal vector between spheres
+    normal = s1.get_center() - s2.get_center();
+
+    // Calculate the penetration depth, add a little extra to get off the edge
+    const T n_len = std::sqrt(normal.dot(normal));
+    const T radius_sum = s1.get_radius() + s2.get_radius();
+    const T penetration = radius_sum - n_len + tolerance;
+
+    // Normalize the collision normal vector
+    if (n_len < tolerance)
+    {
+        normal = vec<T>::up();
+    }
+    else
+    {
+        normal *= (1.0) / n_len;
+    }
+
+    // Calculate intersection point on s2
+    p = s2.get_center() + normal * s2.get_radius();
+
+    // Normalize direction vector and multiply by penetration depth
+    return normal * penetration;
+}
+
+// This function is only valid if box1 is intersecting box2
+// Calculates the collision normal vector that points toward box1
+// Calculates the closest point on box2 to box1's center
+// returns the translation offset of box1 needed to eliminate penetration between box1 and box2
+template <typename T, template <typename> class vec>
+inline vec<T> resolve(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2, vec<T> &normal, vec<T> &p, const T tolerance)
+{
+    // Calculate the closest point on box2 to box1 center
+    p = (box2.closest_point(box1.get_center()) + box1.closest_point(box2.get_center())) * 0.5;
+
+    // Calculate the collision normal vector between boxes pointing towards b1
+    normal = p - box2.get_center();
+
+    // Normalize the collision normal vector
+    const T n_len = std::sqrt(normal.dot(normal));
+    if (n_len < tolerance)
+    {
+        normal = vec<T>::up();
+    }
+    else
+    {
+        normal *= (1.0) / n_len;
+    }
+
+    // The penetration depth is the difference between box extents and the absolute difference between box centers along the normal axis
+    const vec<T> half_extents = (box1.get_extent() + box2.get_extent()) * 0.5;
+    const vec<T> d = (box1.get_center() - box2.get_center()).abs();
+
+    // Calculate the penetration depth, add a little extra to get off the edge
+    const T penetration = std::abs((half_extents - d).dot(normal)) + tolerance;
+
+    // Normalize direction vector and multiply by penetration depth
+    return normal * penetration;
+}
 }
 
 #endif

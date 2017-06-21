@@ -121,6 +121,18 @@ bool test_vec2()
         throw std::runtime_error("Failed vec2 clamp operation");
     }
 
+    // Test clamp direction
+    one = min::vec2<double>(-1.0, -1.0);
+    two = min::vec2<double>(2.0, 4.0);
+    three = min::vec2<double>(3.0, 3.0);
+    two = two.clamp_direction(one, three);
+    out = out && compare(1.0, two.x(), 1E-4);
+    out = out && compare(-1.0, two.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 clamp direction operation");
+    }
+
     // Test any_zero
     one = min::vec2<double>(-1.0, -1E-7);
     out = out && one.any_zero();
