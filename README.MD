@@ -9,12 +9,12 @@ The makefile should work for both environments without modification.
 
 The GNU makefile contains various build targets.
 
-'make' - builds all tests and examples.
-'make benchmarks' - builds only benchmarks (gl_bench)
-'make examples' - builds only examples (ex1-ex5)
-'make tests' - builds only tests (gl_test, wl_test)
-'make lib' - builds a static library (libmin.a)
-'make clean' - cleans up all generated output files
+- 'make' - builds all tests and examples.
+- 'make benchmarks' - builds only benchmarks (gl_bench)
+- 'make examples' - builds only examples (ex1-ex7)
+- 'make tests' - builds only tests (gl_test, wl_test)
+- 'make lib' - builds a static library (libmin.a)
+- 'make clean' - cleans up all generated output files
 
 These build targets have been tested for compilation on Arch Linux x64 and Windows 7 x64 platforms.
 
@@ -23,9 +23,9 @@ You can download GLEW at http://glew.sourceforge.net/
 
 Additional dependencies that are required and not distributed in this package include:
 
-'mingw32' - for win32 only
-'freetype' - for win32 and linux
-'X11' - for linux only
+- 'mingw32' - for win32 only
+- 'freetype' - for win32 and linux
+- 'X11' - for linux only
 
 For Arch Linux users, the following pacman command should install all needed dependencies:
 
