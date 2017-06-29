@@ -155,6 +155,22 @@ class bit_flag
         // Return 1 if on and zero if off
         return (_flags[addr.first] >> addr.second) & 0x1;
     }
+    inline bool get_set_on(const K row, const K col)
+    {
+        // Get the address
+        const std::pair<L, uint8_t> addr = get_address(row, col);
+
+        // Cache shift for the read/write operation
+        const auto shift = (0x1 << addr.second);
+
+        // Return 1 if on and zero if off
+        const bool out = _flags[addr.first] & shift;
+
+        // Set bit on
+        _flags[addr.first] |= shift;
+
+        return out;
+    }
     inline void set_on(const K row, const K col)
     {
         // Get the address

@@ -142,15 +142,15 @@ class grid
                     a = keys[j];
                     b = keys[i];
                 }
-                if (!_flags.get(a, b))
+
+                // Add the test to flags to avoid retesting
+                if (!_flags.get_set_on(a, b))
                 {
                     // Get the two cells
                     const shape<T, vec> &a_shape = _shapes[a];
                     const shape<T, vec> &b_shape = _shapes[b];
                     if (intersect(a_shape, b_shape))
                     {
-                        // Add the test to flags to avoid retesting
-                        _flags.set_on(a, b);
                         hits.emplace_back(a, b);
                     }
                 }
@@ -160,7 +160,7 @@ class grid
     inline void set_scale(const std::vector<shape<T, vec>> &shapes)
     {
         // Find the largest object in the collection
-        auto size = shapes.size();
+        const auto size = shapes.size();
         if (size > 0)
         {
             // square distance across the extent
@@ -170,7 +170,7 @@ class grid
             for (K i = 1; i < size; i++)
             {
                 // Update the maximum
-                T d2 = shapes[i].square_size();
+                const T d2 = shapes[i].square_size();
                 if (d2 > max)
                 {
                     max = d2;
@@ -178,7 +178,7 @@ class grid
             }
 
             // Calculate the world cell extent
-            T d2 = std::sqrt(_root.square_size());
+            const T d2 = std::sqrt(_root.square_size());
             max = std::sqrt(max);
 
             // Calculate the scale

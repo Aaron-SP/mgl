@@ -185,15 +185,15 @@ class tree
                     a = keys[j];
                     b = keys[i];
                 }
-                if (!_flags.get(a, b))
+
+                // Add the test to flags to avoid retesting
+                if (!_flags.get_set_on(a, b))
                 {
                     // Get the two cells
                     const shape<T, vec> &a_shape = _shapes[a];
                     const shape<T, vec> &b_shape = _shapes[b];
                     if (intersect(a_shape, b_shape))
                     {
-                        // Add the test to flags to avoid retesting
-                        _flags.set_on(a, b);
                         _hits.emplace_back(a, b);
                     }
                 }
@@ -230,7 +230,7 @@ class tree
     inline K optimize_depth(const std::vector<shape<T, vec>> &shapes)
     {
         // Find the largest object in the collection
-        auto size = shapes.size();
+        const auto size = shapes.size();
         if (size > 0)
         {
             if (!_depth_override)
@@ -242,7 +242,7 @@ class tree
                 for (K i = 1; i < size; i++)
                 {
                     // Update the maximum
-                    T d2 = shapes[i].square_size();
+                    const T d2 = shapes[i].square_size();
                     if (d2 > max)
                     {
                         max = d2;
@@ -250,7 +250,7 @@ class tree
                 }
 
                 // Calculate the world cell extent
-                T d2 = std::sqrt(_root.get_cell().square_size());
+                const T d2 = std::sqrt(_root.get_cell().square_size());
                 max = std::sqrt(max);
 
                 // Calculate the depth of the tree
