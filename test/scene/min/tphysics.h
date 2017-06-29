@@ -73,12 +73,21 @@ bool test_physics_aabb_grid()
         simulation.add_force(body1, up_force, box1.get_center());
         simulation.solve(0.11, 0.01);
 
-        // The two boxes are touching after this time, so we don't need a force to prop up body1
-        simulation.solve(0.001, 0.01);
-
         const min::vec2<double> &v1 = simulation.get_body(body1).get_linear_velocity();
         const min::vec2<double> &v2 = simulation.get_body(body2).get_linear_velocity();
 
+        // Test velocity before collision
+        out = out && compare(0.0, v1.x(), 1E-4);
+        out = out && compare(0.0, v1.y(), 1E-4);
+        out = out && compare(0.0, v2.x(), 1E-4);
+        out = out && compare(-4.100, v2.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed physics vec2 velocity before collision");
+        }
+
+        // The two boxes are touching after this time, so we don't need a force to prop up body1
+        simulation.solve(0.001, 0.01);
         out = out && compare(0.0, v1.x(), 1E-4);
         out = out && compare(-4.1100, v1.y(), 1E-4);
         out = out && compare(0.0, v2.x(), 1E-4);
@@ -151,12 +160,23 @@ bool test_physics_aabb_grid()
         simulation.add_force(body1, up_force, box1.get_center());
         simulation.solve(0.11, 0.01);
 
-        // The two boxes are touching after this time, so we don't need a force to prop up body1
-        simulation.solve(0.001, 0.01);
-
         const min::vec3<double> &v1 = simulation.get_body(body1).get_linear_velocity();
         const min::vec3<double> &v2 = simulation.get_body(body2).get_linear_velocity();
 
+        // Test velocity before collision
+        out = out && compare(0.0, v1.x(), 1E-4);
+        out = out && compare(0.0, v1.y(), 1E-4);
+        out = out && compare(0.0, v1.z(), 1E-4);
+        out = out && compare(0.0, v2.x(), 1E-4);
+        out = out && compare(-4.100, v2.y(), 1E-4);
+        out = out && compare(0.0, v2.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed physics vec2 velocity before collision");
+        }
+
+        // The two boxes are touching after this time, so we don't need a force to prop up body1
+        simulation.solve(0.001, 0.01);
         out = out && compare(0.0, v1.x(), 1E-4);
         out = out && compare(-4.1100, v1.y(), 1E-4);
         out = out && compare(0.0, v1.z(), 1E-4);
@@ -233,12 +253,23 @@ bool test_physics_aabb_grid()
         simulation.add_force(body1, up_force, box1.get_center());
         simulation.solve(0.11, 0.01);
 
-        // The two boxes are touching after this time, so we don't need a force to prop up body1
-        simulation.solve(0.001, 0.01);
-
         const min::vec4<double> &v1 = simulation.get_body(body1).get_linear_velocity();
         const min::vec4<double> &v2 = simulation.get_body(body2).get_linear_velocity();
 
+        // Test velocity before collision
+        out = out && compare(0.0, v1.x(), 1E-4);
+        out = out && compare(0.0, v1.y(), 1E-4);
+        out = out && compare(0.0, v1.z(), 1E-4);
+        out = out && compare(0.0, v2.x(), 1E-4);
+        out = out && compare(-4.100, v2.y(), 1E-4);
+        out = out && compare(0.0, v2.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed physics vec2 velocity before collision");
+        }
+
+        // The two boxes are touching after this time, so we don't need a force to prop up body1
+        simulation.solve(0.001, 0.01);
         out = out && compare(0.0, v1.x(), 1E-4);
         out = out && compare(-4.1100, v1.y(), 1E-4);
         out = out && compare(0.0, v1.z(), 1E-4);

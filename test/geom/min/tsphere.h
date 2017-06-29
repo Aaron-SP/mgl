@@ -176,6 +176,54 @@ bool test_sphere()
         {
             throw std::runtime_error("Failed vec2 sphere square_size");
         }
+
+        // Test normal
+        a = min::vec2<double>(-2.0, -2.0);
+        b = min::vec2<double>(2.0, 2.0);
+        c = min::vec2<double>(-1.0, 0.0);
+        s = min::sphere<double, min::vec2>(a, b);
+        double length;
+        min::vec2<double> normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.0, length, 1E-4);
+        out = out && compare(-1.0, normal.x(), 1E-4);
+        out = out && compare(0.0, normal.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 sphere normal");
+        }
+
+        // Test normal inside corner
+        c = min::vec2<double>(-1.0, -1.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.4142, length, 1E-4);
+        out = out && compare(-0.7071, normal.x(), 1E-4);
+        out = out && compare(-0.7071, normal.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 sphere normal inside corner");
+        }
+
+        // Test normal corner
+        c = min::vec2<double>(-2.0, -2.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(2.82843, length, 1E-4);
+        out = out && compare(-0.7071, normal.x(), 1E-4);
+        out = out && compare(-0.7071, normal.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 sphere normal corner");
+        }
+
+        // Test overlap
+        c = min::vec2<double>(0.0, 0.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(0.0, length, 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
+        out = out && compare(1.0, normal.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 sphere normal overlap");
+        }
     }
 
     // vec3 sphere
@@ -318,6 +366,58 @@ bool test_sphere()
         {
             throw std::runtime_error("Failed vec3 sphere square_size");
         }
+
+        // Test normal
+        a = min::vec3<double>(-2.0, -2.0, -2.0);
+        b = min::vec3<double>(2.0, 2.0, 2.0);
+        c = min::vec3<double>(-1.0, 0.0, 0.0);
+        s = min::sphere<double, min::vec3>(a, b);
+        double length;
+        min::vec3<double> normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.0, length, 1E-4);
+        out = out && compare(-1.0, normal.x(), 1E-4);
+        out = out && compare(0.0, normal.y(), 1E-4);
+        out = out && compare(0.0, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 sphere normal");
+        }
+
+        // Test normal inside corner
+        c = min::vec3<double>(-1.0, -1.0, -1.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.7320, length, 1E-4);
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 sphere normal inside corner");
+        }
+
+        // Test normal corner
+        c = min::vec3<double>(-2.0, -2.0, -2.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(3.4641, length, 1E-4);
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 sphere normal corner");
+        }
+
+        // Test overlap
+        c = min::vec3<double>(0.0, 0.0, 0.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(0.0, length, 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
+        out = out && compare(1.0, normal.y(), 1E-4);
+        out = out && compare(0.0, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 sphere normal overlap");
+        }
     }
 
     // vec4 sphere
@@ -459,6 +559,58 @@ bool test_sphere()
         if (!out)
         {
             throw std::runtime_error("Failed vec3 sphere square_size");
+        }
+
+        // Test normal
+        a = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
+        b = min::vec4<double>(2.0, 2.0, 2.0, 1.0);
+        c = min::vec4<double>(-1.0, 0.0, 0.0, 1.0);
+        s = min::sphere<double, min::vec4>(a, b);
+        double length;
+        min::vec4<double> normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.0, length, 1E-4);
+        out = out && compare(-1.0, normal.x(), 1E-4);
+        out = out && compare(0.0, normal.y(), 1E-4);
+        out = out && compare(0.0, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 sphere normal");
+        }
+
+        // Test normal inside corner
+        c = min::vec4<double>(-1.0, -1.0, -1.0, 1.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(1.7320, length, 1E-4);
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 sphere normal inside corner");
+        }
+
+        // Test normal corner
+        c = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(3.4641, length, 1E-4);
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 sphere normal corner");
+        }
+
+        // Test overlap
+        c = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
+        normal = s.normal(c, length, 1E-3);
+        out = out && compare(0.0, length, 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
+        out = out && compare(1.0, normal.y(), 1E-4);
+        out = out && compare(0.0, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 sphere normal overlap");
         }
     }
     return out;

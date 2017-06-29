@@ -83,6 +83,30 @@ class aabbox
         // Create the grid cells
         return vec<T>::grid(_min, _max, scale);
     }
+    inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
+    {
+        // Calculate normal direction vector
+        vec<T> normal = p - this->get_center();
+
+        // Length is initially zero
+        length = 0.0;
+
+        // Test for zero vector if p = center
+        T mag2 = normal.dot(normal);
+        if (mag2 < tolerance)
+        {
+            // If the two spheres have the same center use up vector
+            return vec<T>::up();
+        }
+
+        // Calculate the length
+        length = std::sqrt(mag2);
+
+        // Normalize the collision normal vector
+        normal /= length;
+
+        return normal;
+    }
     inline bool point_inside(const vec<T> &p) const
     {
         return p.within(_min, _max);

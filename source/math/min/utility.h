@@ -85,8 +85,9 @@ inline T clamp_direction(T &val, T min, T max)
 }
 
 template <typename T>
-int sgn(T val)
+T sgn(T val)
 {
+    // Returns -1, 0, or 1
     return (T(0) < val) - (val < T(0));
 }
 

@@ -142,6 +142,30 @@ class sphere
         // Create the grid cells
         return vec<T>::grid_center(get_min(), get_max(), scale, radius);
     }
+    inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
+    {
+        // Calculate normal direction vector
+        vec<T> normal = p - _center;
+
+        // Length is initially zero
+        length = 0.0;
+
+        // Test for zero vector if p = center
+        T mag2 = normal.dot(normal);
+        if (mag2 < tolerance)
+        {
+            // If the two spheres have the same center use up vector
+            return vec<T>::up();
+        }
+
+        // Calculate the length
+        length = std::sqrt(mag2);
+
+        // Normalize the collision normal vector
+        normal /= length;
+
+        return normal;
+    }
     inline bool point_inside(const vec<T> &p) const
     {
         vec<T> d = p - _center;

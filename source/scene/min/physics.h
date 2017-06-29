@@ -534,7 +534,7 @@ class physics
         b.add_torque(force, contact);
     }
 
-    inline void collide(const size_t index1, const size_t index2, const T dt)
+    inline void collide(const size_t index1, const size_t index2)
     {
         // Get shapes from spatial index
         const shape<T, vec> &s1 = _shapes[index1];
@@ -553,11 +553,8 @@ class physics
         body<T, vec> &b1 = _bodies[index1];
         body<T, vec> &b2 = _bodies[index2];
 
-        // Inverse timestep
-        const T inv_dt = 1.0 / dt;
-
         // Solve linear and angular momentum conservation equations
-        solve_energy_conservation(b1, b2, collision_normal, intersection, inv_dt);
+        solve_energy_conservation(b1, b2, collision_normal, intersection);
 
         // Resolve collision and resolve penetration depth
         b1.move_offset(offset);
@@ -574,7 +571,7 @@ class physics
     // dL2 = (P - C2) x J2
 
     // Intersection point intersect
-    inline void solve_energy_conservation(body<T, vec> &b1, body<T, vec> &b2, const vec<T> &n, const vec<T> &intersect, const T inv_dt)
+    inline void solve_energy_conservation(body<T, vec> &b1, body<T, vec> &b2, const vec<T> &n, const vec<T> &intersect)
     {
         // Get velocities of bodies
         const T v1n = b1.get_linear_velocity().dot(n);
@@ -704,7 +701,7 @@ class physics
             // Handle all collisions between objects
             for (const auto &c : collisions)
             {
-                collide(map[c.first], map[c.second], dt);
+                collide(map[c.first], map[c.second]);
             }
 
             // Precalculate time constants
