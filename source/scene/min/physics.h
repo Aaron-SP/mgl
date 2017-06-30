@@ -52,25 +52,123 @@ limitations under the License.
 namespace min
 {
 
-template <typename T, template <typename> class vec>
+template <typename T>
+inline T inverse(const T x)
+{
+    return 1.0 / x;
+}
+
+template <typename T>
+inline vec3<T> inverse(const vec3<T> &v)
+{
+    T x = 1.0 / v.x();
+    T y = 1.0 / v.y();
+    T z = 1.0 / v.z();
+
+    return vec3<T>(x, y, z);
+}
+
+template <typename T>
+inline vec4<T> inverse(const vec4<T> &v)
+{
+    T x = 1.0 / v.x();
+    T y = 1.0 / v.y();
+    T z = 1.0 / v.z();
+
+    return vec4<T>(x, y, z, 1.0);
+}
+
+template <typename T>
+inline vec2<T> cross(const T w, const vec2<T> &r)
+{
+    return r.orthogonal() * w;
+}
+
+template <typename T>
+inline vec3<T> cross(const vec3<T> &w, const vec3<T> &r)
+{
+    return w.cross(r);
+}
+
+template <typename T>
+inline vec4<T> cross(const vec4<T> &w, const vec4<T> &r)
+{
+    return w.cross(r);
+}
+
+template <typename T>
+inline T dot(const T v1, const T v2)
+{
+    return v1 * v2;
+}
+
+template <typename T>
+inline T dot(const vec3<T> &v1, const vec3<T> &v2)
+{
+    return v1.dot(v2);
+}
+
+template <typename T>
+inline T dot(const vec4<T> &v1, const vec4<T> &v2)
+{
+    return v1.dot(v2);
+}
+
+template <typename T, template <typename> class vec, class angular, template <typename> class rot>
 class body_base
 {
   protected:
     std::vector<vec<T>> _forces;
+    std::vector<angular> _torques;
     vec<T> _position; // This is at the center of mass
+    rot<T> _rotation;
     vec<T> _linear_velocity;
+    angular _angular_velocity;
     T _mass;
     T _inv_mass;
+    angular _inertia;
+    angular _inv_inertia;
 
   public:
-    body_base(const vec<T> &center, const T mass) : _position(center), _mass(mass), _inv_mass(1.0 / mass) {}
+    body_base(const vec<T> &center, const T mass, const angular &inertia)
+        : _position(center), _angular_velocity{}, _mass(mass), _inv_mass(1.0 / mass),
+          _inertia(inertia), _inv_inertia(inverse<T>(inertia)) {}
     inline void add_force(const vec<T> &f)
     {
         _forces.push_back(f);
     }
+    inline void add_torque(const angular torque)
+    {
+        _torques.push_back(torque);
+    }
+    inline void add_torque(const vec<T> &force, const vec<T> &contact)
+    {
+        _torques.push_back((contact - _position).cross(force));
+    }
     inline void clear_force()
     {
         _forces.clear();
+    }
+    inline void clear_torque()
+    {
+        _torques.clear();
+    }
+    inline const angular get_angular_acceleration(const angular angular_velocity, const T damping) const
+    {
+        angular sum{};
+
+        // Sum all torques around this object's center of mass
+        for (const auto &torque : _torques)
+        {
+            sum += torque;
+        }
+
+        // Calculate the acceleration
+        return (sum - angular_velocity * damping) * _inv_inertia;
+    }
+    inline const angular &get_angular_velocity() const
+    {
+        return _angular_velocity;
     }
     inline const vec<T> get_linear_acceleration(const vec<T> &linear_velocity, const vec<T> &gravity, const T damping) const
     {
@@ -90,10 +188,6 @@ class body_base
     {
         return _linear_velocity;
     }
-    inline void set_linear_velocity(const vec<T> &v)
-    {
-        _linear_velocity = v;
-    }
     inline const T get_mass() const
     {
         return _mass;
@@ -101,6 +195,26 @@ class body_base
     inline const T get_inv_mass() const
     {
         return _inv_mass;
+    }
+    inline const angular get_inertia() const
+    {
+        return inverse<T>(_inv_inertia);
+    }
+    inline const angular &get_inv_inertia() const
+    {
+        return _inv_inertia;
+    }
+    inline const rot<T> &get_rotation() const
+    {
+        return _rotation;
+    }
+    inline void set_angular_velocity(const angular w)
+    {
+        _angular_velocity = w;
+    }
+    inline void set_linear_velocity(const vec<T> &v)
+    {
+        _linear_velocity = v;
     }
     inline const vec<T> &get_position() const
     {
@@ -128,77 +242,29 @@ class body_base
 };
 
 template <typename T, template <typename> class vec>
-class body : public body_base<T, vec>
+class body : public body_base<T, vec, vec<T>, quat>
 {
 };
 
 // Partial specialization for resolving the type of angular_velocity for vec2 = T
 template <typename T>
-class body<T, vec2> : public body_base<T, vec2>
+class body<T, vec2> : public body_base<T, vec2, T, mat2>
 {
-  protected:
-    std::vector<T> _torques;
-    mat2<T> _rotation;
-    T _angular_velocity;
-    T _inertia;
-    T _inv_inertia;
-
   public:
-    body(const vec2<T> &center, const T mass, const T inertia) : body_base<T, vec2>(center, mass), _angular_velocity(0.0), _inertia(inertia), _inv_inertia(1.0 / inertia) {}
-    inline void add_torque(const T torque)
-    {
-        _torques.push_back(torque);
-    }
-    inline void add_torque(const vec2<T> &force, const vec2<T> &contact)
-    {
-        _torques.push_back((contact - this->_position).cross(force));
-    }
-    inline void clear_torque()
-    {
-        _torques.clear();
-    }
-    inline const T get_angular_acceleration(const T angular_velocity, const T damping) const
-    {
-        T sum = 0.0;
-
-        // Sum all torques around this object's center of mass
-        for (const auto &torque : _torques)
-        {
-            sum += torque;
-        }
-
-        // Calculate the acceleration
-        return (sum - angular_velocity * damping) * this->_inv_inertia;
-    }
-    inline const T &get_angular_velocity() const
-    {
-        return _angular_velocity;
-    }
-    inline void set_angular_velocity(const T w)
-    {
-        _angular_velocity = w;
-    }
+    body(const vec2<T> &center, const T mass, const T inertia) : body_base<T, vec2, T, mat2>(center, mass, inertia) {}
     inline const T get_inertia() const
     {
-        return _inertia;
-    }
-    inline const T &get_inv_inertia() const
-    {
-        return _inv_inertia;
-    }
-    inline const mat2<T> &get_rotation() const
-    {
-        return _rotation;
+        return this->_inertia;
     }
     inline mat2<T> update_rotation(const T angular_velocity, const T time_step)
     {
-        _angular_velocity = angular_velocity;
+        this->_angular_velocity = angular_velocity;
 
         // Rotation is around the Z axis in euler angles
-        const mat2<T> out(_angular_velocity * time_step);
+        const mat2<T> out(this->_angular_velocity * time_step);
 
         // Transform the absolute rotation
-        _rotation *= out;
+        this->_rotation *= out;
 
         // return the relative rotation
         return out;
@@ -207,81 +273,29 @@ class body<T, vec2> : public body_base<T, vec2>
 
 // Partial specialization for resolving the type of angular_velocity for vec3 = vec3<T>
 template <typename T>
-class body<T, vec3> : public body_base<T, vec3>
+class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
 {
-  protected:
-    std::vector<vec3<T>> _torques;
-    quat<T> _rotation;
-    vec3<T> _angular_velocity;
-    vec3<T> _inertia;
-    vec3<T> _inv_inertia;
-
   public:
-    body(const vec3<T> &center, const T mass, const vec3<T> inertia) : body_base<T, vec3>(center, mass), _inertia(inertia), _inv_inertia(inertia.inverse()) {}
-    inline void add_torque(const vec3<T> &torque)
-    {
-        _torques.push_back(torque);
-    }
-    inline void add_torque(const vec3<T> &force, const vec3<T> &contact)
-    {
-        _torques.push_back((contact - this->_position).cross(force));
-    }
-    inline void clear_torque()
-    {
-        _torques.clear();
-    }
-    inline const vec3<T> get_angular_acceleration(const vec3<T> &angular_velocity, const T damping) const
-    {
-        vec3<T> sum;
-
-        // Sum all torques around this object's center of mass
-        for (const auto &torque : _torques)
-        {
-            sum += torque;
-        }
-
-        // Calculate the acceleration
-        return (sum - angular_velocity * damping) * _inv_inertia;
-    }
-    inline const vec3<T> &get_angular_velocity() const
-    {
-        return _angular_velocity;
-    }
-    inline void set_angular_velocity(const vec3<T> &w)
-    {
-        _angular_velocity = w;
-    }
-    inline const vec3<T> get_inertia() const
-    {
-        return _inertia.inverse();
-    }
-    inline const vec3<T> &get_inv_inertia() const
-    {
-        return _inv_inertia;
-    }
-    inline const quat<T> &get_rotation() const
-    {
-        return _rotation;
-    }
+    body(const vec3<T> &center, const T mass, const vec3<T> &inertia) : body_base<T, vec3, vec3<T>, quat>(center, mass, inertia) {}
     inline quat<T> update_rotation(const vec3<T> &angular_velocity, const T time_step)
     {
-        _angular_velocity = angular_velocity;
+        this->_angular_velocity = angular_velocity;
 
         // Calculate rotation for this timestep
-        const vec3<T> rotation = _angular_velocity * time_step;
+        const vec3<T> rotation = this->_angular_velocity * time_step;
 
         // Creation quaternion rotation
         const T angle = rotation.magnitude();
         const quat<T> q(rotation, angle);
 
         // Transform the absolute rotation
-        _rotation *= q;
+        this->_rotation *= q;
 
         // Normalize the rotation vector to avoid accumulation of rotational energy
-        _rotation.normalize();
+        this->_rotation.normalize();
 
         // Update rotational inertia axis of rotation
-        _inv_inertia = _rotation.transform(_inertia).inverse();
+        this->_inv_inertia = this->_rotation.transform(this->_inertia).inverse();
 
         // return the relative rotation
         return q;
@@ -290,81 +304,29 @@ class body<T, vec3> : public body_base<T, vec3>
 
 // Partial specialization for resolving the type of angular_velocity for vec4 = vec4<T>
 template <typename T>
-class body<T, vec4> : public body_base<T, vec4>
+class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
 {
-  protected:
-    std::vector<vec4<T>> _torques;
-    quat<T> _rotation;
-    vec4<T> _angular_velocity;
-    vec4<T> _inertia;
-    vec4<T> _inv_inertia;
-
   public:
-    body(const vec4<T> &center, const T mass, const vec4<T> inertia) : body_base<T, vec4>(center, mass), _inertia(inertia), _inv_inertia(inertia.inverse()) {}
-    inline void add_torque(const vec4<T> &torque)
-    {
-        _torques.push_back(torque);
-    }
-    inline void add_torque(const vec4<T> &force, const vec4<T> &contact)
-    {
-        _torques.push_back((contact - this->_position).cross(force));
-    }
-    inline void clear_torque()
-    {
-        _torques.clear();
-    }
-    inline const vec4<T> get_angular_acceleration(const vec4<T> &angular_velocity, const T damping) const
-    {
-        vec4<T> sum;
-
-        // Sum all torques around this object's center of mass
-        for (const auto &torque : _torques)
-        {
-            sum += torque;
-        }
-
-        // Calculate the acceleration
-        return (sum - angular_velocity * damping) * _inv_inertia;
-    }
-    inline const vec4<T> &get_angular_velocity() const
-    {
-        return _angular_velocity;
-    }
-    inline void set_angular_velocity(const vec4<T> &w)
-    {
-        _angular_velocity = w;
-    }
-    inline const vec4<T> get_inertia() const
-    {
-        return _inertia.inverse();
-    }
-    inline const vec4<T> &get_inv_inertia() const
-    {
-        return _inv_inertia;
-    }
-    inline const quat<T> &get_rotation() const
-    {
-        return _rotation;
-    }
+    body(const vec4<T> &center, const T mass, const vec4<T> &inertia) : body_base<T, vec4, vec4<T>, quat>(center, mass, inertia) {}
     inline quat<T> update_rotation(const vec4<T> &angular_velocity, const T time_step)
     {
-        _angular_velocity = angular_velocity;
+        this->_angular_velocity = angular_velocity;
 
         // Calculate rotation for this timestep
-        const vec3<T> rotation = (_angular_velocity * time_step).xyz();
+        const vec3<T> rotation = (this->_angular_velocity * time_step).xyz();
 
         // Creation quaternion rotation
         const T angle = rotation.magnitude();
         const quat<T> q(rotation, angle);
 
         // Transform the absolute rotation
-        _rotation *= q;
+        this->_rotation *= q;
 
         // Normalize the rotation vector to avoid accumulation of rotational energy
-        _rotation.normalize();
+        this->_rotation.normalize();
 
         // Update rotational inertia axis of rotation
-        _inv_inertia = _rotation.transform(_inertia).inverse();
+        this->_inv_inertia = this->_rotation.transform(this->_inertia).inverse();
 
         // return the relative rotation
         return q;
@@ -447,68 +409,6 @@ inline void rotate(const sphere<T, vec3> &s, const quat<T> &q) {}
 
 template <typename T>
 inline void rotate(const sphere<T, vec4> &s, const quat<T> &q) {}
-
-template <typename T>
-inline T inverse(const T x)
-{
-    return 1.0 / x;
-}
-
-template <typename T>
-inline vec3<T> inverse(const vec3<T> &v)
-{
-    T x = 1.0 / v.x();
-    T y = 1.0 / v.y();
-    T z = 1.0 / v.z();
-
-    return vec3<T>(x, y, z);
-}
-
-template <typename T>
-inline vec4<T> inverse(const vec4<T> &v)
-{
-    T x = 1.0 / v.x();
-    T y = 1.0 / v.y();
-    T z = 1.0 / v.z();
-
-    return vec4<T>(x, y, z, 1.0);
-}
-
-template <typename T>
-inline vec2<T> cross(const T w, const vec2<T> &r)
-{
-    return r.orthogonal() * w;
-}
-
-template <typename T>
-inline vec3<T> cross(const vec3<T> &w, const vec3<T> &r)
-{
-    return w.cross(r);
-}
-
-template <typename T>
-inline vec4<T> cross(const vec4<T> &w, const vec4<T> &r)
-{
-    return w.cross(r);
-}
-
-template <typename T>
-inline T dot(const T v1, const T v2)
-{
-    return v1 * v2;
-}
-
-template <typename T>
-inline T dot(const vec3<T> &v1, const vec3<T> &v2)
-{
-    return v1.dot(v2);
-}
-
-template <typename T>
-inline T dot(const vec4<T> &v1, const vec4<T> &v2)
-{
-    return v1.dot(v2);
-}
 
 template <typename T, typename K, typename L, template <typename> class vec, template <typename, template <typename> class> class cell, template <typename, template <typename> class> class shape,
           template <typename, typename, typename, template <typename> class, template <typename, template <typename> class> class, template <typename, template <typename> class> class> class spatial>

@@ -49,6 +49,10 @@ double bench_physics_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world,
     // Solve simulation step
     simulation.solve(0.001, 0.01);
 
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_aabb_aabb: Energy after solving is: " << energy << std::endl;
+
     // Calculate the difference between start and end
     auto dtime = std::chrono::high_resolution_clock::now() - start;
 
@@ -83,6 +87,10 @@ double bench_physics_aabb_sphere(const size_t N, const min::aabbox<T, vec> &worl
 
     // Solve simulation step
     simulation.solve(0.001, 0.01);
+
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_aabb_sphere: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
     auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -119,6 +127,10 @@ double bench_physics_sphere_aabb(const size_t N, const min::sphere<T, vec> &worl
     // Solve simulation step
     simulation.solve(0.001, 0.01);
 
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_sphere_aabb: Energy after solving is: " << energy << std::endl;
+
     // Calculate the difference between start and end
     auto dtime = std::chrono::high_resolution_clock::now() - start;
 
@@ -153,6 +165,10 @@ double bench_physics_sphere_sphere(const size_t N, const min::sphere<T, vec> &wo
 
     // Solve simulation step
     simulation.solve(0.001, 0.01);
+
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_sphere_sphere: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
     auto dtime = std::chrono::high_resolution_clock::now() - start;

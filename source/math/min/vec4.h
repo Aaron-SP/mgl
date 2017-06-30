@@ -15,21 +15,18 @@ limitations under the License.
 #ifndef __VECTOR4__
 #define __VECTOR4__
 
-#include <min/utility.h>
+// Forward declarations
 namespace min
 {
-template <typename T>
-class vec3;
+template <typename T, template <typename> class vec>
+class coord_sys;
 }
-#include <min/vec3.h>
-namespace min
-{
-template <typename T>
-class quat;
-}
+
 #include <algorithm>
+#include <array>
 #include <cmath>
-#include <min/quat.h>
+#include <min/coord_sys.h>
+#include <min/utility.h>
 #include <utility>
 #include <vector>
 
@@ -107,6 +104,10 @@ class vec4
     inline bool any_zero() const
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6) || (std::abs(_z) <= 1E-6);
+    }
+    inline constexpr static coord_sys<T, vec4> axises()
+    {
+        return coord_sys<T, vec4>(vec4<T>(1.0, 0.0, 0.0, 1.0), vec4<T>(0.0, 1.0, 0.0, 1.0), vec4<T>(0.0, 0.0, 1.0, 1.0));
     }
     inline vec4<T> &clamp(const vec4<T> &min, const vec4<T> &max)
     {
@@ -426,21 +427,12 @@ class vec4
             T maxx = first.x();
             T maxy = first.y();
             T maxz = first.z();
-            for (typename std::vector<vec4<T>>::size_type i = 1; i < size; i++)
+            for (size_t i = 1; i < size; i++)
             {
                 const vec4<T> &v = verts[i];
-                if (v.x() < minx)
-                    minx = v.x();
-                else if (v.x() > maxx)
-                    maxx = v.x();
-                if (v.y() < miny)
-                    miny = v.y();
-                else if (v.y() > maxy)
-                    maxy = v.y();
-                if (v.z() < minz)
-                    minz = v.z();
-                else if (v.z() > maxz)
-                    maxz = v.z();
+                extend<T>(v.x(), minx, maxx);
+                extend<T>(v.y(), miny, maxy);
+                extend<T>(v.z(), minz, maxz);
             }
 
             // Return the greatest extents
@@ -484,9 +476,9 @@ class vec4
         const auto size = verts.size();
         if (size > 1)
         {
-            typename std::vector<vec4<T>>::size_type minx, maxx, miny, maxy, minz, maxz, min, max;
+            size_t minx, maxx, miny, maxy, minz, maxz, min, max;
             minx = maxx = miny = maxy = minz = maxz = min = max = 0;
-            for (typename std::vector<vec4<T>>::size_type i = 0; i < size; i++)
+            for (size_t i = 0; i < size; i++)
             {
                 const vec4<T> &v = verts[i];
                 if (v.x() > verts[maxx].x())
@@ -579,6 +571,52 @@ class vec4
 
         // Compute cross product around x axis
         return cross_x();
+    }
+    inline vec4<T> project_point(const coord_sys<T, vec4> &axis, const vec4<T> &extent)
+    {
+        // Project v onto local x axis
+        T x = this->dot(axis.x());
+
+        // Clamp d onto the box half extent
+        min::clamp<T>(x, -extent.x(), extent.x());
+
+        // Project v onto local y axis
+        T y = this->dot(axis.y());
+
+        // Clamp d onto the box half extent
+        min::clamp<T>(y, -extent.y(), extent.y());
+
+        // Project v onto local z axis
+        T z = this->dot(axis.z());
+
+        // Clamp d onto the box half extent
+        min::clamp<T>(z, -extent.z(), extent.z());
+
+        // Compute the point along this axis
+        return (axis.x() * x) + (axis.y() * y) + (axis.z() * z);
+    }
+    inline T project_length(const coord_sys<T, vec4> &axis, const vec4<T> &extent)
+    {
+        // Project this onto local x axis
+        const T x = this->dot(axis.x());
+
+        // Clamp x onto the box half extent, else zero
+        const T dx = clamp_value<T>(x, -extent.x(), x + extent.x(), extent.x(), x - extent.x());
+
+        // Project this onto local y axis
+        const T y = this->dot(axis.y());
+
+        // Clamp y onto the box half extent, else 0
+        const T dy = clamp_value<T>(y, -extent.y(), y + extent.y(), extent.y(), y - extent.y());
+
+        // Project this onto local y axis
+        const T z = this->dot(axis.z());
+
+        // Clamp y onto the box half extent, else 0
+        const T dz = clamp_value<T>(z, -extent.z(), z + extent.z(), extent.z(), z - extent.z());
+
+        // Compute the square distance from this point
+        return (dx * dx) + (dy * dy) + (dz * dz);
     }
     // Subdividing vector space into 2^3 spaces using binary key location codes for index (xyz)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin), (z - zmin)/(zmax - zmin)

@@ -31,6 +31,7 @@ limitations under the License.
 #include <min/tmd5mesh.h>
 #include <min/tmd5model.h>
 #include <min/tmodel.h>
+#include <min/toobbox.h>
 #include <min/tphysics.h>
 #include <min/tplane.h>
 #include <min/tquat.h>
@@ -66,6 +67,7 @@ int main()
         out = out && test_ray();
         out = out && test_sphere();
         out = out && test_aabbox();
+        out = out && test_oobbox();
         out = out && test_sphere_intersect();
         out = out && test_sphere_resolve();
         out = out && test_aabbox_intersect();

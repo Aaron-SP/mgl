@@ -57,7 +57,7 @@ constexpr inline T deg_to_rad2(T degrees)
 }
 
 template <typename T>
-inline void clamp(T &val, T min, T max)
+inline void clamp(T &val, const T min, const T max)
 {
     // Clamps val between min and max
     if (val < min)
@@ -67,7 +67,7 @@ inline void clamp(T &val, T min, T max)
 }
 
 template <typename T>
-inline T clamp_direction(T &val, T min, T max)
+inline T clamp_direction(T &val, const T min, const T max)
 {
     // Clamps val between min and max
     if (val < min)
@@ -85,7 +85,31 @@ inline T clamp_direction(T &val, T min, T max)
 }
 
 template <typename T>
-T sgn(T val)
+inline T clamp_value(const T val, const T min, const T minv, const T max, const T maxv)
+{
+    // Clamps val between min and max and assigns either minv or maxv
+    if (val < min)
+    {
+        return minv;
+    }
+    else if (val > max)
+    {
+        return maxv;
+    }
+}
+
+template <typename T>
+inline void extend(const T val, T &min, T &max)
+{
+    // extends min or max to val
+    if (val < min)
+        min = val;
+    else if (val > max)
+        max = val;
+}
+
+template <typename T>
+T sgn(const T val)
 {
     // Returns -1, 0, or 1
     return (T(0) < val) - (val < T(0));

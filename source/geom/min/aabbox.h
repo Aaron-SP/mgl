@@ -95,7 +95,7 @@ class aabbox
         T mag2 = normal.dot(normal);
         if (mag2 < tolerance)
         {
-            // If the two spheres have the same center use up vector
+            // If the two boxes have the same center use up vector
             return vec<T>::up();
         }
 

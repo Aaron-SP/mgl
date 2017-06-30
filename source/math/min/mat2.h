@@ -120,10 +120,20 @@ class mat2
         T y = _ys * vec.x() + _yc * vec.y();
         return vec2<T>(x, y);
     }
+    inline mat2<T> inverse() const
+    {
+        mat2<T> copy = *this;
+        return copy.invert();
+    }
     inline mat2<T> &invert()
     {
         // this matrix is always orthogonal; use transpose()
         return transpose();
+    }
+    inline vec2<T> transform(const vec2<T> &v) const
+    {
+        // This matches quat<T> API!
+        return this->operator*(v);
     }
     inline mat2<T> &transpose()
     {

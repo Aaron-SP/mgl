@@ -15,8 +15,16 @@ limitations under the License.
 #ifndef __VECTOR2__
 #define __VECTOR2__
 
+// Forward declarations
+namespace min
+{
+template <typename T, template <typename> class vec>
+class coord_sys;
+}
+
 #include <algorithm>
 #include <cmath>
+#include <min/coord_sys.h>
 #include <min/utility.h>
 #include <utility>
 #include <vector>
@@ -68,6 +76,10 @@ class vec2
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6);
     }
+    inline constexpr static coord_sys<T, vec2> axises()
+    {
+        return coord_sys<T, vec2>(vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0));
+    }
     inline vec2<T> &clamp(const vec2<T> &min, const vec2<T> &max)
     {
         min::clamp(_x, min.x(), max.x());
@@ -101,17 +113,11 @@ class vec2
             T miny = first.y();
             T maxx = first.x();
             T maxy = first.y();
-            for (typename std::vector<vec2<T>>::size_type i = 1; i < size; i++)
+            for (size_t i = 1; i < size; i++)
             {
                 const vec2<T> &v = verts[i];
-                if (v.x() < minx)
-                    minx = v.x();
-                else if (v.x() > maxx)
-                    maxx = v.x();
-                if (v.y() < miny)
-                    miny = v.y();
-                else if (v.y() > maxy)
-                    maxy = v.y();
+                extend<T>(v.x(), minx, maxx);
+                extend<T>(v.y(), miny, maxy);
             }
 
             // Return the greatest extents
@@ -316,9 +322,9 @@ class vec2
         const auto size = verts.size();
         if (size > 1)
         {
-            typename std::vector<vec2<T>>::size_type minx, maxx, miny, maxy, min, max;
+            size_t minx, maxx, miny, maxy, min, max;
             minx = maxx = miny = maxy = min = max = 0;
-            for (typename std::vector<vec2<T>>::size_type i = 0; i < size; i++)
+            for (size_t i = 0; i < size; i++)
             {
                 const vec2<T> &v = verts[i];
                 if (v.x() > verts[maxx].x())
@@ -384,6 +390,40 @@ class vec2
     {
         // Compute the orthogonal vector to A
         return vec2<T>(_y, -_x);
+    }
+    inline vec2<T> project_point(const coord_sys<T, vec2> &axis, const vec2<T> &extent)
+    {
+        // Project this onto local x axis
+        T x = this->dot(axis.x());
+
+        // Clamp x onto the box half extent, else x
+        min::clamp<T>(x, -extent.x(), extent.x());
+
+        // Project this onto local y axis
+        T y = this->dot(axis.y());
+
+        // Clamp y onto the box half extent, else y
+        min::clamp<T>(y, -extent.y(), extent.y());
+
+        // Compute the point along this axis
+        return (axis.x() * x) + (axis.y() * y);
+    }
+    inline T project_length(const coord_sys<T, vec2> &axis, const vec2<T> &extent)
+    {
+        // Project this onto local x axis
+        const T x = this->dot(axis.x());
+
+        // Clamp x onto the box half extent, else zero
+        const T dx = clamp_value<T>(x, -extent.x(), x + extent.x(), extent.x(), x - extent.x());
+
+        // Project this onto local y axis
+        const T y = this->dot(axis.y());
+
+        // Clamp y onto the box half extent, else 0
+        const T dy = clamp_value<T>(y, -extent.y(), y + extent.y(), extent.y(), y - extent.y());
+
+        // Compute the square distance from this point
+        return (dx * dx) + (dy * dy);
     }
     // Subdividing vector space into 2^2 spaces using binary key location codes for index (xy)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin)

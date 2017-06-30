@@ -15,7 +15,7 @@ TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/scene 
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
 # Compile parameters
-PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math
+PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
 EXTRA = source/platform/min/glew.cpp
 WL_INCLUDE = -DGLEW_STATIC
 TEST_GL = test/gl_test.cpp
