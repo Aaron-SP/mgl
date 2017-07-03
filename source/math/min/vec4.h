@@ -105,7 +105,7 @@ class vec4
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6) || (std::abs(_z) <= 1E-6);
     }
-    inline constexpr static coord_sys<T, vec4> axises()
+    inline constexpr static coord_sys<T, vec4> axes()
     {
         return coord_sys<T, vec4>(vec4<T>(1.0, 0.0, 0.0, 1.0), vec4<T>(0.0, 1.0, 0.0, 1.0), vec4<T>(0.0, 0.0, 1.0, 1.0));
     }
@@ -441,7 +441,7 @@ class vec4
 
         return std::make_pair(vec4<T>(), vec4<T>());
     }
-    inline bool inside(const vec3<T> &min, const vec3<T> &max) const
+    inline bool inside(const vec4<T> &min, const vec4<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
         return (_x > min.x() && _x < max.x() && _y > min.y() && _y < max.y() && _z > min.z() && _z < max.z());
@@ -617,6 +617,123 @@ class vec4
 
         // Compute the square distance from this point
         return (dx * dx) + (dy * dy) + (dz * dz);
+    }
+    static inline bool project_sat(const coord_sys<T, vec4> &axis1, const vec4<T> &center1, const vec4<T> &extent1, const coord_sys<T, vec4> &axis2, const vec4<T> &center2, const vec4<T> &extent2)
+    {
+        // This performs the separating axis theorem for checking oobb-oobb intersections
+        // For every axis test (C2-C1).dot(axis_n) > (a.get_extent() + b.get_extent()).dot(axis_n)
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 3D, there are 15 axes that need to be tested against...
+        // 2x3=6 local box axes plus and 3x3=9 axes perpendicular to the 6 local box axes
+
+        // Rotation matrix expressing A2 in A1's coordinate frame
+        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
+        const T xx = std::abs(axis1.x().dot(axis2.x()));
+        const T xy = std::abs(axis1.x().dot(axis2.y()));
+        const T xz = std::abs(axis1.x().dot(axis2.z()));
+        const T yx = std::abs(axis1.y().dot(axis2.x()));
+        const T yy = std::abs(axis1.y().dot(axis2.y()));
+        const T yz = std::abs(axis1.y().dot(axis2.z()));
+        const T zx = std::abs(axis1.z().dot(axis2.x()));
+        const T zy = std::abs(axis1.z().dot(axis2.y()));
+        const T zz = std::abs(axis1.z().dot(axis2.z()));
+
+        // Bring translation into A1's coordinate frame
+        const vec4<T> d = center2 - center1;
+        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0).abs();
+
+        // Test L = A1.x(); d1 and d2 is the length of extents along L
+        T dL1 = extent1.x();
+        T dL2 = extent2.x() * xx + extent2.y() * xy + extent2.z() * xz;
+        if (t.x() > dL1 + dL2)
+            return false;
+
+        // Test L = A1.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.y();
+        dL2 = extent2.x() * yx + extent2.y() * yy + extent2.z() * yz;
+        if (t.y() > dL1 + dL2)
+            return false;
+
+        // Test L = A1.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.z();
+        dL2 = extent2.x() * zx + extent2.y() * zy + extent2.z() * zz;
+        if (t.z() > dL1 + dL2)
+            return false;
+
+        // Test L = A2.x(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xx + extent1.y() * yx + extent1.z() * zx;
+        dL2 = extent2.x();
+        if (t.x() * xx + t.y() * yx + t.z() * zx > dL1 + dL2)
+            return false;
+
+        // Test L = A2.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xy + extent1.y() * yy + extent1.z() * zy;
+        dL2 = extent2.y();
+        if (t.x() * xy + t.y() * yy + t.z() * zy > dL1 + dL2)
+            return false;
+
+        // Test L = A2.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xz + extent1.y() * yz + extent1.z() * zz;
+        dL2 = extent2.z();
+        if (t.x() * xz + t.y() * yz + t.z() * zz > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.x() X A2.x()
+        dL1 = extent1.y() * zx + extent1.z() * yx;
+        dL2 = extent2.y() * xz + extent2.z() * xy;
+        if (t.z() * yx - t.y() * zx > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.x() X A2.y()
+        dL1 = extent1.y() * zy + extent1.z() * yy;
+        dL2 = extent2.x() * xz + extent2.z() * xx;
+        if (t.z() * yy - t.y() * zy > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.x() X A2.z()
+        dL1 = extent1.y() * zz + extent1.z() * yz;
+        dL2 = extent2.x() * xy + extent2.y() * xx;
+        if (t.z() * yz - t.y() * zz > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.y() X A2.x()
+        dL1 = extent1.x() * zx + extent1.z() * xx;
+        dL2 = extent2.y() * yz + extent2.z() * yy;
+        if (t.x() * zx - t.z() * xx > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.y() X A2.y()
+        dL1 = extent1.x() * zy + extent1.z() * xy;
+        dL2 = extent2.x() * yz + extent2.z() * yx;
+        if (t.x() * zy - t.z() * xy > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.y() X A2.z()
+        dL1 = extent1.x() * zz + extent1.z() * xz;
+        dL2 = extent2.x() * yy + extent2.y() * yx;
+        if (t.x() * zz - t.z() * xz > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.z() X A2.x()
+        dL1 = extent1.x() * yx + extent1.y() * xx;
+        dL2 = extent2.y() * zz + extent2.z() * zy;
+        if (t.y() * xx - t.x() * yx > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.z() X A2.y()
+        dL1 = extent1.x() * yy + extent1.y() * xy;
+        dL2 = extent2.x() * zz + extent2.z() * zx;
+        if (t.y() * xy - t.x() * yy > dL1 + dL2)
+            return false;
+
+        // Test axis L = A1.z() X A2.z()
+        dL1 = extent1.x() * yz + extent1.y() * xz;
+        dL2 = extent2.x() * zy + extent2.y() * zx;
+        if (t.y() * xz - t.x() * yz > dL1 + dL2)
+            return false;
+
+        return true;
     }
     // Subdividing vector space into 2^3 spaces using binary key location codes for index (xyz)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin), (z - zmin)/(zmax - zmin)

@@ -76,7 +76,7 @@ class vec2
     {
         return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6);
     }
-    inline constexpr static coord_sys<T, vec2> axises()
+    inline constexpr static coord_sys<T, vec2> axes()
     {
         return coord_sys<T, vec2>(vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0));
     }
@@ -287,7 +287,7 @@ class vec2
 
         return out;
     }
-    inline bool inside(const vec3<T> &min, const vec3<T> &max) const
+    inline bool inside(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
         return (_x > min.x() && _x < max.x() && _y > min.y() && _y < max.y());
@@ -424,6 +424,52 @@ class vec2
 
         // Compute the square distance from this point
         return (dx * dx) + (dy * dy);
+    }
+    static inline bool project_sat(const coord_sys<T, vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1, const coord_sys<T, vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2)
+    {
+        // This performs the separating axis theorem for checking oobb-oobb intersections
+        // For every axis test (C2-C1).dot(axis_n) > (a.get_extent() + b.get_extent()).dot(axis_n)
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 2D, there are 4 axes that need to be tested against...
+        // 2*2 = 4 local box axes
+
+        // Rotation matrix expressing A2 in A1's coordinate frame
+        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
+        const T xx = std::abs(axis1.x().dot(axis2.x()));
+        const T xy = std::abs(axis1.x().dot(axis2.y()));
+        const T yx = std::abs(axis1.y().dot(axis2.x()));
+        const T yy = std::abs(axis1.y().dot(axis2.y()));
+
+        // Bring translation into A1's coordinate frame
+        const vec2<T> d = center2 - center1;
+        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y())).abs();
+
+        // Test L = A1.x(); d1 and d2 is the length of extents along L
+        T dL1 = extent1.x();
+        T dL2 = extent2.x() * xx + extent2.y() * xy;
+        if (t.x() > dL1 + dL2)
+            return false;
+
+        // Test L = A1.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.y();
+        dL2 = extent2.x() * yx + extent2.y() * yy;
+        if (t.y() > dL1 + dL2)
+            return false;
+
+        // Test L = A2.x(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xx + extent1.y() * yx;
+        dL2 = extent2.x();
+        if (t.x() * xx + t.y() * yx > dL1 + dL2)
+            return false;
+
+        // Test L = A2.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xy + extent1.y() * yy;
+        dL2 = extent2.y();
+        if (t.x() * xy + t.y() * yy > dL1 + dL2)
+            return false;
+
+        return true;
     }
     // Subdividing vector space into 2^2 spaces using binary key location codes for index (xy)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin)

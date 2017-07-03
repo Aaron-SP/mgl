@@ -256,7 +256,7 @@ bool test_quat()
     out = out && compare(0.0, q.z(), 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed quat z-axis rotation");
+        throw std::runtime_error("Failed quat inverse z-axis rotation");
     }
 
     return out;

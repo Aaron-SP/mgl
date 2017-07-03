@@ -18,6 +18,7 @@ limitations under the License.
 #include <cmath>
 #include <min/aabbox.h>
 #include <min/frustum.h>
+#include <min/oobbox.h>
 #include <min/ray.h>
 #include <min/sphere.h>
 
@@ -41,7 +42,7 @@ bool intersect(const sphere<T, vec> &s, const ray<T, vec> &ray, vec<T> &p)
 {
     // If the ray origin is inside the sphere it intersects
     const vec<T> &o = ray.get_origin();
-    const vec<T> &d = o - s.get_center();
+    const vec<T> d = o - s.get_center();
     const T r2 = s.get_square_radius();
     const T c = d.dot(d) - r2;
     if (c <= 0.0)
@@ -125,6 +126,10 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
     return false;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+// SPHERE-SPHERE
+/////////////////////////////////////////////////////////////////////////////////////
+
 // tests if s1 overlaps with s2 by comparing the squared distance between centers
 // with the squared sum of radiuses
 template <typename T, template <typename> class vec>
@@ -144,6 +149,10 @@ inline bool intersect(const sphere<T, vec> &s1, const sphere<T, vec> &s2, vec<T>
     p = s2.closest_point(s1.get_center());
     return s1.point_inside(p);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+// SPHERE-AABB
+/////////////////////////////////////////////////////////////////////////////////////
 
 // Calculates the closest point on box to s's center
 // tests if this point is inside s
@@ -179,6 +188,48 @@ inline bool intersect(const aabbox<T, vec> &box, const sphere<T, vec> &s, vec<T>
     return intersect(s, box, p);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+// SPHERE-OOBB
+/////////////////////////////////////////////////////////////////////////////////////
+
+// Calculates the closest point on box to s's center
+// tests if this point is inside s
+template <typename T, template <typename> class vec>
+inline bool intersect(const sphere<T, vec> &s, const oobbox<T, vec> &box)
+{
+    vec<T> p = box.closest_point(s.get_center());
+    return s.point_inside(p);
+}
+
+// Calculates the closest point on box to s's center
+// tests if this point is inside s
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box, const sphere<T, vec> &s)
+{
+    return intersect(s, box);
+}
+
+// Calculates the closest point on box to s's center
+// tests if this point is inside s
+template <typename T, template <typename> class vec>
+inline bool intersect(const sphere<T, vec> &s, const oobbox<T, vec> &box, vec<T> &p)
+{
+    p = box.closest_point(s.get_center());
+    return s.point_inside(p);
+}
+
+// Calculates the closest point on box to s's center
+// tests if this point is inside s
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box, const sphere<T, vec> &s, vec<T> &p)
+{
+    return intersect(s, box, p);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// AABB
+/////////////////////////////////////////////////////////////////////////////////////
+
 // tests if box1 intersects with box2
 template <typename T, template <typename> class vec>
 inline bool intersect(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2)
@@ -194,6 +245,68 @@ inline bool intersect(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2, ve
     p = box2.closest_point(box1.get_center());
     return intersect(box1, box2);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+// OOBB
+/////////////////////////////////////////////////////////////////////////////////////
+
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box1, const oobbox<T, vec> &box2)
+{
+    // Perform separating axis test between oobb-oobb
+    return vec<T>::project_sat(box1.get_axes(), box1.get_center(), box1.get_half_extent(), box2.get_axes(), box2.get_center(), box2.get_half_extent());
+}
+
+// Calculates the closest point on box2 to box1's center
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box1, const oobbox<T, vec> &box2, vec<T> &p)
+{
+    p = box2.closest_point(box1.get_center());
+    return intersect(box1, box2);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// OOBB-AABB
+/////////////////////////////////////////////////////////////////////////////////////
+
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const aabbox<T, vec> &box1, const oobbox<T, vec> &box2)
+{
+    // Convert AABB to OOBB and test for intersection
+    const oobbox<T, vec> oobox1(box1.get_min(), box1.get_max());
+    return intersect(oobox1, box2);
+}
+
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box1, const aabbox<T, vec> &box2)
+{
+    return intersect(box2, box1);
+}
+
+// Calculates the closest point on box2 to box1's center
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const aabbox<T, vec> &box1, const oobbox<T, vec> &box2, vec<T> &p)
+{
+    p = box2.closest_point(box1.get_center());
+    return intersect(box1, box2);
+}
+
+// Calculates the closest point on box2 to box1's center
+// tests if box1 intersects with box2
+template <typename T, template <typename> class vec>
+inline bool intersect(const oobbox<T, vec> &box1, const aabbox<T, vec> &box2, vec<T> &p)
+{
+    return intersect(box2, box1, p);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// FRUSTUM
+/////////////////////////////////////////////////////////////////////////////////////
 
 // Tests if the sphere intersects the frustum
 template <typename T>

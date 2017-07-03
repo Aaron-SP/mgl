@@ -31,60 +31,22 @@ class oobbox_base
     vec<T> _half_extent;
     rot<T> _rotation;
 
+    inline const vec<T> get_local_min() const
+    {
+        // This returns min in object space (AABB)
+        return _half_extent * -1.0;
+    }
+    inline const vec<T> get_local_max() const
+    {
+        // This returns max in object space (AABB)
+        return _half_extent;
+    }
+
   public:
     oobbox_base() {}
     oobbox_base(const vec<T> &min, const vec<T> &max)
-        : _axes(vec<T>::axises()), _center((max + min) * 0.5), _half_extent((max - min) * 0.5) {}
-    inline vec<T> closest_point(const vec<T> &p) const
-    {
-        // Transform to local coordinates
-        // Project the point vector along local axises and clamp to half extent
-        const vec<T> out = (p - _center).project_point(_axes, _half_extent);
-
-        // Return closest point
-        return out + _center;
-    }
-    inline vec<T> get_center() const
-    {
-        return _center;
-    }
-    inline rot<T> &get_rotation() const
-    {
-        return _rotation;
-    }
-    inline void set_rotation(const rot<T> &r)
-    {
-        // Reset rotation
-        _rotation = r;
-
-        // Get a copy of the reference axes
-        coord_sys<T, vec> ref_axes = vec<T>::axises();
-
-        // Rotate the coordinate axises
-        ref_axes.rotate(r);
-
-        // Reassign to local axes
-        _axes = ref_axes;
-    }
-    inline vec<T> get_extent() const
-    {
-        // This assumes a non rotated box (aabb)!
-        return _half_extent * 2.0;
-    }
-    inline const vec<T> get_min() const
-    {
-        // This assumes a non rotated box (aabb)!
-        return _center - _half_extent;
-    }
-    inline const vec<T> get_max() const
-    {
-        // This assumes a non rotated box (aabb)!
-        return _center + _half_extent;
-    }
-    // inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
-    // {
-    // }
-    inline bool point_inside(const vec<T> &p) const
+        : _axes(vec<T>::axes()), _center((max + min) * 0.5), _half_extent((max - min) * 0.5) {}
+    inline vec<T> align(const vec<T> &p) const
     {
         // Transform to local coordinates
         const vec<T> v = p - _center;
@@ -92,15 +54,81 @@ class oobbox_base
         // Calculate the inverse rotation
         const rot<T> inv_rot = _rotation.inverse();
 
-        // Transform the point, and convert to world coordinates
-        const vec<T> t = inv_rot.transform(v) + _center;
+        // Transform the point in object space
+        return inv_rot.transform(v);
+    }
+    inline vec<T> closest_point(const vec<T> &p) const
+    {
+        // Transform to local coordinates
+        // Project the point vector along local axes and clamp to half extent
+        const vec<T> out = (p - _center).project_point(_axes, _half_extent);
 
-        // Test if point is in aabb
-        return t.within(get_min(), get_max());
+        // Return closest point
+        return out + _center;
+    }
+    inline const coord_sys<T, vec> &get_axes() const
+    {
+        return _axes;
+    }
+    inline const vec<T> &get_center() const
+    {
+        return _center;
+    }
+    inline const vec<T> &get_half_extent() const
+    {
+        return _half_extent;
+    }
+    inline vec<T> get_extent() const
+    {
+        return _half_extent * 2.0;
+    }
+    inline const vec<T> get_min() const
+    {
+        // This returns min in world space (AABB)
+        return _center - _half_extent;
+    }
+    inline const vec<T> get_max() const
+    {
+        // This returns max in world space (AABB)
+        return _center + _half_extent;
+    }
+    inline rot<T> &get_rotation() const
+    {
+        return _rotation;
+    }
+    // inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
+    // {
+    // }
+    inline std::vector<std::pair<vec<T>, vec<T>>> grid(size_t scale) const
+    {
+        // Create the grid cells in world space AABB
+        return vec<T>::grid(get_min(), get_max(), scale);
+    }
+    inline bool point_inside(const vec<T> &p) const
+    {
+        // Transform the point into object's coordinate system
+        const vec<T> t = align(p);
+
+        // Test if point is in aabb in object space
+        return t.within(get_local_min(), get_local_max());
     }
     inline void set_position(const vec<T> &position)
     {
         _center = position;
+    }
+    inline void set_rotation(const rot<T> &r)
+    {
+        // Reset rotation
+        _rotation = r;
+
+        // Get a copy of the reference axes
+        coord_sys<T, vec> ref_axes = vec<T>::axes();
+
+        // Rotate the coordinate axes
+        ref_axes.rotate(r);
+
+        // Reassign to local axes
+        _axes = ref_axes;
     }
     inline T square_distance(const vec<T> &p) const
     {
@@ -114,6 +142,11 @@ class oobbox_base
         // Calculates the squared distance across the box extent
         vec<T> extent = get_extent();
         return extent.dot(extent);
+    }
+    inline std::vector<std::pair<vec<T>, vec<T>>> subdivide() const
+    {
+        // Create the subdivided space in world space AABB
+        return vec<T>::subdivide(get_min(), get_max());
     }
 };
 

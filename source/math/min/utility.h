@@ -87,7 +87,7 @@ inline T clamp_direction(T &val, const T min, const T max)
 template <typename T>
 inline T clamp_value(const T val, const T min, const T minv, const T max, const T maxv)
 {
-    // Clamps val between min and max and assigns either minv or maxv
+    // Clamps val between min and max and assigns either minv, maxv or zero
     if (val < min)
     {
         return minv;
@@ -96,6 +96,8 @@ inline T clamp_value(const T val, const T min, const T minv, const T max, const 
     {
         return maxv;
     }
+
+    return 0.0;
 }
 
 template <typename T>

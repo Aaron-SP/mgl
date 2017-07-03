@@ -27,12 +27,12 @@ bool test_oobbox()
 {
     bool out = true;
 
-    // vec2 aabbox = circle
+    // vec2 oobbox = circle
     {
         // Local variables
-        min::vec2<double> a(-2.0, -2.0);
-        min::vec2<double> b(2.0, 2.0);
-        min::vec2<double> c(3.0, 3.0);
+        min::vec2<double> a(-2.0, 0.0);
+        min::vec2<double> b(2.0, 4.0);
+        min::vec2<double> c(3.0, 5.0);
         min::vec2<double> p;
         min::oobbox<double, min::vec2> box(a, b);
         double d;
@@ -40,7 +40,7 @@ bool test_oobbox()
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobbox closest_point 1");
@@ -52,7 +52,7 @@ bool test_oobbox()
         // Test get_min()
         p = box.get_min();
         out = out && compare(-2.0, p.x(), 1E-4);
-        out = out && compare(-2.0, p.y(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobbox get_min");
@@ -61,7 +61,7 @@ bool test_oobbox()
         // Test get_max()
         p = box.get_max();
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobbox get_max");
@@ -77,7 +77,7 @@ bool test_oobbox()
         }
 
         // Test point inside
-        p = min::vec2<double>(1.0, 1.0);
+        p = min::vec2<double>(1.0, 3.0);
         out = out && box.point_inside(p);
         if (!out)
         {
@@ -94,22 +94,64 @@ bool test_oobbox()
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(1.4142, p.x(), 1E-4);
-        out = out && compare(1.4142, p.y(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobbox closest_point 2");
         }
 
-        // Test roation, Rotate by 45 degrees across Z axis
+        // Test closest point
+        p = min::vec2<double>(-3.0, 5.0);
+        p = box.closest_point(p);
+        out = out && compare(-1.4142, p.x(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox closest_point 3");
+        }
+
+        // Test point inside
+        p = min::vec2<double>(-1.41421, 3.41421);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox point_inside 2");
+        }
+
+        // Test point inside
+        p = min::vec2<double>(-2.0, 2.0);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox point_inside 3");
+        }
+
+        // Test not point inside
+        p = min::vec2<double>(1.41422, 3.41422);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox not point_inside 2");
+        }
+
+        // Test not point inside
+        p = min::vec2<double>(-1.41422, 3.41422);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox not point_inside 3");
+        }
+
+        // Test roation, Rotate by 90 degrees across Z axis
         box.set_rotation(min::mat2<double>(90.0));
 
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         if (!out)
         {
-            throw std::runtime_error("Failed vec2 oobbox closest_point 3");
+            throw std::runtime_error("Failed vec2 oobbox closest_point 4");
         }
 
         // Test square distance
@@ -124,7 +166,7 @@ bool test_oobbox()
         out = out && box.point_inside(b);
         if (!out)
         {
-            throw std::runtime_error("Failed vec2 oobbox point_inside 2");
+            throw std::runtime_error("Failed vec2 oobbox point_inside 5");
         }
 
         // Test square size
@@ -136,21 +178,21 @@ bool test_oobbox()
         }
     }
 
-    // vec3 aabbox
+    // vec3 oobbox
     {
         // Local variables
-        min::vec3<double> a(-2.0, -2.0, -2.0);
-        min::vec3<double> b(2.0, 2.0, 2.0);
-        min::vec3<double> c(3.0, 3.0, 3.0);
-        min::vec3<double> z(0.0, 0.0, 1.0);
+        min::vec3<double> a(-2.0, 0.0, -2.0);
+        min::vec3<double> b(2.0, 4.0, 2.0);
+        min::vec3<double> c(3.0, 5.0, 3.0);
         min::vec3<double> p;
+        min::vec3<double> z(0.0, 0.0, 1.0);
         min::oobbox<double, min::vec3> box(a, b);
         double d;
 
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -163,7 +205,7 @@ bool test_oobbox()
         // Test get_min()
         p = box.get_min();
         out = out && compare(-2.0, p.x(), 1E-4);
-        out = out && compare(-2.0, p.y(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
         out = out && compare(-2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -173,7 +215,7 @@ bool test_oobbox()
         // Test get_max()
         p = box.get_max();
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -191,7 +233,7 @@ bool test_oobbox()
         }
 
         // Test point inside
-        p = min::vec3<double>(1.0, 1.0, 1.0);
+        p = min::vec3<double>(1.0, 3.0, 0.0);
         out = out && box.point_inside(p);
         if (!out)
         {
@@ -208,24 +250,67 @@ bool test_oobbox()
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(1.4142, p.x(), 1E-4);
-        out = out && compare(1.4142, p.y(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 oobbox closest_point 2");
         }
 
-        // Test roation, Rotate by 45 degrees across Z axis
+        // Test closest point
+        p = min::vec3<double>(-3.0, 5.0, 0.0);
+        p = box.closest_point(p);
+        out = out && compare(-1.4142, p.x(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox closest_point 3");
+        }
+
+        // Test point inside
+        p = min::vec3<double>(-1.41421, 3.41421, 0.0);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox point_inside 2");
+        }
+
+        // Test point inside
+        p = min::vec3<double>(-2.0, 2.0, 0.0);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox point_inside 3");
+        }
+
+        // Test not point inside
+        p = min::vec3<double>(1.41422, 3.41422, 0.0);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox not point_inside 2");
+        }
+
+        // Test not point inside
+        p = min::vec3<double>(-1.41422, 3.41422, 0.0);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox not point_inside 3");
+        }
+
+        // Test roation, Rotate by 90 degrees across Z axis
         box.set_rotation(min::quat<double>(z, 90.0));
 
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
-            throw std::runtime_error("Failed vec3 oobbox closest_point 3");
+            throw std::runtime_error("Failed vec3 oobbox closest_point 4");
         }
 
         // Test square distance
@@ -240,7 +325,7 @@ bool test_oobbox()
         out = out && box.point_inside(b);
         if (!out)
         {
-            throw std::runtime_error("Failed vec2 oobbox point_inside 2");
+            throw std::runtime_error("Failed vec3 oobbox point_inside 5");
         }
 
         // Test square size
@@ -252,21 +337,21 @@ bool test_oobbox()
         }
     }
 
-    // vec4 aabbox
+    // vec4 oobbox
     {
         // Local variables
-        min::vec4<double> a(-2.0, -2.0, -2.0, 1.0);
-        min::vec4<double> b(2.0, 2.0, 2.0, 1.0);
-        min::vec4<double> c(3.0, 3.0, 3.0, 1.0);
-        min::vec4<double> z(0.0, 0.0, 1.0, 1.0);
+        min::vec4<double> a(-2.0, 0.0, -2.0, 1.0);
+        min::vec4<double> b(2.0, 4.0, 2.0, 1.0);
+        min::vec4<double> c(3.0, 5.0, 3.0, 1.0);
         min::vec4<double> p;
+        min::vec4<double> z(0.0, 0.0, 1.0, 1.0);
         min::oobbox<double, min::vec4> box(a, b);
         double d;
 
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -279,7 +364,7 @@ bool test_oobbox()
         // Test get_min()
         p = box.get_min();
         out = out && compare(-2.0, p.x(), 1E-4);
-        out = out && compare(-2.0, p.y(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
         out = out && compare(-2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -289,7 +374,7 @@ bool test_oobbox()
         // Test get_max()
         p = box.get_max();
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
@@ -307,7 +392,7 @@ bool test_oobbox()
         }
 
         // Test point inside
-        p = min::vec4<double>(1.0, 1.0, 1.0, 1.0);
+        p = min::vec4<double>(1.0, 3.0, 0.0, 1.0);
         out = out && box.point_inside(p);
         if (!out)
         {
@@ -324,24 +409,67 @@ bool test_oobbox()
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(1.4142, p.x(), 1E-4);
-        out = out && compare(1.4142, p.y(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 oobbox closest_point 2");
         }
 
-        // Test roation, Rotate by 45 degrees across Z axis
+        // Test closest point
+        p = min::vec4<double>(-3.0, 5.0, 0.0, 1.0);
+        p = box.closest_point(p);
+        out = out && compare(-1.4142, p.x(), 1E-4);
+        out = out && compare(3.4142, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox closest_point 3");
+        }
+
+        // Test point inside
+        p = min::vec4<double>(-1.41421, 3.41421, 0.0, 1.0);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox point_inside 2");
+        }
+
+        // Test point inside
+        p = min::vec4<double>(-2.0, 2.0, 0.0, 1.0);
+        out = out && box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox point_inside 3");
+        }
+
+        // Test not point inside
+        p = min::vec4<double>(1.41422, 3.41422, 0.0, 1.0);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox not point_inside 2");
+        }
+
+        // Test not point inside
+        p = min::vec4<double>(-1.41422, 3.41422, 0.0, 1.0);
+        out = out && !box.point_inside(p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox not point_inside 3");
+        }
+
+        // Test roation, Rotate by 90 degrees across Z axis
         box.set_rotation(min::quat<double>(z, 90.0));
 
         // Test closest point
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
-        out = out && compare(2.0, p.y(), 1E-4);
+        out = out && compare(4.0, p.y(), 1E-4);
         out = out && compare(2.0, p.z(), 1E-4);
         if (!out)
         {
-            throw std::runtime_error("Failed vec4 oobbox closest_point 3");
+            throw std::runtime_error("Failed vec4 oobbox closest_point 4");
         }
 
         // Test square distance
@@ -356,7 +484,7 @@ bool test_oobbox()
         out = out && box.point_inside(b);
         if (!out)
         {
-            throw std::runtime_error("Failed vec2 oobbox point_inside 2");
+            throw std::runtime_error("Failed vec4 oobbox point_inside 5");
         }
 
         // Test square size
