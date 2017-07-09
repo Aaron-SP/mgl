@@ -291,7 +291,8 @@ class win32_window
 
         // Choose pixel format
         pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-        pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+        pfd.nVersion = 1;
+        pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
         pfd.iPixelType = PFD_TYPE_RGBA;
         pfd.cColorBits = 32;
         pfd.cDepthBits = 24;
@@ -307,7 +308,7 @@ class win32_window
         // Set choosen pixel format
         if (!SetPixelFormat(_hdc, pixel_format, &pfd))
         {
-            throw std::runtime_error("win32_window: Could not set pixel format.");
+            throw std::runtime_error("win32_window: Could not set pixel format, error: " + std::to_string(GetLastError()));
         }
 
         // Create dummy opengl context for querying opengl extensions
@@ -358,7 +359,7 @@ class win32_window
                     WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
                     WGL_COLOR_BITS_ARB, 32,
                     WGL_DEPTH_BITS_ARB, 24,
-                    WGL_STENCIL_BITS_ARB, 8,
+                    //WGL_STENCIL_BITS_ARB, 8,
                     0}; // End
 
             // Query for available pixel formats
@@ -369,7 +370,7 @@ class win32_window
             // Set choosen pixel format
             if (!SetPixelFormat(_hdc, pixel_format, &pfd))
             {
-                throw std::runtime_error("win32_window: Could not set pixel format.");
+                throw std::runtime_error("win32_window: Could not set pixel format, error: " + std::to_string(GetLastError()));
             }
 
             // Create the rendering context 3.2+
