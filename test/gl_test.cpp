@@ -45,6 +45,7 @@ limitations under the License.
 #include <min/tsphtree.h>
 #include <min/ttran2.h>
 #include <min/ttran3.h>
+#include <min/tuint_sort.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
 #include <min/tvec4.h>
@@ -85,6 +86,7 @@ int main()
         out = out && test_aabb_tree();
         out = out && test_sphere_tree();
         out = out && test_bit_flag();
+        out = out && test_uint_sort();
         out = out && test_aabb_grid();
         out = out && test_sphere_grid();
         out = out && test_md5_anim();

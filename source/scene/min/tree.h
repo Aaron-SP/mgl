@@ -271,13 +271,18 @@ class tree
         std::vector<size_t> index(size);
         std::iota(index.begin(), index.end(), 0);
 
-        // lambda function to create sorted array indices
-        std::sort(index.begin(), index.end(),
-                  [this, &shapes](size_t a, size_t b) {
-                      size_t a_key = this->get_sorting_key(shapes[a].get_center());
-                      size_t b_key = this->get_sorting_key(shapes[b].get_center());
-                      return a_key < b_key;
-                  });
+        // Cache key calculation for sorting speed up
+        std::vector<size_t> key_cache(size);
+        for (size_t i = 0; i < size; i++)
+        {
+            key_cache[i] = this->get_sorting_key(shapes[i].get_center());
+        }
+
+        // use uint radix sort for sorting keys
+        // lambda function to create sorted array indices based on grid key
+        uint_sort<size_t>(index, [this, &key_cache](const size_t a) {
+            return key_cache[a];
+        });
 
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();

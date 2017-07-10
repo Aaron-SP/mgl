@@ -210,6 +210,76 @@ class bit_flag
         _flags[addr.first] &= ~(0x1 << addr.second);
     }
 };
+
+// radix sort for unsigned integers
+template <typename T, typename F>
+inline void uint_sort(std::vector<T> &uints, F &&key_function)
+{
+    const size_t size = uints.size();
+
+    // Initialize copy vector
+    std::vector<T> copy(size, 0);
+    std::vector<T> *from = &uints;
+    std::vector<T> *to = &copy;
+    std::vector<T> *temp = nullptr;
+
+    // Number of passes
+    size_t counts[256];
+    const int passes = sizeof(T) / sizeof(uint8_t);
+
+    for (int i = 0; i < passes; i++)
+    {
+        // zero counts
+        for (size_t &count : counts)
+        {
+            count = 0;
+        }
+
+        // count frequency
+        for (const auto &ui : *from)
+        {
+            // Extract the key
+            const uint8_t key = (key_function(ui) >> 8 * i) & (0xFF);
+
+            // Count the frequency of key
+            counts[key]++;
+        }
+
+        // prefix sum
+        size_t total = 0;
+        for (size_t &count : counts)
+        {
+            const size_t old_count = count;
+            count = total;
+            total += old_count;
+        }
+
+        // sort
+        for (const auto &ui : *from)
+        {
+            // Extract the key
+            const uint8_t key = (key_function(ui) >> 8 * i) & (0xFF);
+
+            // perform copy sort
+            (*to)[counts[key]++] = ui;
+        }
+
+        // Swap from/to for next pass
+        temp = from;
+        from = to;
+        to = temp;
+    }
+
+    // *from was the last *to
+    // Copy sorted array into output, if needed
+    if (from != &uints)
+    {
+        for (size_t i = 0; i < size; i++)
+        {
+            uints[i] = (*from)[i];
+        }
+    }
+}
 }
 
 #endif
