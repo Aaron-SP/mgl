@@ -51,6 +51,69 @@ bool test_uint_sort()
         throw std::runtime_error("Failed uint radix sort");
     }
 
+    // Test ordered sort
+    for (size_t i = 0; i < 256; i++)
+    {
+        uints[i] = i;
+    }
+
+    // Test uint radix sort ordered
+    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+        return a;
+    });
+
+    // Verify ordered
+    for (size_t i = 0; i < 256; i++)
+    {
+        out = out && compare(i, uints[i]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed uint radix sort ordered");
+        }
+    }
+
+    // Test reverse order sort
+    for (size_t i = 0; i < 256; i++)
+    {
+        uints[i] = 256 - (i + 1);
+    }
+
+    // Test uint radix sort reverse
+    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+        return a;
+    });
+
+    // Verify reverse
+    for (size_t i = 0; i < 256; i++)
+    {
+        out = out && compare(i, uints[i]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed uint radix sort reverse");
+        }
+    }
+
+    // Test same sort
+    for (size_t i = 0; i < 256; i++)
+    {
+        uints[i] = 256;
+    }
+
+    // Test uint radix sort same
+    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+        return a;
+    });
+
+    // Verify same
+    for (size_t i = 0; i < 256; i++)
+    {
+        out = out && compare(256, uints[i]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed uint radix sort same");
+        }
+    }
+
     return out;
 }
 

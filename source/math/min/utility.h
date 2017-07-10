@@ -111,35 +111,12 @@ inline void extend(const T val, T &min, T &max)
 }
 
 template <typename T>
-T sgn(const T val)
-{
-    // Returns -1, 0, or 1
-    return (T(0) < val) - (val < T(0));
-}
-
-template <typename T>
 inline void swap(T &a, T &b)
 {
     // Swaps a and b
     T _a = a;
     a = b;
     b = _a;
-}
-
-template <typename T>
-inline void move(std::vector<T> &&src, std::vector<T> &dst)
-{
-    // This is necessary to steal data on GCC 6.3
-    if (dst.size() == 0)
-    {
-        // This actually moves the data
-        dst = std::move(src);
-    }
-    else
-    {
-        // Copies the data to the end of destination vector
-        std::move(src.begin(), src.end(), std::back_inserter(dst));
-    }
 }
 
 // Typename must be an unsigned integer type
