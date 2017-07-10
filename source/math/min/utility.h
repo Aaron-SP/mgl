@@ -217,6 +217,16 @@ inline void uint_sort(std::vector<T> &uints, F &&key_function)
 {
     const size_t size = uints.size();
 
+    // Divert to std::sort for size < 128; 2*N > N*log(N)
+    if (size < 128)
+    {
+        return std::sort(uints.begin(), uints.end(), [key_function](const size_t a, const size_t b) {
+            const size_t a_key = key_function(a);
+            const size_t b_key = key_function(b);
+            return a_key < b_key;
+        });
+    }
+
     // Initialize copy vector
     std::vector<T> copy(size, 0);
     std::vector<T> *from = &uints;

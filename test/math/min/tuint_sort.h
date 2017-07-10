@@ -23,7 +23,17 @@ limitations under the License.
 bool test_uint_sort()
 {
     bool out = true;
-    std::vector<uint64_t> uints = {100000, 70000, 130000, 3, 1, 5000000};
+
+    // Creator vector N > 128 to sort
+    std::vector<uint64_t> uints(256, 100000000);
+    uints[0] = 100000;
+    uints[1] = 70000;
+    uints[37] = 130000;
+    uints[64] = 3;
+    uints[102] = 1;
+    uints[200] = 5000000;
+
+    // Test uint radix sort
     min::uint_sort<uint64_t>(uints, [](const size_t a) {
         return a;
     });
@@ -35,6 +45,7 @@ bool test_uint_sort()
     out = out && compare(100000, uints[3], 1E-4);
     out = out && compare(130000, uints[4], 1E-4);
     out = out && compare(5000000, uints[5], 1E-4);
+    out = out && compare(100000000, uints[6], 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed uint radix sort");
