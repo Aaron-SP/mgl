@@ -15,20 +15,18 @@ limitations under the License.
 #ifndef __MATRIX2__
 #define __MATRIX2__
 
-#include <min/utility.h>
 namespace min
 {
 template <typename T>
 class vec2;
-}
-#include <min/vec2.h>
-namespace min
-{
 template <typename T>
 class mat3;
 }
+
 #include <cmath>
 #include <min/mat3.h>
+#include <min/utility.h>
+#include <min/vec2.h>
 
 // This matrix is left handed and follows the following conventions:
 // (+) angle -> CCW

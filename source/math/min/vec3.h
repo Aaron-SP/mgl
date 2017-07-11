@@ -15,7 +15,6 @@ limitations under the License.
 #ifndef __VECTOR3__
 #define __VECTOR3__
 
-// Forward declarations
 namespace min
 {
 template <typename T, template <typename> class vec>

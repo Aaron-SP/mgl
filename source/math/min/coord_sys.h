@@ -17,20 +17,14 @@ limitations under the License.
 
 namespace min
 {
-
-// Forward declarations
 template <typename T>
 class vec2;
-
 template <typename T>
 class vec3;
-
 template <typename T>
 class vec4;
-
 template <typename T>
 class mat2;
-
 template <typename T>
 class quat;
 }

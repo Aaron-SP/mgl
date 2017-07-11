@@ -18,34 +18,23 @@ limitations under the License.
 namespace min
 {
 template <typename T>
+class mat2;
+template <typename T>
+class mat4;
+template <typename T>
+class quat;
+template <typename T>
 class vec2;
-}
-#include <min/vec2.h>
-namespace min
-{
 template <typename T>
 class vec3;
 }
-#include <min/vec3.h>
-namespace min
-{
-template <typename T>
-class mat2;
-}
-#include <min/mat2.h>
-namespace min
-{
-template <typename T>
-class quat;
-}
-#include <min/quat.h>
-namespace min
-{
-template <typename T>
-class mat4;
-}
+
 #include <cmath>
+#include <min/mat2.h>
 #include <min/mat4.h>
+#include <min/quat.h>
+#include <min/vec2.h>
+#include <min/vec3.h>
 
 // This matrix is left handed and follows the following conventions:
 // x-axis: (+) angle -> CW

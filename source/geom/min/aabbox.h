@@ -37,7 +37,7 @@ class aabbox
     {
         add(verts);
     }
-    void add(const std::vector<vec<T>> &verts)
+    inline void add(const std::vector<vec<T>> &verts)
     {
         // Calculate the maximum extent of the point list
         const auto size = verts.size();

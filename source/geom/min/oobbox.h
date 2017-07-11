@@ -31,6 +31,27 @@ class oobbox_base
     vec<T> _half_extent;
     rot<T> _rotation;
 
+    inline void add(const std::vector<vec<T>> &verts)
+    {
+        // Calculate the maximum extent of the point list
+        const auto size = verts.size();
+        vec<T> min, max;
+        if (size >= 2)
+        {
+            const std::pair<vec<T>, vec<T>> p = vec<T>::extents(verts);
+            min = p.first;
+            max = p.second;
+        }
+        else if (size == 1)
+        {
+            min = verts[0];
+            max = verts[0];
+        }
+
+        // Create box internals
+        _center = (max + min) * 0.5;
+        _half_extent = (max - min) * 0.5;
+    }
     inline const vec<T> get_local_min() const
     {
         // This returns min in object space (AABB)
@@ -43,9 +64,13 @@ class oobbox_base
     }
 
   public:
-    oobbox_base() {}
+    oobbox_base() : _axes(vec<T>::axes()) {}
     oobbox_base(const vec<T> &min, const vec<T> &max)
         : _axes(vec<T>::axes()), _center((max + min) * 0.5), _half_extent((max - min) * 0.5) {}
+    oobbox_base(const std::vector<vec<T>> &verts) : _axes(vec<T>::axes())
+    {
+        add(verts);
+    }
     inline vec<T> align(const vec<T> &p) const
     {
         // Transform to local coordinates
@@ -162,6 +187,7 @@ class oobbox<T, vec2> : public oobbox_base<T, vec2, mat2>
   public:
     oobbox() : oobbox_base<T, vec2, mat2>() {}
     oobbox(const vec2<T> &min, const vec2<T> &max) : oobbox_base<T, vec2, mat2>(min, max) {}
+    oobbox(const std::vector<vec2<T>> &verts) : oobbox_base<T, vec2, mat2>(verts) {}
 };
 
 // Partial specialization for resolving the type of rotation for vec3 = quat<T>
@@ -171,6 +197,7 @@ class oobbox<T, vec3> : public oobbox_base<T, vec3, quat>
   public:
     oobbox() : oobbox_base<T, vec3, quat>() {}
     oobbox(const vec3<T> &min, const vec3<T> &max) : oobbox_base<T, vec3, quat>(min, max) {}
+    oobbox(const std::vector<vec3<T>> &verts) : oobbox_base<T, vec3, quat>(verts) {}
 };
 
 // Partial specialization for resolving the type of rotation for vec4 = quat<T>
@@ -180,6 +207,7 @@ class oobbox<T, vec4> : public oobbox_base<T, vec4, quat>
   public:
     oobbox() : oobbox_base<T, vec4, quat>() {}
     oobbox(const vec4<T> &min, const vec4<T> &max) : oobbox_base<T, vec4, quat>(min, max) {}
+    oobbox(const std::vector<vec4<T>> &verts) : oobbox_base<T, vec4, quat>(verts) {}
 };
 }
 

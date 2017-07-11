@@ -24,7 +24,7 @@ namespace min
 
 // Converts a sphere into a mesh for drawing
 template <typename T, typename K>
-inline min::mesh<T, K> to_mesh(const sphere<T, vec3> &s)
+inline mesh<T, K> to_mesh(const sphere<T, vec3> &s)
 {
     min::mesh<T, K> m("sphere");
     T radius = s.get_radius();
@@ -593,7 +593,7 @@ inline min::mesh<T, K> to_mesh(const sphere<T, vec3> &s)
 
 // Converts an aabbox into a mesh for drawing
 template <typename T, typename K>
-inline min::mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
+inline mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
 {
     min::mesh<T, K> m("aabbox");
     const vec3<T> &min = b.get_min();

@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef __UTILITY__
 #define __UTILITY__
 
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 

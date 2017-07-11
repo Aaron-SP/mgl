@@ -1,7 +1,7 @@
 # MGL Makefile - CYGWIN | LINUX
 
 # Automatically generate variable name lists
-CGRAPH_SOURCES = $(wildcard source/*.cpp) $(source/platform/min/glew.cpp)
+CGRAPH_SOURCES = $(wildcard source/cpp/*.cpp) $(source/platform/min/glew.cpp)
 
 # Convert the .cpp files to .o files
 OBJGRAPH_SOURCES = $(CGRAPH_SOURCES:.cpp=.o)
@@ -94,7 +94,7 @@ clean_junk:
 	rm -f min_ex6.txt
 	rm -f min_ex7.txt
 clean_source:
-	rm -f source/*.o
+	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
 	rm -f bin/libmin.a
 clean_tests:

@@ -18,22 +18,17 @@ limitations under the License.
 namespace min
 {
 template <typename T>
-class vec3;
-}
-#include <min/vec3.h>
-namespace min
-{
+class mat4;
 template <typename T>
 class quat;
-}
-#include <min/quat.h>
-namespace min
-{
 template <typename T>
-class mat4;
+class vec3;
 }
+
 #include <cmath>
 #include <min/mat4.h>
+#include <min/quat.h>
+#include <min/vec3.h>
 
 namespace min
 {

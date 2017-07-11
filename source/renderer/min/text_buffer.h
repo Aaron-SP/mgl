@@ -15,6 +15,8 @@ limitations under the License.
 #ifndef __TEXTBUFFER__
 #define __TEXTBUFFER__
 
+#include <min/program.h>
+#include <min/vec4.h>
 #include <min/window.h>
 
 #include <ft2build.h>

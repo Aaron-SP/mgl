@@ -16,6 +16,7 @@ limitations under the License.
 #define __UNIFORMBUFFER__
 
 #include <cstdint>
+#include <cstring>
 #include <limits>
 #include <min/light.h>
 #include <min/mat4.h>

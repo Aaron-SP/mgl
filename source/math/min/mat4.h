@@ -18,22 +18,17 @@ limitations under the License.
 namespace min
 {
 template <typename T>
-class vec3;
-}
-#include <min/vec3.h>
-namespace min
-{
+class mat3;
 template <typename T>
 class quat;
-}
-#include <min/quat.h>
-namespace min
-{
 template <typename T>
-class mat3;
+class vec3;
 }
+
 #include <cmath>
 #include <min/mat3.h>
+#include <min/quat.h>
+#include <min/vec3.h>
 
 // This matrix is left handed and follows the following conventions:
 // Rotation can be instantiated from a mat2<T>, mat3<T>, or a quat<T>

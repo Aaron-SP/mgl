@@ -34,10 +34,42 @@ bool test_oobbox()
         min::vec2<double> b(2.0, 4.0);
         min::vec2<double> c(3.0, 5.0);
         min::vec2<double> p;
-        min::oobbox<double, min::vec2> box(a, b);
+        min::oobbox<double, min::vec2> box;
         double d;
 
+        // Test oobbox vector constructor
+        std::vector<min::vec2<double>> v = {a, b, c};
+        box = min::oobbox<double, min::vec2>(v);
+
+        // Test box min
+        p = box.get_min();
+        out = out && compare(-2.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox vector min");
+        }
+
+        // Test box max
+        p = box.get_max();
+        out = out && compare(3.0, p.x(), 1E-4);
+        out = out && compare(5.0, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox vector max");
+        }
+
+        // Test box center
+        p = box.get_center();
+        out = out && compare(0.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox vector center");
+        }
+
         // Test closest point
+        box = min::oobbox<double, min::vec2>(a, b);
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
         out = out && compare(4.0, p.y(), 1E-4);
@@ -186,10 +218,45 @@ bool test_oobbox()
         min::vec3<double> c(3.0, 5.0, 3.0);
         min::vec3<double> p;
         min::vec3<double> z(0.0, 0.0, 1.0);
-        min::oobbox<double, min::vec3> box(a, b);
+        min::oobbox<double, min::vec3> box;
         double d;
 
+        // Test oobbox vector constructor
+        std::vector<min::vec3<double>> v = {a, b, c};
+        box = min::oobbox<double, min::vec3>(v);
+
+        // Test box min
+        p = box.get_min();
+        out = out && compare(-2.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        out = out && compare(-2.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox vector min");
+        }
+
+        // Test box max
+        p = box.get_max();
+        out = out && compare(3.0, p.x(), 1E-4);
+        out = out && compare(5.0, p.y(), 1E-4);
+        out = out && compare(3.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox vector max");
+        }
+
+        // Test box center
+        p = box.get_center();
+        out = out && compare(0.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
+        out = out && compare(0.5, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox vector center");
+        }
+
         // Test closest point
+        box = min::oobbox<double, min::vec3>(a, b);
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
         out = out && compare(4.0, p.y(), 1E-4);
@@ -345,10 +412,45 @@ bool test_oobbox()
         min::vec4<double> c(3.0, 5.0, 3.0, 1.0);
         min::vec4<double> p;
         min::vec4<double> z(0.0, 0.0, 1.0, 1.0);
-        min::oobbox<double, min::vec4> box(a, b);
+        min::oobbox<double, min::vec4> box;
         double d;
 
+        // Test oobbox vector constructor
+        std::vector<min::vec4<double>> v = {a, b, c};
+        box = min::oobbox<double, min::vec4>(v);
+
+        // Test box min
+        p = box.get_min();
+        out = out && compare(-2.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        out = out && compare(-2.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox vector min");
+        }
+
+        // Test box max
+        p = box.get_max();
+        out = out && compare(3.0, p.x(), 1E-4);
+        out = out && compare(5.0, p.y(), 1E-4);
+        out = out && compare(3.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox vector max");
+        }
+
+        // Test box center
+        p = box.get_center();
+        out = out && compare(0.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
+        out = out && compare(0.5, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox vector center");
+        }
+
         // Test closest point
+        box = min::oobbox<double, min::vec4>(a, b);
         p = box.closest_point(c);
         out = out && compare(2.0, p.x(), 1E-4);
         out = out && compare(4.0, p.y(), 1E-4);

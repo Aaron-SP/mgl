@@ -15,13 +15,14 @@ limitations under the License.
 #ifndef __QUATERNION__
 #define __QUATERNION__
 
-#include <min/utility.h>
 namespace min
 {
 template <typename T>
 class vec3;
 }
+
 #include <cmath>
+#include <min/utility.h>
 #include <min/vec3.h>
 #include <stdexcept>
 
