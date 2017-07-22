@@ -130,7 +130,7 @@ inline std::vector<std::pair<size_t, size_t>> read_lines(const std::string &data
             if (length != 0)
             {
                 // Record line position numbers
-                out.push_back(std::make_pair(start, length));
+                out.emplace_back(start, length);
             }
 
             // Reset start index, start == size if 'space' ends the string

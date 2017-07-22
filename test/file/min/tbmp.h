@@ -23,7 +23,7 @@ bool test_bmp()
 {
     bool out = true;
 
-    // Windows paint BMP
+    // Windows paint BMP 24 bit
     {
         // Local variables
         int s;
@@ -39,18 +39,18 @@ bool test_bmp()
         out = out && compare(196608, s);
         if (!out)
         {
-            throw std::runtime_error("Failed bmp image constructor properties");
+            throw std::runtime_error("Failed bmp win 24 bit image constructor properties");
         }
 
         data = image.get_pixels();
         out = out && compare(196608, data.size());
         if (!out)
         {
-            throw std::runtime_error("Failed bmp image size");
+            throw std::runtime_error("Failed bmp win 24 bit image size");
         }
     }
 
-    // GIMP BMP
+    // GIMP BMP 24 bit
     {
         // Local variables
         int s;
@@ -66,14 +66,41 @@ bool test_bmp()
         out = out && compare(196608, s);
         if (!out)
         {
-            throw std::runtime_error("Failed bmp image constructor properties");
+            throw std::runtime_error("Failed bmp gimp 24 bit image constructor properties");
         }
 
         data = image.get_pixels();
         out = out && compare(196608, data.size());
         if (!out)
         {
-            throw std::runtime_error("Failed bmp image size");
+            throw std::runtime_error("Failed bmp gimp 24 bit image size");
+        }
+    }
+
+    // GIMP BMP 32 bit
+    {
+        // Local variables
+        int s;
+        int w;
+        int h;
+        std::vector<uint8_t> data;
+        const min::bmp image = min::bmp("data/texture/stone.bmp");
+        s = image.get_size();
+        w = image.get_width();
+        h = image.get_height();
+        out = out && compare(256, w);
+        out = out && compare(256, h);
+        out = out && compare(262144, s);
+        if (!out)
+        {
+            throw std::runtime_error("Failed bmp 32 bit image constructor properties");
+        }
+
+        data = image.get_pixels();
+        out = out && compare(262144, data.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed bmp 32 bit image size");
         }
     }
     return out;

@@ -22,6 +22,13 @@ limitations under the License.
 #include <stdexcept>
 #include <vector>
 
+// The shape class must fulfill the following interface to be inserted into the spatial structure
+// shape.get_center()
+// shape.get_min()
+// shape.get_max()
+// shape.square_size()
+// intersect(shape, shape)
+
 // Forward declaration for grid_node
 namespace min
 {

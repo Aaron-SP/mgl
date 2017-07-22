@@ -34,12 +34,12 @@ class mesh
     // n = (v1 - v0).cross(v2 - v0).normalize()
     // This is only valid for CW triangles, needs to be negated for CCW triangles
 
-    inline void calculate_normal(size_t a, size_t b, size_t c)
+    inline void calculate_normal(const size_t a, const size_t b, const size_t c)
     {
         // Get references to triangle vecs
-        K ia = index[a];
-        K ib = index[b];
-        K ic = index[c];
+        const K ia = index[a];
+        const K ib = index[b];
+        const K ic = index[c];
 
         // Get vertices
         const vec3<T> &v0 = vertex[ia];
@@ -47,7 +47,7 @@ class mesh
         const vec3<T> &v2 = vertex[ic];
 
         // Calculate normal on triangle, these triangles are drawn CW, negate for CCW
-        vec3<T> n = vec3<T>::normal(v0, v1, v2);
+        const vec3<T> n = vec3<T>::normal(v0, v1, v2);
 
         // Set the normals for each index
         normal[ia] += n;
@@ -84,7 +84,7 @@ class mesh
     //    /
     //   Normal (y)
 
-    inline void calculate_tangent(size_t a, size_t b, size_t c)
+    inline void calculate_tangent(const size_t a, const size_t b, const size_t c)
     {
         // Get references to triangle vecs
         const K ia = index[a];
@@ -119,7 +119,7 @@ class mesh
         add_tangents(std::make_pair(tan, bit), ic);
     }
 
-    inline void add_tangents(const std::pair<vec3<T>, vec3<T>> &tan, size_t in)
+    inline void add_tangents(const std::pair<vec3<T>, vec3<T>> &tan, const size_t in)
     {
         // Get the normal for this vertex
         const vec3<T> &norm = normal[in];
