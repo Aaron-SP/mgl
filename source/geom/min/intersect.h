@@ -374,12 +374,17 @@ inline vec<T> resolve(const sphere<T, vec> &s1, const sphere<T, vec> &s2, vec<T>
 template <typename T, template <typename> class vec>
 inline vec<T> resolve(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2, vec<T> &normal, vec<T> &p, const T tolerance)
 {
+    // Calculate the closest point on box1 to box2 center
+    const vec<T> p1 = box1.closest_point(box2.get_center());
+
     // Calculate the closest point on box2 to box1 center
-    p = (box2.closest_point(box1.get_center()) + box1.closest_point(box2.get_center())) * 0.5;
+    const vec<T> p2 = box2.closest_point(box1.get_center());
+
+    // Calculate the point of collision by averaging the two points
+    p = (p1 + p2) * 0.5;
 
     // Calculate normal vector on box2 pointing towards box1
-    T length;
-    normal = box2.normal(p, length, tolerance);
+    normal = box2.normal(p, tolerance);
 
     // The penetration depth is the difference between box extents and the absolute difference between box centers along the normal axis
     const vec<T> half_extents = (box1.get_extent() + box2.get_extent()) * 0.5;
@@ -389,6 +394,36 @@ inline vec<T> resolve(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2, ve
     const T penetration = std::abs((half_extents - d).dot(normal)) + tolerance;
 
     // Normalize direction vector and multiply by penetration depth
+    return normal * penetration;
+}
+
+// This function is only valid if box1 is intersecting box2
+// Calculates the collision normal vector that points toward box1
+// Calculates the closest point on box2 to box1's center
+// returns the translation offset of box1 needed to eliminate penetration between box1 and box2
+template <typename T, template <typename> class vec>
+inline vec<T> resolve(const oobbox<T, vec> &box1, const oobbox<T, vec> &box2, vec<T> &normal, vec<T> &p, const T tolerance)
+{
+    // Calculate the closest point on box1 to box2 center
+    const vec<T> p1 = box1.closest_point(box2.get_center());
+
+    // Calculate the closest point on box2 to box1 center
+    const vec<T> p2 = box2.closest_point(box1.get_center());
+
+    // Calculate the point of collision by averaging the two points
+    p = (p1 + p2) * 0.5;
+
+    // Calculate the minimum penetration distance along box axis, coordinate system is in world-space!
+    const std::pair<vec<T>, T> sat = vec<T>::project_sat_penetration(
+        box1.get_axes(), box1.get_center(), box1.get_half_extent(), box2.get_axes(), box2.get_center(), box2.get_half_extent(), tolerance);
+
+    // Negate the normal vector, so we move away from the penetration
+    normal = sat.first * -1.0;
+
+    // Calculate the penetration depth, add a little extra to get off the edge
+    T penetration = sat.second + tolerance;
+
+    // Multiply normal vector by penetation depth
     return normal * penetration;
 }
 }

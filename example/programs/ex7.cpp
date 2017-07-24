@@ -128,7 +128,7 @@ class physics_test
     }
     void load_camera_uniforms()
     {
-        // Move and camera to +Y and look at origin
+        // Move and camera to +Z and look at origin
         min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
         min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
@@ -145,8 +145,8 @@ class physics_test
 
         // Load light into uniform buffer
         min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
-        min::vec4<float> light_position(0.0, 0.0, 0.0, 1.0);
-        min::vec4<float> light_power(0.25, 20.0, 2.0, 1.0);
+        min::vec4<float> light_position(0.0, 0.0, 300.0, 1.0);
+        min::vec4<float> light_power(0.25, 300.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer
@@ -163,7 +163,7 @@ class physics_test
         // Initialize with fixed seed
         rng.seed(101129);
 
-        // Radius of circle
+        // Creates aabb's
         float radius2 = radius * radius;
         bool flag = true;
         for (size_t i = 0; i < 100; i++)

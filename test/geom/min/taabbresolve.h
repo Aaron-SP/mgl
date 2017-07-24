@@ -55,6 +55,14 @@ bool test_aabb_resolve()
         // Resolve intersecting aabbs
         offset = min::resolve<double, min::vec2>(b1, b2, normal, intersect, 1E-3);
 
+        // Test normal vector
+        out = out && compare(-0.7071, normal.x(), 1E-4);
+        out = out && compare(-0.7071, normal.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 aabb-aabb normal vector validation");
+        }
+
         // Test aabb-aabb intersection for validation
         out = out && compare(1.525, intersect.x(), 1E-4);
         out = out && compare(1.525, intersect.y(), 1E-4);
@@ -121,6 +129,15 @@ bool test_aabb_resolve()
 
         // Resolve intersecting aabbs
         offset = min::resolve<double, min::vec3>(b1, b2, normal, intersect, 1E-3);
+
+        // Test normal vector
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 aabb-aabb normal vector validation");
+        }
 
         // Test aabb-aabb intersection for validation
         out = out && compare(1.525, intersect.x(), 1E-4);
@@ -190,6 +207,15 @@ bool test_aabb_resolve()
 
         // Resolve intersecting aabbs
         offset = min::resolve<double, min::vec4>(b1, b2, normal, intersect, 1E-3);
+
+        // Test normal vector
+        out = out && compare(-0.5773, normal.x(), 1E-4);
+        out = out && compare(-0.5773, normal.y(), 1E-4);
+        out = out && compare(-0.5773, normal.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 aabb-aabb normal vector validation");
+        }
 
         // Test aabb-aabb intersection for validation
         out = out && compare(1.525, intersect.x(), 1E-4);

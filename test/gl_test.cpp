@@ -33,6 +33,7 @@ limitations under the License.
 #include <min/tmodel.h>
 #include <min/toobbox.h>
 #include <min/toobboxinter.h>
+#include <min/toobbresolve.h>
 #include <min/tphysics.h>
 #include <min/tplane.h>
 #include <min/tquat.h>
@@ -75,6 +76,7 @@ int main()
         out = out && test_aabbox_intersect();
         out = out && test_aabb_resolve();
         out = out && test_oobbox_intersect();
+        out = out && test_oobb_resolve();
         out = out && test_frustum();
         out = out && test_frustum_intersect();
         out = out && test_camera();

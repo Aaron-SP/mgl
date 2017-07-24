@@ -524,6 +524,42 @@ class vec4
 
         return std::make_pair(vec4<T>(), vec4<T>());
     }
+    inline static vec4<T> normal_box_aligned(const vec4<T> &p, const vec4<T> &min, const vec4<T> &max)
+    {
+        // Check the left face
+        if (p.x() < min.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
+        {
+            return vec3<T>(-1.0, 0.0, 0.0);
+        }
+        // check the right face
+        else if (p.x() > max.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
+        {
+            return vec3<T>(1.0, 0.0, 0.0);
+        }
+        // check the bottom face
+        else if (p.y() < min.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
+        {
+            return vec3<T>(0.0, -1.0, 0.0);
+        }
+        // check the top face
+        else if (p.y() > max.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
+        {
+            return vec3<T>(0.0, 1.0, 0.0);
+        }
+        // check the back face
+        else if (p.z() < min.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
+        {
+            return vec3<T>(0.0, 0.0, -1.0);
+        }
+        // check the front face
+        else if (p.z() > max.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
+        {
+            return vec3<T>(0.0, 0.0, 1.0);
+        }
+
+        // Normal is on a corner, normal = p - center
+        return p - (min + max) * 0.5;
+    }
     inline static vec4<T> normal(const vec4<T> &a, const vec4<T> &b, const vec4<T> &c)
     {
         // Computes normal vector to three points
@@ -532,10 +568,29 @@ class vec4
     }
     inline vec4<T> &normalize()
     {
-        T mag = 1.0 / magnitude();
-        _x *= mag;
-        _y *= mag;
-        _z *= mag;
+        T inv_mag = 1.0 / magnitude();
+        _x *= inv_mag;
+        _y *= inv_mag;
+        _z *= inv_mag;
+
+        return *this;
+    }
+    inline vec4<T> &normalize_safe(const vec4<T> &safe)
+    {
+        T mag = magnitude();
+        if (std::abs(mag) > 1E-3)
+        {
+            T inv_mag = 1.0 / mag;
+            _x *= inv_mag;
+            _y *= inv_mag;
+            _z *= inv_mag;
+        }
+        else
+        {
+            _x = safe.x();
+            _y = safe.y();
+            _z = safe.z();
+        }
 
         return *this;
     }
@@ -620,7 +675,7 @@ class vec4
     static inline bool project_sat(const coord_sys<T, vec4> &axis1, const vec4<T> &center1, const vec4<T> &extent1, const coord_sys<T, vec4> &axis2, const vec4<T> &center2, const vec4<T> &extent2)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersections
-        // For every axis test (C2-C1).dot(axis_n) > (a.get_extent() + b.get_extent()).dot(axis_n)
+        // For every axis test (C2-C1).dot(L) > (a.get_extent() + b.get_extent()).dot(L)
         // This means testing the difference between box centers, C1 & C2, along the separating axis L
         // With the addition of box extents along this same axis L
         // For 3D, there are 15 axes that need to be tested against...
@@ -734,6 +789,156 @@ class vec4
 
         return true;
     }
+    static inline std::pair<vec4<T>, T> project_sat_penetration(
+        const coord_sys<T, vec4> &axis1, const vec4<T> &center1, const vec4<T> &extent1,
+        const coord_sys<T, vec4> &axis2, const vec4<T> &center2, const vec4<T> &extent2, const T tolerance)
+    {
+        // This performs the separating axis theorem for checking oobb-oobb intersection penetration
+        // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L)
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 3D, there are 15 axes that need to be tested against...
+        // 2x3=6 local box axes plus and 3x3=9 axes perpendicular to the 6 local box axes
+
+        // Rotation matrix expressing A2 in A1's coordinate frame
+        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
+        const T xx = std::abs(axis1.x().dot(axis2.x()));
+        const T xy = std::abs(axis1.x().dot(axis2.y()));
+        const T xz = std::abs(axis1.x().dot(axis2.z()));
+        const T yx = std::abs(axis1.y().dot(axis2.x()));
+        const T yy = std::abs(axis1.y().dot(axis2.y()));
+        const T yz = std::abs(axis1.y().dot(axis2.z()));
+        const T zx = std::abs(axis1.z().dot(axis2.x()));
+        const T zy = std::abs(axis1.z().dot(axis2.y()));
+        const T zz = std::abs(axis1.z().dot(axis2.z()));
+
+        // Bring translation into A1's coordinate frame
+        const vec4<T> d = center2 - center1;
+        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0).abs();
+
+        // Store axis and penetration depths
+        vec4<T> axes[15];
+        T penetration[15];
+
+        // Test L = A1.x(); d1 and d2 is the length of extents along L
+        T dL1 = extent1.x();
+        T dL2 = extent2.x() * xx + extent2.y() * xy + extent2.z() * xz;
+        axes[0] = axis1.x();
+        penetration[0] = (dL1 + dL2) - t.x();
+
+        // Test L = A1.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.y();
+        dL2 = extent2.x() * yx + extent2.y() * yy + extent2.z() * yz;
+        axes[1] = axis1.y();
+        penetration[1] = (dL1 + dL2) - t.y();
+
+        // Test L = A1.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.z();
+        dL2 = extent2.x() * zx + extent2.y() * zy + extent2.z() * zz;
+        axes[2] = axis1.z();
+        penetration[2] = (dL1 + dL2) - t.z();
+
+        // Test L = A2.x(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xx + extent1.y() * yx + extent1.z() * zx;
+        dL2 = extent2.x();
+        axes[3] = axis2.x();
+        penetration[3] = (dL1 + dL2) - (t.x() * xx + t.y() * yx + t.z() * zx);
+
+        // Test L = A2.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xy + extent1.y() * yy + extent1.z() * zy;
+        dL2 = extent2.y();
+        axes[4] = axis2.y();
+        penetration[4] = (dL1 + dL2) - (t.x() * xy + t.y() * yy + t.z() * zy);
+
+        // Test L = A2.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xz + extent1.y() * yz + extent1.z() * zz;
+        dL2 = extent2.z();
+        axes[5] = axis2.z();
+        penetration[5] = (dL1 + dL2) - (t.x() * xz + t.y() * yz + t.z() * zz);
+
+        // Test axis L = A1.x() X A2.x()
+        dL1 = extent1.y() * zx + extent1.z() * yx;
+        dL2 = extent2.y() * xz + extent2.z() * xy;
+        axes[6] = axis1.x().cross(axis2.x());
+        penetration[6] = (dL1 + dL2) - (t.z() * yx - t.y() * zx);
+
+        // Test axis L = A1.x() X A2.y()
+        dL1 = extent1.y() * zy + extent1.z() * yy;
+        dL2 = extent2.x() * xz + extent2.z() * xx;
+        axes[7] = axis1.x().cross(axis2.y());
+        penetration[7] = (dL1 + dL2) - (t.z() * yy - t.y() * zy);
+
+        // Test axis L = A1.x() X A2.z()
+        dL1 = extent1.y() * zz + extent1.z() * yz;
+        dL2 = extent2.x() * xy + extent2.y() * xx;
+        axes[8] = axis1.x().cross(axis2.z());
+        penetration[8] = (dL1 + dL2) - (t.z() * yz - t.y() * zz);
+
+        // Test axis L = A1.y() X A2.x()
+        dL1 = extent1.x() * zx + extent1.z() * xx;
+        dL2 = extent2.y() * yz + extent2.z() * yy;
+        axes[9] = axis1.y().cross(axis2.x());
+        penetration[9] = (dL1 + dL2) - (t.x() * zx - t.z() * xx);
+
+        // Test axis L = A1.y() X A2.y()
+        dL1 = extent1.x() * zy + extent1.z() * xy;
+        dL2 = extent2.x() * yz + extent2.z() * yx;
+        axes[10] = axis1.y().cross(axis2.y());
+        penetration[10] = (dL1 + dL2) - (t.x() * zy - t.z() * xy);
+
+        // Test axis L = A1.y() X A2.z()
+        dL1 = extent1.x() * zz + extent1.z() * xz;
+        dL2 = extent2.x() * yy + extent2.y() * yx;
+        axes[11] = axis1.y().cross(axis2.z());
+        penetration[11] = (dL1 + dL2) - (t.x() * zz - t.z() * xz);
+
+        // Test axis L = A1.z() X A2.x()
+        dL1 = extent1.x() * yx + extent1.y() * xx;
+        dL2 = extent2.y() * zz + extent2.z() * zy;
+        axes[12] = axis1.z().cross(axis2.x());
+        penetration[12] = (dL1 + dL2) - (t.y() * xx - t.x() * yx);
+
+        // Test axis L = A1.z() X A2.y()
+        dL1 = extent1.x() * yy + extent1.y() * xy;
+        dL2 = extent2.x() * zz + extent2.z() * zx;
+        axes[13] = axis1.z().cross(axis2.y());
+        penetration[13] = (dL1 + dL2) - (t.y() * xy - t.x() * yy);
+
+        // Test axis L = A1.z() X A2.z()
+        dL1 = extent1.x() * yz + extent1.y() * xz;
+        dL2 = extent2.x() * zy + extent2.y() * zx;
+        axes[14] = axis1.z().cross(axis2.z());
+        penetration[14] = (dL1 + dL2) - (t.y() * xz - t.x() * yz);
+
+        // normal default up vector return and zero penetration
+        vec4<T> normal = vec4<T>::up();
+        T overlap = 0.0;
+
+        // Find the minimum, non-zero penetration index
+        T min = 1E15;
+        int index = -1;
+        for (int i = 0; i < 15; i++)
+        {
+            // Prune all parallel normal vectors and non-penetrating depths
+            const T mag2 = axes[i].dot(axes[i]);
+            if (mag2 > tolerance && penetration[i] > tolerance && penetration[i] < min)
+            {
+                min = penetration[i];
+                index = i;
+            }
+        }
+
+        // check if we found an intersection penetration
+        if (index != -1)
+        {
+            normal = axes[index];
+            overlap = min;
+        }
+
+        // return normal vector and minimum penentration
+        return std::make_pair(normal, overlap);
+    }
+
     // Subdividing vector space into 2^3 spaces using binary key location codes for index (xyz)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin), (z - zmin)/(zmax - zmin)
     // Yields the key location code if MSB 0 = -, MSB 1 = +

@@ -58,6 +58,12 @@ constexpr inline T deg_to_rad2(T degrees)
 }
 
 template <typename T>
+bool between(const T val, const T min, const T max)
+{
+    return (val > min) && (val < max);
+}
+
+template <typename T>
 inline void clamp(T &val, const T min, const T max)
 {
     // Clamps val between min and max

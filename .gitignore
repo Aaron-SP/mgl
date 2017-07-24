@@ -9,6 +9,7 @@ min_ex4.txt
 min_ex5.txt
 min_ex6.txt
 min_ex7.txt
+min_ex8.txt
 source/*.o
 source/*/*.o
 test/*.o

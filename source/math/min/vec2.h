@@ -359,6 +359,32 @@ class vec2
 
         return std::make_pair(vec2<T>(), vec2<T>());
     }
+    inline static vec2<T> normal_box_aligned(const vec2<T> &p, const vec2<T> &min, const vec2<T> &max)
+    {
+        // Check the left face
+        if (p.x() < min.x() && between<T>(p.y(), min.y(), max.y()))
+        {
+            return vec2<T>(-1.0, 0.0);
+        }
+        // check the right face
+        else if (p.x() > max.x() && between<T>(p.y(), min.y(), max.y()))
+        {
+            return vec2<T>(1.0, 0.0);
+        }
+        // check the bottom face
+        else if (p.y() < min.y() && between<T>(p.x(), min.x(), max.x()))
+        {
+            return vec2<T>(0.0, -1.0);
+        }
+        // check the top face
+        else if (p.y() > max.y() && between<T>(p.x(), min.x(), max.x()))
+        {
+            return vec2<T>(0.0, 1.0);
+        }
+
+        // Normal is on a corner, normal = p - center
+        return p - (min + max) * 0.5;
+    }
     inline static vec2<T> normal(const vec2<T> &a, const vec2<T> &b, const vec2<T> &c)
     {
         // Computes normal vector to two points, third argument is ignored
@@ -367,9 +393,26 @@ class vec2
     }
     inline vec2<T> &normalize()
     {
-        T mag = 1.0 / magnitude();
-        _x *= mag;
-        _y *= mag;
+        T inv_mag = 1.0 / magnitude();
+        _x *= inv_mag;
+        _y *= inv_mag;
+
+        return *this;
+    }
+    inline vec2<T> &normalize_safe(const vec2<T> &safe)
+    {
+        T mag = magnitude();
+        if (std::abs(mag) > 1E-3)
+        {
+            T inv_mag = 1.0 / mag;
+            _x *= inv_mag;
+            _y *= inv_mag;
+        }
+        else
+        {
+            _x = safe.x();
+            _y = safe.y();
+        }
 
         return *this;
     }
@@ -427,7 +470,7 @@ class vec2
     static inline bool project_sat(const coord_sys<T, vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1, const coord_sys<T, vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersections
-        // For every axis test (C2-C1).dot(axis_n) > (a.get_extent() + b.get_extent()).dot(axis_n)
+        // For every axis test (C2-C1).dot(L) > (a.get_extent() + b.get_extent()).dot(L)
         // This means testing the difference between box centers, C1 & C2, along the separating axis L
         // With the addition of box extents along this same axis L
         // For 2D, there are 4 axes that need to be tested against...
@@ -470,6 +513,86 @@ class vec2
 
         return true;
     }
+
+    static inline std::pair<vec2<T>, T> project_sat_penetration(
+        const coord_sys<T, vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1,
+        const coord_sys<T, vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2, const T tolerance)
+    {
+        // This performs the separating axis theorem for checking oobb-oobb intersection penetration
+        // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L)
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 2D, there are 4 axes that need to be computed...
+        // 2*2 = 4 local box axes
+
+        // Rotation matrix expressing A2 in A1's coordinate frame
+        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
+        const T xx = std::abs(axis1.x().dot(axis2.x()));
+        const T xy = std::abs(axis1.x().dot(axis2.y()));
+        const T yx = std::abs(axis1.y().dot(axis2.x()));
+        const T yy = std::abs(axis1.y().dot(axis2.y()));
+
+        // Bring translation into A1's coordinate frame
+        const vec2<T> d = center2 - center1;
+        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y())).abs();
+
+        // Store axis and penetration depths
+        vec2<T> axes[4];
+        T penetration[4];
+
+        // Test L = A1.x(); d1 and d2 is the length of extents along L
+        T dL1 = extent1.x();
+        T dL2 = extent2.x() * xx + extent2.y() * xy;
+        axes[0] = axis1.x();
+        penetration[0] = (dL1 + dL2) - t.x();
+
+        // Test L = A1.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.y();
+        dL2 = extent2.x() * yx + extent2.y() * yy;
+        axes[1] = axis1.y();
+        penetration[1] = (dL1 + dL2) - t.y();
+
+        // Test L = A2.x(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xx + extent1.y() * yx;
+        dL2 = extent2.x();
+        axes[2] = axis2.x();
+        penetration[2] = (dL1 + dL2) - (t.x() * xx + t.y() * yx);
+
+        // Test L = A2.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * xy + extent1.y() * yy;
+        dL2 = extent2.y();
+        axes[3] = axis2.y();
+        penetration[3] = (dL1 + dL2) - (t.x() * xy + t.y() * yy);
+
+        // normal default up vector return and zero penetration
+        vec2<T> normal = vec2<T>::up();
+        T overlap = 0.0;
+
+        // Find the minimum, non-zero penetration index
+        T min = 1E15;
+        int index = -1;
+        for (int i = 0; i < 4; i++)
+        {
+            // Prune all parallel normal vectors and non-penetrating depths
+            const T mag2 = axes[i].dot(axes[i]);
+            if (mag2 > tolerance && penetration[i] > tolerance && penetration[i] < min)
+            {
+                min = penetration[i];
+                index = i;
+            }
+        }
+
+        // check if we found an intersection penetration
+        if (index != -1)
+        {
+            normal = axes[index];
+            overlap = min;
+        }
+
+        // return normal vector and minimum penentration
+        return std::make_pair(normal, overlap);
+    }
+
     // Subdividing vector space into 2^2 spaces using binary key location codes for index (xy)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin)
     // Yields the key location code if MSB 0 = -, MSB 1 = +

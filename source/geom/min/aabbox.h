@@ -83,27 +83,13 @@ class aabbox
         // Create the grid cells
         return vec<T>::grid(_min, _max, scale);
     }
-    inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
+    inline vec<T> normal(const vec<T> &p, const T tolerance) const
     {
         // Calculate normal direction vector
-        vec<T> normal = p - this->get_center();
+        vec<T> normal = vec<T>::normal_box_aligned(p, _min, _max);
 
-        // Length is initially zero
-        length = 0.0;
-
-        // Test for zero vector if p = center
-        T mag2 = normal.dot(normal);
-        if (mag2 < tolerance)
-        {
-            // If the two boxes have the same center use up vector
-            return vec<T>::up();
-        }
-
-        // Calculate the length
-        length = std::sqrt(mag2);
-
-        // Normalize the collision normal vector
-        normal /= length;
+        // Normalize, if zero use up vector
+        normal.normalize_safe(vec<T>::up());
 
         return normal;
     }

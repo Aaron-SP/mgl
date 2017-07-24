@@ -217,8 +217,10 @@ double physics2D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<float, min::vec2, min::tree>(V, fabw2, fab2);
+    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec2, min::tree>(V, fabw2, fob2);
     iR += 1.0 / bench_physics_aabb_sphere<float, min::vec2, min::tree>(V, fabw2, fs2);
     iR += 1.0 / bench_physics_sphere_aabb<float, min::vec2, min::tree>(V, fsw2, fab2);
+    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec2, min::tree>(V, fsw2, fob2);
     iR += 1.0 / bench_physics_sphere_sphere<float, min::vec2, min::tree>(V, fsw2, fs2);
 
     // Run benchmarks in single precision
@@ -227,8 +229,10 @@ double physics2D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<double, min::vec2, min::tree>(V, dabw2, dab2);
+    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec2, min::tree>(V, dabw2, dob2);
     iR += 1.0 / bench_physics_aabb_sphere<double, min::vec2, min::tree>(V, dabw2, ds2);
     iR += 1.0 / bench_physics_sphere_aabb<double, min::vec2, min::tree>(V, dsw2, dab2);
+    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec2, min::tree>(V, dsw2, dob2);
     iR += 1.0 / bench_physics_sphere_sphere<double, min::vec2, min::tree>(V, dsw2, ds2);
 
     // Run benchmarks in single precision
@@ -237,8 +241,10 @@ double physics2D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<float, min::vec2, min::grid>(V, fabw2, fab2);
+    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec2, min::grid>(V, fabw2, fob2);
     iR += 1.0 / bench_physics_aabb_sphere<float, min::vec2, min::grid>(V, fabw2, fs2);
     iR += 1.0 / bench_physics_sphere_aabb<float, min::vec2, min::grid>(V, fsw2, fab2);
+    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec2, min::grid>(V, fsw2, fob2);
     iR += 1.0 / bench_physics_sphere_sphere<float, min::vec2, min::grid>(V, fsw2, fs2);
 
     // Run benchmarks in double precision
@@ -247,8 +253,10 @@ double physics2D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<double, min::vec2, min::grid>(V, dabw2, dab2);
+    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec2, min::grid>(V, dabw2, dob2);
     iR += 1.0 / bench_physics_aabb_sphere<double, min::vec2, min::grid>(V, dabw2, ds2);
     iR += 1.0 / bench_physics_sphere_aabb<double, min::vec2, min::grid>(V, dsw2, dab2);
+    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec2, min::grid>(V, dsw2, dob2);
     iR += 1.0 / bench_physics_sphere_sphere<double, min::vec2, min::grid>(V, dsw2, ds2);
 
     return iR;
@@ -264,8 +272,10 @@ double physics3D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<float, min::vec3, min::tree>(V, fabw3, fab3);
+    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec3, min::tree>(V, fabw3, fob3);
     iR += 1.0 / bench_physics_aabb_sphere<float, min::vec3, min::tree>(V, fabw3, fs3);
     iR += 1.0 / bench_physics_sphere_aabb<float, min::vec3, min::tree>(V, fsw3, fab3);
+    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec3, min::tree>(V, fsw3, fob3);
     iR += 1.0 / bench_physics_sphere_sphere<float, min::vec3, min::tree>(V, fsw3, fs3);
 
     // Run benchmarks in double precision
@@ -274,8 +284,10 @@ double physics3D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<double, min::vec3, min::tree>(V, dabw3, dab3);
+    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec3, min::tree>(V, dabw3, dob3);
     iR += 1.0 / bench_physics_aabb_sphere<double, min::vec3, min::tree>(V, dabw3, ds3);
     iR += 1.0 / bench_physics_sphere_aabb<double, min::vec3, min::tree>(V, dsw3, dab3);
+    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec3, min::tree>(V, dsw3, dob3);
     iR += 1.0 / bench_physics_sphere_sphere<double, min::vec3, min::tree>(V, dsw3, ds3);
 
     // Run benchmarks in single precision
@@ -284,8 +296,10 @@ double physics3D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<float, min::vec3, min::grid>(V, fabw3, fab3);
+    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec3, min::grid>(V, fabw3, fob3);
     iR += 1.0 / bench_physics_aabb_sphere<float, min::vec3, min::grid>(V, fabw3, fs3);
     iR += 1.0 / bench_physics_sphere_aabb<float, min::vec3, min::grid>(V, fsw3, fab3);
+    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec3, min::grid>(V, fsw3, fob3);
     iR += 1.0 / bench_physics_sphere_sphere<float, min::vec3, min::grid>(V, fsw3, fs3);
 
     // Run benchmarks in double precision
@@ -294,8 +308,10 @@ double physics3D(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_physics_aabb_aabb<double, min::vec3, min::grid>(V, dabw3, dab3);
+    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec3, min::grid>(V, dabw3, dob3);
     iR += 1.0 / bench_physics_aabb_sphere<double, min::vec3, min::grid>(V, dabw3, ds3);
     iR += 1.0 / bench_physics_sphere_aabb<double, min::vec3, min::grid>(V, dsw3, dab3);
+    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec3, min::grid>(V, dsw3, dob3);
     iR += 1.0 / bench_physics_sphere_sphere<double, min::vec3, min::grid>(V, dsw3, ds3);
 
     return iR;

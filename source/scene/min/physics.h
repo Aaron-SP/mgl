@@ -52,30 +52,48 @@ limitations under the License.
 namespace min
 {
 
+// These functions are only useful for cross-product return types!
+
 template <typename T>
-inline T inverse(const T x)
+inline T align(const T v, const mat2<T> &m)
 {
-    return 1.0 / x;
+    // Since this is a 2D cross product, the vector in world space == vector in object space!
+    return v;
 }
 
 template <typename T>
-inline vec3<T> inverse(const vec3<T> &v)
+inline vec3<T> align(const vec3<T> &v, const quat<T> &q)
 {
-    T x = 1.0 / v.x();
-    T y = 1.0 / v.y();
-    T z = 1.0 / v.z();
-
-    return vec3<T>(x, y, z);
+    // Convert the world space vector to object space
+    return q.inverse().transform(v);
 }
 
 template <typename T>
-inline vec4<T> inverse(const vec4<T> &v)
+inline vec4<T> align(const vec4<T> &v, const quat<T> &q)
 {
-    T x = 1.0 / v.x();
-    T y = 1.0 / v.y();
-    T z = 1.0 / v.z();
+    // Convert the world space vector to object space
+    return q.inverse().transform(v);
+}
 
-    return vec4<T>(x, y, z, 1.0);
+template <typename T>
+inline T transform(const T v, const mat2<T> &m)
+{
+    // Since this is a 2D cross product, the vector in world space == vector in object space!
+    return v;
+}
+
+template <typename T>
+inline vec3<T> transform(const vec3<T> &v, const quat<T> &q)
+{
+    // Convert the world space vector to object space
+    return q.transform(v);
+}
+
+template <typename T>
+inline vec4<T> transform(const vec4<T> &v, const quat<T> &q)
+{
+    // Convert the world space vector to object space
+    return q.transform(v);
 }
 
 template <typename T>
@@ -114,6 +132,32 @@ inline T dot(const vec4<T> &v1, const vec4<T> &v2)
     return v1.dot(v2);
 }
 
+template <typename T>
+inline T inverse(const T x)
+{
+    return 1.0 / x;
+}
+
+template <typename T>
+inline vec3<T> inverse(const vec3<T> &v)
+{
+    T x = 1.0 / v.x();
+    T y = 1.0 / v.y();
+    T z = 1.0 / v.z();
+
+    return vec3<T>(x, y, z);
+}
+
+template <typename T>
+inline vec4<T> inverse(const vec4<T> &v)
+{
+    T x = 1.0 / v.x();
+    T y = 1.0 / v.y();
+    T z = 1.0 / v.z();
+
+    return vec4<T>(x, y, z, 1.0);
+}
+
 template <typename T, template <typename> class vec, class angular, template <typename> class rot>
 class body_base
 {
@@ -135,15 +179,24 @@ class body_base
           _inertia(inertia), _inv_inertia(inverse<T>(inertia)) {}
     inline void add_force(const vec<T> &f)
     {
+        // Add force to force vector
         _forces.push_back(f);
-    }
-    inline void add_torque(const angular torque)
-    {
-        _torques.push_back(torque);
     }
     inline void add_torque(const vec<T> &force, const vec<T> &contact)
     {
-        _torques.push_back((contact - _position).cross(force));
+        // Calculate the torque in world space
+        const auto torque = (contact - _position).cross(force);
+
+        // Convert the world space torque to object space
+        const auto local_torque = min::align<T>(torque, _rotation);
+
+        // Add torque to torque vector
+        _torques.push_back(local_torque);
+    }
+    inline vec<T> align(const vec<T> &v) const
+    {
+        // Transform the point in object space
+        return _rotation.inverse().transform(v);
     }
     inline void clear_force()
     {
@@ -198,10 +251,12 @@ class body_base
     }
     inline const angular get_inertia() const
     {
-        return inverse<T>(_inv_inertia);
+        // In object coordinates
+        return _inertia;
     }
     inline const angular &get_inv_inertia() const
     {
+        // In object coordinates
         return _inv_inertia;
     }
     inline const rot<T> &get_rotation() const
@@ -252,10 +307,6 @@ class body<T, vec2> : public body_base<T, vec2, T, mat2>
 {
   public:
     body(const vec2<T> &center, const T mass, const T inertia) : body_base<T, vec2, T, mat2>(center, mass, inertia) {}
-    inline const T get_inertia() const
-    {
-        return this->_inertia;
-    }
     inline mat2<T> update_rotation(const T angular_velocity, const T time_step)
     {
         this->_angular_velocity = angular_velocity;
@@ -267,7 +318,7 @@ class body<T, vec2> : public body_base<T, vec2, T, mat2>
         this->_rotation *= out;
 
         // return the relative rotation
-        return out;
+        return this->_rotation;
     }
 };
 
@@ -284,8 +335,10 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
         // Calculate rotation for this timestep
         const vec3<T> rotation = this->_angular_velocity * time_step;
 
-        // Creation quaternion rotation
+        // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
+
+        // Create quaternion rotation with angle
         const quat<T> q(rotation, angle);
 
         // Transform the absolute rotation
@@ -294,11 +347,8 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
         // Normalize the rotation vector to avoid accumulation of rotational energy
         this->_rotation.normalize();
 
-        // Update rotational inertia axis of rotation
-        this->_inv_inertia = this->_rotation.transform(this->_inertia).inverse();
-
-        // return the relative rotation
-        return q;
+        // return the absolute rotation
+        return this->_rotation;
     }
 };
 
@@ -315,8 +365,10 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
         // Calculate rotation for this timestep
         const vec3<T> rotation = (this->_angular_velocity * time_step).xyz();
 
-        // Creation quaternion rotation
+        // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
+
+        // Create quaternion rotation with angle
         const quat<T> q(rotation, angle);
 
         // Transform the absolute rotation
@@ -325,20 +377,20 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
         // Normalize the rotation vector to avoid accumulation of rotational energy
         this->_rotation.normalize();
 
-        // Update rotational inertia axis of rotation
-        this->_inv_inertia = this->_rotation.transform(this->_inertia).inverse();
-
-        // return the relative rotation
-        return q;
+        // return the absolute rotation
+        return this->_rotation;
     }
 };
 
+// AABB
 template <typename T>
 inline T get_inertia(const aabbox<T, vec2> &box, const T mass)
 {
     // Iz = (1/12) * (x^2 + y^2)
     const vec3<T> &b = box.get_extent();
-    return (b.x() * b.x() + b.y() * b.y()) * 0.0833;
+
+    // return the local inertia
+    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833;
 }
 
 template <typename T>
@@ -351,7 +403,9 @@ inline vec3<T> get_inertia(const aabbox<T, vec3> &box, const T mass)
     const T x2 = b.x() * b.x();
     const T y2 = b.y() * b.y();
     const T z2 = b.z() * b.z();
-    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * 0.0833;
+
+    // return the local inertia
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
 }
 
 template <typename T>
@@ -364,14 +418,60 @@ inline vec4<T> get_inertia(const aabbox<T, vec4> &box, const T mass)
     const T x2 = b.x() * b.x();
     const T y2 = b.y() * b.y();
     const T z2 = b.z() * b.z();
-    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * 0.0833;
+
+    // return the local inertia
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
 }
 
+// OOBB
+template <typename T>
+inline T get_inertia(const oobbox<T, vec2> &box, const T mass)
+{
+    // Iz = (1/12) * (x^2 + y^2)
+    const vec3<T> &b = box.get_extent();
+
+    // return the local inertia
+    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833;
+}
+
+template <typename T>
+inline vec3<T> get_inertia(const oobbox<T, vec3> &box, const T mass)
+{
+    // Ix = (1/12) * (y^2 + z^2)
+    // Iy = (1/12) * (x^2 + z^2)
+    // Iz = (1/12) * (x^2 + y^2)
+    const vec3<T> &b = box.get_extent();
+    const T x2 = b.x() * b.x();
+    const T y2 = b.y() * b.y();
+    const T z2 = b.z() * b.z();
+
+    // return the local inertia
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
+}
+
+template <typename T>
+inline vec4<T> get_inertia(const oobbox<T, vec4> &box, const T mass)
+{
+    // Ix = (1/12) * (y^2 + z^2)
+    // Iy = (1/12) * (x^2 + z^2)
+    // Iz = (1/12) * (x^2 + y^2)
+    const vec3<T> &b = box.get_extent();
+    const T x2 = b.x() * b.x();
+    const T y2 = b.y() * b.y();
+    const T z2 = b.z() * b.z();
+
+    // return the local inertia
+    return vec4<T>(y2 + z2, x2 + z2, x2 + y2, 1.0) * mass * 0.0833;
+}
+
+// SPHERE
 template <typename T>
 inline T get_inertia(const sphere<T, vec2> &s, const T mass)
 {
     // Iz = m*r^2/2
-    return mass * s.get_square_radius() * 0.25;
+
+    // return the local inertia
+    return s.get_square_radius() * mass * 0.25;
 }
 
 template <typename T>
@@ -379,6 +479,8 @@ inline vec3<T> get_inertia(const sphere<T, vec3> &s, const T mass)
 {
     // Ixyz = (2.0/5.0)*m*r^2
     T inertia = s.get_square_radius() * mass * 0.4;
+
+    // return the local inertia
     return vec3<T>().set_all(inertia);
 }
 
@@ -387,6 +489,8 @@ inline vec4<T> get_inertia(const sphere<T, vec4> &s, const T mass)
 {
     // Ixyz = (2.0/5.0)*m*r^2
     T inertia = s.get_square_radius() * mass * 0.4;
+
+    // return the local inertia
     return vec4<T>().set_all(inertia);
 }
 
@@ -399,6 +503,27 @@ inline void rotate(aabbox<T, vec3> &box, const quat<T> &q) {}
 
 template <typename T>
 inline void rotate(aabbox<T, vec4> &box, const quat<T> &q) {}
+
+template <typename T>
+inline void rotate(oobbox<T, vec2> &box, const mat2<T> &m)
+{
+    // Set shape rotation
+    box.set_rotation(m);
+}
+
+template <typename T>
+inline void rotate(oobbox<T, vec3> &box, const quat<T> &q)
+{
+    // Set shape rotation
+    box.set_rotation(q);
+}
+
+template <typename T>
+inline void rotate(oobbox<T, vec4> &box, const quat<T> &q)
+{
+    // Set shape rotation
+    box.set_rotation(q);
+}
 
 // No need to rotate sphere shape so these are empty on purpose
 template <typename T>
@@ -425,15 +550,6 @@ class physics
 
     static constexpr T _collision_tolerance = 1E-1;
 
-    inline void add_force(body<T, vec> &b, const vec<T> &force)
-    {
-        b.add_force(force);
-    }
-    inline void add_torque(body<T, vec> &b, const vec<T> &force, const vec<T> &contact)
-    {
-        b.add_torque(force, contact);
-    }
-
     inline void collide(const size_t index1, const size_t index2)
     {
         // Get shapes from spatial index
@@ -447,7 +563,7 @@ class physics
 
         vec<T> collision_normal;
         vec<T> intersection;
-        vec<T> offset = resolve<T, vec>(s1, s2, collision_normal, intersection, _collision_tolerance);
+        const vec<T> offset = resolve<T, vec>(s1, s2, collision_normal, intersection, _collision_tolerance);
 
         // Get rigid bodies to solve energy equations
         body<T, vec> &b1 = _bodies[index1];
@@ -456,8 +572,13 @@ class physics
         // Solve linear and angular momentum conservation equations
         solve_energy_conservation(b1, b2, collision_normal, intersection);
 
+        // Split offset in half and move b1 and b2 in opposite directions
+        const vec<T> half_offset1 = offset * 0.5;
+        const vec<T> half_offset2 = offset * -0.5;
+
         // Resolve collision and resolve penetration depth
-        b1.move_offset(offset);
+        b1.move_offset(half_offset1);
+        b2.move_offset(half_offset2);
     }
 
     // The normal axis is defined to be the vector between b1 and b2, pointing towards b1
@@ -473,7 +594,7 @@ class physics
     // Intersection point intersect
     inline void solve_energy_conservation(body<T, vec> &b1, body<T, vec> &b2, const vec<T> &n, const vec<T> &intersect)
     {
-        // Get velocities of bodies
+        // Get velocities of bodies in world space
         const T v1n = b1.get_linear_velocity().dot(n);
         const T v2n = b2.get_linear_velocity().dot(n);
 
@@ -494,27 +615,32 @@ class physics
         const T inv_m1 = b1.get_inv_mass();
         const T inv_m2 = b2.get_inv_mass();
 
-        // Get velocities of bodies
+        // Get velocities of bodies in world space
         const vec<T> v1 = b1.get_linear_velocity();
         const vec<T> v2 = b2.get_linear_velocity();
 
-        // Get inverse inertia of bodies
+        // Get inverse inertia of bodies in object space
         const auto inv_I1 = b1.get_inv_inertia();
         const auto inv_I2 = b2.get_inv_inertia();
 
-        // Get angular velocities of bodies
-        const auto w1 = b1.get_angular_velocity();
-        const auto w2 = b2.get_angular_velocity();
+        // Get angular velocities of bodies in object space
+        const auto w1_local = b1.get_angular_velocity();
+        const auto w2_local = b2.get_angular_velocity();
 
-        // Calculate the vector from the intersection point and object center
-        const vec<T> r1 = (intersect - b1.get_position()).normalize();
-        const vec<T> r2 = (intersect - b2.get_position()).normalize();
+        // convert angular velocity to world space
+        const auto w1_world = transform<T>(w1_local, b1.get_rotation());
+        const auto w2_world = transform<T>(w2_local, b2.get_rotation());
 
-        // Calculate the relative velocity between b1 and b2
-        const vec<T> v12 = (v1 + cross<T>(w1, r1)) - (v2 + cross<T>(w2, r2));
+        // Calculate the vector from the intersection point and object center in object coordinates
+        const vec<T> r1 = (intersect - b1.get_position()).normalize_safe(vec<T>());
+        const vec<T> r2 = (intersect - b2.get_position()).normalize_safe(vec<T>());
 
-        const auto r1n = r1.cross(n);
-        const auto r2n = r2.cross(n);
+        // Calculate the relative velocity between b1 and b2 in world space
+        const vec<T> v12 = (v1 + cross<T>(w1_world, r1)) - (v2 + cross<T>(w2_world, r2));
+
+        // Convert cross product into object space since inertia is in object space
+        const auto r1n = align<T>(r1.cross(n), b1.get_rotation());
+        const auto r2n = align<T>(r2.cross(n), b2.get_rotation());
         const auto r1i = r1n * inv_I1;
         const auto r2i = r2n * inv_I2;
 
@@ -536,8 +662,8 @@ class physics
         const vec<T> v2_out = v2 - impulse * inv_m2;
 
         // Calculate angular velocity vectors
-        const auto w1_out = w1 + r1i * j;
-        const auto w2_out = w2 - r2i * j;
+        const auto w1_out = w1_local + r1i * j;
+        const auto w2_out = w2_local - r2i * j;
 
         // Update body linear velocity
         b1.set_linear_velocity(v1_out);
@@ -566,8 +692,16 @@ class physics
     }
     inline void add_force(size_t index, const vec<T> &f, const vec<T> &contact)
     {
-        add_force(_bodies[index], f);
-        add_torque(_bodies[index], f, contact);
+        // Add force to center of mass
+        _bodies[index].add_force(f);
+
+        // Calculate torque around center of mass
+        _bodies[index].add_torque(f, contact);
+    }
+    inline void add_torque(size_t index, const vec<T> &f, const vec<T> &contact)
+    {
+        // Calculate torque around center of mass
+        _bodies[index].add_torque(f, contact);
     }
     inline const body<T, vec> &get_body(size_t index) const
     {
@@ -593,7 +727,7 @@ class physics
         {
             // Create the spatial partitioning structure based off rigid bodies
             // This reorders the shapes vector so we need to reorganize the shape and body data to reflect this!
-            std::vector<size_t> map = _spatial.insert(_shapes);
+            const std::vector<size_t> map = _spatial.insert(_shapes);
 
             // Determine intersecting shapes for contact resolution
             const std::vector<std::pair<K, K>> &collisions = _spatial.get_collisions();
@@ -648,7 +782,7 @@ class physics
                 b.update_position(v_n1, dt, _lower_bound, _upper_bound);
 
                 // Update the body rotation at this timestep
-                const auto rel_rotation = b.update_rotation(w_n1, dt);
+                const auto abs_rotation = b.update_rotation(w_n1, dt);
 
                 // Clear any acting forces on this object
                 b.clear_force();
@@ -658,7 +792,7 @@ class physics
                 s.set_position(b.get_position());
 
                 // Rotate the shapes by the relative rotation
-                rotate<T>(s, rel_rotation);
+                rotate<T>(s, abs_rotation);
             }
         }
     }

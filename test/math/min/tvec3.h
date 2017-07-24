@@ -643,6 +643,76 @@ bool test_vec3()
         throw std::runtime_error("Failed vec3 grid_overlap");
     }
 
+    // For normal_box_aligned tests
+    vmin = min::vec3<double>(-100.0, -100.0, -100.0);
+    vmax = min::vec3<double>(100.0, 100.0, 100.0);
+
+    // Test normal_box_aligned left
+    one = min::vec3<double>(-150.0, 0.0, 0.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(-1.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    out = out && compare(0.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned left");
+    }
+
+    // Test normal_box_aligned right
+    one = min::vec3<double>(150.0, 0.0, 0.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(1.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    out = out && compare(0.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned right");
+    }
+
+    // Test normal_box_aligned bottom
+    one = min::vec3<double>(50.0, -150.0, 50.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(-1.0, two.y(), 1E-4);
+    out = out && compare(0.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned bottom");
+    }
+
+    // Test normal_box_aligned top
+    one = min::vec3<double>(50.0, 150.0, 50.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(1.0, two.y(), 1E-4);
+    out = out && compare(0.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned top");
+    }
+
+    // Test normal_box_aligned back
+    one = min::vec3<double>(50.0, 50.0, -150.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    out = out && compare(-1.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned back");
+    }
+
+    // Test normal_box_aligned front
+    one = min::vec3<double>(50.0, 50.0, 150.0);
+    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    out = out && compare(1.0, two.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 normal_box_aligned front");
+    }
+
     return out;
 }
 

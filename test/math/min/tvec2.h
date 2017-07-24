@@ -437,6 +437,50 @@ bool test_vec2()
         throw std::runtime_error("Failed vec2 grid_overlap");
     }
 
+    // For normal_box_aligned tests
+    vmin = min::vec2<double>(-100.0, -100.0);
+    vmax = min::vec2<double>(100.0, 100.0);
+
+    // Test normal_box_aligned left
+    one = min::vec2<double>(-150.0, 0.0);
+    two = min::vec2<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(-1.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normal_box_aligned left");
+    }
+
+    // Test normal_box_aligned right
+    one = min::vec2<double>(150.0, 0.0);
+    two = min::vec2<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(1.0, two.x(), 1E-4);
+    out = out && compare(0.0, two.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normal_box_aligned right");
+    }
+
+    // Test normal_box_aligned bottom
+    one = min::vec2<double>(50.0, -150.0);
+    two = min::vec2<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(-1.0, two.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normal_box_aligned bottom");
+    }
+
+    // Test normal_box_aligned top
+    one = min::vec2<double>(50.0, 150.0);
+    two = min::vec2<double>::normal_box_aligned(one, vmin, vmax);
+    out = out && compare(0.0, two.x(), 1E-4);
+    out = out && compare(1.0, two.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normal_box_aligned top");
+    }
+
     return out;
 }
 

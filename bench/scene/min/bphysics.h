@@ -66,6 +66,45 @@ double bench_physics_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world,
 
 template <typename T, template <typename> class vec,
           template <typename, typename, typename, template <typename> class, template <typename, template <typename> class> class, template <typename, template <typename> class> class> class spatial>
+double bench_physics_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world, const std::vector<min::oobbox<T, vec>> &boxes)
+{
+    // Running aabb_oobbox test
+    std::cout << "physics_aabb_oobb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
+
+    // Start the time clock
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Create simulation
+    vec<T> gravity = vec<T>::up() * -10.0;
+    min::physics<T, uint16_t, uint32_t, vec, min::aabbox, min::oobbox, spatial> simulation(world, gravity);
+    simulation.reserve(N);
+
+    // Create 'N' random cubic sphere's
+    for (const auto &b : boxes)
+    {
+        simulation.add_body(b, 100.0);
+    }
+
+    // Solve simulation step
+    simulation.solve(0.001, 0.01);
+
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_aabb_oobb: Energy after solving is: " << energy << std::endl;
+
+    // Calculate the difference between start and end
+    auto dtime = std::chrono::high_resolution_clock::now() - start;
+
+    // Print the execution time
+    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    std::cout << "physics_aabb_oobb: tests completed in: " << out << " ms" << std::endl;
+
+    // Calculate cost of calculation (milliseconds)
+    return out;
+}
+
+template <typename T, template <typename> class vec,
+          template <typename, typename, typename, template <typename> class, template <typename, template <typename> class> class, template <typename, template <typename> class> class> class spatial>
 double bench_physics_aabb_sphere(const size_t N, const min::aabbox<T, vec> &world, const std::vector<min::sphere<T, vec>> &spheres)
 {
     // Running aabb_sphere test
@@ -137,6 +176,45 @@ double bench_physics_sphere_aabb(const size_t N, const min::sphere<T, vec> &worl
     // Print the execution time
     double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_sphere_aabb: tests completed in: " << out << " ms" << std::endl;
+
+    // Calculate cost of calculation (milliseconds)
+    return out;
+}
+
+template <typename T, template <typename> class vec,
+          template <typename, typename, typename, template <typename> class, template <typename, template <typename> class> class, template <typename, template <typename> class> class> class spatial>
+double bench_physics_sphere_oobb(const size_t N, const min::sphere<T, vec> &world, const std::vector<min::oobbox<T, vec>> &boxes)
+{
+    // Running sphere_oobbox test
+    std::cout << "physics_sphere_oobb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
+
+    // Start the time clock
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Create simulation
+    vec<T> gravity = vec<T>::up() * -10.0;
+    min::physics<T, uint16_t, uint32_t, vec, min::sphere, min::oobbox, spatial> simulation(world, gravity);
+    simulation.reserve(N);
+
+    // Create 'N' random cubic sphere's
+    for (const auto &b : boxes)
+    {
+        simulation.add_body(b, 100.0);
+    }
+
+    // Solve simulation step
+    simulation.solve(0.001, 0.01);
+
+    // Calculate energy of the system
+    double energy = simulation.get_total_energy();
+    std::cout << "physics_sphere_oobb: Energy after solving is: " << energy << std::endl;
+
+    // Calculate the difference between start and end
+    auto dtime = std::chrono::high_resolution_clock::now() - start;
+
+    // Print the execution time
+    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    std::cout << "physics_sphere_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
     return out;

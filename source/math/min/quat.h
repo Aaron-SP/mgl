@@ -77,8 +77,8 @@ class quat
     quat(const vec3<T> &vector, const T degAngle)
     {
         T angle = deg_to_rad(degAngle);
-        T sina_2 = sin(angle / 2);
-        _w = cos(angle / 2);
+        T sina_2 = sin(angle / 2.0);
+        _w = cos(angle / 2.0);
         _x = vector.x() * sina_2;
         _y = vector.y() * sina_2;
         _z = vector.z() * sina_2;

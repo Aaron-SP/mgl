@@ -19,11 +19,11 @@ limitations under the License.
 #include <min/convert.h>
 #include <min/grid.h>
 #include <min/loop_sync.h>
+#include <min/oobbox.h>
 #include <min/physics.h>
 #include <min/program.h>
 #include <min/settings.h>
 #include <min/shader.h>
-#include <min/sphere.h>
 #include <min/static_vertex.h>
 #include <min/texture_buffer.h>
 #include <min/uniform_buffer.h>
@@ -52,23 +52,23 @@ class physics_test
     size_t _model_id[100];
 
     // Physics simulation
-    min::sphere<float, min::vec3> _world;
+    min::oobbox<float, min::vec3> _world;
     min::vec3<float> _gravity;
-    min::physics<float, uint16_t, uint32_t, min::vec3, min::sphere, min::sphere, min::grid> _simulation;
+    min::physics<float, uint16_t, uint32_t, min::vec3, min::oobbox, min::oobbox, min::grid> _simulation;
     float _body_radius;
 
   public:
     // Load window shaders and program
     physics_test()
-        : _win("Test sphere physics simulation", 720, 480, 3, 3),
+        : _win("Test oobb physics simulation", 720, 480, 3, 3),
           _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
           _ubuffer(10, 102),
-          _world(min::vec3<float>(0.0, 0.0, 0.0), 200.0),
+          _world(min::vec3<float>(-115, -115, -115), min::vec3<float>(115, 115, 115)),
           _gravity(0.0, -10.0, 0.0),
           _simulation(_world, _gravity),
-          _body_radius(4.0)
+          _body_radius(2.3)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -112,9 +112,9 @@ class physics_test
     }
     void load_model_texture()
     {
-        // load sphere model
-        min::sphere<float, min::vec3> shape(min::vec3<float>(0.0, 0.0, 0.0), _body_radius);
-        min::mesh<float, uint16_t> sph_mesh = min::to_mesh<float, uint16_t>(shape);
+        // load oobbox model
+        min::aabbox<float, min::vec3> shape(min::vec3<float>(0.0, 0.0, 0.0) - _body_radius, min::vec3<float>(0.0, 0.0, 0.0) + _body_radius);
+        min::mesh<float, uint16_t> box_mesh = min::to_mesh<float, uint16_t>(shape);
 
         // Load textures
         const min::bmp b = min::bmp("data/texture/stone.bmp");
@@ -123,13 +123,13 @@ class physics_test
         _bmp_id = _tbuffer.add_bmp_texture(b);
 
         // Add mesh and update buffers
-        _sbuffer.add_mesh(sph_mesh);
+        _sbuffer.add_mesh(box_mesh);
         _sbuffer.upload();
     }
     void load_camera_uniforms()
     {
-        // Move and camera to +Z and look at origin
-        min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
+        // Move and camera to +XZ and look at origin
+        min::vec3<float> pos = min::vec3<float>(300.0, 100.0, 300.0);
         min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Test perspective projection
@@ -137,7 +137,7 @@ class physics_test
         _cam.set_position(pos);
         _cam.set_look_at(look);
         auto &f = _cam.get_frustum();
-        f.set_far(500.0);
+        f.set_far(1000.0);
         _cam.set_perspective();
 
         // Load the uniform buffer with program we will use
@@ -163,12 +163,12 @@ class physics_test
         // Initialize with fixed seed
         rng.seed(101129);
 
-        // Radius of circle
+        // Creates oobb's
         float radius2 = radius * radius;
         bool flag = true;
         for (size_t i = 0; i < 100; i++)
         {
-            // Generate 100 instances of sphere, with random position and rotation around circle
+            // Generate 100 instances of oobbox, with random position and rotation around circle
             float x = position(rng);
             float y = std::sqrt(radius2 - x * x) - offset(rng);
             if (flag)
@@ -181,7 +181,7 @@ class physics_test
             min::vec3<float> translation(x, y, 0);
 
             // Create rigid body, make rigid body a little bigger to avoid small overlap
-            _simulation.add_body(min::sphere<float, min::vec3>(translation, _body_radius + 0.1), 100.0);
+            _simulation.add_body(min::oobbox<float, min::vec3>(translation - _body_radius - 0.1, translation + _body_radius + 0.1), 100.0);
             min::mat4<float> model = min::mat4<float>(translation);
 
             // Set the model matrix
@@ -191,10 +191,16 @@ class physics_test
         // Load the buffer with data
         _ubuffer.update();
     }
+    void set_title(const std::string &title)
+    {
+        _win.set_title(title);
+    }
     void solve(const double frame_time, const double damping)
     {
         // Solve the simulation
         _simulation.solve(frame_time, damping);
+
+        _simulation.get_total_energy();
     }
     void update_bodies()
     {
@@ -259,7 +265,7 @@ int test_render_loop()
             // Update rigid bodies in simulation
             for (int i = 0; i < 30; i++)
             {
-                test.solve(frame_time / 30.0, 0.01);
+                test.solve(frame_time / 30.0, 0.1);
             }
 
             // Update the bodies buffer information
@@ -277,6 +283,12 @@ int test_render_loop()
             // Calculate needed delay to hit target
             frame_time = sync.sync();
         }
+
+        // Calculate the number of 'average' frames per second
+        double fps = sync.get_fps();
+
+        // Update the window title with FPS count of last frame
+        test.set_title("Test oobb physics simulation: FPS: " + std::to_string(fps));
     }
 
     return 0;

@@ -71,11 +71,8 @@ class oobbox_base
     {
         add(verts);
     }
-    inline vec<T> align(const vec<T> &p) const
+    inline vec<T> align(const vec<T> &v) const
     {
-        // Transform to local coordinates
-        const vec<T> v = p - _center;
-
         // Calculate the inverse rotation
         const rot<T> inv_rot = _rotation.inverse();
 
@@ -117,13 +114,24 @@ class oobbox_base
         // This returns max in world space (AABB)
         return _center + _half_extent;
     }
-    inline rot<T> &get_rotation() const
+    inline const rot<T> &get_rotation() const
     {
         return _rotation;
     }
-    // inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
-    // {
-    // }
+    inline vec<T> normal(const vec<T> &p, const T tolerance) const
+    {
+        // Transform the point into object's coordinate system
+        const vec<T> t = align(p - _center);
+
+        // Calculate normal direction vector, transform the AABB normal by box rotation
+        const vec<T> local_normal = vec<T>::normal_box_aligned(t, get_local_min(), get_local_max());
+        vec<T> normal = _rotation.transform(local_normal);
+
+        // Normalize, if zero use up vector
+        normal.normalize_safe(vec<T>::up());
+
+        return normal;
+    }
     inline std::vector<std::pair<vec<T>, vec<T>>> grid(size_t scale) const
     {
         // Create the grid cells in world space AABB
@@ -132,7 +140,7 @@ class oobbox_base
     inline bool point_inside(const vec<T> &p) const
     {
         // Transform the point into object's coordinate system
-        const vec<T> t = align(p);
+        const vec<T> t = align(p - _center);
 
         // Test if point is in aabb in object space
         return t.within(get_local_min(), get_local_max());
