@@ -118,6 +118,12 @@ inline void extend(const T val, T &min, T &max)
 }
 
 template <typename T>
+int sgn(const T val)
+{
+    return (T(0) < val) - (val < T(0));
+}
+
+template <typename T>
 inline void swap(T &a, T &b)
 {
     // Swaps a and b

@@ -28,6 +28,7 @@ EX5 = $(EXTRA) example/programs/ex5.cpp
 EX6 = $(EXTRA) example/programs/ex6.cpp
 EX7 = $(EXTRA) example/programs/ex7.cpp
 EX8 = $(EXTRA) example/programs/ex8.cpp
+EX9 = $(EXTRA) example/programs/ex9.cpp
 
 # Linker parameters
 ifeq ($(OS),Windows_NT)
@@ -75,7 +76,9 @@ example7:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX7) -o bin/ex7 $(LINKER) 2> "min_ex7.txt"
 example8:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX8) -o bin/ex8 $(LINKER) 2> "min_ex8.txt"
-examples: example1 example2 example3 example4 example5 example6 example7 example8
+example9:
+	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX9) -o bin/ex9 $(LINKER) 2> "min_ex9.txt"
+examples: example1 example2 example3 example4 example5 example6 example7 example8 example9
 	
 
 # pattern matching .cpp
@@ -97,6 +100,7 @@ clean_junk:
 	rm -f min_ex6.txt
 	rm -f min_ex7.txt
 	rm -f min_ex8.txt
+	rm -f min_ex9.txt
 clean_source:
 	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
@@ -117,3 +121,4 @@ clean_examples:
 	rm -f bin/ex6
 	rm -f bin/ex7
 	rm -f bin/ex8
+	rm -f bin/ex9

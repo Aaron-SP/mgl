@@ -393,7 +393,7 @@ class vec2
     }
     inline vec2<T> &normalize()
     {
-        T inv_mag = 1.0 / magnitude();
+        const T inv_mag = 1.0 / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;
 
@@ -401,7 +401,7 @@ class vec2
     }
     inline vec2<T> &normalize_safe(const vec2<T> &safe)
     {
-        T mag = magnitude();
+        const T mag = magnitude();
         if (std::abs(mag) > 1E-3)
         {
             T inv_mag = 1.0 / mag;
@@ -477,38 +477,42 @@ class vec2
         // 2*2 = 4 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
-        const T xx = std::abs(axis1.x().dot(axis2.x()));
-        const T xy = std::abs(axis1.x().dot(axis2.y()));
-        const T yx = std::abs(axis1.y().dot(axis2.x()));
-        const T yy = std::abs(axis1.y().dot(axis2.y()));
+        const T x1x2 = axis1.x().dot(axis2.x());
+        const T x1y2 = axis1.x().dot(axis2.y());
+        const T y1x2 = axis1.y().dot(axis2.x());
+        const T y1y2 = axis1.y().dot(axis2.y());
+
+        const T abs_x1x2 = std::abs(x1x2) + 1E-6;
+        const T abs_x1y2 = std::abs(x1y2) + 1E-6;
+        const T abs_y1x2 = std::abs(y1x2) + 1E-6;
+        const T abs_y1y2 = std::abs(y1y2) + 1E-6;
 
         // Bring translation into A1's coordinate frame
         const vec2<T> d = center2 - center1;
-        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y())).abs();
+        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y()));
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
         T dL1 = extent1.x();
-        T dL2 = extent2.x() * xx + extent2.y() * xy;
-        if (t.x() > dL1 + dL2)
+        T dL2 = extent2.x() * abs_x1x2 + extent2.y() * abs_x1y2;
+        if (std::abs(t.x()) > dL1 + dL2)
             return false;
 
         // Test L = A1.y(); d1 and d2 is the length of extents along L
         dL1 = extent1.y();
-        dL2 = extent2.x() * yx + extent2.y() * yy;
-        if (t.y() > dL1 + dL2)
+        dL2 = extent2.x() * abs_y1x2 + extent2.y() * abs_y1y2;
+        if (std::abs(t.y()) > dL1 + dL2)
             return false;
 
         // Test L = A2.x(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xx + extent1.y() * yx;
+        dL1 = extent1.x() * abs_x1x2 + extent1.y() * abs_y1x2;
         dL2 = extent2.x();
-        if (t.x() * xx + t.y() * yx > dL1 + dL2)
+        if (std::abs(t.x() * x1x2 + t.y() * y1x2) > dL1 + dL2)
             return false;
 
         // Test L = A2.y(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xy + extent1.y() * yy;
+        dL1 = extent1.x() * abs_x1y2 + extent1.y() * abs_y1y2;
         dL2 = extent2.y();
-        if (t.x() * xy + t.y() * yy > dL1 + dL2)
+        if (std::abs(t.x() * x1y2 + t.y() * y1y2) > dL1 + dL2)
             return false;
 
         return true;
@@ -526,15 +530,19 @@ class vec2
         // 2*2 = 4 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
-        const T xx = std::abs(axis1.x().dot(axis2.x()));
-        const T xy = std::abs(axis1.x().dot(axis2.y()));
-        const T yx = std::abs(axis1.y().dot(axis2.x()));
-        const T yy = std::abs(axis1.y().dot(axis2.y()));
+        const T x1x2 = axis1.x().dot(axis2.x());
+        const T x1y2 = axis1.x().dot(axis2.y());
+        const T y1x2 = axis1.y().dot(axis2.x());
+        const T y1y2 = axis1.y().dot(axis2.y());
+
+        const T abs_x1x2 = std::abs(x1x2) + tolerance;
+        const T abs_x1y2 = std::abs(x1y2) + tolerance;
+        const T abs_y1x2 = std::abs(y1x2) + tolerance;
+        const T abs_y1y2 = std::abs(y1y2) + tolerance;
 
         // Bring translation into A1's coordinate frame
         const vec2<T> d = center2 - center1;
-        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y())).abs();
+        const vec2<T> t = vec2<T>(d.dot(axis1.x()), d.dot(axis1.y()));
 
         // Store axis and penetration depths
         vec2<T> axes[4];
@@ -542,27 +550,27 @@ class vec2
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
         T dL1 = extent1.x();
-        T dL2 = extent2.x() * xx + extent2.y() * xy;
+        T dL2 = extent2.x() * abs_x1x2 + extent2.y() * abs_x1y2;
         axes[0] = axis1.x();
-        penetration[0] = (dL1 + dL2) - t.x();
+        penetration[0] = (dL1 + dL2) - std::abs(t.x());
 
         // Test L = A1.y(); d1 and d2 is the length of extents along L
         dL1 = extent1.y();
-        dL2 = extent2.x() * yx + extent2.y() * yy;
+        dL2 = extent2.x() * abs_y1x2 + extent2.y() * abs_y1y2;
         axes[1] = axis1.y();
-        penetration[1] = (dL1 + dL2) - t.y();
+        penetration[1] = (dL1 + dL2) - std::abs(t.y());
 
         // Test L = A2.x(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xx + extent1.y() * yx;
+        dL1 = extent1.x() * abs_x1x2 + extent1.y() * abs_y1x2;
         dL2 = extent2.x();
         axes[2] = axis2.x();
-        penetration[2] = (dL1 + dL2) - (t.x() * xx + t.y() * yx);
+        penetration[2] = (dL1 + dL2) - std::abs(t.x() * x1x2 + t.y() * y1x2);
 
         // Test L = A2.y(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xy + extent1.y() * yy;
+        dL1 = extent1.x() * abs_x1y2 + extent1.y() * abs_y1y2;
         dL2 = extent2.y();
         axes[3] = axis2.y();
-        penetration[3] = (dL1 + dL2) - (t.x() * xy + t.y() * yy);
+        penetration[3] = (dL1 + dL2) - std::abs(t.x() * x1y2 + t.y() * y1y2);
 
         // normal default up vector return and zero penetration
         vec2<T> normal = vec2<T>::up();
@@ -585,7 +593,9 @@ class vec2
         // check if we found an intersection penetration
         if (index != -1)
         {
-            normal = axes[index];
+            // Calculate the sign of normal towards body1 and scale normal
+            const vec2<T> sign = (center1 - center2).sign();
+            normal = axes[index].abs() * sign;
             overlap = min;
         }
 
@@ -605,10 +615,18 @@ class vec2
     // /-----/-----/
     inline static vec2<T> ratio(const vec2<T> &min, const vec2<T> &max, const vec2<T> &point)
     {
-        T xr = (point.x() - min.x()) / (max.x() - min.x());
-        T yr = (point.y() - min.y()) / (max.y() - min.y());
+        const T xr = (point.x() - min.x()) / (max.x() - min.x());
+        const T yr = (point.y() - min.y()) / (max.y() - min.y());
 
         return vec2<T>(xr, yr);
+    }
+    inline vec2<T> sign() const
+    {
+        // Get the sign of the vector
+        const T x = sgn<T>(_x);
+        const T y = sgn<T>(_y);
+
+        return vec2<T>(x, y);
     }
     inline uint8_t subdivide_key(const T middle)
     {
@@ -643,33 +661,33 @@ class vec2
         out.reserve(4);
 
         // Half extent of vector space
-        vec2<T> h = (max - min) * 0.5;
+        const vec2<T> h = (max - min) * 0.5;
 
         // Center of the vector space
-        vec2<T> c = (max + min) * 0.5;
+        const vec2<T> c = (max + min) * 0.5;
 
         // Positions
-        T cx_hx = c.x() - h.x();
-        T cy_hy = c.y() - h.y();
+        const T cx_hx = c.x() - h.x();
+        const T cy_hy = c.y() - h.y();
 
-        T cxhx = c.x() + h.x();
-        T cyhy = c.y() + h.y();
+        const T cxhx = c.x() + h.x();
+        const T cyhy = c.y() + h.y();
 
         // Octant 0
-        vec2<T> min0 = vec2<T>(cx_hx, cy_hy);
-        vec2<T> max0 = vec2<T>(c.x(), c.y());
+        const vec2<T> min0 = vec2<T>(cx_hx, cy_hy);
+        const vec2<T> max0 = vec2<T>(c.x(), c.y());
 
         // Octant 1
-        vec2<T> min1 = vec2<T>(cx_hx, c.y());
-        vec2<T> max1 = vec2<T>(c.x(), cyhy);
+        const vec2<T> min1 = vec2<T>(cx_hx, c.y());
+        const vec2<T> max1 = vec2<T>(c.x(), cyhy);
 
         // Octant 2
-        vec2<T> min2 = vec2<T>(c.x(), cy_hy);
-        vec2<T> max2 = vec2<T>(cxhx, c.y());
+        const vec2<T> min2 = vec2<T>(c.x(), cy_hy);
+        const vec2<T> max2 = vec2<T>(cxhx, c.y());
 
         // Octant 3
-        vec2<T> min3 = vec2<T>(c.x(), c.y());
-        vec2<T> max3 = vec2<T>(cxhx, cyhy);
+        const vec2<T> min3 = vec2<T>(c.x(), c.y());
+        const vec2<T> max3 = vec2<T>(cxhx, cyhy);
 
         // Add sub spaces to out vector
         out.push_back(std::make_pair(min0, max0));
@@ -685,29 +703,29 @@ class vec2
         out.reserve(4);
 
         // quarter extent of vector space
-        vec2<T> h = (max - min) * 0.25;
+        const vec2<T> h = (max - min) * 0.25;
 
         // Center of the vector space
-        vec2<T> c = (max + min) * 0.5;
+        const vec2<T> c = (max + min) * 0.5;
 
         // Positions
-        T cx_hx = c.x() - h.x();
-        T cy_hy = c.y() - h.y();
+        const T cx_hx = c.x() - h.x();
+        const T cy_hy = c.y() - h.y();
 
-        T cxhx = c.x() + h.x();
-        T cyhy = c.y() + h.y();
+        const T cxhx = c.x() + h.x();
+        const T cyhy = c.y() + h.y();
 
         // Octant 0
-        vec2<T> c0 = vec2<T>(cx_hx, cy_hy);
+        const vec2<T> c0 = vec2<T>(cx_hx, cy_hy);
 
         // Octant 1
-        vec2<T> c1 = vec2<T>(cx_hx, cyhy);
+        const vec2<T> c1 = vec2<T>(cx_hx, cyhy);
 
         // Octant 2
-        vec2<T> c2 = vec2<T>(cxhx, cy_hy);
+        const vec2<T> c2 = vec2<T>(cxhx, cy_hy);
 
         // Octant 3
-        vec2<T> c3 = vec2<T>(cxhx, cyhy);
+        const vec2<T> c3 = vec2<T>(cxhx, cyhy);
 
         // Add sub spaces to out vector
         out.push_back(std::make_pair(c0, size));
@@ -722,10 +740,10 @@ class vec2
         std::vector<uint8_t> out;
         out.reserve(4);
 
-        bool minx = min.x() < center.x();
-        bool maxx = max.x() > center.x();
-        bool miny = min.y() < center.y();
-        bool maxy = max.y() > center.y();
+        const bool minx = min.x() < center.x();
+        const bool maxx = max.x() > center.x();
+        const bool miny = min.y() < center.y();
+        const bool maxy = max.y() > center.y();
 
         // If overlapping 0-1 cells
         if (minx)

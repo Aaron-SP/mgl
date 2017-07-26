@@ -129,10 +129,9 @@ class physics_test
     void load_camera_uniforms()
     {
         // Move and camera to +XZ and look at origin
-        min::vec3<float> pos = min::vec3<float>(300.0, 100.0, 300.0);
+        min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
         min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
-        // Test perspective projection
         // Create camera, set location and look at
         _cam.set_position(pos);
         _cam.set_look_at(look);

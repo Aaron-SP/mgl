@@ -243,10 +243,13 @@ class vertex_buffer
         check_error();
     }
     vertex_buffer(const vertex_buffer &sb) = delete;
-    void add_mesh(const mesh<T, K> &m)
+    size_t add_mesh(const mesh<T, K> &m)
     {
         // Add mesh to the end of the data buffer
         push_back_mesh(m);
+
+        // Return the mesh index
+        return _element_index.size() - 1;
     }
     inline void bind() const
     {

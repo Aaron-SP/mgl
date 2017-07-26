@@ -418,7 +418,7 @@ inline vec<T> resolve(const oobbox<T, vec> &box1, const oobbox<T, vec> &box2, ve
         box1.get_axes(), box1.get_center(), box1.get_half_extent(), box2.get_axes(), box2.get_center(), box2.get_half_extent(), tolerance);
 
     // Negate the normal vector, so we move away from the penetration
-    normal = sat.first * -1.0;
+    normal = sat.first;
 
     // Calculate the penetration depth, add a little extra to get off the edge
     T penetration = sat.second + tolerance;

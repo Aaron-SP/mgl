@@ -101,8 +101,8 @@ bool test_oobb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.6204, b1.get_center().x(), 1E-4);
-        out = out && compare(0.6204, b1.get_center().y(), 1E-4);
+        out = out && compare(0.6190, b1.get_center().x(), 1E-4);
+        out = out && compare(0.6190, b1.get_center().y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobb-oobb resolution offset");
@@ -110,7 +110,7 @@ bool test_oobb_resolve()
 
         // Test magnitude between oobb centers
         double distance = (b1.get_center() - b2.get_center()).magnitude();
-        out = out && compare(1.951, distance, 1E-4);
+        out = out && compare(1.9529, distance, 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobb-oobb resolution distance");
@@ -199,8 +199,8 @@ bool test_oobb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.6204, b1.get_center().x(), 1E-4);
-        out = out && compare(0.6204, b1.get_center().y(), 1E-4);
+        out = out && compare(0.6184, b1.get_center().x(), 1E-4);
+        out = out && compare(0.6184, b1.get_center().y(), 1E-4);
         out = out && compare(1.05, b1.get_center().z(), 1E-4);
         if (!out)
         {
@@ -209,7 +209,7 @@ bool test_oobb_resolve()
 
         // Test magnitude between oobb centers
         double distance = (b1.get_center() - b2.get_center()).magnitude();
-        out = out && compare(2.17, distance, 1E-4);
+        out = out && compare(2.1725, distance, 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 oobb-oobb resolution distance");
@@ -298,8 +298,8 @@ bool test_oobb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.6204, b1.get_center().x(), 1E-4);
-        out = out && compare(0.6204, b1.get_center().y(), 1E-4);
+        out = out && compare(0.6184, b1.get_center().x(), 1E-4);
+        out = out && compare(0.6184, b1.get_center().y(), 1E-4);
         out = out && compare(1.05, b1.get_center().z(), 1E-4);
         if (!out)
         {
@@ -308,7 +308,7 @@ bool test_oobb_resolve()
 
         // Test magnitude between oobb centers
         double distance = (b1.get_center() - b2.get_center()).magnitude();
-        out = out && compare(2.17, distance, 1E-4);
+        out = out && compare(2.1725, distance, 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 oobb-oobb resolution distance");

@@ -28,27 +28,29 @@ bool test_physics_aabb_grid()
     // vec2 grid simulation
     {
         // Local variables
-        min::vec2<double> minW(-10.0, -10.0);
-        min::vec2<double> maxW(10.0, 10.0);
-        min::aabbox<double, min::vec2> world(minW, maxW);
-        min::vec2<double> gravity(0.0, -10.0);
+        const min::vec2<double> minW(-10.0, -10.0);
+        const min::vec2<double> maxW(10.0, 10.0);
+        const min::aabbox<double, min::vec2> world(minW, maxW);
+        const min::vec2<double> gravity(0.0, -10.0);
         min::physics<double, uint16_t, uint32_t, min::vec2, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
-        min::aabbox<double, min::vec2> box1(min::vec2<double>(1.0, 1.0), min::vec2<double>(2.0, 2.0));
-        min::aabbox<double, min::vec2> box2(min::vec2<double>(1.0, 3.0), min::vec2<double>(2.0, 4.0));
-        size_t body1 = simulation.add_body(box1, 100.0);
-        size_t body2 = simulation.add_body(box2, 100.0);
+        const min::aabbox<double, min::vec2> box1(min::vec2<double>(1.0, 1.0), min::vec2<double>(2.0, 2.0));
+        const min::aabbox<double, min::vec2> box2(min::vec2<double>(1.0, 3.0), min::vec2<double>(2.0, 4.0));
+        const size_t body1_id = simulation.add_body(box1, 100.0);
+        const size_t body2_id = simulation.add_body(box2, 100.0);
 
         // Body1 should counter gravity and body2 should fall on body1
-        min::vec2<double> up_force(0.0, 1000.0);
-        simulation.add_force(body1, up_force, box1.get_center());
+        const min::vec2<double> up_force(0.0, 1000.0);
+        min::body<double, min::vec2> &body1 = simulation.get_body(body1_id);
+        min::body<double, min::vec2> &body2 = simulation.get_body(body2_id);
+        body1.add_force(up_force);
 
         // Solve the simulation
         simulation.solve(0.1, 0.01);
 
         // Test body1 position didn't move
-        const min::vec2<double> &p1 = simulation.get_body(body1).get_position();
+        const min::vec2<double> &p1 = body1.get_position();
         out = out && compare(1.5, p1.x(), 1E-4);
         out = out && compare(1.5, p1.y(), 1E-4);
         if (!out)
@@ -57,7 +59,7 @@ bool test_physics_aabb_grid()
         }
 
         // Test body2 position falls from 3.5 to 3.4; df = at^2; -10*(0.1 * 0.1) = -0.1
-        const min::vec2<double> &p2 = simulation.get_body(body2).get_position();
+        const min::vec2<double> &p2 = body2.get_position();
         out = out && compare(1.5, p2.x(), 1E-4);
         out = out && compare(3.4, p2.y(), 1E-4);
         if (!out)
@@ -66,15 +68,15 @@ bool test_physics_aabb_grid()
         }
 
         // Solve the simulation for intersection at t = 0.3162s; 0.41s
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.11, 0.01);
 
-        const min::vec2<double> &v1 = simulation.get_body(body1).get_linear_velocity();
-        const min::vec2<double> &v2 = simulation.get_body(body2).get_linear_velocity();
+        const min::vec2<double> &v1 = body1.get_linear_velocity();
+        const min::vec2<double> &v2 = body2.get_linear_velocity();
 
         // Test velocity before collision
         out = out && compare(0.0, v1.x(), 1E-4);
@@ -113,27 +115,29 @@ bool test_physics_aabb_grid()
     // vec3 grid simulation
     {
         // Local variables
-        min::vec3<double> minW(-10.0, -10.0, -10.0);
-        min::vec3<double> maxW(10.0, 10.0, 10.0);
-        min::aabbox<double, min::vec3> world(minW, maxW);
-        min::vec3<double> gravity(0.0, -10.0, 0.0);
+        const min::vec3<double> minW(-10.0, -10.0, -10.0);
+        const min::vec3<double> maxW(10.0, 10.0, 10.0);
+        const min::aabbox<double, min::vec3> world(minW, maxW);
+        const min::vec3<double> gravity(0.0, -10.0, 0.0);
         min::physics<double, uint16_t, uint32_t, min::vec3, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
-        min::aabbox<double, min::vec3> box1(min::vec3<double>(1.0, 1.0, 1.0), min::vec3<double>(2.0, 2.0, 2.0));
-        min::aabbox<double, min::vec3> box2(min::vec3<double>(1.0, 3.0, 1.0), min::vec3<double>(2.0, 4.0, 2.0));
-        size_t body1 = simulation.add_body(box1, 100.0);
-        size_t body2 = simulation.add_body(box2, 100.0);
+        const min::aabbox<double, min::vec3> box1(min::vec3<double>(1.0, 1.0, 1.0), min::vec3<double>(2.0, 2.0, 2.0));
+        const min::aabbox<double, min::vec3> box2(min::vec3<double>(1.0, 3.0, 1.0), min::vec3<double>(2.0, 4.0, 2.0));
+        const size_t body1_id = simulation.add_body(box1, 100.0);
+        const size_t body2_id = simulation.add_body(box2, 100.0);
 
         // Body1 should counter gravity and body2 should fall on body1
-        min::vec3<double> up_force(0.0, 1000.0, 0.0);
-        simulation.add_force(body1, up_force, box1.get_center());
+        const min::vec3<double> up_force(0.0, 1000.0, 0.0);
+        min::body<double, min::vec3> &body1 = simulation.get_body(body1_id);
+        min::body<double, min::vec3> &body2 = simulation.get_body(body2_id);
+        body1.add_force(up_force);
 
         // Solve the simulation
         simulation.solve(0.1, 0.01);
 
         // Test body1 position didn't move
-        const min::vec3<double> &p1 = simulation.get_body(body1).get_position();
+        const min::vec3<double> &p1 = body1.get_position();
         out = out && compare(1.5, p1.x(), 1E-4);
         out = out && compare(1.5, p1.y(), 1E-4);
         out = out && compare(1.5, p1.z(), 1E-4);
@@ -143,7 +147,7 @@ bool test_physics_aabb_grid()
         }
 
         // Test body2 position falls from 3.5 to 3.4; df = at^2/t; -10*(0.1 * 0.1) = -0.1
-        const min::vec3<double> &p2 = simulation.get_body(body2).get_position();
+        const min::vec3<double> &p2 = body2.get_position();
         out = out && compare(1.5, p2.x(), 1E-4);
         out = out && compare(3.4, p2.y(), 1E-4);
         out = out && compare(1.5, p2.z(), 1E-4);
@@ -153,15 +157,15 @@ bool test_physics_aabb_grid()
         }
 
         // Solve the simulation for intersection at t = 0.3162s; 0.41s
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.11, 0.01);
 
-        const min::vec3<double> &v1 = simulation.get_body(body1).get_linear_velocity();
-        const min::vec3<double> &v2 = simulation.get_body(body2).get_linear_velocity();
+        const min::vec3<double> &v1 = body1.get_linear_velocity();
+        const min::vec3<double> &v2 = body2.get_linear_velocity();
 
         // Test velocity before collision
         out = out && compare(0.0, v1.x(), 1E-4);
@@ -205,28 +209,29 @@ bool test_physics_aabb_grid()
     // vec4 grid simulation
     {
         // Local variables
-        min::vec4<double> minW(-10.0, -10.0, -10.0, 1.0);
-        min::vec4<double> maxW(10.0, 10.0, 10.0, 1.0);
-        min::aabbox<double, min::vec4> world(minW, maxW);
-        min::vec4<double> gravity(0.0, -10.0, 0.0, 1.0);
+        const min::vec4<double> minW(-10.0, -10.0, -10.0, 1.0);
+        const min::vec4<double> maxW(10.0, 10.0, 10.0, 1.0);
+        const min::aabbox<double, min::vec4> world(minW, maxW);
+        const min::vec4<double> gravity(0.0, -10.0, 0.0, 1.0);
         min::physics<double, uint16_t, uint32_t, min::vec4, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
-        min::aabbox<double, min::vec4> box1(min::vec4<double>(1.0, 1.0, 1.0, 1.0), min::vec4<double>(2.0, 2.0, 2.0, 1.0));
-        min::aabbox<double, min::vec4> box2(min::vec4<double>(1.0, 3.0, 1.0, 1.0), min::vec4<double>(2.0, 4.0, 2.0, 1.0));
-        size_t body1 = simulation.add_body(box1, 100.0);
-        size_t body2 = simulation.add_body(box2, 100.0);
+        const min::aabbox<double, min::vec4> box1(min::vec4<double>(1.0, 1.0, 1.0, 1.0), min::vec4<double>(2.0, 2.0, 2.0, 1.0));
+        const min::aabbox<double, min::vec4> box2(min::vec4<double>(1.0, 3.0, 1.0, 1.0), min::vec4<double>(2.0, 4.0, 2.0, 1.0));
+        const size_t body1_id = simulation.add_body(box1, 100.0);
+        const size_t body2_id = simulation.add_body(box2, 100.0);
 
         // Body1 should counter gravity and body2 should fall on body1
-        min::vec4<double> up_force(0.0, 1000.0, 0.0, 1.0);
-        simulation.add_force(body1, up_force, box1.get_center());
-        simulation.add_force(body2, min::vec4<double>(0.0, 0.0, 0.0, 1.0), box2.get_center());
+        const min::vec4<double> up_force(0.0, 1000.0, 0.0, 1.0);
+        min::body<double, min::vec4> &body1 = simulation.get_body(body1_id);
+        min::body<double, min::vec4> &body2 = simulation.get_body(body2_id);
+        body1.add_force(up_force);
 
         // Solve the simulation
         simulation.solve(0.1, 0.01);
 
         // Test body1 position didn't move
-        const min::vec4<double> &p1 = simulation.get_body(body1).get_position();
+        const min::vec4<double> &p1 = body1.get_position();
         out = out && compare(1.5, p1.x(), 1E-4);
         out = out && compare(1.5, p1.y(), 1E-4);
         out = out && compare(1.5, p1.z(), 1E-4);
@@ -236,7 +241,7 @@ bool test_physics_aabb_grid()
         }
 
         // Test body2 position falls from 3.5 to 3.4; df = at^2/t; -10*(0.1 * 0.1) = -0.1
-        const min::vec4<double> &p2 = simulation.get_body(body2).get_position();
+        const min::vec4<double> &p2 = body2.get_position();
         out = out && compare(1.5, p2.x(), 1E-4);
         out = out && compare(3.4, p2.y(), 1E-4);
         out = out && compare(1.5, p2.z(), 1E-4);
@@ -246,15 +251,15 @@ bool test_physics_aabb_grid()
         }
 
         // Solve the simulation for intersection at t = 0.3162s; 0.41s
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.1, 0.01);
-        simulation.add_force(body1, up_force, box1.get_center());
+        body1.add_force(up_force);
         simulation.solve(0.11, 0.01);
 
-        const min::vec4<double> &v1 = simulation.get_body(body1).get_linear_velocity();
-        const min::vec4<double> &v2 = simulation.get_body(body2).get_linear_velocity();
+        const min::vec4<double> &v1 = body1.get_linear_velocity();
+        const min::vec4<double> &v2 = body2.get_linear_velocity();
 
         // Test velocity before collision
         out = out && compare(0.0, v1.x(), 1E-4);

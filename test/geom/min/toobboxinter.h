@@ -323,7 +323,7 @@ bool test_oobbox_intersect()
         }
 
         // Move box2 out of range
-        c = min::vec3<double>(2.82843, 2.82843, 0.0);
+        c = min::vec3<double>(2.82844, 2.82844, 0.0);
         obox2.set_position(c);
 
         // Test OOBB-OOBB no intersection
@@ -482,7 +482,7 @@ bool test_oobbox_intersect()
         }
 
         // Move box2 out of range
-        c = min::vec4<double>(2.82843, 2.82843, 0.0, 1.0);
+        c = min::vec4<double>(2.82844, 2.82844, 0.0, 1.0);
         obox2.set_position(c);
 
         // Test OOBB-OOBB no intersection

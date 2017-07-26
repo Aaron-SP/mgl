@@ -249,7 +249,7 @@ class body_base
     {
         return _inv_mass;
     }
-    inline const angular get_inertia() const
+    inline const angular &get_inertia() const
     {
         // In object coordinates
         return _inertia;
@@ -263,6 +263,10 @@ class body_base
     {
         return _rotation;
     }
+    inline const vec<T> &get_position() const
+    {
+        return _position;
+    }
     inline void set_angular_velocity(const angular w)
     {
         _angular_velocity = w;
@@ -271,9 +275,15 @@ class body_base
     {
         _linear_velocity = v;
     }
-    inline const vec<T> &get_position() const
+    inline void set_unmovable()
     {
-        return _position;
+        // Make the object's mass infinite
+        _inv_mass = 0.0;
+        _mass = 0.0;
+
+        // Make the object's inertia infinite
+        _inv_inertia = angular{};
+        _inertia = angular{};
     }
     inline void set_position(const vec<T> &p)
     {
@@ -333,19 +343,25 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
         this->_angular_velocity = angular_velocity;
 
         // Calculate rotation for this timestep
-        const vec3<T> rotation = this->_angular_velocity * time_step;
+        vec3<T> rotation = this->_angular_velocity * time_step;
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
+        if (angle > 1E-4)
+        {
+            // Normalize rotation axis
+            const T inv_angle = 1.0 / angle;
+            rotation *= inv_angle;
 
-        // Create quaternion rotation with angle
-        const quat<T> q(rotation, angle);
+            // Create quaternion rotation with angle
+            const quat<T> q(rotation, angle);
 
-        // Transform the absolute rotation
-        this->_rotation *= q;
+            // Transform the absolute rotation
+            this->_rotation *= q;
 
-        // Normalize the rotation vector to avoid accumulation of rotational energy
-        this->_rotation.normalize();
+            // Normalize the rotation vector to avoid accumulation of rotational energy
+            this->_rotation.normalize();
+        }
 
         // return the absolute rotation
         return this->_rotation;
@@ -363,19 +379,25 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
         this->_angular_velocity = angular_velocity;
 
         // Calculate rotation for this timestep
-        const vec3<T> rotation = (this->_angular_velocity * time_step).xyz();
+        vec3<T> rotation = this->_angular_velocity * time_step;
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
+        if (angle > 1E-4)
+        {
+            // Normalize rotation axis
+            const T inv_angle = 1.0 / angle;
+            rotation *= inv_angle;
 
-        // Create quaternion rotation with angle
-        const quat<T> q(rotation, angle);
+            // Create quaternion rotation with angle
+            const quat<T> q(rotation, angle);
 
-        // Transform the absolute rotation
-        this->_rotation *= q;
+            // Transform the absolute rotation
+            this->_rotation *= q;
 
-        // Normalize the rotation vector to avoid accumulation of rotational energy
-        this->_rotation.normalize();
+            // Normalize the rotation vector to avoid accumulation of rotational energy
+            this->_rotation.normalize();
+        }
 
         // return the absolute rotation
         return this->_rotation;
@@ -548,7 +570,7 @@ class physics
     vec<T> _gravity;
     T _elasticity;
 
-    static constexpr T _collision_tolerance = 1E-1;
+    static constexpr T _collision_tolerance = 1E-4;
 
     inline void collide(const size_t index1, const size_t index2)
     {
@@ -572,13 +594,25 @@ class physics
         // Solve linear and angular momentum conservation equations
         solve_energy_conservation(b1, b2, collision_normal, intersection);
 
-        // Split offset in half and move b1 and b2 in opposite directions
-        const vec<T> half_offset1 = offset * 0.5;
-        const vec<T> half_offset2 = offset * -0.5;
+        // If an object has infinite mass, inv_mass = 0
+        // Move each object based off inv_mass
+        // Treat this as a parallel circuit, 1/R = 1/R_1 + 1/R_2
+        // For this case V = 1.0
+        // The current through this circuit is V/R = I, or 1.0*(1/R_1 + 1/R_2) = 1/R_1 + 1/R_2 = I
+        // The percentage split can be calculated from (I - 1/R_x) / I
 
-        // Resolve collision and resolve penetration depth
-        b1.move_offset(half_offset1);
-        b2.move_offset(half_offset2);
+        // Split offset in half and move b1 and b2 in opposite directions
+        const T total = b1.get_inv_mass() + b2.get_inv_mass();
+        if (total > 1E-10)
+        {
+            const T inv_total = 1.0 / total;
+            const vec<T> half_offset1 = offset * (total - b2.get_inv_mass()) * inv_total;
+            const vec<T> half_offset2 = offset * (b1.get_inv_mass() - total) * inv_total;
+
+            // Resolve collision and resolve penetration depth
+            b1.move_offset(half_offset1);
+            b2.move_offset(half_offset2);
+        }
     }
 
     // The normal axis is defined to be the vector between b1 and b2, pointing towards b1
@@ -616,16 +650,16 @@ class physics
         const T inv_m2 = b2.get_inv_mass();
 
         // Get velocities of bodies in world space
-        const vec<T> v1 = b1.get_linear_velocity();
-        const vec<T> v2 = b2.get_linear_velocity();
+        const vec<T> &v1 = b1.get_linear_velocity();
+        const vec<T> &v2 = b2.get_linear_velocity();
 
         // Get inverse inertia of bodies in object space
-        const auto inv_I1 = b1.get_inv_inertia();
-        const auto inv_I2 = b2.get_inv_inertia();
+        const auto &inv_I1 = b1.get_inv_inertia();
+        const auto &inv_I2 = b2.get_inv_inertia();
 
         // Get angular velocities of bodies in object space
-        const auto w1_local = b1.get_angular_velocity();
-        const auto w2_local = b2.get_angular_velocity();
+        const auto &w1_local = b1.get_angular_velocity();
+        const auto &w2_local = b2.get_angular_velocity();
 
         // convert angular velocity to world space
         const auto w1_world = transform<T>(w1_local, b1.get_rotation());
@@ -690,20 +724,11 @@ class physics
         // return the body id
         return _bodies.size() - 1;
     }
-    inline void add_force(size_t index, const vec<T> &f, const vec<T> &contact)
+    inline const body<T, vec> &get_body(const size_t index) const
     {
-        // Add force to center of mass
-        _bodies[index].add_force(f);
-
-        // Calculate torque around center of mass
-        _bodies[index].add_torque(f, contact);
+        return _bodies[index];
     }
-    inline void add_torque(size_t index, const vec<T> &f, const vec<T> &contact)
-    {
-        // Calculate torque around center of mass
-        _bodies[index].add_torque(f, contact);
-    }
-    inline const body<T, vec> &get_body(size_t index) const
+    inline body<T, vec> &get_body(const size_t index)
     {
         return _bodies[index];
     }
@@ -711,7 +736,11 @@ class physics
     {
         return _bodies;
     }
-    inline const shape<T, vec> &get_shape(size_t index) const
+    inline std::vector<body<T, vec>> &get_bodies()
+    {
+        return _bodies;
+    }
+    inline const shape<T, vec> &get_shape(const size_t index) const
     {
         return _shapes[index];
     }

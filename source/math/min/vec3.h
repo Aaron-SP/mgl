@@ -552,7 +552,7 @@ class vec3
     }
     inline vec3<T> &normalize()
     {
-        T inv_mag = 1.0 / magnitude();
+        const T inv_mag = 1.0 / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;
         _z *= inv_mag;
@@ -561,7 +561,7 @@ class vec3
     }
     inline vec3<T> &normalize_safe(const vec3<T> &safe)
     {
-        T mag = magnitude();
+        const T mag = magnitude();
         if (std::abs(mag) > 1E-3)
         {
             T inv_mag = 1.0 / mag;
@@ -666,109 +666,118 @@ class vec3
         // 2x3=6 local box axes plus and 3x3=9 axes perpendicular to the 6 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
-        const T xx = std::abs(axis1.x().dot(axis2.x()));
-        const T xy = std::abs(axis1.x().dot(axis2.y()));
-        const T xz = std::abs(axis1.x().dot(axis2.z()));
-        const T yx = std::abs(axis1.y().dot(axis2.x()));
-        const T yy = std::abs(axis1.y().dot(axis2.y()));
-        const T yz = std::abs(axis1.y().dot(axis2.z()));
-        const T zx = std::abs(axis1.z().dot(axis2.x()));
-        const T zy = std::abs(axis1.z().dot(axis2.y()));
-        const T zz = std::abs(axis1.z().dot(axis2.z()));
+        const T x1x2 = axis1.x().dot(axis2.x());
+        const T x1y2 = axis1.x().dot(axis2.y());
+        const T x1z2 = axis1.x().dot(axis2.z());
+        const T y1x2 = axis1.y().dot(axis2.x());
+        const T y1y2 = axis1.y().dot(axis2.y());
+        const T y1z2 = axis1.y().dot(axis2.z());
+        const T z1x2 = axis1.z().dot(axis2.x());
+        const T z1y2 = axis1.z().dot(axis2.y());
+        const T z1z2 = axis1.z().dot(axis2.z());
+
+        const T abs_x1x2 = std::abs(x1x2) + 1E-6;
+        const T abs_x1y2 = std::abs(x1y2) + 1E-6;
+        const T abs_x1z2 = std::abs(x1z2) + 1E-6;
+        const T abs_y1x2 = std::abs(y1x2) + 1E-6;
+        const T abs_y1y2 = std::abs(y1y2) + 1E-6;
+        const T abs_y1z2 = std::abs(y1z2) + 1E-6;
+        const T abs_z1x2 = std::abs(z1x2) + 1E-6;
+        const T abs_z1y2 = std::abs(z1y2) + 1E-6;
+        const T abs_z1z2 = std::abs(z1z2) + 1E-6;
 
         // Bring translation into A1's coordinate frame
         const vec3<T> d = center2 - center1;
-        const vec3<T> t = vec3<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z())).abs();
+        const vec3<T> t = vec3<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()));
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
         T dL1 = extent1.x();
-        T dL2 = extent2.x() * xx + extent2.y() * xy + extent2.z() * xz;
-        if (t.x() > dL1 + dL2)
+        T dL2 = extent2.x() * abs_x1x2 + extent2.y() * abs_x1y2 + extent2.z() * abs_x1z2;
+        if (std::abs(t.x()) > dL1 + dL2)
             return false;
 
         // Test L = A1.y(); d1 and d2 is the length of extents along L
         dL1 = extent1.y();
-        dL2 = extent2.x() * yx + extent2.y() * yy + extent2.z() * yz;
-        if (t.y() > dL1 + dL2)
+        dL2 = extent2.x() * abs_y1x2 + extent2.y() * abs_y1y2 + extent2.z() * abs_y1z2;
+        if (std::abs(t.y()) > dL1 + dL2)
             return false;
 
         // Test L = A1.z(); d1 and d2 is the length of extents along L
         dL1 = extent1.z();
-        dL2 = extent2.x() * zx + extent2.y() * zy + extent2.z() * zz;
-        if (t.z() > dL1 + dL2)
+        dL2 = extent2.x() * abs_z1x2 + extent2.y() * abs_z1y2 + extent2.z() * abs_z1z2;
+        if (std::abs(t.z()) > dL1 + dL2)
             return false;
 
         // Test L = A2.x(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xx + extent1.y() * yx + extent1.z() * zx;
+        dL1 = extent1.x() * abs_x1x2 + extent1.y() * abs_y1x2 + extent1.z() * abs_z1x2;
         dL2 = extent2.x();
-        if (t.x() * xx + t.y() * yx + t.z() * zx > dL1 + dL2)
+        if (std::abs(t.x() * x1x2 + t.y() * y1x2 + t.z() * z1x2) > dL1 + dL2)
             return false;
 
         // Test L = A2.y(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xy + extent1.y() * yy + extent1.z() * zy;
+        dL1 = extent1.x() * abs_x1y2 + extent1.y() * abs_y1y2 + extent1.z() * abs_z1y2;
         dL2 = extent2.y();
-        if (t.x() * xy + t.y() * yy + t.z() * zy > dL1 + dL2)
+        if (std::abs(t.x() * x1y2 + t.y() * y1y2 + t.z() * z1y2) > dL1 + dL2)
             return false;
 
         // Test L = A2.z(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xz + extent1.y() * yz + extent1.z() * zz;
+        dL1 = extent1.x() * abs_x1z2 + extent1.y() * abs_y1z2 + extent1.z() * abs_z1z2;
         dL2 = extent2.z();
-        if (t.x() * xz + t.y() * yz + t.z() * zz > dL1 + dL2)
+        if (std::abs(t.x() * x1z2 + t.y() * y1z2 + t.z() * z1z2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.x() X A2.x()
-        dL1 = extent1.y() * zx + extent1.z() * yx;
-        dL2 = extent2.y() * xz + extent2.z() * xy;
-        if (t.z() * yx - t.y() * zx > dL1 + dL2)
+        dL1 = extent1.y() * abs_z1x2 + extent1.z() * abs_y1x2;
+        dL2 = extent2.y() * abs_x1z2 + extent2.z() * abs_x1y2;
+        if (std::abs(t.z() * y1x2 - t.y() * z1x2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.x() X A2.y()
-        dL1 = extent1.y() * zy + extent1.z() * yy;
-        dL2 = extent2.x() * xz + extent2.z() * xx;
-        if (t.z() * yy - t.y() * zy > dL1 + dL2)
+        dL1 = extent1.y() * abs_z1y2 + extent1.z() * abs_y1y2;
+        dL2 = extent2.x() * abs_x1z2 + extent2.z() * abs_x1x2;
+        if (std::abs(t.z() * y1y2 - t.y() * z1y2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.x() X A2.z()
-        dL1 = extent1.y() * zz + extent1.z() * yz;
-        dL2 = extent2.x() * xy + extent2.y() * xx;
-        if (t.z() * yz - t.y() * zz > dL1 + dL2)
+        dL1 = extent1.y() * abs_z1z2 + extent1.z() * abs_y1z2;
+        dL2 = extent2.x() * abs_x1y2 + extent2.y() * abs_x1x2;
+        if (std::abs(t.z() * y1z2 - t.y() * z1z2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.y() X A2.x()
-        dL1 = extent1.x() * zx + extent1.z() * xx;
-        dL2 = extent2.y() * yz + extent2.z() * yy;
-        if (t.x() * zx - t.z() * xx > dL1 + dL2)
+        dL1 = extent1.x() * abs_z1x2 + extent1.z() * abs_x1x2;
+        dL2 = extent2.y() * abs_y1z2 + extent2.z() * abs_y1y2;
+        if (std::abs(t.x() * z1x2 - t.z() * x1x2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.y() X A2.y()
-        dL1 = extent1.x() * zy + extent1.z() * xy;
-        dL2 = extent2.x() * yz + extent2.z() * yx;
-        if (t.x() * zy - t.z() * xy > dL1 + dL2)
+        dL1 = extent1.x() * abs_z1y2 + extent1.z() * abs_x1y2;
+        dL2 = extent2.x() * abs_y1z2 + extent2.z() * abs_y1x2;
+        if (std::abs(t.x() * z1y2 - t.z() * x1y2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.y() X A2.z()
-        dL1 = extent1.x() * zz + extent1.z() * xz;
-        dL2 = extent2.x() * yy + extent2.y() * yx;
-        if (t.x() * zz - t.z() * xz > dL1 + dL2)
+        dL1 = extent1.x() * abs_z1z2 + extent1.z() * abs_x1z2;
+        dL2 = extent2.x() * abs_y1y2 + extent2.y() * abs_y1x2;
+        if (std::abs(t.x() * z1z2 - t.z() * x1z2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.z() X A2.x()
-        dL1 = extent1.x() * yx + extent1.y() * xx;
-        dL2 = extent2.y() * zz + extent2.z() * zy;
-        if (t.y() * xx - t.x() * yx > dL1 + dL2)
+        dL1 = extent1.x() * abs_y1x2 + extent1.y() * abs_x1x2;
+        dL2 = extent2.y() * abs_z1z2 + extent2.z() * abs_z1y2;
+        if (std::abs(t.y() * x1x2 - t.x() * y1x2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.z() X A2.y()
-        dL1 = extent1.x() * yy + extent1.y() * xy;
-        dL2 = extent2.x() * zz + extent2.z() * zx;
-        if (t.y() * xy - t.x() * yy > dL1 + dL2)
+        dL1 = extent1.x() * abs_y1y2 + extent1.y() * abs_x1y2;
+        dL2 = extent2.x() * abs_z1z2 + extent2.z() * abs_z1x2;
+        if (std::abs(t.y() * x1y2 - t.x() * y1y2) > dL1 + dL2)
             return false;
 
         // Test axis L = A1.z() X A2.z()
-        dL1 = extent1.x() * yz + extent1.y() * xz;
-        dL2 = extent2.x() * zy + extent2.y() * zx;
-        if (t.y() * xz - t.x() * yz > dL1 + dL2)
+        dL1 = extent1.x() * abs_y1z2 + extent1.y() * abs_x1z2;
+        dL2 = extent2.x() * abs_z1y2 + extent2.y() * abs_z1x2;
+        if (std::abs(t.y() * x1z2 - t.x() * y1z2) > dL1 + dL2)
             return false;
 
         return true;
@@ -785,20 +794,29 @@ class vec3
         // 2x3=6 local box axes plus and 3x3=9 axes perpendicular to the 6 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        // Even though dot product is always > 0, if the dot product is zero, 0 > -0 may skew results
-        const T xx = std::abs(axis1.x().dot(axis2.x()));
-        const T xy = std::abs(axis1.x().dot(axis2.y()));
-        const T xz = std::abs(axis1.x().dot(axis2.z()));
-        const T yx = std::abs(axis1.y().dot(axis2.x()));
-        const T yy = std::abs(axis1.y().dot(axis2.y()));
-        const T yz = std::abs(axis1.y().dot(axis2.z()));
-        const T zx = std::abs(axis1.z().dot(axis2.x()));
-        const T zy = std::abs(axis1.z().dot(axis2.y()));
-        const T zz = std::abs(axis1.z().dot(axis2.z()));
+        const T x1x2 = axis1.x().dot(axis2.x());
+        const T x1y2 = axis1.x().dot(axis2.y());
+        const T x1z2 = axis1.x().dot(axis2.z());
+        const T y1x2 = axis1.y().dot(axis2.x());
+        const T y1y2 = axis1.y().dot(axis2.y());
+        const T y1z2 = axis1.y().dot(axis2.z());
+        const T z1x2 = axis1.z().dot(axis2.x());
+        const T z1y2 = axis1.z().dot(axis2.y());
+        const T z1z2 = axis1.z().dot(axis2.z());
+
+        const T abs_x1x2 = std::abs(x1x2) + tolerance;
+        const T abs_x1y2 = std::abs(x1y2) + tolerance;
+        const T abs_x1z2 = std::abs(x1z2) + tolerance;
+        const T abs_y1x2 = std::abs(y1x2) + tolerance;
+        const T abs_y1y2 = std::abs(y1y2) + tolerance;
+        const T abs_y1z2 = std::abs(y1z2) + tolerance;
+        const T abs_z1x2 = std::abs(z1x2) + tolerance;
+        const T abs_z1y2 = std::abs(z1y2) + tolerance;
+        const T abs_z1z2 = std::abs(z1z2) + tolerance;
 
         // Bring translation into A1's coordinate frame
         const vec3<T> d = center2 - center1;
-        const vec3<T> t = vec3<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z())).abs();
+        const vec3<T> t = vec3<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()));
 
         // Store axis and penetration depths
         vec3<T> axes[15];
@@ -806,93 +824,93 @@ class vec3
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
         T dL1 = extent1.x();
-        T dL2 = extent2.x() * xx + extent2.y() * xy + extent2.z() * xz;
+        T dL2 = extent2.x() * abs_x1x2 + extent2.y() * abs_x1y2 + extent2.z() * abs_x1z2;
         axes[0] = axis1.x();
-        penetration[0] = (dL1 + dL2) - t.x();
+        penetration[0] = (dL1 + dL2) - std::abs(t.x());
 
         // Test L = A1.y(); d1 and d2 is the length of extents along L
         dL1 = extent1.y();
-        dL2 = extent2.x() * yx + extent2.y() * yy + extent2.z() * yz;
+        dL2 = extent2.x() * abs_y1x2 + extent2.y() * abs_y1y2 + extent2.z() * abs_y1z2;
         axes[1] = axis1.y();
-        penetration[1] = (dL1 + dL2) - t.y();
+        penetration[1] = (dL1 + dL2) - std::abs(t.y());
 
         // Test L = A1.z(); d1 and d2 is the length of extents along L
         dL1 = extent1.z();
-        dL2 = extent2.x() * zx + extent2.y() * zy + extent2.z() * zz;
+        dL2 = extent2.x() * abs_z1x2 + extent2.y() * abs_z1y2 + extent2.z() * abs_z1z2;
         axes[2] = axis1.z();
-        penetration[2] = (dL1 + dL2) - t.z();
+        penetration[2] = (dL1 + dL2) - std::abs(t.z());
 
         // Test L = A2.x(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xx + extent1.y() * yx + extent1.z() * zx;
+        dL1 = extent1.x() * abs_x1x2 + extent1.y() * abs_y1x2 + extent1.z() * abs_z1x2;
         dL2 = extent2.x();
         axes[3] = axis2.x();
-        penetration[3] = (dL1 + dL2) - (t.x() * xx + t.y() * yx + t.z() * zx);
+        penetration[3] = (dL1 + dL2) - std::abs(t.x() * x1x2 + t.y() * y1x2 + t.z() * z1x2);
 
         // Test L = A2.y(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xy + extent1.y() * yy + extent1.z() * zy;
+        dL1 = extent1.x() * abs_x1y2 + extent1.y() * abs_y1y2 + extent1.z() * abs_z1y2;
         dL2 = extent2.y();
         axes[4] = axis2.y();
-        penetration[4] = (dL1 + dL2) - (t.x() * xy + t.y() * yy + t.z() * zy);
+        penetration[4] = (dL1 + dL2) - std::abs(t.x() * x1y2 + t.y() * y1y2 + t.z() * z1y2);
 
         // Test L = A2.z(); d1 and d2 is the length of extents along L
-        dL1 = extent1.x() * xz + extent1.y() * yz + extent1.z() * zz;
+        dL1 = extent1.x() * abs_x1z2 + extent1.y() * abs_y1z2 + extent1.z() * abs_z1z2;
         dL2 = extent2.z();
         axes[5] = axis2.z();
-        penetration[5] = (dL1 + dL2) - (t.x() * xz + t.y() * yz + t.z() * zz);
+        penetration[5] = (dL1 + dL2) - std::abs(t.x() * x1z2 + t.y() * y1z2 + t.z() * z1z2);
 
         // Test axis L = A1.x() X A2.x()
-        dL1 = extent1.y() * zx + extent1.z() * yx;
-        dL2 = extent2.y() * xz + extent2.z() * xy;
+        dL1 = extent1.y() * abs_z1x2 + extent1.z() * abs_y1x2;
+        dL2 = extent2.y() * abs_x1z2 + extent2.z() * abs_x1y2;
         axes[6] = axis1.x().cross(axis2.x());
-        penetration[6] = (dL1 + dL2) - (t.z() * yx - t.y() * zx);
+        penetration[6] = (dL1 + dL2) - std::abs(t.z() * y1x2 - t.y() * z1x2);
 
         // Test axis L = A1.x() X A2.y()
-        dL1 = extent1.y() * zy + extent1.z() * yy;
-        dL2 = extent2.x() * xz + extent2.z() * xx;
+        dL1 = extent1.y() * abs_z1y2 + extent1.z() * abs_y1y2;
+        dL2 = extent2.x() * abs_x1z2 + extent2.z() * abs_x1x2;
         axes[7] = axis1.x().cross(axis2.y());
-        penetration[7] = (dL1 + dL2) - (t.z() * yy - t.y() * zy);
+        penetration[7] = (dL1 + dL2) - std::abs(t.z() * y1y2 - t.y() * z1y2);
 
         // Test axis L = A1.x() X A2.z()
-        dL1 = extent1.y() * zz + extent1.z() * yz;
-        dL2 = extent2.x() * xy + extent2.y() * xx;
+        dL1 = extent1.y() * abs_z1z2 + extent1.z() * abs_y1z2;
+        dL2 = extent2.x() * abs_x1y2 + extent2.y() * abs_x1x2;
         axes[8] = axis1.x().cross(axis2.z());
-        penetration[8] = (dL1 + dL2) - (t.z() * yz - t.y() * zz);
+        penetration[8] = (dL1 + dL2) - std::abs(t.z() * y1z2 - t.y() * z1z2);
 
         // Test axis L = A1.y() X A2.x()
-        dL1 = extent1.x() * zx + extent1.z() * xx;
-        dL2 = extent2.y() * yz + extent2.z() * yy;
+        dL1 = extent1.x() * abs_z1x2 + extent1.z() * abs_x1x2;
+        dL2 = extent2.y() * abs_y1z2 + extent2.z() * abs_y1y2;
         axes[9] = axis1.y().cross(axis2.x());
-        penetration[9] = (dL1 + dL2) - (t.x() * zx - t.z() * xx);
+        penetration[9] = (dL1 + dL2) - std::abs(t.x() * z1x2 - t.z() * x1x2);
 
         // Test axis L = A1.y() X A2.y()
-        dL1 = extent1.x() * zy + extent1.z() * xy;
-        dL2 = extent2.x() * yz + extent2.z() * yx;
+        dL1 = extent1.x() * abs_z1y2 + extent1.z() * abs_x1y2;
+        dL2 = extent2.x() * abs_y1z2 + extent2.z() * abs_y1x2;
         axes[10] = axis1.y().cross(axis2.y());
-        penetration[10] = (dL1 + dL2) - (t.x() * zy - t.z() * xy);
+        penetration[10] = (dL1 + dL2) - std::abs(t.x() * z1y2 - t.z() * x1y2);
 
         // Test axis L = A1.y() X A2.z()
-        dL1 = extent1.x() * zz + extent1.z() * xz;
-        dL2 = extent2.x() * yy + extent2.y() * yx;
+        dL1 = extent1.x() * abs_z1z2 + extent1.z() * abs_x1z2;
+        dL2 = extent2.x() * abs_y1y2 + extent2.y() * abs_y1x2;
         axes[11] = axis1.y().cross(axis2.z());
-        penetration[11] = (dL1 + dL2) - (t.x() * zz - t.z() * xz);
+        penetration[11] = (dL1 + dL2) - std::abs(t.x() * z1z2 - t.z() * x1z2);
 
         // Test axis L = A1.z() X A2.x()
-        dL1 = extent1.x() * yx + extent1.y() * xx;
-        dL2 = extent2.y() * zz + extent2.z() * zy;
+        dL1 = extent1.x() * abs_y1x2 + extent1.y() * abs_x1x2;
+        dL2 = extent2.y() * abs_z1z2 + extent2.z() * abs_z1y2;
         axes[12] = axis1.z().cross(axis2.x());
-        penetration[12] = (dL1 + dL2) - (t.y() * xx - t.x() * yx);
+        penetration[12] = (dL1 + dL2) - std::abs(t.y() * x1x2 - t.x() * y1x2);
 
         // Test axis L = A1.z() X A2.y()
-        dL1 = extent1.x() * yy + extent1.y() * xy;
-        dL2 = extent2.x() * zz + extent2.z() * zx;
+        dL1 = extent1.x() * abs_y1y2 + extent1.y() * abs_x1y2;
+        dL2 = extent2.x() * abs_z1z2 + extent2.z() * abs_z1x2;
         axes[13] = axis1.z().cross(axis2.y());
-        penetration[13] = (dL1 + dL2) - (t.y() * xy - t.x() * yy);
+        penetration[13] = (dL1 + dL2) - std::abs(t.y() * x1y2 - t.x() * y1y2);
 
         // Test axis L = A1.z() X A2.z()
-        dL1 = extent1.x() * yz + extent1.y() * xz;
-        dL2 = extent2.x() * zy + extent2.y() * zx;
+        dL1 = extent1.x() * abs_y1z2 + extent1.y() * abs_x1z2;
+        dL2 = extent2.x() * abs_z1y2 + extent2.y() * abs_z1x2;
         axes[14] = axis1.z().cross(axis2.z());
-        penetration[14] = (dL1 + dL2) - (t.y() * xz - t.x() * yz);
+        penetration[14] = (dL1 + dL2) - std::abs(t.y() * x1z2 - t.x() * y1z2);
 
         // normal default up vector return and zero penetration
         vec3<T> normal = vec3<T>::up();
@@ -915,7 +933,9 @@ class vec3
         // check if we found an intersection penetration
         if (index != -1)
         {
-            normal = axes[index];
+            // Calculate the sign of normal towards body1 and scale normal
+            const vec3<T> sign = (center1 - center2).sign();
+            normal = axes[index].abs() * sign;
             overlap = min;
         }
 
@@ -940,11 +960,20 @@ class vec3
     // /-----/-----/
     inline static vec3<T> ratio(const vec3<T> &min, const vec3<T> &max, const vec3<T> &point)
     {
-        T xr = (point.x() - min.x()) / (max.x() - min.x());
-        T yr = (point.y() - min.y()) / (max.y() - min.y());
-        T zr = (point.z() - min.z()) / (max.z() - min.z());
+        const T xr = (point.x() - min.x()) / (max.x() - min.x());
+        const T yr = (point.y() - min.y()) / (max.y() - min.y());
+        const T zr = (point.z() - min.z()) / (max.z() - min.z());
 
         return vec3<T>(xr, yr, zr);
+    }
+    inline vec3<T> sign() const
+    {
+        // Get the sign of the vector
+        const T x = sgn<T>(_x);
+        const T y = sgn<T>(_y);
+        const T z = sgn<T>(_z);
+
+        return vec3<T>(x, y, z);
     }
     inline uint8_t subdivide_key(const T middle)
     {
@@ -990,51 +1019,51 @@ class vec3
         out.reserve(8);
 
         // Half extent of vector space
-        vec3<T> h = (max - min) * 0.5;
+        const vec3<T> h = (max - min) * 0.5;
 
         // Center of the vector space
-        vec3<T> c = (max + min) * 0.5;
+        const vec3<T> c = (max + min) * 0.5;
 
         // Positions
-        T cx_hx = c.x() - h.x();
-        T cy_hy = c.y() - h.y();
-        T cz_hz = c.z() - h.z();
+        const T cx_hx = c.x() - h.x();
+        const T cy_hy = c.y() - h.y();
+        const T cz_hz = c.z() - h.z();
 
-        T cxhx = c.x() + h.x();
-        T cyhy = c.y() + h.y();
-        T czhz = c.z() + h.z();
+        const T cxhx = c.x() + h.x();
+        const T cyhy = c.y() + h.y();
+        const T czhz = c.z() + h.z();
 
         // Octant 0
-        vec3<T> min0 = vec3<T>(cx_hx, cy_hy, cz_hz);
-        vec3<T> max0 = vec3<T>(c.x(), c.y(), c.z());
+        const vec3<T> min0 = vec3<T>(cx_hx, cy_hy, cz_hz);
+        const vec3<T> max0 = vec3<T>(c.x(), c.y(), c.z());
 
         // Octant 1
-        vec3<T> min1 = vec3<T>(cx_hx, cy_hy, c.z());
-        vec3<T> max1 = vec3<T>(c.x(), c.y(), czhz);
+        const vec3<T> min1 = vec3<T>(cx_hx, cy_hy, c.z());
+        const vec3<T> max1 = vec3<T>(c.x(), c.y(), czhz);
 
         // Octant 2
-        vec3<T> min2 = vec3<T>(cx_hx, c.y(), cz_hz);
-        vec3<T> max2 = vec3<T>(c.x(), cyhy, c.z());
+        const vec3<T> min2 = vec3<T>(cx_hx, c.y(), cz_hz);
+        const vec3<T> max2 = vec3<T>(c.x(), cyhy, c.z());
 
         // Octant 3
-        vec3<T> min3 = vec3<T>(cx_hx, c.y(), c.z());
-        vec3<T> max3 = vec3<T>(c.x(), cyhy, czhz);
+        const vec3<T> min3 = vec3<T>(cx_hx, c.y(), c.z());
+        const vec3<T> max3 = vec3<T>(c.x(), cyhy, czhz);
 
         // Octant 4
-        vec3<T> min4 = vec3<T>(c.x(), cy_hy, cz_hz);
-        vec3<T> max4 = vec3<T>(cxhx, c.y(), c.z());
+        const vec3<T> min4 = vec3<T>(c.x(), cy_hy, cz_hz);
+        const vec3<T> max4 = vec3<T>(cxhx, c.y(), c.z());
 
         // Octant 5
-        vec3<T> min5 = vec3<T>(c.x(), cy_hy, c.z());
-        vec3<T> max5 = vec3<T>(cxhx, c.y(), czhz);
+        const vec3<T> min5 = vec3<T>(c.x(), cy_hy, c.z());
+        const vec3<T> max5 = vec3<T>(cxhx, c.y(), czhz);
 
         // Octant 6
-        vec3<T> min6 = vec3<T>(c.x(), c.y(), cz_hz);
-        vec3<T> max6 = vec3<T>(cxhx, cyhy, c.z());
+        const vec3<T> min6 = vec3<T>(c.x(), c.y(), cz_hz);
+        const vec3<T> max6 = vec3<T>(cxhx, cyhy, c.z());
 
         // Octant 7
-        vec3<T> min7 = vec3<T>(c.x(), c.y(), c.z());
-        vec3<T> max7 = vec3<T>(cxhx, cyhy, czhz);
+        const vec3<T> min7 = vec3<T>(c.x(), c.y(), c.z());
+        const vec3<T> max7 = vec3<T>(cxhx, cyhy, czhz);
 
         // Add sub spaces to out vector
         out.push_back(std::make_pair(min0, max0));
@@ -1054,43 +1083,43 @@ class vec3
         out.reserve(8);
 
         // Quarter extent of vector space
-        vec3<T> h = (max - min) * 0.25;
+        const vec3<T> h = (max - min) * 0.25;
 
         // Center of the vector space
-        vec3<T> c = (max + min) * 0.5;
+        const vec3<T> c = (max + min) * 0.5;
 
         // Positions
-        T cx_hx = c.x() - h.x();
-        T cy_hy = c.y() - h.y();
-        T cz_hz = c.z() - h.z();
+        const T cx_hx = c.x() - h.x();
+        const T cy_hy = c.y() - h.y();
+        const T cz_hz = c.z() - h.z();
 
-        T cxhx = c.x() + h.x();
-        T cyhy = c.y() + h.y();
-        T czhz = c.z() + h.z();
+        const T cxhx = c.x() + h.x();
+        const T cyhy = c.y() + h.y();
+        const T czhz = c.z() + h.z();
 
         // Octant 0
-        vec3<T> c0 = vec3<T>(cx_hx, cy_hy, cz_hz);
+        const vec3<T> c0 = vec3<T>(cx_hx, cy_hy, cz_hz);
 
         // Octant 1
-        vec3<T> c1 = vec3<T>(cx_hx, cy_hy, czhz);
+        const vec3<T> c1 = vec3<T>(cx_hx, cy_hy, czhz);
 
         // Octant 2
-        vec3<T> c2 = vec3<T>(cx_hx, cyhy, cz_hz);
+        const vec3<T> c2 = vec3<T>(cx_hx, cyhy, cz_hz);
 
         // Octant 3
-        vec3<T> c3 = vec3<T>(cx_hx, cyhy, czhz);
+        const vec3<T> c3 = vec3<T>(cx_hx, cyhy, czhz);
 
         // Octant 4
-        vec3<T> c4 = vec3<T>(cxhx, cy_hy, cz_hz);
+        const vec3<T> c4 = vec3<T>(cxhx, cy_hy, cz_hz);
 
         // Octant 5
-        vec3<T> c5 = vec3<T>(cxhx, cy_hy, czhz);
+        const vec3<T> c5 = vec3<T>(cxhx, cy_hy, czhz);
 
         // Octant 6
-        vec3<T> c6 = vec3<T>(cxhx, cyhy, cz_hz);
+        const vec3<T> c6 = vec3<T>(cxhx, cyhy, cz_hz);
 
         // Octant 7
-        vec3<T> c7 = vec3<T>(cxhx, cyhy, czhz);
+        const vec3<T> c7 = vec3<T>(cxhx, cyhy, czhz);
 
         // Add sub spaces to out vector
         out.push_back(std::make_pair(c0, size));
@@ -1109,12 +1138,12 @@ class vec3
         std::vector<uint8_t> out;
         out.reserve(8);
 
-        bool minx = min.x() < center.x();
-        bool miny = min.y() < center.y();
-        bool minz = min.z() < center.z();
-        bool maxx = max.x() > center.x();
-        bool maxy = max.y() > center.y();
-        bool maxz = max.z() > center.z();
+        const bool minx = min.x() < center.x();
+        const bool miny = min.y() < center.y();
+        const bool minz = min.z() < center.z();
+        const bool maxx = max.x() > center.x();
+        const bool maxy = max.y() > center.y();
+        const bool maxz = max.z() > center.z();
 
         // If overlapping 0,1,2,3 cells
         if (minx)

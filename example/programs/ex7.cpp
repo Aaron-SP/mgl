@@ -132,7 +132,6 @@ class physics_test
         min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
         min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
-        // Test perspective projection
         // Create camera, set location and look at
         _cam.set_position(pos);
         _cam.set_look_at(look);
