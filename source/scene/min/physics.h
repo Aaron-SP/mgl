@@ -162,8 +162,8 @@ template <typename T, template <typename> class vec, class angular, template <ty
 class body_base
 {
   protected:
-    std::vector<vec<T>> _forces;
-    std::vector<angular> _torques;
+    vec<T> _force;
+    angular _torque;
     vec<T> _position; // This is at the center of mass
     rot<T> _rotation;
     vec<T> _linear_velocity;
@@ -174,13 +174,18 @@ class body_base
     angular _inv_inertia;
 
   public:
-    body_base(const vec<T> &center, const T mass, const angular &inertia)
-        : _position(center), _angular_velocity{}, _mass(mass), _inv_mass(1.0 / mass),
+    body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const angular &inertia)
+        : _force(gravity * mass), _torque{}, _position(center), _angular_velocity{}, _mass(mass), _inv_mass(1.0 / mass),
           _inertia(inertia), _inv_inertia(inverse<T>(inertia)) {}
-    inline void add_force(const vec<T> &f)
+    inline void add_force(const vec<T> &force)
     {
         // Add force to force vector
-        _forces.push_back(f);
+        _force += force;
+    }
+    inline void add_torque(const vec<T> &local_torque)
+    {
+        // Add local torque to torque vector
+        _torque += local_torque;
     }
     inline void add_torque(const vec<T> &force, const vec<T> &contact)
     {
@@ -190,52 +195,36 @@ class body_base
         // Convert the world space torque to object space
         const auto local_torque = min::align<T>(torque, _rotation);
 
-        // Add torque to torque vector
-        _torques.push_back(local_torque);
+        // Add local torque to torque vector
+        _torque += local_torque;
     }
     inline vec<T> align(const vec<T> &v) const
     {
         // Transform the point in object space
         return _rotation.inverse().transform(v);
     }
-    inline void clear_force()
+    inline void clear_force(const vec<T> &gravity)
     {
-        _forces.clear();
+        // Gravity = mg
+        _force = gravity * _mass;
     }
     inline void clear_torque()
     {
-        _torques.clear();
+        _torque = angular{};
     }
     inline const angular get_angular_acceleration(const angular angular_velocity, const T damping) const
     {
-        angular sum{};
-
-        // Sum all torques around this object's center of mass
-        for (const auto &torque : _torques)
-        {
-            sum += torque;
-        }
-
         // Calculate the acceleration
-        return (sum - angular_velocity * damping) * _inv_inertia;
+        return (_torque - angular_velocity * damping) * _inv_inertia;
     }
     inline const angular &get_angular_velocity() const
     {
         return _angular_velocity;
     }
-    inline const vec<T> get_linear_acceleration(const vec<T> &linear_velocity, const vec<T> &gravity, const T damping) const
+    inline const vec<T> get_linear_acceleration(const vec<T> &linear_velocity, const T damping) const
     {
-        // Gravity = -mg
-        vec<T> sum = gravity * _mass;
-
-        // Sum all forces on this object
-        for (const auto &force : _forces)
-        {
-            sum += force;
-        }
-
         // Calculate the acceleration
-        return (sum - linear_velocity * damping) * _inv_mass;
+        return (_force - linear_velocity * damping) * _inv_mass;
     }
     inline const vec<T> &get_linear_velocity() const
     {
@@ -275,12 +264,14 @@ class body_base
     {
         _linear_velocity = v;
     }
-    inline void set_unmovable()
+    inline void set_no_move()
     {
         // Make the object's mass infinite
         _inv_mass = 0.0;
         _mass = 0.0;
-
+    }
+    inline void set_no_rotate()
+    {
         // Make the object's inertia infinite
         _inv_inertia = angular{};
         _inertia = angular{};
@@ -316,7 +307,7 @@ template <typename T>
 class body<T, vec2> : public body_base<T, vec2, T, mat2>
 {
   public:
-    body(const vec2<T> &center, const T mass, const T inertia) : body_base<T, vec2, T, mat2>(center, mass, inertia) {}
+    body(const vec2<T> &center, const vec2<T> &gravity, const T mass, const T inertia) : body_base<T, vec2, T, mat2>(center, gravity, mass, inertia) {}
     inline mat2<T> update_rotation(const T angular_velocity, const T time_step)
     {
         this->_angular_velocity = angular_velocity;
@@ -337,7 +328,7 @@ template <typename T>
 class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
 {
   public:
-    body(const vec3<T> &center, const T mass, const vec3<T> &inertia) : body_base<T, vec3, vec3<T>, quat>(center, mass, inertia) {}
+    body(const vec3<T> &center, const vec3<T> &gravity, const T mass, const vec3<T> &inertia) : body_base<T, vec3, vec3<T>, quat>(center, gravity, mass, inertia) {}
     inline quat<T> update_rotation(const vec3<T> &angular_velocity, const T time_step)
     {
         this->_angular_velocity = angular_velocity;
@@ -373,7 +364,7 @@ template <typename T>
 class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
 {
   public:
-    body(const vec4<T> &center, const T mass, const vec4<T> &inertia) : body_base<T, vec4, vec4<T>, quat>(center, mass, inertia) {}
+    body(const vec4<T> &center, const vec4<T> &gravity, const T mass, const vec4<T> &inertia) : body_base<T, vec4, vec4<T>, quat>(center, gravity, mass, inertia) {}
     inline quat<T> update_rotation(const vec4<T> &angular_velocity, const T time_step)
     {
         this->_angular_velocity = angular_velocity;
@@ -719,7 +710,7 @@ class physics
         _shapes.push_back(s);
 
         // Create rigid body for this shape
-        _bodies.emplace_back(s.get_center(), mass, get_inertia(s, mass));
+        _bodies.emplace_back(s.get_center(), _gravity, mass, get_inertia(s, mass));
 
         // return the body id
         return _bodies.size() - 1;
@@ -799,10 +790,10 @@ class physics
                 const auto v_n = b.get_linear_velocity();
 
                 // Evaluate the derivative at different linear velocities
-                const auto vk1 = b.get_linear_acceleration(v_n, _gravity, damping);
-                const auto vk2 = b.get_linear_acceleration(v_n + vk1 * dt2, _gravity, damping);
-                const auto vk3 = b.get_linear_acceleration(v_n + vk2 * dt2, _gravity, damping);
-                const auto vk4 = b.get_linear_acceleration(v_n + vk3 * dt, _gravity, damping);
+                const auto vk1 = b.get_linear_acceleration(v_n, damping);
+                const auto vk2 = b.get_linear_acceleration(v_n + vk1 * dt2, damping);
+                const auto vk3 = b.get_linear_acceleration(v_n + vk2 * dt2, damping);
+                const auto vk4 = b.get_linear_acceleration(v_n + vk3 * dt, damping);
 
                 // Calculate the linear velocity at this time step
                 const auto v_n1 = v_n + (vk1 + (vk2 * 2.0) + (vk3 * 2.0) + vk4) * dt6;
@@ -814,7 +805,7 @@ class physics
                 const auto abs_rotation = b.update_rotation(w_n1, dt);
 
                 // Clear any acting forces on this object
-                b.clear_force();
+                b.clear_force(_gravity);
                 b.clear_torque();
 
                 // Update the shapes position

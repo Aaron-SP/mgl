@@ -195,6 +195,9 @@ class physics_test
             body.set_linear_velocity(_cam.get_forward() * 10.0);
             body.set_angular_velocity(min::vec3<float>::up() * 1E2);
 
+            // Set this body to be unrotatable
+            body.set_no_rotate();
+
             // Set the model matrix
             const min::mat4<float> model(position);
             _model_id[_box_count + 1] = _ubuffer.add_matrix(model);
@@ -229,7 +232,10 @@ class physics_test
         body.set_position(min::vec3<float>(0.0, 2.5, 0.0));
 
         // Set this body to be unmovable
-        body.set_unmovable();
+        body.set_no_move();
+
+        // Set this body to be unrotatable
+        body.set_no_rotate();
 
         // Set the base mesh matrix with identity
         _model_id[0] = _ubuffer.add_matrix(min::mat4<float>());
