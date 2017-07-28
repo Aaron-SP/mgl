@@ -291,6 +291,11 @@ class mat4
 
         return true;
     }
+    inline vec4<T> transform(const vec4<T> &v) const
+    {
+        // This matches quat<T> API!
+        return this->operator*(v);
+    }
     inline mat4<T> &transpose()
     {
         T temp = _b;

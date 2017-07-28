@@ -57,22 +57,21 @@ class physics_test
     min::physics<float, uint16_t, uint32_t, min::vec3, min::sphere, min::sphere, min::grid> _simulation;
     float _body_radius;
 
-  public:
-    // Load window shaders and program
-    physics_test()
-        : _win("Test sphere physics simulation", 720, 480, 3, 3),
-          _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
-          _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment),
-          _ubuffer(10, 102),
-          _world(min::vec3<float>(0.0, 0.0, 0.0), 200.0),
-          _gravity(0.0, -10.0, 0.0),
-          _simulation(_world, _gravity),
-          _body_radius(4.0)
+    void load_camera()
     {
-        // Set depth and cull settings
-        min::settings::initialize();
+        // Move and camera to +Z and look at origin
+        min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
+        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
+        // Create camera, set location and look at
+        _cam.set_position(pos);
+        _cam.set_look_at(look);
+        auto &f = _cam.get_frustum();
+        f.set_far(500.0);
+        _cam.set_perspective();
+    }
+    void load_keyboard()
+    {
         // Set ability to close out of application by pressing 'Q'
         auto &keyboard = _win.get_keyboard();
 
@@ -81,34 +80,6 @@ class physics_test
 
         // Register callback function for closing window
         keyboard.register_keydown(min::window::key_code::KEYQ, physics_test::close_window, (void *)&_win);
-
-        // Use the shader program to draw models
-        _prog.use();
-    }
-    void clear_background()
-    {
-        // black background
-        const float color[] = {0.1, 0.1, 0.1, 1.0f};
-        glClearBufferfv(GL_COLOR, 0, color);
-        glClear(GL_DEPTH_BUFFER_BIT);
-    }
-    static void close_window(void *ptr, double step)
-    {
-        // Call back function for closing window
-        // 'ptr' is passed in by us in constructor
-        if (ptr)
-        {
-            // Cast to window pointer type and call shut down on window
-            min::window *win = reinterpret_cast<min::window *>(ptr);
-            win->set_shutdown();
-        }
-
-        // Alert that we received the call back
-        std::cout << "physics_test: Shutdown called by user" << std::endl;
-    }
-    bool is_closed() const
-    {
-        return _win.get_shutdown();
     }
     void load_model_texture()
     {
@@ -126,21 +97,13 @@ class physics_test
         _sbuffer.add_mesh(sph_mesh);
         _sbuffer.upload();
     }
-    void load_camera_uniforms()
+    void load_uniforms()
     {
-        // Move and camera to +Z and look at origin
-        min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
-
-        // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
-        auto &f = _cam.get_frustum();
-        f.set_far(500.0);
-        _cam.set_perspective();
-
         // Load the uniform buffer with program we will use
         _ubuffer.set_program(_prog);
+
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
 
         // Load light into uniform buffer
         min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
@@ -190,6 +153,60 @@ class physics_test
         // Load the buffer with data
         _ubuffer.update();
     }
+
+  public:
+    // Load window shaders and program
+    physics_test()
+        : _win("Test sphere physics simulation", 720, 480, 3, 3),
+          _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
+          _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
+          _prog(_vertex, _fragment),
+          _ubuffer(10, 102),
+          _world(min::vec3<float>(0.0, 0.0, 0.0), 200.0),
+          _gravity(0.0, -10.0, 0.0),
+          _simulation(_world, _gravity),
+          _body_radius(4.0)
+    {
+        // Set depth and cull settings
+        min::settings::initialize();
+
+        // Load the camera
+        load_camera();
+
+        // Load the keyboard callbacks and settings
+        load_keyboard();
+
+        // Load model and textures from files
+        load_model_texture();
+
+        // Load uniform buffers with light and model matrix
+        load_uniforms();
+    }
+    void clear_background()
+    {
+        // black background
+        const float color[] = {0.1, 0.1, 0.1, 1.0f};
+        glClearBufferfv(GL_COLOR, 0, color);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+    static void close_window(void *ptr, double step)
+    {
+        // Call back function for closing window
+        // 'ptr' is passed in by us in constructor
+        if (ptr)
+        {
+            // Cast to window pointer type and call shut down on window
+            min::window *win = reinterpret_cast<min::window *>(ptr);
+            win->set_shutdown();
+        }
+
+        // Alert that we received the call back
+        std::cout << "physics_test: Shutdown called by user" << std::endl;
+    }
+    bool is_closed() const
+    {
+        return _win.get_shutdown();
+    }
     void solve(const double frame_time, const double damping)
     {
         // Solve the simulation
@@ -217,6 +234,9 @@ class physics_test
         // Bind the bmp for drawing
         _tbuffer.bind(_bmp_id, 0);
 
+        // Use the shader program to draw models
+        _prog.use();
+
         // Draw 100 instances of object
         _sbuffer.draw_many(GL_TRIANGLES, 0, 100);
     }
@@ -232,15 +252,6 @@ int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     physics_test test;
-
-    // Clear the background color
-    test.clear_background();
-
-    // Load model and textures from files
-    test.load_model_texture();
-
-    // Load the camera and fill uniform buffers with light and model matrix
-    test.load_camera_uniforms();
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;

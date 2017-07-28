@@ -114,6 +114,9 @@ class uniform_test
         // Load the uniform buffer with program we will use
         _ubuffer.set_program(_prog);
 
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
         size_t size = _ubuffer.get_max_buffer_size();
         std::cout << "Max uniform buffer size(bytes) is: " << size << std::endl;
 

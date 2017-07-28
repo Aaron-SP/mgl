@@ -45,16 +45,23 @@ template <class T>
 const T var<T>::INV_SQRT3 = 0.577350269189626;
 
 template <typename T>
-constexpr inline T deg_to_rad(T degrees)
+constexpr inline T rad_to_deg(const T rad)
 {
     // Converts degrees to radians
-    return degrees * var<T>::PI / 180.0;
+    return rad * (180.0 / var<T>::PI);
+}
+
+template <typename T>
+constexpr inline T deg_to_rad(const T degrees)
+{
+    // Converts degrees to radians
+    return degrees * (var<T>::PI / 180.0);
 }
 template <typename T>
-constexpr inline T deg_to_rad2(T degrees)
+constexpr inline T deg_to_rad2(const T degrees)
 {
     // Converts degrees to radians / 2
-    return degrees * var<T>::PI / 360.0;
+    return degrees * (var<T>::PI / 360.0);
 }
 
 template <typename T>

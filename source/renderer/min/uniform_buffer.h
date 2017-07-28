@@ -102,9 +102,6 @@ class uniform_buffer
 
             // Set the block binding index = 0
             glUniformBlockBinding(p.id(), _light_index, 0);
-
-            // Connect the binding index = 0 to the buffer
-            glBindBufferBase(GL_UNIFORM_BUFFER, 0, _lbo);
         }
     }
     void set_matrix(const program &p)
@@ -169,9 +166,6 @@ class uniform_buffer
 
             // Set the block binding index = 1
             glUniformBlockBinding(p.id(), _matrix_index, 1);
-
-            // Connect the binding index = 1 to the buffer
-            glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
         }
     }
     void update_light_buffer() const
@@ -303,6 +297,14 @@ class uniform_buffer
 
         // Return matrix ID
         return _matrix.size() - 1;
+    }
+    inline void bind() const
+    {
+        // Connect the binding index = 0 to the buffer
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, _lbo);
+
+        // Connect the binding index = 1 to the buffer
+        glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
     }
     inline size_t get_max_buffer_size() const
     {

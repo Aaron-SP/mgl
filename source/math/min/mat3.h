@@ -248,6 +248,11 @@ class mat3
 
         return true;
     }
+    inline vec3<T> transform(const vec3<T> &v) const
+    {
+        // This matches quat<T> API!
+        return this->operator*(v);
+    }
     inline mat3<T> &transpose()
     {
         T swap = _b;

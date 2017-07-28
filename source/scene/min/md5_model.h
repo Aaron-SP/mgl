@@ -89,6 +89,10 @@ class md5_model : public model<T, K, vec, bound>
     {
         return _bones;
     }
+    const md5_anim<T> &get_current_animation() const
+    {
+        return _animations[_current];
+    }
     inline void load_animation(const std::string &file)
     {
         // Load animation in place

@@ -47,23 +47,35 @@ class particle_test
     // Force setting for toggling between radial and linear
     int _force_type;
 
-  public:
-    // Load window shaders and program
-    particle_test()
-        : _win("Example particle system", 720, 480, 3, 3),
-          _vertex("data/shader/emitter.vertex", GL_VERTEX_SHADER),
-          _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment),
-          _ebuffer(min::vec3<float>(), 1000, 0.1, 5.0),
-          _ubuffer(0, 1),
-          _force_type(0)
+    void load_camera()
     {
-        // Set depth and cull settings
-        min::settings::initialize();
+        // Move and camera to -X, +Y and look at origin
+        min::vec3<float> pos = min::vec3<float>(-1.0, 40.0, 0.0);
+        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
-        // Use the shader program to draw models
-        _prog.use();
+        // Test perspective projection
+        // Create camera, set location and look at
+        _cam.set_position(pos);
+        _cam.set_look_at(look);
+        _cam.set_perspective();
+    }
+    void load_emitter_texture()
+    {
+        // Load textures
+        const min::bmp b = min::bmp("data/texture/stone.bmp");
 
+        // Load texture buffer
+        _bmp_id = _tbuffer.add_bmp_texture(b);
+
+        // Lower the default gravity
+        _ebuffer.set_gravity(min::vec3<float>(0.0, -5.0, 0.0));
+        _ebuffer.set_speed(min::vec3<float>(0.0, 1.0, 0.0));
+
+        // Load buffer with data
+        _ebuffer.upload();
+    }
+    void load_keyboard()
+    {
         // Set ability to close out of application by pressing 'Q'
         auto &keyboard = _win.get_keyboard();
 
@@ -78,6 +90,47 @@ class particle_test
 
         // Register callback function for changing force type
         keyboard.register_keydown(min::window::key_code::ENTER, particle_test::toggle_force, (void *)this);
+    }
+    void load_uniforms()
+    {
+        // Load projection matrix into uniform buffer
+        _ubuffer.add_matrix(_cam.get_pv_matrix());
+
+        // Load the uniform buffer with program we will use
+        _ubuffer.set_program(_prog);
+
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
+        // Load the buffer with data
+        _ubuffer.update();
+    }
+
+  public:
+    // Load window shaders and program
+    particle_test()
+        : _win("Example particle system", 720, 480, 3, 3),
+          _vertex("data/shader/emitter.vertex", GL_VERTEX_SHADER),
+          _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
+          _prog(_vertex, _fragment),
+          _ebuffer(min::vec3<float>(), 1000, 0.1, 5.0),
+          _ubuffer(0, 1),
+          _force_type(0)
+    {
+        // Set depth and cull settings
+        min::settings::initialize();
+
+        // Load the camera
+        load_camera();
+
+        // Load the keyboard callbacks and settings
+        load_keyboard();
+
+        // Load model and textures from files
+        load_emitter_texture();
+
+        // Load uniform buffers with light and model matrix
+        load_uniforms();
     }
     static void close_window(void *ptr, double step)
     {
@@ -118,42 +171,6 @@ class particle_test
     {
         return _win.get_shutdown();
     }
-    void load_emitter_texture()
-    {
-        // Load textures
-        const min::bmp b = min::bmp("data/texture/stone.bmp");
-
-        // Load texture buffer
-        _bmp_id = _tbuffer.add_bmp_texture(b);
-
-        // Lower the default gravity
-        _ebuffer.set_gravity(min::vec3<float>(0.0, -5.0, 0.0));
-        _ebuffer.set_speed(min::vec3<float>(0.0, 1.0, 0.0));
-
-        // Load buffer with data
-        _ebuffer.upload();
-    }
-    void load_camera_uniforms()
-    {
-        // Move and camera to -X, +Y and look at origin
-        min::vec3<float> pos = min::vec3<float>(-1.0, 40.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
-
-        // Test perspective projection
-        // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
-        _cam.set_perspective();
-
-        // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
-
-        // Load projection matrix into uniform buffer
-        _ubuffer.add_matrix(_cam.get_pv_matrix());
-
-        // Load the buffer with data
-        _ubuffer.update();
-    }
     void draw()
     {
         // Bind VAO
@@ -161,6 +178,9 @@ class particle_test
 
         // Bind this texture for drawing
         _tbuffer.bind(_bmp_id, 0);
+
+        // Use the shader program to draw models
+        _prog.use();
 
         // Draw the particles
         _ebuffer.draw();
@@ -217,12 +237,6 @@ int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     particle_test test;
-
-    // Load model and textures from files
-    test.load_emitter_texture();
-
-    // Load the camera and fill uniform buffers with light and model matrix
-    test.load_camera_uniforms();
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;

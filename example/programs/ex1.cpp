@@ -52,21 +52,20 @@ class render_loop_test
     // Model matrix for rotating suzanne
     min::mat4<float> _model_matrix;
 
-  public:
-    // Load window shaders and program
-    render_loop_test()
-        : _win("Example render loop with first person camera", 720, 480, 3, 3),
-          _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
-          _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment),
-          _ubuffer(100, 100)
+    void load_camera()
     {
-        // Set depth and cull settings
-        min::settings::initialize();
+        // Move and camera to -X and look at origin
+        min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
+        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
-        // Use the shader program to draw models
-        _prog.use();
-
+        // Test perspective projection
+        // Create camera, set location and look at
+        _cam.set_position(pos);
+        _cam.set_look_at(look);
+        _cam.set_perspective();
+    }
+    void load_keyboard()
+    {
         // Set ability to close out of application by pressing 'Q'
         auto &keyboard = _win.get_keyboard();
 
@@ -75,34 +74,6 @@ class render_loop_test
 
         // Register callback function for closing window
         keyboard.register_keydown(min::window::key_code::KEYQ, render_loop_test::close_window, (void *)&_win);
-
-        // Put cursor in center of window
-        update_cursor();
-    }
-    static void close_window(void *ptr, double step)
-    {
-        // Call back function for closing window
-        // 'ptr' is passed in by us in constructor
-        if (ptr)
-        {
-            // Cast to window pointer type and call shut down on window
-            min::window *win = reinterpret_cast<min::window *>(ptr);
-            win->set_shutdown();
-        }
-
-        // Alert that we received the call back
-        std::cout << "render_loop_test: Shutdown called by user" << std::endl;
-    }
-    void clear_background() const
-    {
-        // blue background
-        const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
-        glClearBufferfv(GL_COLOR, 0, color);
-        glClear(GL_DEPTH_BUFFER_BIT);
-    }
-    bool is_closed() const
-    {
-        return _win.get_shutdown();
     }
     void load_model_texture()
     {
@@ -131,21 +102,8 @@ class render_loop_test
         // Load buffer with data
         _sbuffer.upload();
     }
-    void load_camera_uniforms()
+    void load_uniforms()
     {
-        // Move and camera to -X and look at origin
-        min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
-
-        // Test perspective projection
-        // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
-        _cam.set_perspective();
-
-        // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
-
         size_t size = _ubuffer.get_max_buffer_size();
         std::cout << "Max uniform buffer size(bytes) is: " << size << std::endl;
 
@@ -162,8 +120,64 @@ class render_loop_test
         // Get model ID for later use
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
 
+        // Load the uniform buffer with program we will use
+        _ubuffer.set_program(_prog);
+
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
         // Load the buffer with data
         _ubuffer.update();
+    }
+
+  public:
+    // Load window shaders and program
+    render_loop_test()
+        : _win("Example render loop with first person camera", 720, 480, 3, 3),
+          _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
+          _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
+          _prog(_vertex, _fragment),
+          _ubuffer(100, 100)
+    {
+        // Set depth and cull settings
+        min::settings::initialize();
+
+        // Load the camera
+        load_camera();
+
+        // Load the keyboard callbacks and settings
+        load_keyboard();
+
+        // Load model and textures from files
+        load_model_texture();
+
+        // Load uniform buffers with light and model matrix
+        load_uniforms();
+    }
+    static void close_window(void *ptr, double step)
+    {
+        // Call back function for closing window
+        // 'ptr' is passed in by us in constructor
+        if (ptr)
+        {
+            // Cast to window pointer type and call shut down on window
+            min::window *win = reinterpret_cast<min::window *>(ptr);
+            win->set_shutdown();
+        }
+
+        // Alert that we received the call back
+        std::cout << "render_loop_test: Shutdown called by user" << std::endl;
+    }
+    void clear_background() const
+    {
+        // blue background
+        const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
+        glClearBufferfv(GL_COLOR, 0, color);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+    bool is_closed() const
+    {
+        return _win.get_shutdown();
     }
     void draw()
     {
@@ -180,7 +194,12 @@ class render_loop_test
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
         _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
         _ubuffer.set_matrix(_model_matrix, _model_id);
+
+        // Update the data in the uniform buffer
         _ubuffer.update();
+
+        // Use the shader program to draw models
+        _prog.use();
 
         // Draw blender-suzanne
         _sbuffer.draw(GL_TRIANGLES, 0);
@@ -234,12 +253,6 @@ int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     render_loop_test test;
-
-    // Load model and textures from files
-    test.load_model_texture();
-
-    // Load the camera and fill uniform buffers with light and model matrix
-    test.load_camera_uniforms();
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;

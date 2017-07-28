@@ -106,6 +106,9 @@ class instance_test
         // Load the uniform buffer with program we will use
         _ubuffer.set_program(_prog);
 
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
         // Load light into uniform buffer
         min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
         min::vec4<float> light_position(0.0, 0.0, 20.0, 1.0);

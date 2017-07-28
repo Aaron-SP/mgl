@@ -108,6 +108,9 @@ class tessellation_test
         // Load the uniform buffer with program we will use
         _ubuffer.set_program(_prog);
 
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
         // Load projection and view matrix into uniform buffer
         _ubuffer.add_matrix(_cam.get_pv_matrix());
         _ubuffer.add_matrix(_cam.get_v_matrix());

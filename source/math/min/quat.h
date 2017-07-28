@@ -113,7 +113,7 @@ class quat
         else
         {
             vec3<T> q = v1.cross(v2);
-            _w = cos_theta + 1;
+            _w = cos_theta + 1.0;
             _x = q.x();
             _y = q.y();
             _z = q.z();

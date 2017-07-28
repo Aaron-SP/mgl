@@ -280,6 +280,10 @@ class body_base
     {
         _position = p;
     }
+    inline void set_rotation(const rot<T> &r)
+    {
+        _rotation = r;
+    }
     inline const void move_offset(const vec<T> &offset)
     {
         _position += offset;

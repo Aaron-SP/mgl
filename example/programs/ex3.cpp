@@ -20,7 +20,6 @@ limitations under the License.
 #include <min/settings.h>
 #include <min/shader.h>
 #include <min/static_vertex.h>
-#include <min/uniform_buffer.h>
 #include <min/vertex_buffer.h>
 #include <min/window.h>
 #include <string>
@@ -37,20 +36,8 @@ class screen_draw_test
     // Buffers for model data and textures
     min::vertex_buffer<float, uint32_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_INT> _sbuffer;
 
-  public:
-    // Load window shaders and program
-    screen_draw_test()
-        : _win("Click 3x to add triangles", 720, 480, 3, 3),
-          _vertex("data/shader/color.vertex", GL_VERTEX_SHADER),
-          _fragment("data/shader/color.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment)
+    void load_keyboard()
     {
-        // Set depth and cull settings
-        min::settings::initialize();
-
-        // Use the shader program to draw models
-        _prog.use();
-
         // Set ability to close out of application by pressing 'Q'
         auto &keyboard = _win.get_keyboard();
 
@@ -63,6 +50,45 @@ class screen_draw_test
         // Register callback function for mouse click
         _win.register_data((void *)this);
         _win.register_click(screen_draw_test::on_click);
+    }
+    void load_vertex_buffer()
+    {
+        // Initialize the mesh buffer with one point
+        min::mesh<float, uint32_t> point("Dynamic VBO");
+        point.vertex.push_back(min::vec4<float>(0, 0, 0, 1));
+
+        // We only use the vertex the extra parameters are required but unused
+        point.uv.push_back(min::vec2<float>(0, 0));
+        point.normal.push_back(min::vec3<float>::up());
+        point.tangent.push_back(min::vec3<float>::up());
+        point.bitangent.push_back(min::vec3<float>::up());
+
+        // Since very mesh is one point, the model index is always zero!
+        point.index.push_back(0);
+
+        // Add mesh and update buffers
+        _sbuffer.add_mesh(point);
+
+        // Load buffer with data
+        _sbuffer.upload();
+    }
+
+  public:
+    // Load window shaders and program
+    screen_draw_test()
+        : _win("Click 3x to add triangles", 720, 480, 3, 3),
+          _vertex("data/shader/color.vertex", GL_VERTEX_SHADER),
+          _fragment("data/shader/color.fragment", GL_FRAGMENT_SHADER),
+          _prog(_vertex, _fragment)
+    {
+        // Set depth and cull settings
+        min::settings::initialize();
+
+        // Load the keyboard callbacks and settings
+        load_keyboard();
+
+        // Load static buffer for drawing points
+        load_vertex_buffer();
     }
     static void close_window(void *ptr, double step)
     {
@@ -129,29 +155,14 @@ class screen_draw_test
         // Bind VAO
         _sbuffer.bind();
 
+        // Set point size to 40 pixels
         glPointSize(40.0);
+
+        // Use the shader program to draw models
+        _prog.use();
+
+        // Draw all triangles in buffer
         _sbuffer.draw_all(GL_TRIANGLES);
-    }
-    void load_vertex_buffer()
-    {
-        // Initialize the mesh buffer with one point
-        min::mesh<float, uint32_t> point("Dynamic VBO");
-        point.vertex.push_back(min::vec4<float>(0, 0, 0, 1));
-
-        // We only use the vertex the extra parameters are required but unused
-        point.uv.push_back(min::vec2<float>(0, 0));
-        point.normal.push_back(min::vec3<float>::up());
-        point.tangent.push_back(min::vec3<float>::up());
-        point.bitangent.push_back(min::vec3<float>::up());
-
-        // Since very mesh is one point, the model index is always zero!
-        point.index.push_back(0);
-
-        // Add mesh and update buffers
-        _sbuffer.add_mesh(point);
-
-        // Load buffer with data
-        _sbuffer.upload();
     }
     void window_update()
     {
@@ -165,9 +176,6 @@ int test_screen_draw()
 {
     // Load window shaders and program, enable shader program
     screen_draw_test test;
-
-    // Load static buffer for drawing points
-    test.load_vertex_buffer();
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;

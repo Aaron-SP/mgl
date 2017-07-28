@@ -74,26 +74,20 @@ class md5_render_loop_test
     // Model matrix for rotating md5 model
     min::mat4<float> _model_matrix;
 
-  public:
-    // Load window shaders and program
-    md5_render_loop_test()
-        : _win("Example animated MD5 with dynamic text", 720, 480, 3, 3),
-          _vert_vertex("data/shader/md5.vertex", GL_VERTEX_SHADER),
-          _vert_fragment("data/shader/md5.fragment", GL_FRAGMENT_SHADER),
-          _text_vertex("data/shader/text.vertex", GL_VERTEX_SHADER),
-          _text_fragment("data/shader/text.fragment", GL_FRAGMENT_SHADER),
-          _vert_prog(_vert_vertex, _vert_fragment),
-          _text_prog(_text_vertex, _text_fragment),
-          _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
-          _text_buffer("data/fonts/open_sans.ttf", 14),
-          _ubuffer(1, 100),
-          _light_color(1.0, 1.0, 1.0, 1.0),
-          _light_position(-9.0, 10.0, 0.0, 1.0),
-          _light_power(0.1, 200.0, 100.0, 1.0)
+    void load_camera()
     {
-        // Set depth, cull and blend settings
-        min::settings::initialize();
+        // Move and camera to -X and look at origin
+        min::vec3<float> pos = min::vec3<float>(-10.0, 10.0, 0.0);
+        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
+        // Test perspective projection
+        // Create camera, set location and look at
+        _cam.set_position(pos);
+        _cam.set_look_at(look);
+        _cam.set_perspective();
+    }
+    void load_keyboard()
+    {
         // Set ability to close out of application by pressing 'Q'
         auto &keyboard = _win.get_keyboard();
 
@@ -102,34 +96,6 @@ class md5_render_loop_test
 
         // Register callback function for closing window
         keyboard.register_keydown(min::window::key_code::KEYQ, md5_render_loop_test::close_window, (void *)&_win);
-
-        // Put cursor in center of window
-        update_cursor();
-    }
-    static void close_window(void *ptr, double step)
-    {
-        // Call back function for closing window
-        // 'ptr' is passed in by us in constructor
-        if (ptr)
-        {
-            // Cast to window pointer type and call shut down on window
-            min::window *win = reinterpret_cast<min::window *>(ptr);
-            win->set_shutdown();
-        }
-
-        // Alert that we received the call back
-        std::cout << "md5_render_loop_test: Shutdown called by user" << std::endl;
-    }
-    void clear_background() const
-    {
-        // blue background
-        const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
-        glClearBufferfv(GL_COLOR, 0, color);
-        glClear(GL_DEPTH_BUFFER_BIT);
-    }
-    bool is_closed() const
-    {
-        return _win.get_shutdown();
     }
     void load_model()
     {
@@ -137,7 +103,7 @@ class md5_render_loop_test
         std::cout << "Opening an md5 model: " << std::endl;
 
         // Load animation
-        _md5_model.load_animation("data/models/mech_warrior.md5anim");
+        _md5_model.load_animation("data/models/mech_warrior_walk.md5anim");
 
         // Setup the md5 mesh
         min::mesh<float, uint32_t> &md5 = _md5_model.get_meshes()[0];
@@ -174,21 +140,8 @@ class md5_render_loop_test
         _fps_id = _text_buffer.add_text("FPS:", 10, 28);
         _idle_id = _text_buffer.add_text("FPS:", 10, 14);
     }
-    void load_camera_uniforms()
+    void load_uniforms()
     {
-        // Move and camera to -X and look at origin
-        min::vec3<float> pos = min::vec3<float>(-10.0, 10.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
-
-        // Test perspective projection
-        // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
-        _cam.set_perspective();
-
-        // Load the uniform buffer with the program we will use
-        _ubuffer.set_program(_vert_prog);
-
         // Load light into uniform buffer
         _light_id = _ubuffer.add_light(min::light<float>(_light_color, _light_position, _light_power));
 
@@ -209,10 +162,77 @@ class md5_render_loop_test
             _bone_id.push_back(bone_id);
         }
 
+        // Load the uniform buffer with the program we will use
+        _ubuffer.set_program(_vert_prog);
+
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
+
         // Load the buffer with data
         _ubuffer.update();
     }
-    void draw(double time_step)
+
+  public:
+    // Load window shaders and program
+    md5_render_loop_test()
+        : _win("Example animated MD5 with dynamic text", 720, 480, 3, 3),
+          _vert_vertex("data/shader/md5.vertex", GL_VERTEX_SHADER),
+          _vert_fragment("data/shader/md5.fragment", GL_FRAGMENT_SHADER),
+          _text_vertex("data/shader/text.vertex", GL_VERTEX_SHADER),
+          _text_fragment("data/shader/text.fragment", GL_FRAGMENT_SHADER),
+          _vert_prog(_vert_vertex, _vert_fragment),
+          _text_prog(_text_vertex, _text_fragment),
+          _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
+          _text_buffer("data/fonts/open_sans.ttf", 14),
+          _ubuffer(1, 100),
+          _light_color(1.0, 1.0, 1.0, 1.0),
+          _light_position(-9.0, 10.0, 0.0, 1.0),
+          _light_power(0.1, 200.0, 100.0, 1.0)
+    {
+        // Set depth, cull and blend settings
+        min::settings::initialize();
+
+        // Load the camera
+        load_camera();
+
+        // Load the keyboard callbacks and settings
+        load_keyboard();
+
+        // Load model from files
+        load_model();
+
+        // Load textures from files
+        load_textures();
+
+        // Load uniform buffers with light and model matrix
+        load_uniforms();
+    }
+    static void close_window(void *ptr, double step)
+    {
+        // Call back function for closing window
+        // 'ptr' is passed in by us in constructor
+        if (ptr)
+        {
+            // Cast to window pointer type and call shut down on window
+            min::window *win = reinterpret_cast<min::window *>(ptr);
+            win->set_shutdown();
+        }
+
+        // Alert that we received the call back
+        std::cout << "md5_render_loop_test: Shutdown called by user" << std::endl;
+    }
+    void clear_background() const
+    {
+        // blue background
+        const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
+        glClearBufferfv(GL_COLOR, 0, color);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+    bool is_closed() const
+    {
+        return _win.get_shutdown();
+    }
+    void draw(const double time_step)
     {
         // Rotate the model around the Z axis
         _model_matrix *= min::mat4<float>(min::mat3<float>().set_rotation_y(10.0 * time_step));
@@ -323,15 +343,6 @@ int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     md5_render_loop_test test;
-
-    // Load model from files
-    test.load_model();
-
-    // Load textures from files
-    test.load_textures();
-
-    // Load the camera and fill uniform buffers with light and model matrix
-    test.load_camera_uniforms();
 
     // Initialize FPS text
     test.update_text(60.0, 60.0);
