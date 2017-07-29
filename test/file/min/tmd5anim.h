@@ -90,7 +90,7 @@ bool test_md5_anim()
     anim.step(0.5);
 
     // Higher polygon mech warrior mesh
-    const min::md5_anim<float> mech_anim = min::md5_anim<float>("data/models/mech_warrior.md5anim");
+    const min::md5_anim<float> mech_anim = min::md5_anim<float>("data/models/mech_warrior_stand.md5anim");
 
     // Test the hierarchy node count
     out = out && compare(15, mech_anim.get_nodes().size());

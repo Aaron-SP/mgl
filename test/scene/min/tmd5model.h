@@ -60,7 +60,7 @@ bool test_md5_model()
     }
 
     // Test load animation
-    mech_model.load_animation("data/models/mech_warrior.md5anim");
+    mech_model.load_animation("data/models/mech_warrior_stand.md5anim");
 
     // Test step
     mech_model.step(0.5);

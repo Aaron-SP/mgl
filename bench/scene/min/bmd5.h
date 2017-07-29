@@ -33,7 +33,7 @@ double bench_md5()
     min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")));
 
     // Load animation
-    md5_model.load_animation("data/models/mech_warrior.md5anim");
+    md5_model.load_animation("data/models/mech_warrior_stand.md5anim");
 
     // Calculate tangents
     min::mesh<float, uint32_t> &md5 = md5_model.get_meshes()[0];
