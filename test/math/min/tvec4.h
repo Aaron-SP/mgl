@@ -118,6 +118,18 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 normalize operation");
     }
 
+    // Test normalize_safe
+    one = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
+    one.normalize_safe(min::vec4<double>::up());
+    out = out && compare(0.0, one.x(), 1E-4);
+    out = out && compare(1.0, one.y(), 1E-4);
+    out = out && compare(0.0, one.z(), 1E-4);
+    out = out && compare(1.0, one.w(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 normalize_safe operation");
+    }
+
     // Test clamp
     one = min::vec4<double>(-1.0, -1.0, -2.0, 0.0);
     two = min::vec4<double>(-2.0, 4.0, -3.0, 0.0);
@@ -144,20 +156,27 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 clamp operation");
     }
 
-    // Test any_zero
-    one = min::vec4<double>(-1.0, -1E-7, 2.0, 0.0);
-    out = out && one.any_zero();
+    // Test any_zero_outside
+    one = min::vec4<double>(0.0, -1.0, 1.0, 1.0);
+    two = min::vec4<double>(1.0, 1.0, 1.0, 1.0);
+    vmin = min::vec4<double>(2.0, 2.0, 2.0, 1.0);
+    vmax = min::vec4<double>(3.0, 3.0, 3.0, 1.0);
+    out = out && two.any_zero_outside(one, vmin, vmax);
     if (!out)
     {
-        throw std::runtime_error("Failed vec4 any_zero operation");
+        throw std::runtime_error("Failed vec3 any_zero_outside operation");
     }
 
-    // Test not any_zero
-    one = min::vec4<double>(-1.0, -1E-5, 2.0, 0.0);
-    out = out && !one.any_zero();
+    // Test not any_zero_outside
+    // Test any_zero_outside
+    one = min::vec4<double>(0.0, -1.0, 1.0, 1.0);
+    two = min::vec4<double>(2.5, 2.5, 2.5, 1.0);
+    vmin = min::vec4<double>(2.0, 2.0, 2.0, 1.0);
+    vmax = min::vec4<double>(3.0, 3.0, 3.0, 1.0);
+    out = out && !two.any_zero_outside(one, vmin, vmax);
     if (!out)
     {
-        throw std::runtime_error("Failed vec4 not any_zero operation");
+        throw std::runtime_error("Failed vec3 not any_zero_outside operation");
     }
 
     // Test inverse
@@ -169,6 +188,16 @@ bool test_vec4()
     if (!out)
     {
         throw std::runtime_error("Failed vec4 inverse operation");
+    }
+
+    // Test inverse_safe
+    one = min::vec4<double>(0.0, 0.0, 0.0, 1.0).inverse_safe();
+    out = out && compare(std::numeric_limits<double>::max(), one.x(), 1E-4);
+    out = out && compare(std::numeric_limits<double>::max(), one.y(), 1E-4);
+    out = out && compare(std::numeric_limits<double>::max(), one.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 inverse_safe operation");
     }
 
     // Test max
@@ -633,6 +662,46 @@ bool test_vec4()
     if (!out)
     {
         throw std::runtime_error("Failed vec4 grid key 7");
+    }
+
+    // Test grid_cell
+    min::vec4<double> extent(100000.0, 100000.0, 100000.0, 1.0);
+    min::vec4<double> origin(100.0, 100.0, 100.0, 1.0);
+    min::vec4<double> direction(0.0, 1.0, 0.0, 1.0);
+    min::vec4<double> inverse = direction.inverse();
+    vmin = min::vec4<double>(-100000.0, -100000.0, -100000.0, 1.0);
+    auto cell = min::vec4<double>::grid_cell(vmin, extent, origin);
+    out = out && compare(1, std::get<0>(cell));
+    out = out && compare(1, std::get<1>(cell));
+    out = out && compare(1, std::get<2>(cell));
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 grid_cell");
+    }
+
+    // Test grid_ray
+    auto t = min::vec4<double>::grid_ray(extent, origin, direction, inverse);
+    out = out && compare(1, std::get<0>(t));
+    out = out && compare(std::numeric_limits<double>::max(), std::get<1>(t), 1E-4);
+    out = out && compare(std::numeric_limits<double>::max(), std::get<2>(t), 1E-4);
+    out = out && compare(1, std::get<3>(t));
+    out = out && compare(99900.0, std::get<4>(t), 1E-4);
+    out = out && compare(100000.0, std::get<5>(t), 1E-4);
+    out = out && compare(1, std::get<6>(t));
+    out = out && compare(std::numeric_limits<double>::max(), std::get<7>(t), 1E-4);
+    out = out && compare(std::numeric_limits<double>::max(), std::get<8>(t), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 grid_ray");
+    }
+
+    // Test grid_ray_next
+    bool flag = false;
+    key = min::vec4<double>::grid_ray_next(cell, t, flag, 1.0);
+    out = out && compare(4, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 grid_ray_next");
     }
 
     // Test grid overlap

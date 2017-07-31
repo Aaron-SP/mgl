@@ -30,7 +30,7 @@ bool test_bmp()
         int w;
         int h;
         std::vector<uint8_t> data;
-        const min::bmp image = min::bmp("data/texture/paint.bmp");
+        const min::bmp image = min::bmp("data/texture/art_cube.bmp");
         s = image.get_size();
         w = image.get_width();
         h = image.get_height();

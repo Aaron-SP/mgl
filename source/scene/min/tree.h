@@ -116,7 +116,7 @@ class tree
 
         // Calculate sub cell regions in this node, and set the node children cells
         auto &children = node.get_children();
-        auto sub_cell = node.get_cell().subdivide();
+        const auto sub_cell = node.get_cell().subdivide();
         for (auto &sc : sub_cell)
         {
             children.emplace_back(cell<T, vec>(sc.first, sc.second));
@@ -133,7 +133,7 @@ class tree
             const vec<T> &center = node.get_cell().get_center();
 
             // Calculate intersection between shape and the node sub cells, sub_over.size() < 8
-            std::vector<uint8_t> sub_over = vec<T>::sub_overlap(min, max, center);
+            const std::vector<uint8_t> sub_over = vec<T>::sub_overlap(min, max, center);
             for (const auto &sub : sub_over)
             {
                 // Set key for all overlapping sub cells
@@ -154,7 +154,7 @@ class tree
     inline void create_keys()
     {
         // Preallocate the key vector and collision cache
-        auto size = _shapes.size();
+        const auto size = _shapes.size();
 
         // Resize the keys vector and fill with increasing series
         std::vector<K> &keys = _root.get_keys();
@@ -274,7 +274,7 @@ class tree
     inline std::vector<size_t> sort(const std::vector<shape<T, vec>> &shapes)
     {
         // Create index vector to sort 0 to N
-        auto size = shapes.size();
+        const auto size = shapes.size();
         std::vector<size_t> index(size);
         std::iota(index.begin(), index.end(), 0);
 
@@ -294,7 +294,7 @@ class tree
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
         _shapes.reserve(size);
-        for (auto &i : index)
+        for (const auto &i : index)
         {
             _shapes.emplace_back(shapes[i]);
         }
@@ -336,7 +336,7 @@ class tree
         for (K i = 0; i < _depth; i++)
         {
             // Get the key from the point ratio
-            uint8_t key = ratio.subdivide_key(middle);
+            const uint8_t key = ratio.subdivide_key(middle);
 
             // Check the calculated key value
             if (key > 7 || key < 0)
@@ -399,7 +399,7 @@ class tree
         optimize_depth(shapes);
 
         // Sort shapes by grid key id
-        std::vector<size_t> map = sort(shapes);
+        const std::vector<size_t> map = sort(shapes);
 
         // Clear out the root node
         _root.clear();

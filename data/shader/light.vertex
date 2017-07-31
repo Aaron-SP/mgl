@@ -40,14 +40,14 @@ void main(void)
 	// Calculate transformed position
 	gl_Position =  pv * model * vertex;
 
-	// Calculate the vertex camera coordinates
-    vec3 vertex_camera = (view * model * vertex).xyz;
+	// Calculate the vertex world coordinates
+    vec4 vertex_world = model * vertex;
 
     // Calculate the camera direction
-    vec3 eye_camera = normalize(vec3(0,0,0) - vertex_camera);
+    vec3 eye_camera = normalize(vec3(0,0,0) - (view * vertex_world).xyz);
 
-    // Calculate the normal in camera coordinates
-    vec3 normal_camera = normalize(view * model * vec4(normal, 1)).xyz;
+    // Calculate the normal in world coordinates
+    vec3 normal_world = normalize(model * vec4(normal, 1)).xyz;
 
     // Initialize reference color
     vec4 color = vec4(0, 0, 0, 1.0);
@@ -55,14 +55,14 @@ void main(void)
     // For all lights in the scene
     for(int i = 0; i < light_buffer.size; i++)
     {
-        // Calculate the light camera coordinates
-        vec3 light_direction = (view * light_buffer.lights[i].position).xyz - vertex_camera;
+        // Calculate the light world coordinates
+        vec3 light_direction = (light_buffer.lights[i].position - vertex_world).xyz;
         float inv_d2 = 1.0 / dot(light_direction, light_direction);
         light_direction = normalize(light_direction);
 
         // Calculate reflection and drop off
-        float cos_theta = max(dot(normal_camera, light_direction), 0);
-        vec3 reflection = -reflect(light_direction , normal_camera);
+        float cos_theta = max(dot(normal_world, light_direction), 0);
+        vec3 reflection = -reflect(light_direction , normal_world);
         float cos_alpha = max(dot(eye_camera, reflection), 0);
 
         // Calculate ambient, diffuse and specular

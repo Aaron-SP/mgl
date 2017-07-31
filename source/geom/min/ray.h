@@ -32,7 +32,9 @@ class ray
     {
         // Calculate a ray in direction to - from
         _dir = (to - from).normalize();
-        _inv = _dir.inverse();
+
+        // If ray is axis aligned, element will be MAX(T)
+        _inv = _dir.inverse_safe();
     }
     inline const vec<T> &get_origin() const { return _origin; }
     inline const vec<T> &get_direction() const { return _dir; }

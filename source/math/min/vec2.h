@@ -23,8 +23,10 @@ class coord_sys;
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <min/coord_sys.h>
 #include <min/utility.h>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -71,9 +73,21 @@ class vec2
 
         return *this;
     }
-    inline bool any_zero() const
+    inline bool any_zero_outside(const vec2<T> &p, const vec2<T> &min, const vec2<T> &max) const
     {
-        return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6);
+        // If p is zero and this is outside min and max return true else false
+        if (std::abs(p.x()) <= 1E-6)
+        {
+            if (_x < min.x() || _x > max.x())
+                return true;
+        }
+        else if (std::abs(p.y()) <= 1E-6)
+        {
+            if (_y < min.y() || _y > max.y())
+                return true;
+        }
+
+        return false;
     }
     inline constexpr static coord_sys<T, vec2> axes()
     {
@@ -199,16 +213,140 @@ class vec2
         // return the compute grid
         return out;
     }
-    inline static size_t grid_key(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &point)
+    inline static std::pair<size_t, size_t> grid_cell(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
     {
         // Calculate the grid dimensions
-        const T dx = extent.x();
-        const T dy = extent.y();
+        const T ex = extent.x();
+        const T ey = extent.y();
 
-        const size_t row = (point.x() - min.x()) / dx;
-        const size_t col = (point.y() - min.y()) / dy;
+        // Get the row / col of cell
+        const size_t col = (point.x() - min.x()) / ex;
+        const size_t row = (point.y() - min.y()) / ey;
 
-        return row * scale + col;
+        // Return the row / col of cell
+        return std::make_pair(col, row);
+    }
+    inline static size_t grid_key(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &point)
+    {
+        // Calculate the cell location
+        const std::pair<size_t, size_t> cell = grid_cell(min, extent, point);
+
+        // Get the row / col of cell
+        const size_t col = cell.first;
+        const size_t row = cell.second;
+
+        // Return the grid index key for accessing cell
+        return col * scale + row;
+    }
+    inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
+    {
+        // Get the grid dimensions
+        const T ex = extent.x();
+        const T ey = extent.y();
+
+        // Get the origin starting points
+        const T x = origin.x();
+        const T y = origin.y();
+
+        // Calculate distance to left of ray origin
+        const T minx = ex * std::floor(x / ex);
+
+        // Calculate distance to right of ray origin
+        const T maxx = minx + ex;
+
+        // Test for ray parallel to X axis
+        T tx = std::numeric_limits<T>::max();
+        T dtx = std::numeric_limits<T>::max();
+        int drx = 1;
+        if (std::abs(dir.x()) >= 1E-3)
+        {
+            // Choose distance based on ray direction
+            if (dir.x() < 0.0)
+            {
+                drx = -1;
+                tx = (x - minx) * std::abs(inv_dir.x());
+            }
+            else
+            {
+                tx = (maxx - x) * std::abs(inv_dir.x());
+            }
+
+            // Compute the length of the cell along the ray
+            dtx = ex * std::abs(inv_dir.x());
+        }
+
+        // Calculate distance to below ray origin
+        const T miny = ey * std::floor(y / ey);
+
+        // Calculate distance to above ray origin
+        const T maxy = miny + ey;
+
+        // Test for ray parallel to Y axis
+        T ty = std::numeric_limits<T>::max();
+        T dty = std::numeric_limits<T>::max();
+        int dry = 1;
+        if (std::abs(dir.y()) >= 1E-3)
+        {
+            // Choose distance based on ray direction
+            if (dir.y() < 0.0)
+            {
+                dry = -1;
+                ty = (y - miny) * std::abs(inv_dir.y());
+            }
+            else
+            {
+                ty = (maxy - y) * std::abs(inv_dir.y());
+            }
+
+            // Compute the length of the cell along the ray
+            dty = ey * std::abs(inv_dir.y());
+        }
+
+        // return the ray tuple
+        return std::make_tuple(drx, tx, dtx, dry, ty, dty);
+    }
+    inline static size_t grid_ray_next(std::pair<size_t, size_t> &grid_cell, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
+    {
+        // Get the cell row / col
+        size_t &col = grid_cell.first;
+        size_t &row = grid_cell.second;
+
+        // X
+        const int &drx = std::get<0>(grid_ray);
+        T &tx = std::get<1>(grid_ray);
+        const T &dtx = std::get<2>(grid_ray);
+
+        // Y
+        const int &dry = std::get<3>(grid_ray);
+        T &ty = std::get<4>(grid_ray);
+        const T &dty = std::get<5>(grid_ray);
+
+        // Test for falling off the grid
+        if (col == 0 && drx == -1)
+        {
+            flag = true;
+        }
+        else if (row == 0 && dry == -1)
+        {
+            flag = true;
+        }
+
+        // Should we move along the x or y axis?
+        if (tx <= ty)
+        {
+            // Increment column == choose x
+            col += drx;
+            tx += dtx;
+        }
+        else
+        {
+            // Increment row == choose y
+            row += dry;
+            ty += dty;
+        }
+
+        // Return the grid index key for accessing cell
+        return col * scale + row;
     }
     inline static std::vector<size_t> grid_overlap(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
     {
@@ -294,6 +432,14 @@ class vec2
     inline vec2<T> inverse() const
     {
         return vec2<T>(1.0 / _x, 1.0 / _y);
+    }
+    inline vec2<T> inverse_safe() const
+    {
+        const T x = safe_inverse<T>(_x);
+        const T y = safe_inverse<T>(_y);
+
+        // return inverse
+        return vec2<T>(x, y);
     }
     inline static vec2<T> lerp(const vec2<T> &v0, const vec2<T> &v1, T t)
     {

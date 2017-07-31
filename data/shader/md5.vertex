@@ -34,10 +34,10 @@ void main(void)
     // Extract the rotation matrix from bone transform; use inverse-transpose here if object is scaled
     mat3 normal_matrix = mat3(bone_transform);
 
-    // Calculate the vertex camera coordinates
+    // Calculate the vertex in world coordinates
     out_vertex = model * bone_transform * vertex;
 
-    // Calculate the normal in camera coordinates
+    // Calculate the normal in world coordinates
     out_normal = normalize(model * vec4(normal_matrix * normal, 1)).xyz;
 
 	// Calculate transformed position

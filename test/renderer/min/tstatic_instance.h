@@ -110,9 +110,9 @@ class instance_test
         _ubuffer.bind();
 
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
+        min::vec4<float> light_color(1.0, 0.0, 0.0, 1.0);
         min::vec4<float> light_position(0.0, 0.0, 20.0, 1.0);
-        min::vec4<float> light_power(0.0, 20.0, 2.0, 1.0);
+        min::vec4<float> light_power(0.1, 100.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer

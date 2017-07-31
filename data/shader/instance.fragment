@@ -1,16 +1,64 @@
 #version 330 core
 
 // Inputs from vertex shader
+in vec3 out_normal;
 in vec2 out_uv;
-in vec4 out_color;
+in vec4 out_vertex;
+flat in mat4 out_view;
 
 // Texture input
 uniform sampler2D in_texture;
 
 // Output color
-out vec4 color;
+out vec4 out_color;
+
+// Create the light struct and the uniform blocks
+// This is the maximum light count and is needed since UBO expires an explicit array count
+#define MAX_NUM_TOTAL_LIGHTS 10
+struct light
+{
+    vec4 color;
+    vec4 position;
+    vec4 power;
+};
+
+layout(std140) uniform light_block
+{
+    light lights[MAX_NUM_TOTAL_LIGHTS];
+    int size;
+} light_buffer;
 
 void main(void)
 {
-	color = vec4(texture(in_texture, out_uv).rgb * out_color.rgb, 1.0);
+	// Compute lighting in fragment shader
+
+    // Calculate the camera direction
+    vec3 eye_camera = normalize(vec3(0,0,0) - (out_view * out_vertex).xyz);
+
+    // Initialize reference color
+    vec4 color = vec4(0, 0, 0, 1.0);
+
+    // For all lights in the scene
+    for(int i = 0; i < light_buffer.size; i++)
+    {
+        // Calculate the light camera coordinates
+        vec3 light_direction = light_buffer.lights[i].position.xyz - out_vertex.xyz;
+        float inv_d = 1.0 / length(light_direction);
+        light_direction = normalize(light_direction);
+
+        // Calculate reflection and drop off
+        float cos_theta = max(dot(out_normal, light_direction), 0);
+        vec3 reflection = -reflect(light_direction, out_normal);
+        float cos_alpha = max(dot(eye_camera, reflection), 0);
+
+        // Calculate ambient, diffuse and specular
+        float ambient = light_buffer.lights[i].power.x;
+        float diffuse = light_buffer.lights[i].power.y * cos_theta * inv_d;
+        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5) * inv_d;
+
+        // Calculate the output color
+        color += light_buffer.lights[i].color * (ambient + diffuse + specular);
+    }
+
+	out_color = vec4(texture(in_texture, out_uv).rgb * color.rgb, 1.0);
 }

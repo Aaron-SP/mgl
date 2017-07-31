@@ -94,12 +94,9 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
     const vec<T> &max = box.get_max();
 
     // If parallel to an axis and not in slab
-    if (dir.any_zero())
+    if (o.any_zero_outside(dir, min, max))
     {
-        if (!o.within(min, max))
-        {
-            return false;
-        }
+        return false;
     }
 
     // Calculate the intersection with near and far plane
@@ -116,7 +113,7 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
     const T tmax = far.min();
 
     // if tmin are > 0.0 and nearest exit > farthest entry we have an intersection
-    if (tmax > tmin && tmin > 0.0)
+    if (tmax >= tmin && tmin > 0.0)
     {
         // Calculate the intersection point
         p = o + (dir * tmin);

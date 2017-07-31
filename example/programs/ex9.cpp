@@ -133,8 +133,8 @@ class character
                   _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
                   _ubuffer(1, 100),
                   _light_color(1.0, 1.0, 1.0, 1.0),
-                  _light_position(0.0, 0.0, 0.0, 1.0),
-                  _light_power(0.1, 1.0, 1.0, 1.0)
+                  _light_position(0.0, 40.0, 0.0, 1.0),
+                  _light_power(0.1, 1000.0, 10.0, 1.0)
 
     {
         // Load md5 model
@@ -204,7 +204,8 @@ class physics_test
     // Buffers for model data and textures
     min::vertex_buffer<float, uint16_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_SHORT> _sbuffer;
     min::texture_buffer _tbuffer;
-    GLuint _bmp_id;
+    GLuint _base_id;
+    GLuint _box_id;
 
     // Camera and uniform data
     min::camera<float> _cam;
@@ -275,9 +276,11 @@ class physics_test
         // Add the base mesh to the vertex buffer
         _base_mesh = _sbuffer.add_mesh(base_mesh);
 
-        // load oobbox model
-        const min::aabbox<float, min::vec3> box_shape(min::vec3<float>(0.0, 0.0, 0.0) - _body_radius, min::vec3<float>(0.0, 0.0, 0.0) + _body_radius);
-        const min::mesh<float, uint16_t> box_mesh = min::to_mesh<float, uint16_t>(box_shape);
+        // load oobbox cube model
+        min::wavefront<float, uint16_t> wave("data/models/art_cube.obj");
+        std::vector<min::mesh<float, uint16_t>> meshes = wave.get_meshes();
+        min::mesh<float, uint16_t> &box_mesh = meshes[0];
+        box_mesh.calculate_tangents();
 
         // Add mesh and update buffers
         _box_mesh = _sbuffer.add_mesh(box_mesh);
@@ -318,17 +321,19 @@ class physics_test
     void load_textures()
     {
         // Load textures
-        const min::bmp b = min::bmp("data/texture/gimp.bmp");
+        const min::bmp base = min::bmp("data/texture/stone.bmp");
+        const min::bmp box = min::bmp("data/texture/art_cube.bmp");
 
         // Load texture buffer
-        _bmp_id = _tbuffer.add_bmp_texture(b);
+        _base_id = _tbuffer.add_bmp_texture(base);
+        _box_id = _tbuffer.add_bmp_texture(box);
     }
     void load_physics_entities()
     {
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
+        min::vec4<float> light_color(1.0, 0.0, 0.0, 1.0);
         min::vec4<float> light_position(0.0, 20.0, 0.0, 1.0);
-        min::vec4<float> light_power(0.5, 1.0, 1.0, 1.0);
+        min::vec4<float> light_power(0.1, 100.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer
@@ -466,7 +471,7 @@ class physics_test
           _gravity(0.0, -10.0, 0.0),
           _simulation(_world, _gravity),
           _box_count(0),
-          _body_radius(2.3)
+          _body_radius(1.0)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -581,17 +586,20 @@ class physics_test
         // Bind VAO
         _sbuffer.bind();
 
-        // Bind the bmp for drawing
-        _tbuffer.bind(_bmp_id, 0);
-
         // Change program back to instance shaders
         _prog.use();
+
+        // Bind the bmp for drawing
+        _tbuffer.bind(_base_id, 0);
 
         // Draw 1 base mesh to act as the floor
         _sbuffer.draw_many(GL_TRIANGLES, _base_mesh, 1);
 
         // Update the box model matrices
         update_instances();
+
+        // Bind the bmp for drawing
+        _tbuffer.bind(_box_id, 0);
 
         // Draw N instances of object if we had added them to scene
         if (_box_count > 0)

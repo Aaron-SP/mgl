@@ -24,6 +24,7 @@ class coord_sys;
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 #include <min/coord_sys.h>
 #include <min/utility.h>
 #include <utility>
@@ -100,9 +101,26 @@ class vec4
 
         return *this;
     }
-    inline bool any_zero() const
+    inline bool any_zero_outside(const vec4<T> &p, const vec4<T> &min, const vec4<T> &max) const
     {
-        return (std::abs(_x) <= 1E-6) || (std::abs(_y) <= 1E-6) || (std::abs(_z) <= 1E-6);
+        // If p is zero and this is outside min and max return true else false
+        if (std::abs(p.x()) <= 1E-6)
+        {
+            if (_x < min.x() || _x > max.x())
+                return true;
+        }
+        else if (std::abs(p.y()) <= 1E-6)
+        {
+            if (_y < min.y() || _y > max.y())
+                return true;
+        }
+        else if (std::abs(p.z()) <= 1E-6)
+        {
+            if (_z < min.z() || _z > max.z())
+                return true;
+        }
+
+        return false;
     }
     inline constexpr static coord_sys<T, vec4> axes()
     {
@@ -249,18 +267,186 @@ class vec4
         // return the compute grid
         return out;
     }
-    inline static size_t grid_key(const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &point)
+    inline static std::tuple<size_t, size_t, size_t> grid_cell(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
     {
         // Calculate the grid dimensions
-        const T dx = extent.x();
-        const T dy = extent.y();
-        const T dz = extent.z();
+        const T ex = extent.x();
+        const T ey = extent.y();
+        const T ez = extent.z();
 
-        const size_t row = (point.x() - min.x()) / dx;
-        const size_t col = (point.y() - min.y()) / dy;
-        const size_t zin = (point.z() - min.z()) / dz;
+        const size_t col = (point.x() - min.x()) / ex;
+        const size_t row = (point.y() - min.y()) / ey;
+        const size_t zin = (point.z() - min.z()) / ez;
 
-        return row * scale * scale + col * scale + zin;
+        // Return the row / col of cell
+        return std::make_tuple(col, row, zin);
+    }
+    inline static size_t grid_key(const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &point)
+    {
+        // Calculate the cell location
+        const std::tuple<size_t, size_t, size_t> cell = grid_cell(min, extent, point);
+
+        // Get the row / col of cell
+        const size_t col = std::get<0>(cell);
+        const size_t row = std::get<1>(cell);
+        const size_t zin = std::get<2>(cell);
+
+        // Return the grid index key for accessing cell
+        return col * scale * scale + row * scale + zin;
+    }
+    inline static std::tuple<int, T, T, int, T, T, int, T, T> grid_ray(const vec4<T> &extent, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
+    {
+        // Get the grid dimensions
+        const T ex = extent.x();
+        const T ey = extent.y();
+        const T ez = extent.z();
+
+        // Get the origin starting points
+        const T x = origin.x();
+        const T y = origin.y();
+        const T z = origin.z();
+
+        // Calculate distance to left of ray origin
+        const T minx = ex * std::floor(x / ex);
+
+        // Calculate distance to right of ray origin
+        const T maxx = minx + ex;
+
+        // Test for ray parallel to X axis
+        T tx = std::numeric_limits<T>::max();
+        T dtx = std::numeric_limits<T>::max();
+        int drx = 1;
+        if (std::abs(dir.x()) >= 1E-3)
+        {
+            // Choose distance based on ray direction
+            if (dir.x() < 0.0)
+            {
+                drx = -1;
+                tx = (x - minx) * std::abs(inv_dir.x());
+            }
+            else
+            {
+                tx = (maxx - x) * std::abs(inv_dir.x());
+            }
+
+            // Compute the length of the cell along the ray
+            dtx = ex * std::abs(inv_dir.x());
+        }
+
+        // Calculate distance to below ray origin
+        const T miny = ey * std::floor(y / ey);
+
+        // Calculate distance to above ray origin
+        const T maxy = miny + ey;
+
+        // Test for ray parallel to Y axis
+        T ty = std::numeric_limits<T>::max();
+        T dty = std::numeric_limits<T>::max();
+        int dry = 1;
+        if (std::abs(dir.y()) >= 1E-3)
+        {
+            // Choose distance based on ray direction
+            if (dir.y() < 0.0)
+            {
+                dry = -1;
+                ty = (y - miny) * std::abs(inv_dir.y());
+            }
+            else
+            {
+                ty = (maxy - y) * std::abs(inv_dir.y());
+            }
+
+            // Compute the length of the cell along the ray
+            dty = ey * std::abs(inv_dir.y());
+        }
+
+        // Calculate distance to below ray origin
+        const T minz = ez * std::floor(z / ez);
+
+        // Calculate distance to above ray origin
+        const T maxz = minz + ez;
+
+        // Test for ray parallel to Z axis
+        T tz = std::numeric_limits<T>::max();
+        T dtz = std::numeric_limits<T>::max();
+        int drz = 1;
+        if (std::abs(dir.z()) >= 1E-3)
+        {
+            // Choose distance based on ray direction
+            if (dir.z() < 0.0)
+            {
+                drz = -1;
+                tz = (z - minz) * std::abs(inv_dir.z());
+            }
+            else
+            {
+                tz = (maxz - z) * std::abs(inv_dir.z());
+            }
+
+            // Compute the length of the cell along the ray
+            dtz = ez * std::abs(inv_dir.z());
+        }
+
+        // return the ray tuple
+        return std::make_tuple(drx, tx, dtx, dry, ty, dty, drz, tz, dtz);
+    }
+    inline static size_t grid_ray_next(std::tuple<size_t, size_t, size_t> &grid_cell, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
+    {
+        // Get the cell row / col
+        size_t &col = std::get<0>(grid_cell);
+        size_t &row = std::get<1>(grid_cell);
+        size_t &zin = std::get<2>(grid_cell);
+
+        // X
+        const int &drx = std::get<0>(grid_ray);
+        T &tx = std::get<1>(grid_ray);
+        const T &dtx = std::get<2>(grid_ray);
+
+        // Y
+        const int &dry = std::get<3>(grid_ray);
+        T &ty = std::get<4>(grid_ray);
+        const T &dty = std::get<5>(grid_ray);
+
+        // Z
+        const int &drz = std::get<6>(grid_ray);
+        T &tz = std::get<7>(grid_ray);
+        const T &dtz = std::get<8>(grid_ray);
+
+        // Test for falling off the grid
+        if (col == 0 && drx == -1)
+        {
+            flag = true;
+        }
+        else if (row == 0 && dry == -1)
+        {
+            flag = true;
+        }
+        else if (zin == 0 && drz == -1)
+        {
+            flag = true;
+        }
+
+        // Should we move along the x or y axis?
+        if (tx <= ty && tx <= tz)
+        {
+            // Increment column == choose x
+            col += drx;
+            tx += dtx;
+        }
+        else if (ty <= tx && ty <= tz)
+        {
+            // Increment row == choose y
+            row += dry;
+            ty += dty;
+        }
+        else
+        {
+            zin += drz;
+            tz += dtz;
+        }
+
+        // Return the grid index key for accessing cell
+        return col * scale * scale + row * scale + zin;
     }
     inline static std::vector<size_t> grid_overlap(const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &b_min, const vec4<T> &b_max)
     {
@@ -449,6 +635,15 @@ class vec4
     {
         return vec4<T>(1.0 / _x, 1.0 / _y, 1.0 / _z, 1.0);
     }
+    inline vec4<T> inverse_safe() const
+    {
+        const T x = safe_inverse<T>(_x);
+        const T y = safe_inverse<T>(_y);
+        const T z = safe_inverse<T>(_z);
+
+        // return inverse
+        return vec4<T>(x, y, z, 1.0);
+    }
     inline static vec4<T> lerp(const vec4<T> &v0, const vec4<T> &v1, T t)
     {
         return (v0 + (v1 - v0) * (t));
@@ -529,32 +724,32 @@ class vec4
         // Check the left face
         if (p.x() < min.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
         {
-            return vec3<T>(-1.0, 0.0, 0.0);
+            return vec4<T>(-1.0, 0.0, 0.0, 1.0);
         }
         // check the right face
         else if (p.x() > max.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
         {
-            return vec3<T>(1.0, 0.0, 0.0);
+            return vec4<T>(1.0, 0.0, 0.0, 1.0);
         }
         // check the bottom face
         else if (p.y() < min.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
         {
-            return vec3<T>(0.0, -1.0, 0.0);
+            return vec4<T>(0.0, -1.0, 0.0, 1.0);
         }
         // check the top face
         else if (p.y() > max.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
         {
-            return vec3<T>(0.0, 1.0, 0.0);
+            return vec4<T>(0.0, 1.0, 0.0, 1.0);
         }
         // check the back face
         else if (p.z() < min.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
         {
-            return vec3<T>(0.0, 0.0, -1.0);
+            return vec4<T>(0.0, 0.0, -1.0, 1.0);
         }
         // check the front face
         else if (p.z() > max.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
         {
-            return vec3<T>(0.0, 0.0, 1.0);
+            return vec4<T>(0.0, 0.0, 1.0, 1.0);
         }
 
         // Normal is on a corner, normal = p - center

@@ -125,7 +125,25 @@ inline void extend(const T val, T &min, T &max)
 }
 
 template <typename T>
-int sgn(const T val)
+inline T safe_inverse(const T v)
+{
+    T out;
+
+    // Test for division by zero
+    if (std::abs(v) < 1E-3)
+    {
+        out = std::numeric_limits<T>::max();
+    }
+    else
+    {
+        out = 1.0 / v;
+    }
+
+    return out;
+}
+
+template <typename T>
+inline int sgn(const T val)
 {
     return (T(0) < val) - (val < T(0));
 }
