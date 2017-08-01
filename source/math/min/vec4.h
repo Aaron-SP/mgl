@@ -1345,6 +1345,443 @@ class vec4
 
         return out;
     }
+    // Plane n·x - c = 0
+    // Ray x = P + td
+    // If intersecting n · (P + td) - c = 0; x > 0.0
+    // n · P + n · td - c = 0
+    // t = (c - n · P) / (n · d)
+    // Each axis is axis aligned so we can simplify to, where nx = ny = 1
+    // tx = (cx - nx · Px) / (nx · dx)
+    // ty = (cy - ny · Py) / (ny · dy)
+    inline static std::vector<size_t> subdivide_ray(const vec4<T> &min, const vec4<T> &max, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
+    {
+        // Output vector
+        std::vector<size_t> out;
+        out.reserve(3);
+
+        // Temporaries for holding the quadrants across intersecting plane, flag signals if we need to push_back
+        size_t f, s;
+        bool flag = false;
+
+        // half extent of vector space
+        const vec4<T> h = (max - min) * 0.5;
+
+        // Center of the vector space
+        const vec4<T> c = (max + min) * 0.5;
+
+        // Calculate ray intersections among all axes
+        const vec4<T> t = (c - origin) * inv_dir;
+        const vec4<T> t_abs = vec4<T>(t).abs();
+
+        const auto x_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+            // Clear the flag
+            flag = false;
+
+            // Check that we are not parallel to y-axis
+            if (t.x() >= 0.0 && std::abs(dir.x()) >= 1E-3)
+            {
+                // Calculate octant ranges
+                const T cy_hy = c.y() - h.y();
+                const T cyhy = c.y() + h.y();
+                const T cz_hz = c.z() - h.z();
+                const T czhz = c.z() + h.z();
+
+                // Find y value at c.x() of intersection
+                const T py = origin.y() + t.x() * dir.y();
+
+                // Find z value at c.x() of intersection
+                const T pz = origin.z() + t.x() * dir.z();
+
+                // Check if we are crossing between 0-4 along y-axis
+                if ((py > cy_hy && py < c.y()) && (pz > cz_hz && pz < c.z()))
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 4;
+                        s = 0;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 0;
+                        s = 4;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 1-5 along y-axis
+                else if ((py >= c.y() && py < cyhy) && (pz > cz_hz && pz < c.z()))
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 5;
+                        s = 1;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 1;
+                        s = 5;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-6 along y-axis
+                else if ((py > cy_hy && py < c.y()) && (pz >= c.z() && pz < czhz))
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 6;
+                        s = 2;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 2;
+                        s = 6;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 3-7 along y-axis
+                else if ((py >= c.y() && py < cyhy) && (pz >= c.z() && pz < czhz))
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 7;
+                        s = 3;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 3;
+                        s = 7;
+                        flag = true;
+                    }
+                }
+            }
+        };
+
+        const auto y_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+            // Clear the flag
+            flag = false;
+
+            // Check that we are not parallel to x-axis
+            if (t.y() >= 0.0 && std::abs(dir.y()) >= 1E-3)
+            {
+                // Calculate octant ranges
+                const T cx_hx = c.x() - h.x();
+                const T cxhx = c.x() + h.x();
+                const T cz_hz = c.z() - h.z();
+                const T czhz = c.z() + h.z();
+
+                // Find x value at c.y() of intersection
+                const T px = origin.x() + t.y() * dir.x();
+
+                // Find z value at c.y() of intersection
+                const T pz = origin.z() + t.y() * dir.z();
+
+                // Check if we are crossing between 0-1 along x-axis
+                if ((px > cx_hx && px < c.x()) && (pz > cz_hz && pz < c.z()))
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 2;
+                        s = 0;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 0;
+                        s = 2;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-3 along x-axis
+                else if ((px >= c.x() && px < cxhx) && (pz > cz_hz && pz < c.z()))
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 6;
+                        s = 4;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 4;
+                        s = 6;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 0-1 along x-axis
+                else if ((px > cx_hx && px < c.x()) && (pz >= c.z() && pz < czhz))
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 3;
+                        s = 1;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 1;
+                        s = 3;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-3 along x-axis
+                else if ((px >= c.x() && px < cxhx) && (pz >= c.z() && pz < czhz))
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 7;
+                        s = 5;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 5;
+                        s = 7;
+                        flag = true;
+                    }
+                }
+            }
+        };
+
+        const auto z_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+            // Clear the flag
+            flag = false;
+
+            // Check that we are not parallel to x-axis
+            if (t.z() >= 0.0 && std::abs(dir.z()) >= 1E-3)
+            {
+                // Calculate octant ranges
+                const T cx_hx = c.x() - h.x();
+                const T cxhx = c.x() + h.x();
+                const T cy_hy = c.y() - h.y();
+                const T cyhy = c.y() + h.y();
+
+                // Find x value at c.z() of intersection
+                const T px = origin.x() + t.z() * dir.x();
+
+                // Find y value at c.z() of intersection
+                const T py = origin.y() + t.z() * dir.y();
+
+                // Check if we are crossing between 0-1 along x-axis
+                if ((px > cx_hx && px < c.x()) && (py > cy_hy && py < c.y()))
+                {
+                    if (dir.z() < 0.0)
+                    {
+                        f = 1;
+                        s = 0;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 0;
+                        s = 1;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-3 along x-axis
+                else if ((px >= c.x() && px < cxhx) && (py > cy_hy && py < c.y()))
+                {
+                    if (dir.z() < 0.0)
+                    {
+                        f = 5;
+                        s = 4;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 4;
+                        s = 5;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 0-1 along x-axis
+                else if ((px > cx_hx && px < c.x()) && (py >= c.y() && py < cyhy))
+                {
+                    if (dir.z() < 0.0)
+                    {
+                        f = 3;
+                        s = 2;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 2;
+                        s = 3;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-3 along x-axis
+                else if ((px >= c.x() && px < cxhx) && (py >= c.y() && py < cyhy))
+                {
+                    if (dir.z() < 0.0)
+                    {
+                        f = 7;
+                        s = 6;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 6;
+                        s = 7;
+                        flag = true;
+                    }
+                }
+            }
+        };
+
+        // Less than
+        const bool xly = t_abs.x() < t_abs.y();
+        const bool xlz = t_abs.x() < t_abs.z();
+        const bool ylx = t_abs.y() < t_abs.x();
+        const bool ylz = t_abs.y() < t_abs.z();
+        const bool zlx = t_abs.z() < t_abs.x();
+        const bool zly = t_abs.z() < t_abs.y();
+
+        // Greater than
+        const bool xgy = t_abs.x() > t_abs.y();
+        const bool xgz = t_abs.x() > t_abs.z();
+        const bool ygx = t_abs.y() > t_abs.x();
+        const bool ygz = t_abs.y() > t_abs.z();
+        const bool zgy = t_abs.z() > t_abs.y();
+        const bool zgx = t_abs.z() > t_abs.x();
+
+        //x is valid and x is first
+        if (xly && xlz)
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(f);
+                out.push_back(s);
+            }
+        }
+        // y is first
+        else if (ylx && ylz)
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(f);
+                out.push_back(s);
+            }
+        }
+        // z is first
+        else if (zlx && zly)
+        {
+            z_lamda();
+            if (flag)
+            {
+                out.push_back(f);
+                out.push_back(s);
+            }
+        }
+
+        // x is middle, zxy
+        if (xlz && xgy)
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // x is middle, yxz
+        else if (xly && xgz)
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // y is middle, zyx
+        else if (ylz && ygx)
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // y is middle, xyz
+        else if (ylx && ygz)
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // z is middle, yzx
+        else if (zly && zgx)
+        {
+            z_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // z is middle, xzy
+        else if (zlx && zgy)
+        {
+            z_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+
+        // x is valid and x is last
+        if (t_abs.x() > t_abs.y() && t_abs.x() > t_abs.z())
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // y is valid and y is last
+        else if (t_abs.y() > t_abs.x() && t_abs.y() > t_abs.z())
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // z is valid and z is last
+        else if (t_abs.z() > t_abs.x() && t_abs.z() > t_abs.y())
+        {
+            z_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // t.x() == t.y() == t.z() == 0.0
+        else if (t_abs.x() < 1E-3 && t_abs.y() < 1E-3 && t_abs.z() < 1E-3)
+        {
+            out = {0, 1, 2, 3, 4, 5, 6, 7};
+        }
+
+        // If we didn't hit any planes, test if ray origin is within the cell
+        if (out.size() == 0 && origin.within(min, max))
+        {
+            // Find the octant the the origin is in
+            vec4<T> enter = vec4<T>(origin).clamp(min, max);
+
+            // Calculate ratio between 0.0 and 1.0
+            vec4<T> ratio = vec4<T>::ratio(min, max, enter);
+
+            // Get the key from octant
+            const uint8_t key = ratio.subdivide_key(0.5);
+            out.push_back(key);
+        }
+
+        return out;
+    }
     inline static std::vector<uint8_t> sub_overlap(const vec4<T> &min, const vec4<T> &max, const vec4<T> &center)
     {
         std::vector<uint8_t> out;

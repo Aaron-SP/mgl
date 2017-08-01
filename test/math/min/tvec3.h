@@ -449,6 +449,82 @@ bool test_vec3()
         throw std::runtime_error("Failed vec3 subdivide_center 7");
     }
 
+    // Test subdivide_ray 1
+    min::vec3<double> origin(300.0, 100.0, 50.0);
+    min::vec3<double> direction = min::vec3<double>(-1.0, -1.0, -1.0).normalize();
+    min::vec3<double> inverse = direction.inverse();
+    vmin = min::vec3<double>(-100000.0, -100000.0, -100000.0);
+    vmax = min::vec3<double>(100000.0, 100000.0, 100000.0);
+    std::vector<size_t> keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    out = out && compare(4, keys.size());
+    out = out && compare(7, keys[0]);
+    out = out && compare(6, keys[1]);
+    out = out && compare(4, keys[2]);
+    out = out && compare(0, keys[3]);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 subdivide_ray 1");
+    }
+
+    // Test subdivide_ray 2
+    origin = min::vec3<double>(-300.0, -50.0, -100.0);
+    direction = min::vec3<double>(1.0, 1.0, 1.0).normalize();
+    inverse = direction.inverse();
+    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    out = out && compare(4, keys.size());
+    out = out && compare(0, keys[0]);
+    out = out && compare(2, keys[1]);
+    out = out && compare(3, keys[2]);
+    out = out && compare(7, keys[3]);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 subdivide_ray 2");
+    }
+
+    // Test subdivide_ray 3
+    origin = min::vec3<double>(-300.0, -300.0, -300.0);
+    direction = min::vec3<double>(-1.0, -1.0, -1.0).normalize();
+    inverse = direction.inverse();
+    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    out = out && compare(1, keys.size());
+    out = out && compare(0, keys[0]);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 subdivide_ray 3");
+    }
+
+    // Test subdivide_ray 4
+    origin = min::vec3<double>(-1E-6, 1E-6, 1E-6);
+    direction = min::vec3<double>(1.0, -1.0, -1.0).normalize();
+    inverse = direction.inverse();
+    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    out = out && compare(8, keys.size());
+    out = out && compare(0, keys[0]);
+    out = out && compare(1, keys[1]);
+    out = out && compare(2, keys[2]);
+    out = out && compare(3, keys[3]);
+    out = out && compare(4, keys[4]);
+    out = out && compare(5, keys[5]);
+    out = out && compare(6, keys[6]);
+    out = out && compare(7, keys[7]);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 subdivide_ray 4");
+    }
+
+    // Test subdivide_ray 5
+    origin = min::vec3<double>(-99999.0, 99999.0, -99999.0);
+    direction = min::vec3<double>(0.0, -1.0, 0.0).normalize();
+    inverse = direction.inverse_safe();
+    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    out = out && compare(2, keys.size());
+    out = out && compare(2, keys[0]);
+    out = out && compare(0, keys[1]);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 subdivide_ray 5");
+    }
+
     // Test sub_overlap
     one = min::vec3<double>(-1.0, -1.0, -1.0);
     two = min::vec3<double>(1.0, 1.0, 1.0);
@@ -661,9 +737,9 @@ bool test_vec3()
 
     // Test grid_cell
     min::vec3<double> extent(100000.0, 100000.0, 100000.0);
-    min::vec3<double> origin(100.0, 100.0, 100.0);
-    min::vec3<double> direction(0.0, 1.0, 0.0);
-    min::vec3<double> inverse = direction.inverse();
+    origin = min::vec3<double>(100.0, 100.0, 100.0);
+    direction = min::vec3<double>(0.0, 1.0, 0.0);
+    inverse = direction.inverse();
     vmin = min::vec3<double>(-100000.0, -100000.0, -100000.0);
     auto cell = min::vec3<double>::grid_cell(vmin, extent, origin);
     out = out && compare(1, std::get<0>(cell));

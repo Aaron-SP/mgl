@@ -100,13 +100,14 @@ class tree
     std::vector<shape<T, vec>> _shapes;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
+    mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     tree_node<T, K, L, vec, cell, shape> _root;
     K _depth;
     K _scale;
     vec<T> _cell_extent;
     bool _depth_override;
 
-    inline void build(tree_node<T, K, L, vec, cell, shape> &node, K depth)
+    inline void build(tree_node<T, K, L, vec, cell, shape> &node, const K depth)
     {
         // We are at a leaf node and we have hit the stopping criteria
         if (depth == 0)
@@ -207,7 +208,7 @@ class tree
             }
         }
     }
-    inline void get_pairs(const tree_node<T, K, L, vec, cell, shape> &node, K depth) const
+    inline void get_pairs(const tree_node<T, K, L, vec, cell, shape> &node, const K depth) const
     {
         // Returns all intersecting key pairs
         // We are at a leaf node and we have hit the stopping criteria
@@ -231,6 +232,51 @@ class tree
             {
                 // Recursively search for intersections in all children
                 get_pairs(child, depth - 1);
+            }
+        }
+    }
+    inline void get_ray_intersect(const tree_node<T, K, L, vec, cell, shape> &node, const ray<T, vec> &r, const K depth) const
+    {
+        // We are at a leaf node and we have hit the stopping criteria
+        if (depth == 0)
+        {
+            // Perform an N intersection test for all shapes in this cell against the ray
+            const std::vector<K> &keys = node.get_keys();
+            const K size = keys.size();
+            vec<T> point;
+            for (K i = 0; i < size; i++)
+            {
+                const K key = keys[i];
+                const shape<T, vec> &s = _shapes[key];
+                if (intersect(s, r, point))
+                {
+                    _ray_hits.emplace_back(key, point);
+                }
+            }
+        }
+
+        // Further recursion if we have children
+        const auto &children = node.get_children();
+        if (children.size() > 0)
+        {
+            // Get the current node cell
+            const cell<T, vec> &c = node.get_cell();
+
+            // For all child nodes intersecting ray
+            std::vector<size_t> keys = vec<T>::subdivide_ray(c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
+            for (const size_t k : keys)
+            {
+                // Check the calculated key value
+                if (k > 7 || k < 0)
+                {
+                    throw std::runtime_error("tree.get_ray_intersect(): invalid key location code calculated");
+                }
+
+                // If we haven't hit anything yet
+                if (_ray_hits.size() == 0)
+                {
+                    get_ray_intersect(children[k], r, depth - 1);
+                }
             }
         }
     }
@@ -383,6 +429,17 @@ class tree
         // Return the list
         return _hits;
     }
+    inline const std::vector<std::pair<K, vec<T>>> &get_collisions(const ray<T, vec> &r) const
+    {
+        // Output vector
+        _ray_hits.clear();
+
+        // get shapes intersecting ray with early stop
+        get_ray_intersect(_root, r, _depth);
+
+        // Return the collision list
+        return _ray_hits;
+    }
     inline K get_depth() const
     {
         return _depth;
@@ -418,7 +475,7 @@ class tree
         // Get the keys on the leaf node
         return this->get_node(point).get_keys();
     }
-    inline void set_depth(K depth)
+    inline void set_depth(const K depth)
     {
         // Set the depth and indicate overriding calculated depth
         _depth_override = true;

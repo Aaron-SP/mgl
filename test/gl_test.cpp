@@ -39,6 +39,7 @@ limitations under the License.
 #include <min/tquat.h>
 #include <min/tray.h>
 #include <min/traygrid.h>
+#include <min/traytree.h>
 #include <min/tsample.h>
 #include <min/tsphere.h>
 #include <min/tsphgrid.h>
@@ -70,6 +71,7 @@ int main()
         out = out && test_plane();
         out = out && test_ray();
         out = out && test_ray_grid();
+        out = out && test_ray_tree();
         out = out && test_sphere();
         out = out && test_aabbox();
         out = out && test_oobbox();

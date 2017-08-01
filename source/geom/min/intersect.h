@@ -112,8 +112,8 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
     // Get the nearest exit from a slab
     const T tmax = far.min();
 
-    // if tmin are > 0.0 and nearest exit > farthest entry we have an intersection
-    if (tmax >= tmin && tmin > 0.0)
+    // if tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
+    if (tmax >= tmin && tmin >= 0.0)
     {
         // Calculate the intersection point
         p = o + (dir * tmin);

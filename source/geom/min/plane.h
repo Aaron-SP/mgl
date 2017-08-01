@@ -15,7 +15,7 @@ limitations under the License.
 #ifndef __PLANE__
 #define __PLANE__
 
-// This is class solves the following plane equation:
+// This class solves the following plane equation:
 // n · (x - x0) = d = 0;
 // n · x - n · x0 = d = 0;
 // n · x - c = d = 0;

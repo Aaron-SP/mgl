@@ -881,6 +881,200 @@ class vec2
 
         return out;
     }
+    // Plane n·x - c = 0
+    // Ray x = P + td
+    // If intersecting n · (P + td) - c = 0; x > 0.0
+    // n · P + n · td - c = 0
+    // t = (c - n · P) / (n · d)
+    // Each axis is axis aligned so we can simplify to, where nx = ny = 1
+    // tx = (cx - nx · Px) / (nx · dx)
+    // ty = (cy - ny · Py) / (ny · dy)
+    inline static std::vector<size_t> subdivide_ray(const vec2<T> &min, const vec2<T> &max, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
+    {
+        // Output vector
+        std::vector<size_t> out;
+        out.reserve(3);
+
+        // Temporaries for holding the quadrants across intersecting plane, flag signals if we need to push_back
+        size_t f, s;
+        bool flag = false;
+
+        // half extent of vector space
+        const vec2<T> h = (max - min) * 0.5;
+
+        // Center of the vector space
+        const vec2<T> c = (max + min) * 0.5;
+
+        // Calculate ray intersections among all axes
+        const vec2<T> t = (c - origin) * inv_dir;
+        const vec2<T> t_abs = vec2<T>(t).abs();
+
+        const auto x_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+            // Clear the flag
+            flag = false;
+
+            // Check that we are not parallel to y-axis
+            if (t.x() >= 0.0 && std::abs(dir.x()) >= 1E-3)
+            {
+                // Calculate octant ranges
+                const T cy_hy = c.y() - h.y();
+                const T cyhy = c.y() + h.y();
+
+                // Find y value at c.x() of intersection
+                const T py = origin.y() + t.x() * dir.y();
+
+                // Check if we are crossing between 0-2 along y-axis
+                if (py > cy_hy && py < c.y())
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 2;
+                        s = 0;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 0;
+                        s = 2;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 1-3 along y-axis
+                else if (py >= c.y() && py < cyhy)
+                {
+                    if (dir.x() < 0.0)
+                    {
+                        f = 3;
+                        s = 1;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 1;
+                        s = 3;
+                        flag = true;
+                    }
+                }
+            }
+        };
+
+        const auto y_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+            // Clear the flag
+            flag = false;
+
+            // Check that we are not parallel to x-axis
+            if (t.y() >= 0.0 && std::abs(dir.y()) >= 1E-3)
+            {
+                // Calculate octant ranges
+                const T cx_hx = c.x() - h.x();
+                const T cxhx = c.x() + h.x();
+
+                // Find x value at c.y() of intersection
+                const T px = origin.x() + t.y() * dir.x();
+
+                // Check if we are crossing between 0-1 along x-axis
+                if (px > cx_hx && px < c.x())
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 1;
+                        s = 0;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 0;
+                        s = 1;
+                        flag = true;
+                    }
+                }
+                // Check if we are crossing between 2-3 along x-axis
+                else if (px >= c.x() && px < cxhx)
+                {
+                    if (dir.y() < 0.0)
+                    {
+                        f = 3;
+                        s = 2;
+                        flag = true;
+                    }
+                    else
+                    {
+                        f = 2;
+                        s = 3;
+                        flag = true;
+                    }
+                }
+            }
+        };
+
+        // Calculate octant ranges
+        const T cx_hx = c.x() - h.x();
+        const T cxhx = c.x() + h.x();
+
+        // Find x value at c.y() of intersection
+        const T px = origin.x() + t.y() * dir.x();
+
+        // x is before y on ray
+        if (t_abs.x() < t_abs.y())
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(f);
+                out.push_back(s);
+            }
+        }
+        // y is before x on ray
+        else if (t_abs.y() < t_abs.x())
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(f);
+                out.push_back(s);
+            }
+        }
+
+        // x is after y on ray
+        if (t_abs.x() > t_abs.y())
+        {
+            x_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // y is after x on ray
+        else if (t_abs.y() > t_abs.x())
+        {
+            y_lamda();
+            if (flag)
+            {
+                out.push_back(s);
+            }
+        }
+        // t.x() == t.y() == 0.0
+        else if (t_abs.x() < 1E-3 && t_abs.y() < 1E-3)
+        {
+            out = {0, 1, 2, 3};
+        }
+
+        // If we didn't hit any planes, test if ray origin is within the cell
+        if (out.size() == 0 && origin.within(min, max))
+        {
+            // Find the quadrant the origin is in
+            vec2<T> enter = vec2<T>(origin).clamp(min, max);
+
+            // Calculate ratio between 0.0 and 1.0
+            vec2<T> ratio = vec2<T>::ratio(min, max, enter);
+
+            // Get the key from quadrant
+            const uint8_t key = ratio.subdivide_key(0.5);
+            out.push_back(key);
+        }
+
+        return out;
+    }
     inline static std::vector<uint8_t> sub_overlap(const vec2<T> &min, const vec2<T> &max, const vec2<T> &center)
     {
         std::vector<uint8_t> out;
