@@ -1007,13 +1007,6 @@ class vec2
             }
         };
 
-        // Calculate octant ranges
-        const T cx_hx = c.x() - h.x();
-        const T cxhx = c.x() + h.x();
-
-        // Find x value at c.y() of intersection
-        const T px = origin.x() + t.y() * dir.x();
-
         // x is before y on ray
         if (t_abs.x() < t_abs.y())
         {
