@@ -132,6 +132,10 @@ class camera
         // Convert to world space and look at point
         set_look_at(_p + direction);
     }
+    vec3<T> project_point(const T s)
+    {
+        return _p + _f.get_forward() * s;
+    }
     inline void set_look_at(const vec3<T> &look)
     {
         _look = look;

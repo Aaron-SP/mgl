@@ -29,6 +29,7 @@ class light
     vec4<T> _power;
 
   public:
+    light() {}
     light(const vec4<T> &color, const vec4<T> &position, const vec4<T> &power) : _color(color), _position(position), _power(power) {}
     const vec4<T> &get_color()
     {

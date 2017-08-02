@@ -147,7 +147,8 @@ class win32_window
 
     // Callback functions
     void *_data;
-    void (*_click)(void *, const uint16_t width, const uint16_t);
+    void (*_lclick)(void *, const uint16_t width, const uint16_t);
+    void (*_rclick)(void *, const uint16_t width, const uint16_t);
     void (*_drag)(void *, const uint16_t width, const uint16_t);
     void (*_update)(void *, const uint16_t width, const uint16_t);
 
@@ -235,7 +236,21 @@ class win32_window
 
             // Call the click callback
             uint16_t h = window->get_height();
-            window->on_click(x, h - y);
+            window->on_lclick(x, h - y);
+            break;
+        }
+        case WM_RBUTTONUP:
+        {
+            // Get the window class
+            window = reinterpret_cast<win32_window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+            // Get the mouse properties
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+
+            // Call the click callback
+            uint16_t h = window->get_height();
+            window->on_rclick(x, h - y);
             break;
         }
         case WM_PAINT:
@@ -460,12 +475,20 @@ class win32_window
         }
         std::cout << "win32_window: opening win32 opengl context version " << major << "." << minor << std::endl;
     }
-    void on_click(const uint16_t x, const uint16_t y) const
+    void on_lclick(const uint16_t x, const uint16_t y) const
     {
         // Call the click callback
-        if (_click)
+        if (_lclick)
         {
-            _click(_data, x, y);
+            _lclick(_data, x, y);
+        }
+    }
+    void on_rclick(const uint16_t x, const uint16_t y) const
+    {
+        // Call the click callback
+        if (_rclick)
+        {
+            _rclick(_data, x, y);
         }
     }
     void on_drag(const uint16_t x, const uint16_t y) const
@@ -497,7 +520,8 @@ class win32_window
     }
 
   public:
-    win32_window(const std::string &title, const uint16_t width, const uint16_t height, int major, int minor) : _w(width), _h(height), _major(major), _minor(minor), _shutdown(false), _click(nullptr), _drag(nullptr), _update(nullptr)
+    win32_window(const std::string &title, const uint16_t width, const uint16_t height, int major, int minor)
+        : _w(width), _h(height), _major(major), _minor(minor), _shutdown(false), _lclick(nullptr), _rclick(nullptr), _drag(nullptr), _update(nullptr)
     {
         // Create WIN32 window for certain opengl version
         create_window(title);
@@ -581,10 +605,15 @@ class win32_window
     {
         return _w;
     }
-    void register_click(void (*click)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick(void (*click)(void *, const uint16_t x, const uint16_t y))
     {
         // Register callback on mouse up
-        _click = click;
+        _lclick = click;
+    }
+    void register_rclick(void (*click)(void *, const uint16_t x, const uint16_t y))
+    {
+        // Register callback on mouse up
+        _rclick = click;
     }
     void register_data(void *ptr)
     {

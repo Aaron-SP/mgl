@@ -276,6 +276,15 @@ class vertex_buffer
         const size_t byte_offset = n.second * sizeof(K);
         glDrawElements(mode, n.first, INT_TYPE, (GLvoid *)byte_offset);
     }
+    inline void draw(const GLenum mode, const size_t start, const size_t stop) const
+    {
+        // Draw object at index 'n'
+        const auto &start_n = _element_index[start];
+        const auto &stop_n = _element_index[stop];
+        const size_t draw_size = stop_n.first + (stop_n.second - start_n.second);
+        const size_t byte_offset = start_n.second * sizeof(K);
+        glDrawElements(mode, draw_size, INT_TYPE, (GLvoid *)byte_offset);
+    }
     inline void draw_all(const GLenum mode) const
     {
         // Draw all objects in the static buffer
