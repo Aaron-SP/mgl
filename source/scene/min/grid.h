@@ -381,6 +381,23 @@ class grid
         // Return this map so we can interpret the collision indices
         return map;
     }
+    inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
+    {
+        // Check size of the number of objects to insert into grid
+        if (shapes.size() > std::numeric_limits<K>::max() - 1)
+        {
+            throw std::runtime_error("grid.insert(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
+        }
+
+        // Set the grid scale
+        set_scale(shapes);
+
+        // insert shapes without sorting
+        _shapes = shapes;
+
+        // Rebuild the grid after changing the contents
+        build();
+    }
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
         // Get the keys on the cell node

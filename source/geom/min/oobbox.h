@@ -118,20 +118,6 @@ class oobbox_base
     {
         return _rotation;
     }
-    inline vec<T> normal(const vec<T> &p, const T tolerance) const
-    {
-        // Transform the point into object's coordinate system
-        const vec<T> t = align(p - _center);
-
-        // Calculate normal direction vector, transform the AABB normal by box rotation
-        const vec<T> local_normal = vec<T>::normal_box_aligned(t, get_local_min(), get_local_max());
-        vec<T> normal = _rotation.transform(local_normal);
-
-        // Normalize, if zero use up vector
-        normal.normalize_safe(vec<T>::up());
-
-        return normal;
-    }
     inline std::vector<std::pair<vec<T>, vec<T>>> grid(size_t scale) const
     {
         // Create the grid cells in world space AABB

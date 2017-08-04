@@ -380,17 +380,17 @@ inline vec<T> resolve(const aabbox<T, vec> &box1, const aabbox<T, vec> &box2, ve
     // Calculate the point of collision by averaging the two points
     p = (p1 + p2) * 0.5;
 
-    // Calculate normal vector on box2 pointing towards box1
-    normal = box2.normal(p, tolerance);
+    // Calculate the minimum penetration distance along box axis, coordinate system is in world-space!
+    const std::pair<vec<T>, T> sat = vec<T>::project_sat_aligned_penetration(
+        box1.get_center(), box1.get_extent() * 0.5, box2.get_center(), box2.get_extent() * 0.5, tolerance);
 
-    // The penetration depth is the difference between box extents and the absolute difference between box centers along the normal axis
-    const vec<T> half_extents = (box1.get_extent() + box2.get_extent()) * 0.5;
-    const vec<T> d = (box1.get_center() - box2.get_center()).abs();
+    // Negate the normal vector, so we move away from the penetration
+    normal = sat.first;
 
     // Calculate the penetration depth, add a little extra to get off the edge
-    const T penetration = std::abs((half_extents - d).dot(normal)) + tolerance;
+    const T penetration = sat.second + tolerance;
 
-    // Normalize direction vector and multiply by penetration depth
+    // Multiply normal vector by penetation depth
     return normal * penetration;
 }
 
@@ -418,7 +418,7 @@ inline vec<T> resolve(const oobbox<T, vec> &box1, const oobbox<T, vec> &box2, ve
     normal = sat.first;
 
     // Calculate the penetration depth, add a little extra to get off the edge
-    T penetration = sat.second + tolerance;
+    const T penetration = sat.second + tolerance;
 
     // Multiply normal vector by penetation depth
     return normal * penetration;

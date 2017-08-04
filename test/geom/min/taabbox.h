@@ -175,49 +175,6 @@ bool test_aabbox()
         {
             throw std::runtime_error("Failed vec2 aabbox square_size");
         }
-
-        // Test normal
-        a = min::vec2<double>(-2.0, -2.0);
-        b = min::vec2<double>(2.0, 2.0);
-        c = min::vec2<double>(-1.0, 0.0);
-        box = min::aabbox<double, min::vec2>(a, b);
-        min::vec2<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 aabbox normal");
-        }
-
-        // Test normal inside corner
-        c = min::vec2<double>(-1.0, -1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.7071, normal.x(), 1E-4);
-        out = out && compare(-0.7071, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 aabbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec2<double>(-2.0, -2.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.7071, normal.x(), 1E-4);
-        out = out && compare(-0.7071, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 aabbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec2<double>(0.0, 0.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 aabbox normal overlap");
-        }
     }
 
     // vec3 aabbox
@@ -361,53 +318,6 @@ bool test_aabbox()
         {
             throw std::runtime_error("Failed vec3 aabbox square_size");
         }
-
-        // Test normal
-        a = min::vec3<double>(-2.0, -2.0, -2.0);
-        b = min::vec3<double>(2.0, 2.0, 2.0);
-        c = min::vec3<double>(-1.0, 0.0, 0.0);
-        box = min::aabbox<double, min::vec3>(a, b);
-        min::vec3<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 aabbox normal");
-        }
-
-        // Test normal inside corner
-        c = min::vec3<double>(-1.0, -1.0, -1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 aabbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec3<double>(-2.0, -2.0, -2.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 aabbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec3<double>(0.0, 0.0, 0.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 aabbox normal overlap");
-        }
     }
 
     // vec4 aabbox
@@ -550,53 +460,6 @@ bool test_aabbox()
         if (!out)
         {
             throw std::runtime_error("Failed vec4 aabbox square_size");
-        }
-
-        // Test normal
-        a = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
-        b = min::vec4<double>(2.0, 2.0, 2.0, 1.0);
-        c = min::vec4<double>(-1.0, 0.0, 0.0, 1.0);
-        box = min::aabbox<double, min::vec4>(a, b);
-        min::vec4<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 aabbox normal");
-        }
-
-        // Test normal default
-        c = min::vec4<double>(-1.0, -1.0, -1.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 aabbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 aabbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 aabbox normal overlap");
         }
     }
     return out;

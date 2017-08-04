@@ -208,52 +208,6 @@ bool test_oobbox()
         {
             throw std::runtime_error("Failed vec2 oobbox square_size");
         }
-
-        // Test normal
-        a = min::vec2<double>(-2.0, -2.0);
-        b = min::vec2<double>(2.0, 2.0);
-        c = min::vec2<double>(-1.0, 0.0);
-        box = min::oobbox<double, min::vec2>(a, b);
-
-        // rotate oobb by 45 degrees CCW
-        box.set_rotation(45.0);
-        min::vec2<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 oobbox normal");
-        }
-
-        // Test normal inside corner
-        c = min::vec2<double>(-1.0, -1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.7071, normal.x(), 1E-4);
-        out = out && compare(-0.7071, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 oobbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec2<double>(-2.0, -2.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.7071, normal.x(), 1E-4);
-        out = out && compare(-0.7071, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 oobbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec2<double>(0.0, 0.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec2 oobbox normal overlap");
-        }
     }
 
     // vec3 oobbox
@@ -448,56 +402,6 @@ bool test_oobbox()
         {
             throw std::runtime_error("Failed vec3 oobbox square_size");
         }
-
-        // Test normal
-        a = min::vec3<double>(-2.0, -2.0, -2.0);
-        b = min::vec3<double>(2.0, 2.0, 2.0);
-        c = min::vec3<double>(-1.0, 0.0, 0.0);
-        box = min::oobbox<double, min::vec3>(a, b);
-
-        // rotate oobb by 45 degrees CCW
-        box.set_rotation(min::quat<double>(z, 45.0));
-        min::vec3<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 oobbox normal");
-        }
-
-        // Test normal inside corner
-        c = min::vec3<double>(-1.0, -1.0, -1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 oobbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec3<double>(-2.0, -2.0, -2.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 oobbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec3<double>(0.0, 0.0, 0.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec3 oobbox normal overlap");
-        }
     }
 
     // vec4 oobbox
@@ -691,56 +595,6 @@ bool test_oobbox()
         if (!out)
         {
             throw std::runtime_error("Failed vec4 oobbox square_size");
-        }
-
-        // Test normal
-        a = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
-        b = min::vec4<double>(2.0, 2.0, 2.0, 1.0);
-        c = min::vec4<double>(-1.0, 0.0, 0.0, 1.0);
-        box = min::oobbox<double, min::vec4>(a, b);
-
-        // rotate oobb by 45 degrees CCW
-        box.set_rotation(min::quat<double>(z, 45.0));
-        min::vec4<double> normal = box.normal(c, 1E-3);
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 oobbox normal");
-        }
-
-        // Test normal inside corner
-        c = min::vec4<double>(-1.0, -1.0, -1.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 oobbox normal inside corner");
-        }
-
-        // Test normal corner
-        c = min::vec4<double>(-2.0, -2.0, -2.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(-0.5773, normal.x(), 1E-4);
-        out = out && compare(-0.5773, normal.y(), 1E-4);
-        out = out && compare(-0.5773, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 oobbox normal corner");
-        }
-
-        // Test overlap
-        c = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
-        normal = box.normal(c, 1E-3);
-        out = out && compare(0.0, normal.x(), 1E-4);
-        out = out && compare(1.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
-        if (!out)
-        {
-            throw std::runtime_error("Failed vec4 oobbox normal overlap");
         }
     }
     return out;

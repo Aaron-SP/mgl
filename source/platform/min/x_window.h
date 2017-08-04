@@ -119,7 +119,7 @@ class x_window
         TAB = XK_Tab,
         ENTER = XK_Return,
         BACKSPACE = XK_BackSpace,
-        SPACE = XK_KP_Space,
+        SPACE = XK_Space,
         LALT = XK_Alt_L,
         RALT = XK_Alt_R
     };

@@ -719,42 +719,6 @@ class vec4
 
         return std::make_pair(vec4<T>(), vec4<T>());
     }
-    inline static vec4<T> normal_box_aligned(const vec4<T> &p, const vec4<T> &min, const vec4<T> &max)
-    {
-        // Check the left face
-        if (p.x() < min.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
-        {
-            return vec4<T>(-1.0, 0.0, 0.0, 1.0);
-        }
-        // check the right face
-        else if (p.x() > max.x() && between<T>(p.y(), min.y(), max.y()) && between<T>(p.z(), min.z(), max.z()))
-        {
-            return vec4<T>(1.0, 0.0, 0.0, 1.0);
-        }
-        // check the bottom face
-        else if (p.y() < min.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
-        {
-            return vec4<T>(0.0, -1.0, 0.0, 1.0);
-        }
-        // check the top face
-        else if (p.y() > max.y() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.z(), min.z(), max.z()))
-        {
-            return vec4<T>(0.0, 1.0, 0.0, 1.0);
-        }
-        // check the back face
-        else if (p.z() < min.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
-        {
-            return vec4<T>(0.0, 0.0, -1.0, 1.0);
-        }
-        // check the front face
-        else if (p.z() > max.z() && between<T>(p.x(), min.x(), max.x()) && between<T>(p.y(), min.y(), max.y()))
-        {
-            return vec4<T>(0.0, 0.0, 1.0, 1.0);
-        }
-
-        // Normal is on a corner, normal = p - center
-        return p - (min + max) * 0.5;
-    }
     inline static vec4<T> normal(const vec4<T> &a, const vec4<T> &b, const vec4<T> &c)
     {
         // Computes normal vector to three points
@@ -1147,6 +1111,58 @@ class vec4
             // Calculate the sign of normal towards body1 and scale normal
             const vec4<T> sign = (center1 - center2).sign();
             normal = axes[index].abs() * sign;
+            overlap = min;
+        }
+
+        // return normal vector and minimum penentration
+        return std::make_pair(normal, overlap);
+    }
+    static inline std::pair<vec4<T>, T> project_sat_aligned_penetration(
+        const vec4<T> &center1, const vec4<T> &extent1,
+        const vec4<T> &center2, const vec4<T> &extent2, const T tolerance)
+    {
+        // This performs the separating axis theorem for checking aabb-aabb intersection penetration
+        // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L) on aligned axises
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 3D, there are 3 axes that need to be tested against...
+        // 3 local box axes
+
+        const vec4<T> d = center1 - center2;
+        const vec4<T> t = vec4<T>(d).abs();
+
+        // Test L = A1.x() = A2.x(); d1 and d2 is the length of extents along L
+        // Test L = A1.y() = A2.y(); d1 and d2 is the length of extents along L
+        // Test L = A1.z() = A2.z(); d1 and d2 is the length of extents along L
+        const vec4<T> dL = (extent1 + extent2 + tolerance) - t;
+
+        // Store axis and penetration depths
+        const vec4<T> axes[3] = {vec4<T>(1.0, 0.0, 0.0, 1.0), vec4<T>(0.0, 1.0, 0.0, 1.0), vec4<T>(0.0, 0.0, 1.0, 1.0)};
+        const T penetration[3] = {dL.x(), dL.y(), dL.z()};
+
+        // normal default up vector return and zero penetration
+        vec4<T> normal = vec4<T>::up();
+        T overlap = 0.0;
+
+        // Find the minimum, non-zero penetration index
+        T min = 1E15;
+        int index = -1;
+        for (int i = 0; i < 3; i++)
+        {
+            // Prune all parallel normal vectors and non-penetrating depths
+            if (penetration[i] > tolerance && penetration[i] < min)
+            {
+                min = penetration[i];
+                index = i;
+            }
+        }
+
+        // check if we found an intersection penetration
+        if (index != -1)
+        {
+            // Calculate the sign of normal towards body1 and scale normal
+            const vec4<T> sign = d.sign();
+            normal = axes[index] * sign;
             overlap = min;
         }
 

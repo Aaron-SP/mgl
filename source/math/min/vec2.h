@@ -505,32 +505,6 @@ class vec2
 
         return std::make_pair(vec2<T>(), vec2<T>());
     }
-    inline static vec2<T> normal_box_aligned(const vec2<T> &p, const vec2<T> &min, const vec2<T> &max)
-    {
-        // Check the left face
-        if (p.x() < min.x() && between<T>(p.y(), min.y(), max.y()))
-        {
-            return vec2<T>(-1.0, 0.0);
-        }
-        // check the right face
-        else if (p.x() > max.x() && between<T>(p.y(), min.y(), max.y()))
-        {
-            return vec2<T>(1.0, 0.0);
-        }
-        // check the bottom face
-        else if (p.y() < min.y() && between<T>(p.x(), min.x(), max.x()))
-        {
-            return vec2<T>(0.0, -1.0);
-        }
-        // check the top face
-        else if (p.y() > max.y() && between<T>(p.x(), min.x(), max.x()))
-        {
-            return vec2<T>(0.0, 1.0);
-        }
-
-        // Normal is on a corner, normal = p - center
-        return p - (min + max) * 0.5;
-    }
     inline static vec2<T> normal(const vec2<T> &a, const vec2<T> &b, const vec2<T> &c)
     {
         // Computes normal vector to two points, third argument is ignored
@@ -748,7 +722,66 @@ class vec2
         // return normal vector and minimum penentration
         return std::make_pair(normal, overlap);
     }
+    static inline std::pair<vec2<T>, T> project_sat_aligned_penetration(
+        const vec2<T> &center1, const vec2<T> &extent1,
+        const vec2<T> &center2, const vec2<T> &extent2, const T tolerance)
+    {
+        // This performs the separating axis theorem for checking aabb-aabb intersection penetration
+        // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L) on aligned axises
+        // This means testing the difference between box centers, C1 & C2, along the separating axis L
+        // With the addition of box extents along this same axis L
+        // For 2D, there are 2 axes that need to be computed...
+        // 2 local box axes
 
+        const vec2<T> d = center1 - center2;
+        const vec2<T> t = vec2<T>(d).abs();
+
+        // Test L = A1.x() = A2.x(); d1 and d2 is the length of extents along L
+        // Test L = A1.y() = A2.y(); d1 and d2 is the length of extents along L
+        const vec2<T> dL = (extent1 + extent2 + tolerance) - t;
+
+        // Store axis and penetration depths
+        const vec2<T> axes[2] = {vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0)};
+        const T penetration[2] = {dL.x(), dL.y()};
+
+        // normal default up vector return and zero penetration
+        vec2<T> normal = vec2<T>::up();
+        T overlap = 0.0;
+
+        T min = 1E15;
+        int index = -1;
+        if (penetration[0] > tolerance)
+        {
+            // Find the minimum, non-zero penetration index
+            if (penetration[1] > tolerance && penetration[1] < penetration[0])
+            {
+                min = penetration[1];
+                index = 1;
+            }
+            else
+            {
+                min = penetration[0];
+                index = 0;
+            }
+        }
+        else if (penetration[1] > tolerance)
+        {
+            min = penetration[1];
+            index = 1;
+        }
+
+        // check if we found an intersection penetration
+        if (index != -1)
+        {
+            // Calculate the sign of normal towards body1 and scale normal
+            const vec2<T> sign = d.sign();
+            normal = axes[index] * sign;
+            overlap = min;
+        }
+
+        // return normal vector and minimum penentration
+        return std::make_pair(normal, overlap);
+    }
     // Subdividing vector space into 2^2 spaces using binary key location codes for index (xy)
     // Most significant bit of (x - xmin)/(xmax - xmin), (y - ymin)/(ymax - ymin)
     // Yields the key location code if MSB 0 = -, MSB 1 = +

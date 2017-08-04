@@ -83,16 +83,6 @@ class aabbox
         // Create the grid cells
         return vec<T>::grid(_min, _max, scale);
     }
-    inline vec<T> normal(const vec<T> &p, const T tolerance) const
-    {
-        // Calculate normal direction vector
-        vec<T> normal = vec<T>::normal_box_aligned(p, _min, _max);
-
-        // Normalize, if zero use up vector
-        normal.normalize_safe(vec<T>::up());
-
-        return normal;
-    }
     inline bool point_inside(const vec<T> &p) const
     {
         return p.within(_min, _max);

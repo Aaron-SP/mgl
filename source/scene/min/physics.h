@@ -575,7 +575,7 @@ class physics
 
         // Calculate...
         // 1) the collision normal vector that points toward b1
-        // 2) the two closest points between bodies
+        // 2) the intersection point between bodies
         // 3) the offset to resolve the collision
 
         vec<T> collision_normal;
@@ -607,6 +607,33 @@ class physics
             // Resolve collision and resolve penetration depth
             b1.move_offset(half_offset1);
             b2.move_offset(half_offset2);
+        }
+    }
+    inline void collide_static(const size_t index, const shape<T, vec> &s2)
+    {
+        // Get shapes from spatial index
+        const shape<T, vec> &s1 = _shapes[index];
+
+        // Test if the body is intersecting the static shape
+        if (intersect(s1, s2))
+        {
+            // Calculate...
+            // 1) the collision normal vector that points toward body
+            // 2) the intersection point between body and static shape
+            // 3) the offset to resolve the collision
+
+            vec<T> collision_normal;
+            vec<T> intersection;
+            const vec<T> offset = resolve<T, vec>(s1, s2, collision_normal, intersection, _collision_tolerance);
+
+            // Get rigid bodies to solve energy equations
+            body<T, vec> &b = _bodies[index];
+
+            // Solve linear and angular momentum conservation equations
+            solve_energy_conservation_static(b, collision_normal, intersection);
+
+            // Move based off calculated offfset
+            b.move_offset(offset);
         }
     }
 
@@ -703,12 +730,144 @@ class physics
         b2.set_angular_velocity(w2_out);
     }
 
+    // Collision with object of infinite mass
+    inline void solve_energy_conservation_static(body<T, vec> &b, const vec<T> &n, const vec<T> &intersect)
+    {
+        // Get velocities of bodies in world space
+        const T v1n = b.get_linear_velocity().dot(n);
+
+        // If objects are moving very slowly, skip calculation
+        // If objects are moving away from each other, skip calculation
+        if (v1n >= -_collision_tolerance)
+        {
+            return;
+        }
+
+        // If object is not moving, skip calculation
+        if (std::abs(v1n) <= _collision_tolerance)
+        {
+            return;
+        }
+
+        // Get inverse masses of bodies
+        const T inv_m = b.get_inv_mass();
+
+        // Get velocities of bodies in world space
+        const vec<T> &v = b.get_linear_velocity();
+
+        // Get inverse inertia of bodies in object space
+        const auto &inv_I = b.get_inv_inertia();
+
+        // Get angular velocities of bodies in object space
+        const auto &w_local = b.get_angular_velocity();
+
+        // convert angular velocity to world space
+        const auto w_world = transform<T>(w_local, b.get_rotation());
+
+        // Calculate the vector from the intersection point and object center in object coordinates
+        const vec<T> r = (intersect - b.get_position()).normalize_safe(vec<T>());
+
+        // Calculate the relative velocity of body
+        const vec<T> v_rel = (v + cross<T>(w_world, r));
+
+        // Convert cross product into object space since inertia is in object space
+        const auto rn = align<T>(r.cross(n), b.get_rotation());
+        const auto ri = rn * inv_I;
+
+        // (A x B)^2 = (A X B) * (A X B)
+        const T rr = dot<T>(ri, rn);
+
+        // Calculate the kinetic resistance of the object
+        const T resistance = inv_m + rr;
+
+        // Calculate the impulse
+        const T j = -(1.0 + _elasticity) * (v_rel.dot(n) / resistance);
+
+        // Calculate the impulse vector
+        const vec<T> impulse = n * j;
+
+        // Calculate linear velocity vectors
+        const vec<T> v_out = v + impulse * inv_m;
+
+        // Calculate angular velocity vectors
+        const auto w_out = w_local + ri * j;
+
+        // Update body linear velocity
+        b.set_linear_velocity(v_out);
+
+        // Update body angular velocity
+        b.set_angular_velocity(w_out);
+    }
+    inline void solve_integrals(const size_t index, const T dt, const T damping)
+    {
+        // Precalculate time constants
+        const T dt2 = dt * 0.5;
+        const T dt6 = dt * 0.16667;
+
+        body<T, vec> &b = _bodies[index];
+        shape<T, vec> &s = _shapes[index];
+
+        // Solve for angular velocity
+        const auto &w_n = b.get_angular_velocity();
+
+        // Evaluate the derivative at different angular velocities
+        const auto wk1 = b.get_angular_acceleration(w_n, damping);
+        const auto wk2 = b.get_angular_acceleration(w_n + wk1 * dt2, damping);
+        const auto wk3 = b.get_angular_acceleration(w_n + wk2 * dt2, damping);
+        const auto wk4 = b.get_angular_acceleration(w_n + wk3 * dt, damping);
+
+        // Calculate the angular velocity at this time step
+        const auto w_n1 = w_n + (wk1 + (wk2 * 2.0) + (wk3 * 2.0) + wk4) * dt6;
+
+        // Solve for linear velocity
+        const auto v_n = b.get_linear_velocity();
+
+        // Evaluate the derivative at different linear velocities
+        const auto vk1 = b.get_linear_acceleration(v_n, damping);
+        const auto vk2 = b.get_linear_acceleration(v_n + vk1 * dt2, damping);
+        const auto vk3 = b.get_linear_acceleration(v_n + vk2 * dt2, damping);
+        const auto vk4 = b.get_linear_acceleration(v_n + vk3 * dt, damping);
+
+        // Calculate the linear velocity at this time step
+        const auto v_n1 = v_n + (vk1 + (vk2 * 2.0) + (vk3 * 2.0) + vk4) * dt6;
+
+        // Update the body position at this timestep
+        b.update_position(v_n1, dt, _lower_bound, _upper_bound);
+
+        // Update the body rotation at this timestep
+        const auto abs_rotation = b.update_rotation(w_n1, dt);
+
+        // Clear any acting forces on this object
+        b.clear_force(_gravity);
+        b.clear_torque();
+
+        // Update the shapes position
+        s.set_position(b.get_position());
+
+        // Rotate the shapes by the relative rotation
+        rotate<T>(s, abs_rotation);
+    }
+    inline void solve_integrals(const T dt, const T damping)
+    {
+        if (_bodies.size() != _shapes.size())
+        {
+            throw std::runtime_error("physics: body and shape sizes are disjoint");
+        }
+
+        // Solve the first order initial value problem differential equations with Runge-Kutta4
+        const size_t size = _bodies.size();
+        for (size_t i = 0; i < size; i++)
+        {
+            solve_integrals(i, dt, damping);
+        }
+    }
+
   public:
     physics(const cell<T, vec> &world, const vec<T> &gravity) : _spatial(world),
                                                                 _lower_bound(world.get_min() + vec<T>().set_all(1.0)),
                                                                 _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
                                                                 _gravity(gravity), _elasticity(1.0) {}
-    inline size_t add_body(const shape<T, vec> &s, const T mass)
+    inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t group)
     {
         // Add shape to shape vector
         _shapes.push_back(s);
@@ -718,6 +877,18 @@ class physics
 
         // return the body id
         return _bodies.size() - 1;
+    }
+    inline size_t add_body(const shape<T, vec> &s, const T mass)
+    {
+        return add_body(s, mass, _shapes.size());
+    }
+    inline void clear()
+    {
+        // Clear out the shapes
+        _shapes.clear();
+
+        // Clear out the bodies
+        _bodies.clear();
     }
     inline const body<T, vec> &get_body(const size_t index) const
     {
@@ -762,62 +933,43 @@ class physics
                 collide(map[c.first], map[c.second]);
             }
 
-            // Precalculate time constants
-            const T dt2 = dt * 0.5;
-            const T dt6 = dt * 0.16667;
+            // Solve the simulation
+            solve_integrals(dt, damping);
+        }
+    }
+    inline void solve_no_sort(const T dt, const T damping)
+    {
+        if (_shapes.size() > 0)
+        {
+            // Create the spatial partitioning structure based off rigid bodies
+            // This doesn't reorder the shapes vector
+            _spatial.insert_no_sort(_shapes);
 
-            if (_bodies.size() != _shapes.size())
+            // Determine intersecting shapes for contact resolution
+            const std::vector<std::pair<K, K>> &collisions = _spatial.get_collisions();
+
+            // Handle all collisions between objects
+            for (const auto &c : collisions)
             {
-                throw std::runtime_error("physics: body and shape sizes are disjoint");
+                collide(c.first, c.second);
             }
 
-            // Solve the first order initial value problem differential equations with Runge-Kutta4
-            const size_t size = _bodies.size();
-            for (size_t i = 0; i < size; i++)
+            // Solve the simulation
+            solve_integrals(dt, damping);
+        }
+    }
+    inline void solve_static(std::vector<shape<T, vec>> &shapes, const size_t index, const T dt, const T damping)
+    {
+        if (_shapes.size() > 0)
+        {
+            // Perform N static collision checks against _bodies[index]
+            for (const auto &s : shapes)
             {
-                body<T, vec> &b = _bodies[i];
-                shape<T, vec> &s = _shapes[i];
-
-                // Solve for angular velocity
-                const auto &w_n = b.get_angular_velocity();
-
-                // Evaluate the derivative at different angular velocities
-                const auto wk1 = b.get_angular_acceleration(w_n, damping);
-                const auto wk2 = b.get_angular_acceleration(w_n + wk1 * dt2, damping);
-                const auto wk3 = b.get_angular_acceleration(w_n + wk2 * dt2, damping);
-                const auto wk4 = b.get_angular_acceleration(w_n + wk3 * dt, damping);
-
-                // Calculate the angular velocity at this time step
-                const auto w_n1 = w_n + (wk1 + (wk2 * 2.0) + (wk3 * 2.0) + wk4) * dt6;
-
-                // Solve for linear velocity
-                const auto v_n = b.get_linear_velocity();
-
-                // Evaluate the derivative at different linear velocities
-                const auto vk1 = b.get_linear_acceleration(v_n, damping);
-                const auto vk2 = b.get_linear_acceleration(v_n + vk1 * dt2, damping);
-                const auto vk3 = b.get_linear_acceleration(v_n + vk2 * dt2, damping);
-                const auto vk4 = b.get_linear_acceleration(v_n + vk3 * dt, damping);
-
-                // Calculate the linear velocity at this time step
-                const auto v_n1 = v_n + (vk1 + (vk2 * 2.0) + (vk3 * 2.0) + vk4) * dt6;
-
-                // Update the body position at this timestep
-                b.update_position(v_n1, dt, _lower_bound, _upper_bound);
-
-                // Update the body rotation at this timestep
-                const auto abs_rotation = b.update_rotation(w_n1, dt);
-
-                // Clear any acting forces on this object
-                b.clear_force(_gravity);
-                b.clear_torque();
-
-                // Update the shapes position
-                s.set_position(b.get_position());
-
-                // Rotate the shapes by the relative rotation
-                rotate<T>(s, abs_rotation);
+                collide_static(index, s);
             }
+
+            // Solve the simulation
+            solve_integrals(index, dt, damping);
         }
     }
     inline T get_total_energy() const
@@ -844,7 +996,7 @@ class physics
 
         return 0.5 * KE2 + PE + AE;
     }
-    void set_elasticity(const T e)
+    inline void set_elasticity(const T e)
     {
         _elasticity = e;
     }

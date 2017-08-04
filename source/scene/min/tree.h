@@ -470,6 +470,29 @@ class tree
         // Return this map so we can interpret the collision indices
         return map;
     }
+    inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
+    {
+        // Check size of the number of objects to insert into grid
+        if (shapes.size() > std::numeric_limits<K>::max() - 1)
+        {
+            throw std::runtime_error("tree(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
+        }
+
+        // Set the tree depth
+        optimize_depth(shapes);
+
+        // insert shapes without sorting
+        _shapes = shapes;
+
+        // Clear out the root node
+        _root.clear();
+
+        // Create box keys
+        create_keys();
+
+        // Rebuild the tree after changing the contents
+        build(_root, _depth);
+    }
     inline std::vector<K> point_inside(const vec<T> &point) const
     {
         // Get the keys on the leaf node

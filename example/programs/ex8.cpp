@@ -60,8 +60,8 @@ class physics_test
     void load_camera()
     {
         // Move and camera to +XZ and look at origin
-        min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
+        const min::vec3<float> pos = min::vec3<float>(0.0, 0.0, 300.0);
+        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Create camera, set location and look at
         _cam.set_position(pos);
@@ -84,8 +84,8 @@ class physics_test
     void load_model_texture()
     {
         // load oobbox model
-        min::aabbox<float, min::vec3> shape(min::vec3<float>(0.0, 0.0, 0.0) - _body_radius, min::vec3<float>(0.0, 0.0, 0.0) + _body_radius);
-        min::mesh<float, uint16_t> box_mesh = min::to_mesh<float, uint16_t>(shape);
+        const min::aabbox<float, min::vec3> shape(min::vec3<float>(0.0, 0.0, 0.0) - _body_radius, min::vec3<float>(0.0, 0.0, 0.0) + _body_radius);
+        const min::mesh<float, uint16_t> box_mesh = min::to_mesh<float, uint16_t>(shape);
 
         // Load textures
         const min::bmp b = min::bmp("data/texture/stone.bmp");
@@ -106,9 +106,9 @@ class physics_test
         _ubuffer.bind();
 
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
-        min::vec4<float> light_position(0.0, 0.0, 300.0, 1.0);
-        min::vec4<float> light_power(0.25, 300.0, 1.0, 1.0);
+        const min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
+        const min::vec4<float> light_position(0.0, 0.0, 300.0, 1.0);
+        const min::vec4<float> light_power(0.25, 300.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer
@@ -117,7 +117,7 @@ class physics_test
 
         // Generate random positions in a circle
         // The objects will be between radius
-        float radius = 5.0;
+        const float radius = 5.0;
         std::uniform_real_distribution<float> position(-radius, radius);
         std::uniform_real_distribution<float> offset(0.0, 0.8 * radius);
         // Mersenne Twister: Good quality random number generator
@@ -126,12 +126,12 @@ class physics_test
         rng.seed(101129);
 
         // Creates oobb's
-        float radius2 = radius * radius;
+        const float radius2 = radius * radius;
         bool flag = true;
         for (size_t i = 0; i < 100; i++)
         {
             // Generate 100 instances of oobbox, with random position and rotation around circle
-            float x = position(rng);
+            const float x = position(rng);
             float y = std::sqrt(radius2 - x * x) - offset(rng);
             if (flag)
             {
@@ -140,11 +140,11 @@ class physics_test
             flag = !flag;
 
             // Set x and Y value
-            min::vec3<float> translation(x, y, 0);
+            const min::vec3<float> translation(x, y, 0);
 
             // Create rigid body, make rigid body a little bigger to avoid small overlap
             _simulation.add_body(min::oobbox<float, min::vec3>(translation - _body_radius - 0.1, translation + _body_radius + 0.1), 100.0);
-            min::mat4<float> model = min::mat4<float>(translation);
+            const min::mat4<float> model = min::mat4<float>(translation);
 
             // Set the model matrix
             _model_id[i] = _ubuffer.add_matrix(model);
@@ -295,7 +295,7 @@ int test_render_loop()
         }
 
         // Calculate the number of 'average' frames per second
-        double fps = sync.get_fps();
+        const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
         test.set_title("Test oobb physics simulation: FPS: " + std::to_string(fps));

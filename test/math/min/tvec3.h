@@ -787,74 +787,40 @@ bool test_vec3()
         throw std::runtime_error("Failed vec3 grid_overlap");
     }
 
-    // For normal_box_aligned tests
-    vmin = min::vec3<double>(-100.0, -100.0, -100.0);
-    vmax = min::vec3<double>(100.0, 100.0, 100.0);
+    // Test grid sat penetration aligned
+    one = min::vec3<double>(10.0, 10.0, 10.0);
+    two = min::vec3<double>(8.0, 8.0, 8.0);
+    vmin = min::vec3<double>(3.0, 3.0, 3.0);
+    vmax = min::vec3<double>(3.0, 3.0, 3.0);
 
-    // Test normal_box_aligned left
-    one = min::vec3<double>(-150.0, 0.0, 0.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(-1.0, two.x(), 1E-4);
-    out = out && compare(0.0, two.y(), 1E-4);
-    out = out && compare(0.0, two.z(), 1E-4);
+    // center, half_extent, center, half_extent
+    std::pair<min::vec3<double>, double> p = min::vec3<double>::project_sat_aligned_penetration(one, vmin, two, vmax, 0.01);
+    out = out && compare(1.0, p.first.x(), 1E-4);
+    out = out && compare(0.0, p.first.y(), 1E-4);
+    out = out && compare(0.0, p.first.z(), 1E-4);
+    out = out && compare(4.01, p.second, 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 normal_box_aligned left");
+        throw std::runtime_error("Failed vec3 sat penetration aligned");
     }
 
-    // Test normal_box_aligned right
-    one = min::vec3<double>(150.0, 0.0, 0.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(1.0, two.x(), 1E-4);
-    out = out && compare(0.0, two.y(), 1E-4);
-    out = out && compare(0.0, two.z(), 1E-4);
-    if (!out)
-    {
-        throw std::runtime_error("Failed vec3 normal_box_aligned right");
-    }
+    // Test grid sat penetration
+    one = min::vec3<double>(10.0, 10.1, 10.2);
+    two = min::vec3<double>(8.0, 8.0, 8.0);
+    vmin = min::vec3<double>(3.0, 3.0, 3.0);
+    vmax = min::vec3<double>(3.0, 3.0, 3.0);
 
-    // Test normal_box_aligned bottom
-    one = min::vec3<double>(50.0, -150.0, 50.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(0.0, two.x(), 1E-4);
-    out = out && compare(-1.0, two.y(), 1E-4);
-    out = out && compare(0.0, two.z(), 1E-4);
-    if (!out)
-    {
-        throw std::runtime_error("Failed vec3 normal_box_aligned bottom");
-    }
+    // coord_sys, center, half_extent, coord_sys, center, half_extent
+    p = min::vec3<double>::project_sat_penetration(min::vec3<double>::axes(), one, vmin, min::vec3<double>::axes(), two, vmax, 0.01);
 
-    // Test normal_box_aligned top
-    one = min::vec3<double>(50.0, 150.0, 50.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(0.0, two.x(), 1E-4);
-    out = out && compare(1.0, two.y(), 1E-4);
-    out = out && compare(0.0, two.z(), 1E-4);
+    // Z has the least penetration
+    out = out && compare(0.0, p.first.x(), 1E-4);
+    out = out && compare(0.0, p.first.y(), 1E-4);
+    out = out && compare(1.0, p.first.z(), 1E-4);
+    out = out && compare(3.89, p.second, 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 normal_box_aligned top");
-    }
-
-    // Test normal_box_aligned back
-    one = min::vec3<double>(50.0, 50.0, -150.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(0.0, two.x(), 1E-4);
-    out = out && compare(0.0, two.y(), 1E-4);
-    out = out && compare(-1.0, two.z(), 1E-4);
-    if (!out)
-    {
-        throw std::runtime_error("Failed vec3 normal_box_aligned back");
-    }
-
-    // Test normal_box_aligned front
-    one = min::vec3<double>(50.0, 50.0, 150.0);
-    two = min::vec3<double>::normal_box_aligned(one, vmin, vmax);
-    out = out && compare(0.0, two.x(), 1E-4);
-    out = out && compare(0.0, two.y(), 1E-4);
-    out = out && compare(1.0, two.z(), 1E-4);
-    if (!out)
-    {
-        throw std::runtime_error("Failed vec3 normal_box_aligned front");
+        throw std::runtime_error("Failed vec3 sat penetration");
     }
 
     return out;
