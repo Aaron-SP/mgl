@@ -735,19 +735,19 @@ bool test_vec3()
         throw std::runtime_error("Failed vec3 grid key 7");
     }
 
-    // Test grid_cell
+    // Test grid_index
     min::vec3<double> extent(100000.0, 100000.0, 100000.0);
     origin = min::vec3<double>(100.0, 100.0, 100.0);
     direction = min::vec3<double>(0.0, 1.0, 0.0);
     inverse = direction.inverse();
     vmin = min::vec3<double>(-100000.0, -100000.0, -100000.0);
-    auto cell = min::vec3<double>::grid_cell(vmin, extent, origin);
+    auto cell = min::vec3<double>::grid_index(vmin, extent, origin);
     out = out && compare(1, std::get<0>(cell));
     out = out && compare(1, std::get<1>(cell));
     out = out && compare(1, std::get<2>(cell));
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 grid_cell");
+        throw std::runtime_error("Failed vec3 grid_index");
     }
 
     // Test grid_ray

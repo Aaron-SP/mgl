@@ -740,19 +740,19 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 grid key 7");
     }
 
-    // Test grid_cell
+    // Test grid_index
     min::vec4<double> extent(100000.0, 100000.0, 100000.0, 1.0);
     origin = min::vec4<double>(100.0, 100.0, 100.0, 1.0);
     direction = min::vec4<double>(0.0, 1.0, 0.0, 1.0);
     inverse = direction.inverse();
     vmin = min::vec4<double>(-100000.0, -100000.0, -100000.0, 1.0);
-    auto cell = min::vec4<double>::grid_cell(vmin, extent, origin);
+    auto cell = min::vec4<double>::grid_index(vmin, extent, origin);
     out = out && compare(1, std::get<0>(cell));
     out = out && compare(1, std::get<1>(cell));
     out = out && compare(1, std::get<2>(cell));
     if (!out)
     {
-        throw std::runtime_error("Failed vec4 grid_cell");
+        throw std::runtime_error("Failed vec4 grid_index");
     }
 
     // Test grid_ray

@@ -267,7 +267,7 @@ class vec4
         // return the compute grid
         return out;
     }
-    inline static std::tuple<size_t, size_t, size_t> grid_cell(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
+    inline static std::tuple<size_t, size_t, size_t> grid_index(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
     {
         // Calculate the grid dimensions
         const T ex = extent.x();
@@ -284,12 +284,22 @@ class vec4
     inline static size_t grid_key(const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &point)
     {
         // Calculate the cell location
-        const std::tuple<size_t, size_t, size_t> cell = grid_cell(min, extent, point);
+        const std::tuple<size_t, size_t, size_t> index = grid_index(min, extent, point);
 
         // Get the row / col of cell
-        const size_t col = std::get<0>(cell);
-        const size_t row = std::get<1>(cell);
-        const size_t zin = std::get<2>(cell);
+        const size_t col = std::get<0>(index);
+        const size_t row = std::get<1>(index);
+        const size_t zin = std::get<2>(index);
+
+        // Return the grid index key for accessing cell
+        return col * scale * scale + row * scale + zin;
+    }
+    inline static size_t grid_key(const std::tuple<size_t, size_t, size_t> &index, const size_t scale, const vec4<T> &point)
+    {
+        // Get the row / col of cell
+        const size_t col = std::get<0>(index);
+        const size_t row = std::get<1>(index);
+        const size_t zin = std::get<2>(index);
 
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
@@ -390,12 +400,12 @@ class vec4
         // return the ray tuple
         return std::make_tuple(drx, tx, dtx, dry, ty, dty, drz, tz, dtz);
     }
-    inline static size_t grid_ray_next(std::tuple<size_t, size_t, size_t> &grid_cell, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
+    inline static size_t grid_ray_next(std::tuple<size_t, size_t, size_t> &index, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
     {
         // Get the cell row / col
-        size_t &col = std::get<0>(grid_cell);
-        size_t &row = std::get<1>(grid_cell);
-        size_t &zin = std::get<2>(grid_cell);
+        size_t &col = std::get<0>(index);
+        size_t &row = std::get<1>(index);
+        size_t &zin = std::get<2>(index);
 
         // X
         const int &drx = std::get<0>(grid_ray);

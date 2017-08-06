@@ -213,7 +213,7 @@ class vec2
         // return the compute grid
         return out;
     }
-    inline static std::pair<size_t, size_t> grid_cell(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
+    inline static std::pair<size_t, size_t> grid_index(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
     {
         // Calculate the grid dimensions
         const T ex = extent.x();
@@ -229,11 +229,20 @@ class vec2
     inline static size_t grid_key(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &point)
     {
         // Calculate the cell location
-        const std::pair<size_t, size_t> cell = grid_cell(min, extent, point);
+        const std::pair<size_t, size_t> index = grid_index(min, extent, point);
 
         // Get the row / col of cell
-        const size_t col = cell.first;
-        const size_t row = cell.second;
+        const size_t col = index.first;
+        const size_t row = index.second;
+
+        // Return the grid index key for accessing cell
+        return col * scale + row;
+    }
+    inline static size_t grid_key(const std::pair<size_t, size_t> &index, const size_t scale, const vec2<T> &point)
+    {
+        // Get the row / col of cell
+        const size_t col = index.first;
+        const size_t row = index.second;
 
         // Return the grid index key for accessing cell
         return col * scale + row;
@@ -305,11 +314,11 @@ class vec2
         // return the ray tuple
         return std::make_tuple(drx, tx, dtx, dry, ty, dty);
     }
-    inline static size_t grid_ray_next(std::pair<size_t, size_t> &grid_cell, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
+    inline static size_t grid_ray_next(std::pair<size_t, size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
     {
         // Get the cell row / col
-        size_t &col = grid_cell.first;
-        size_t &row = grid_cell.second;
+        size_t &col = index.first;
+        size_t &row = index.second;
 
         // X
         const int &drx = std::get<0>(grid_ray);

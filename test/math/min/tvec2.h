@@ -519,18 +519,18 @@ bool test_vec2()
         throw std::runtime_error("Failed vec2 grid key 3");
     }
 
-    // Test grid_cell
+    // Test grid_index
     min::vec2<double> extent(100000.0, 100000.0);
     origin = min::vec2<double>(100.0, 100.0);
     direction = min::vec2<double>(0.0, 1.0);
     inverse = direction.inverse();
     vmin = min::vec2<double>(-100000.0, -100000.0);
-    auto cell = min::vec2<double>::grid_cell(vmin, extent, origin);
+    auto cell = min::vec2<double>::grid_index(vmin, extent, origin);
     out = out && compare(1, cell.first);
     out = out && compare(1, cell.second);
     if (!out)
     {
-        throw std::runtime_error("Failed vec2 grid_cell");
+        throw std::runtime_error("Failed vec2 grid_index");
     }
 
     // Test grid_ray

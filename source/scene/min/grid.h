@@ -331,7 +331,7 @@ class grid
         auto grid_ray = vec<T>::grid_ray(_cell_extent, r.get_origin(), r.get_direction(), r.get_inverse());
 
         // Get the grid cell of ray origin
-        auto grid_cell = vec<T>::grid_cell(_root.get_min(), _cell_extent, r.get_origin());
+        auto grid_index = vec<T>::grid_index(_root.get_min(), _cell_extent, r.get_origin());
 
         bool bad_flag = false;
 
@@ -339,7 +339,7 @@ class grid
         while (_ray_hits.size() == 0)
         {
             // Find the next cell along the ray to test
-            const size_t next = vec<T>::grid_ray_next(grid_cell, grid_ray, bad_flag, _scale);
+            const size_t next = vec<T>::grid_ray_next(grid_index, grid_ray, bad_flag, _scale);
 
             // check to see if we are still inside the grid
             if (next >= _cells.size() || bad_flag)

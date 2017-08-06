@@ -958,7 +958,7 @@ class physics
             solve_integrals(dt, damping);
         }
     }
-    inline void solve_static(std::vector<shape<T, vec>> &shapes, const size_t index, const T dt, const T damping)
+    inline void solve_static(const std::vector<shape<T, vec>> &shapes, const size_t index, const T dt, const T damping)
     {
         if (_shapes.size() > 0)
         {
