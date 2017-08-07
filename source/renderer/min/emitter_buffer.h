@@ -44,8 +44,10 @@ class emitter_buffer
   private:
     GLuint _vao; // Buffer properties
     GLuint _vbo;
-    T _accum_time; // Solver properties
     T _emit_freq;
+    T _emit_accum; // Solver properties
+    T _spawn_freq;
+    T _spawn_accum;
     size_t _emit_count;
     size_t _emit_pool_offset;
     size_t _emit_pool_size;
@@ -116,11 +118,13 @@ class emitter_buffer
     }
 
   public:
-    emitter_buffer(const vec3<T> &position, const size_t emit_count, const T emit_freq, const T life)
-        : _accum_time(0.0), _emit_freq(emit_freq), _emit_count(emit_count), _emit_pool_offset(0), _emit_pool_size(0),
+    emitter_buffer(const vec3<T> &position, const size_t emit_count, const size_t emit_periods, const T emit_freq, const T spawn_freq, const T life)
+
+        : _emit_count(emit_count), _emit_pool_offset(0), _emit_pool_size(0),
+          _emit_freq(emit_freq), _emit_accum(0.0), _spawn_freq(spawn_freq), _spawn_accum(0.0),
           _inv_mass(2.0), _random(10.0),
           _grav_force(0.0, -9.8, 0.0), _start_pos(position), _start_speed(0.0, 10.0, 0.0), _dist(-_random, _random),
-          _particles(emit_count * std::ceil(life / emit_freq)), _speed(_particles.size())
+          _particles(emit_count * emit_periods), _speed(_particles.size())
     {
         // Generate the VAO for this vertex layout
         glGenVertexArrays(1, &_vao);
@@ -191,6 +195,15 @@ class emitter_buffer
         // Draw all objects in the static buffer
         glDrawArrays(GL_POINTS, 0, _emit_pool_size);
     }
+    inline void reset()
+    {
+        // Initialize the simulation
+        seed(0, _particles.size());
+
+        // Reset the accumulated time
+        _emit_accum = 0.0;
+        _spawn_accum = 0.0;
+    }
     inline void resize(const size_t n)
     {
         _particles.resize(n);
@@ -207,6 +220,10 @@ class emitter_buffer
     {
         _dist = std::uniform_real_distribution<T>(-rand, rand);
     }
+    inline void set_position(const vec3<T> &position)
+    {
+        _start_pos = position;
+    }
     inline void set_speed(const vec3<T> &speed)
     {
         _start_speed = speed;
@@ -217,13 +234,31 @@ class emitter_buffer
     }
     void step(const T dt)
     {
-        if (_accum_time >= _emit_freq)
-        {
-            // Reset emit accumulation
-            _accum_time -= _emit_freq;
+        // Accumulate this time step
+        _emit_accum += dt;
 
-            // Check if pool is full
-            if (_emit_pool_size == _particles.size())
+        // Check if we need to grow pool size
+        if (_emit_accum >= _emit_freq)
+        {
+            // Decrement emit accumulation
+            _emit_accum -= _emit_freq;
+
+            // Emit more particles if the buffer is not full
+            if (_emit_pool_size != _particles.size())
+            {
+                // Emit more particles
+                _emit_pool_size += _emit_count;
+            }
+        }
+
+        // If pool is full
+        if (_emit_pool_size == _particles.size())
+        {
+            // Accumulate spawn timer
+            _spawn_accum += dt;
+
+            // Check if pool is full and time to respawn
+            if (_spawn_accum >= _spawn_freq)
             {
                 // Reseed from offset to offset + _emit_count
                 seed(_emit_pool_offset, _emit_count);
@@ -236,17 +271,10 @@ class emitter_buffer
                 {
                     _emit_pool_offset = 0;
                 }
+
+                // Add more life to particles
+                _spawn_accum -= _spawn_freq;
             }
-            else
-            {
-                // Emit more particles
-                _emit_pool_size += _emit_count;
-            }
-        }
-        else
-        {
-            // Accumulate this time step
-            _accum_time += dt;
         }
 
         // Update all particles

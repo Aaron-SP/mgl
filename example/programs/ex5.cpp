@@ -77,8 +77,8 @@ class md5_render_loop_test
     void load_camera()
     {
         // Move and camera to -X and look at origin
-        min::vec3<float> pos = min::vec3<float>(-10.0, 10.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
+        const min::vec3<float> pos = min::vec3<float>(-10.0, 10.0, 0.0);
+        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Test perspective projection
         // Create camera, set location and look at
@@ -287,7 +287,7 @@ class md5_render_loop_test
     void update_camera()
     {
         // Get the cursor coordinates
-        auto c = _win.get_cursor();
+        const auto c = _win.get_cursor();
 
         // Get the offset from screen center
         float sensitivity = 0.1;
@@ -311,8 +311,8 @@ class md5_render_loop_test
     void update_cursor()
     {
         // Get the screen dimensions
-        uint16_t h = _win.get_height();
-        uint16_t w = _win.get_width();
+        const uint16_t h = _win.get_height();
+        const uint16_t w = _win.get_width();
 
         // Center cursor in middle of window
         _win.set_cursor(w / 2, h / 2);

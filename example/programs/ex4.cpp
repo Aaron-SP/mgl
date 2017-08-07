@@ -50,8 +50,8 @@ class particle_test
     void load_camera()
     {
         // Move and camera to -X, +Y and look at origin
-        min::vec3<float> pos = min::vec3<float>(-1.0, 40.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
+        const min::vec3<float> pos = min::vec3<float>(-1.0, 40.0, 0.0);
+        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Test perspective projection
         // Create camera, set location and look at
@@ -113,7 +113,7 @@ class particle_test
           _vertex("data/shader/emitter.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ebuffer(min::vec3<float>(), 1000, 0.1, 5.0),
+          _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 5.0),
           _ubuffer(0, 1),
           _force_type(0)
     {
@@ -217,7 +217,7 @@ class particle_test
     {
         _win.set_title(title);
     }
-    void step(float dt)
+    void step(const float dt)
     {
         // Update the particle positions
         _ebuffer.step(dt);
@@ -264,7 +264,7 @@ int test_render_loop()
         }
 
         // Calculate the number of 'average' frames per second
-        double fps = sync.get_fps();
+        const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
         test.set_title("Example particle system: FPS: " + std::to_string(fps));

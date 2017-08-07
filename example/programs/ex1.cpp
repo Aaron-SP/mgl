@@ -55,8 +55,8 @@ class render_loop_test
     void load_camera()
     {
         // Move and camera to -X and look at origin
-        min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
-        min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
+        const min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
+        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Test perspective projection
         // Create camera, set location and look at
@@ -90,7 +90,7 @@ class render_loop_test
         const min::bmp b = min::bmp("data/texture/stone.bmp");
 
         // Query max texture size
-        size_t size = _tbuffer.get_max_texture_size();
+        const size_t size = _tbuffer.get_max_texture_size();
         std::cout << "Max texture size is: " << size << "x" << size << std::endl;
 
         // Load texture buffer
@@ -104,13 +104,13 @@ class render_loop_test
     }
     void load_uniforms()
     {
-        size_t size = _ubuffer.get_max_buffer_size();
+        const size_t size = _ubuffer.get_max_buffer_size();
         std::cout << "Max uniform buffer size(bytes) is: " << size << std::endl;
 
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
-        min::vec4<float> light_position(-2.0, 2.0, 0.0, 1.0);
-        min::vec4<float> light_power(0.1, 6.0, 5.0, 1.0);
+        const min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
+        const min::vec4<float> light_position(-2.0, 2.0, 0.0, 1.0);
+        const min::vec4<float> light_power(0.1, 6.0, 5.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer
@@ -211,7 +211,7 @@ class render_loop_test
     void update_camera()
     {
         // Get the cursor coordinates
-        auto c = _win.get_cursor();
+        const auto c = _win.get_cursor();
 
         // Get the offset from screen center
         float sensitivity = 0.1;
@@ -235,8 +235,8 @@ class render_loop_test
     void update_cursor()
     {
         // Get the screen dimensions
-        uint16_t h = _win.get_height();
-        uint16_t w = _win.get_width();
+        const uint16_t h = _win.get_height();
+        const uint16_t w = _win.get_width();
 
         // Center cursor in middle of window
         _win.set_cursor(w / 2, h / 2);
@@ -283,7 +283,7 @@ int test_render_loop()
         }
 
         // Calculate the number of 'average' frames per second
-        double fps = sync.get_fps();
+        const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
         test.set_title("Example render loop with first person camera: FPS: " + std::to_string(fps));
