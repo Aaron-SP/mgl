@@ -45,12 +45,10 @@ class uniform_buffer
     std::vector<mat4<T>> _matrix;
     GLuint _lbo;
     GLuint _mbo;
-    GLuint _light_index;
-    GLuint _matrix_index;
-    GLint _light_offsets[2];
-    GLint _matrix_offsets[2];
     uint32_t _max_lights;
     uint32_t _max_matrix;
+    GLint _light_offsets[2];
+    GLint _matrix_offsets[2];
 
     inline size_t get_light_bytes() const
     {
@@ -60,7 +58,7 @@ class uniform_buffer
     {
         return _max_matrix * sizeof_matrix + size_bytes;
     }
-    void set_lights(const program &p)
+    void set_lights(const program &p) const
     {
         if (_max_lights > 0)
         {
@@ -82,29 +80,28 @@ class uniform_buffer
             }
 
             // Get the member offsets from the program
-            glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_OFFSET, _light_offsets);
+            GLint light_offsets[2];
+            glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_OFFSET, light_offsets);
 
             // Check the array offset, offset MUST BE ZERO
-            if (_light_offsets[0] != 0)
+            if (light_offsets[0] != _light_offsets[0])
             {
                 throw std::runtime_error("uniform_buffer: light_block.lights offset calculated by opengl is not std140");
             }
 
             // Check the size offset
-            const size_t light_bytes = get_light_bytes();
-            const size_t light_offset = (size_t)_light_offsets[1];
-            if (light_offset != light_bytes - size_bytes)
+            if (light_offsets[1] != _light_offsets[1])
             {
                 throw std::runtime_error("uniform_buffer: light_block.size offset calculated by opengl is not std140");
             }
 
-            _light_index = glGetUniformBlockIndex(p.id(), "light_block");
+            const GLuint light_index = glGetUniformBlockIndex(p.id(), "light_block");
 
             // Set the block binding index = 0
-            glUniformBlockBinding(p.id(), _light_index, 0);
+            glUniformBlockBinding(p.id(), light_index, 0);
         }
     }
-    void set_matrix(const program &p)
+    void set_matrix(const program &p) const
     {
         if (_max_matrix > 0)
         {
@@ -128,7 +125,8 @@ class uniform_buffer
             }
 
             // Get the member offsets from the program
-            glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_OFFSET, _matrix_offsets);
+            GLint matrix_offsets[2];
+            glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_OFFSET, matrix_offsets);
 
             // Get the matrix array stride from the program
             glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_ARRAY_STRIDE, arr_strides);
@@ -137,15 +135,13 @@ class uniform_buffer
             glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_MATRIX_STRIDE, matrix_strides);
 
             // Check the array offset, offset MUST BE ZERO
-            if (_matrix_offsets[0] != 0)
+            if (matrix_offsets[0] != _matrix_offsets[0])
             {
                 throw std::runtime_error("uniform_buffer: matrix_block.matrix offset calculated by opengl is not std140");
             }
 
             // Check the size offset
-            const size_t matrix_bytes = get_matrix_bytes();
-            const size_t matrix_offset = (size_t)_matrix_offsets[1];
-            if (matrix_offset != matrix_bytes - size_bytes)
+            if (matrix_offsets[1] != _matrix_offsets[1])
             {
                 throw std::runtime_error("uniform_buffer: matrix_block.size offset calculated by opengl is not std140");
             }
@@ -162,10 +158,10 @@ class uniform_buffer
                 throw std::runtime_error("uniform_buffer: matrix_block.matrix matrix stride calculated by opengl is not std140");
             }
 
-            _matrix_index = glGetUniformBlockIndex(p.id(), "matrix_block");
+            const GLuint matrix_index = glGetUniformBlockIndex(p.id(), "matrix_block");
 
             // Set the block binding index = 1
-            glUniformBlockBinding(p.id(), _matrix_index, 1);
+            glUniformBlockBinding(p.id(), matrix_index, 1);
         }
     }
     void update_light_buffer() const
@@ -240,7 +236,10 @@ class uniform_buffer
     }
 
   public:
-    uniform_buffer(const uint32_t light_size, const uint32_t matrix_size) : _max_lights(light_size), _max_matrix(matrix_size)
+    uniform_buffer(const uint32_t light_size, const uint32_t matrix_size)
+        : _max_lights(light_size), _max_matrix(matrix_size),
+          _light_offsets{0, (GLint)(get_light_bytes() - size_bytes)},
+          _matrix_offsets{0, (GLint)(get_matrix_bytes() - size_bytes)}
     {
         size_t max_size = get_max_buffer_size();
         if (max_size < get_light_bytes() || max_size < get_matrix_bytes())
@@ -322,7 +321,7 @@ class uniform_buffer
     {
         _matrix[id] = mat;
     }
-    inline void set_program(const program &p)
+    inline void set_program(const program &p) const
     {
         // set the light buffer
         set_lights(p);

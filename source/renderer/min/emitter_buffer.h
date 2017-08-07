@@ -44,13 +44,13 @@ class emitter_buffer
   private:
     GLuint _vao; // Buffer properties
     GLuint _vbo;
+    size_t _emit_count;
+    size_t _emit_pool_offset;
+    size_t _emit_pool_size;
     T _emit_freq;
     T _emit_accum; // Solver properties
     T _spawn_freq;
     T _spawn_accum;
-    size_t _emit_count;
-    size_t _emit_pool_offset;
-    size_t _emit_pool_size;
     T _inv_mass; // Particle properties
     T _random;
     vec3<T> _grav_force;
