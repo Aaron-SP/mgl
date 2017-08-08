@@ -118,13 +118,12 @@ class camera
 
         // Get the right axis
         const vec3<T> &right = _f.get_right();
-        const vec3<T> &up = _f.get_up();
 
         // Rotate the camera by the move.y around the right
         quat<T> rotation(right, y);
 
-        // Rotate the camera by the move.x around the up
-        rotation *= quat<T>(up, x);
+        // Rotate the camera by the move.x around the global up
+        rotation *= quat<T>(vec3<T>::up(), x);
 
         // Transform the direction
         direction = rotation.transform(direction);
