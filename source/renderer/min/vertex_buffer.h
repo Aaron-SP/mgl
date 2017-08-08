@@ -88,6 +88,55 @@ class vertex_buffer
             throw std::runtime_error("vertex_buffer.push_back_mesh(): vertex or index are of invalid length");
         }
     }
+    void swap_mesh(const mesh<T, K> &m, const size_t key)
+    {
+        // Verify vertex attribute size
+        const auto attr_size = m.vertex.size();
+        const auto element_size = m.index.size();
+        if (attr_size > 0 && element_size > 0)
+        {
+            // Check that the mesh is valid for this vertex type
+            vertex_type<T, K, FLOAT_TYPE>::check(m);
+
+            // Get the width of the vertex structure, in floats not bytes
+            const size_t width = vertex_type<T, K, FLOAT_TYPE>::width();
+
+            // Verify index buffer dimensions are compatible
+            const auto &e = _element_index[key];
+            if (e.first != element_size)
+            {
+                throw std::runtime_error("vertex_buffer.swap_mesh(): can only swap mesh with the same exact size");
+            }
+
+            // Insert new indices using index adjustment
+            const auto &d = _data_index[key];
+            const size_t index_shift = d.second / width;
+            for (size_t i = 0; i < element_size; i++)
+            {
+                // Index is from the start of this mesh
+                _element[i + e.second] = index_shift + m.index[i];
+            }
+
+            // Verify vertex buffer dimensions are compatible
+            const size_t data_size = width * attr_size;
+            if (d.first != data_size)
+            {
+                throw std::runtime_error("vertex_buffer.swap_mesh(): can only swap mesh with the same exact size");
+            }
+
+            // Interlace the data in the buffer in place
+            size_t data_offset = d.second;
+            for (size_t i = 0; i < attr_size; i++, data_offset += width)
+            {
+                // Vertex specific element-wise copy
+                vertex_type<T, K, FLOAT_TYPE>::copy(m, _data, data_offset, i);
+            }
+        }
+        else
+        {
+            throw std::runtime_error("vertex_buffer.push_back_mesh(): vertex or index are of invalid length");
+        }
+    }
     bool reallocate_buffer() const
     {
         bool out = false;
@@ -155,7 +204,7 @@ class vertex_buffer
         _element_bytes = _element.size() * sizeof(K);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _element_bytes, &_element[0], vertex_type<T, K, FLOAT_TYPE>::buffer_type());
     }
-    void upload_last() const
+    void upload(const size_t key) const
     {
         // Check if we have added a mesh
         if (_data_index.size() == 0 && _element_index.size() == 0)
@@ -171,8 +220,8 @@ class vertex_buffer
         }
 
         // Get the data indices for the last mesh in the data buffer
-        const auto &data = _data_index.back();
-        const auto &element = _element_index.back();
+        const auto &data = _data_index[key];
+        const auto &element = _element_index[key];
 
         // Bind the buffer to hold data
         glBindBuffer(GL_ARRAY_BUFFER, _vbo);
@@ -189,6 +238,14 @@ class vertex_buffer
         const size_t element_size_bytes = element.first * sizeof(K);
         const size_t element_offset_bytes = element.second * sizeof(K);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, element_offset_bytes, element_size_bytes, &_element[element.second]);
+    }
+    void upload_last() const
+    {
+        if (_data_index.size() > 0)
+        {
+            const size_t back = _data_index.size() - 1;
+            upload(back);
+        }
     }
 
   public:
@@ -322,6 +379,14 @@ class vertex_buffer
 
         // Upload the last mesh in the buffer
         upload_last();
+    }
+    void upload_mesh(const mesh<T, K> &m, const size_t index)
+    {
+        // Update the mesh in 'index' slot
+        swap_mesh(m, index);
+
+        // Upload only part of the total vertex buffer
+        upload(index);
     }
 };
 }

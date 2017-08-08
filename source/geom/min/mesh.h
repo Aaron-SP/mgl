@@ -144,7 +144,7 @@ class mesh
     }
 
   public:
-    mesh(const std::string name) : _name(name) {}
+    mesh(const std::string &name) : _name(name) {}
     std::vector<vec4<T>> vertex;
     std::vector<vec2<T>> uv;
     std::vector<vec3<T>> normal;
@@ -254,6 +254,18 @@ class mesh
             }
         }
     }
+    void clear()
+    {
+        // Clear all members
+        vertex.clear();
+        uv.clear();
+        normal.clear();
+        tangent.clear();
+        bitangent.clear();
+        index.clear();
+        bone_index.clear();
+        bone_weight.clear();
+    }
     void flip_uv_x_axis()
     {
         for (auto &a : uv)
@@ -272,7 +284,37 @@ class mesh
     {
         return _name;
     }
-    void scale_uv(T factor)
+    void merge(const min::mesh<T, K> &m)
+    {
+        // Find the index shift amount
+        const size_t index_shift = vertex.size();
+
+        // Preallocate
+        vertex.reserve(vertex.size() + m.vertex.size());
+        uv.reserve(uv.size() + m.uv.size());
+        normal.reserve(normal.size() + m.normal.size());
+        tangent.reserve(tangent.size() + m.tangent.size());
+        bitangent.reserve(bitangent.size() + m.bitangent.size());
+        index.reserve(index.size() + m.index.size());
+        bone_index.reserve(bone_index.size() + m.bone_index.size());
+        bone_weight.reserve(bone_weight.size() + m.bone_weight.size());
+
+        // Insert m into this mesh
+        vertex.insert(vertex.end(), m.vertex.begin(), m.vertex.end());
+        uv.insert(uv.end(), m.uv.begin(), m.uv.end());
+        normal.insert(normal.end(), m.normal.begin(), m.normal.end());
+        tangent.insert(tangent.end(), m.tangent.begin(), m.tangent.end());
+        bitangent.insert(bitangent.end(), m.bitangent.begin(), m.bitangent.end());
+        bone_index.insert(bone_index.end(), m.bone_index.begin(), m.bone_index.end());
+        bone_weight.insert(bone_weight.end(), m.bone_weight.begin(), m.bone_weight.end());
+
+        // Insert shifted indices into index buffer
+        for (const auto &i : m.index)
+        {
+            index.push_back(index_shift + i);
+        }
+    }
+    void scale_uv(const T factor)
     {
         for (auto &a : uv)
         {

@@ -238,7 +238,7 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
-    inline static size_t grid_key(const std::pair<size_t, size_t> &index, const size_t scale, const vec2<T> &point)
+    inline static size_t grid_key(const std::pair<size_t, size_t> &index, const size_t scale)
     {
         // Get the row / col of cell
         const size_t col = index.first;

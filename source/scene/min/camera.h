@@ -77,6 +77,10 @@ class camera
     {
         return _f;
     }
+    inline const frustum<T> &get_frustum() const
+    {
+        return _f;
+    }
     inline const vec3<T> &get_look_at() const
     {
         return _look;

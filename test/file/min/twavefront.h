@@ -37,7 +37,7 @@ bool test_wavefront()
         std::vector<min::mesh<double, uint16_t>> meshes = w.get_meshes();
 
         // Test parse file and check counts
-        const min::mesh<double, uint16_t> &m1 = meshes[0];
+        min::mesh<double, uint16_t> &m1 = meshes[0];
         v = m1.vertex.size();
         uv = m1.uv.size();
         n = m1.normal.size();
@@ -121,6 +121,36 @@ bool test_wavefront()
         if (!out)
         {
             throw std::runtime_error("Failed wavefront cube data access index");
+        }
+
+        // Test merging this mesh with itself
+        m1.merge(m2);
+        v = m1.vertex.size();
+        uv = m1.uv.size();
+        n = m1.normal.size();
+        i = m1.index.size();
+        out = out && compare(52, v);
+        out = out && compare(52, uv);
+        out = out && compare(52, n);
+        out = out && compare(72, i);
+        if (!out)
+        {
+            throw std::runtime_error("Failed wavefront mesh merge");
+        }
+
+        // Test clearing the mesh
+        m1.clear();
+        v = m1.vertex.size();
+        uv = m1.uv.size();
+        n = m1.normal.size();
+        i = m1.index.size();
+        out = out && compare(0, v);
+        out = out && compare(0, uv);
+        out = out && compare(0, n);
+        out = out && compare(0, i);
+        if (!out)
+        {
+            throw std::runtime_error("Failed wavefront mesh clear");
         }
     }
 

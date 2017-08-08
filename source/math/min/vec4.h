@@ -294,7 +294,7 @@ class vec4
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
     }
-    inline static size_t grid_key(const std::tuple<size_t, size_t, size_t> &index, const size_t scale, const vec4<T> &point)
+    inline static size_t grid_key(const std::tuple<size_t, size_t, size_t> &index, const size_t scale)
     {
         // Get the row / col of cell
         const size_t col = std::get<0>(index);
