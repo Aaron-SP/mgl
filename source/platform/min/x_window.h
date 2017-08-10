@@ -433,7 +433,29 @@ class x_window
     void display_cursor(bool on) const
     {
         // Set if cursor is visible
-        // Currently does nothing
+        if (off)
+        {
+            // Create a set of empty pixels and set cursor to it
+            Pixmap pixels;
+            static char empty[] = {0, 0, 0, 0, 0, 0, 0, 0};
+            pixels = XCreateBitmapFromData(_display, _window, empty, 8, 8);
+
+            // Create invisible cursor on the child window
+            Cursor cursor;
+            XColor color;
+            color.red = color.green = color.blue = 0;
+            cursor = XCreatePixmapCursor(_display, pixels, pixels, &color, &color, 0, 0);
+            XDefineCursor(_display, _window, cursor);
+
+            // Cleanup unused resources
+            XFreeCursor(_display, cursor);
+            XFreePixmap(_display, pixels);
+        }
+        else
+        {
+            // Use the default cursor
+            XUndefineCursor(_display, _window);
+        }
     }
     std::pair<uint16_t, uint16_t> get_cursor() const
     {
@@ -460,6 +482,11 @@ class x_window
     uint16_t get_width() const
     {
         return _w;
+    }
+    void maximize() const
+    {
+        // Maximize the window
+        // This functionality is dependent on the window manager
     }
     void register_lclick(void (*click)(void *, const uint16_t x, const uint16_t y))
     {

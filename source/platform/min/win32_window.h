@@ -605,6 +605,15 @@ class win32_window
     {
         return _w;
     }
+    void maximize() const
+    {
+        // Maximize the window
+        bool ret = ShowWindow(_hwnd, SW_MAXIMIZE);
+
+        // Return value isn't used,
+        // If window was previously hidden zero
+        // If window was previously visible nonzero
+    }
     void register_lclick(void (*click)(void *, const uint16_t x, const uint16_t y))
     {
         // Register callback on mouse up

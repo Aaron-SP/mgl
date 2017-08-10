@@ -38,7 +38,7 @@ class key
     void down(K step)
     {
         // Call the callback function
-        if (_key_down)
+        if (_key_down && !_per_frame)
             _key_down(_down_data, step);
 
         _is_down = true;
@@ -46,7 +46,7 @@ class key
     void up(K step)
     {
         // Call the callback function
-        if (_key_up)
+        if (_key_up && !_per_frame)
             _key_up(_up_data, step);
 
         _is_down = false;
