@@ -85,11 +85,11 @@ bool intersect(const sphere<T, vec> &s, const ray<T, vec> &ray, vec<T> &p)
 // <tx, ty, tz> = (d - o) / dir
 
 template <typename T, template <typename> class vec>
-bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
+bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
 {
-    const vec<T> &o = ray.get_origin();
-    const vec<T> &dir = ray.get_direction();
-    const vec<T> &inv = ray.get_inverse();
+    const vec<T> &o = r.get_origin();
+    const vec<T> &dir = r.get_direction();
+    const vec<T> &inv = r.get_inverse();
     const vec<T> &min = box.get_min();
     const vec<T> &max = box.get_max();
 
@@ -121,6 +121,38 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &ray, vec<T> &p)
     }
 
     return false;
+}
+
+template <typename T, template <typename> class vec>
+bool intersect(const oobbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
+{
+    const vec<T> &origin = r.get_origin();
+    const vec<T> &dir = r.get_direction();
+
+    // Align ray with oobb axis
+    const vec<T> aligned_origin = box.align(origin - box.get_center());
+    const vec<T> aligned_dest = box.align(dir);
+
+    // Create aligned ray
+    const ray<T, vec> aligned_ray(aligned_origin, aligned_origin + aligned_dest);
+
+    // Create an AABB
+    const vec<T> local_min = box.get_half_extent() * -1.0;
+    const vec<T> &local_max = box.get_half_extent();
+    const aabbox<T, vec> aabox(local_min, local_max);
+
+    // Perform AABB intersection on aligned ray
+    vec<T> aligned_point;
+    const bool out = intersect(aabox, aligned_ray, aligned_point);
+
+    // If we have a collision point
+    if (out)
+    {
+        // Translate point back to world space
+        p = box.get_rotation().transform(aligned_point) + box.get_center();
+    }
+
+    return out;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

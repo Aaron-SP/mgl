@@ -16,6 +16,7 @@ limitations under the License.
 #define __DDS__
 
 #include <algorithm>
+#include <cstring>
 #include <fstream>
 #include <string>
 #include <vector>

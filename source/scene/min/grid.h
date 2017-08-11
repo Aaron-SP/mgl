@@ -336,13 +336,13 @@ class grid
         bool bad_flag = false;
 
         // while we didn't hit anything in the grid
-        while (_ray_hits.size() == 0)
+        while (_ray_hits.size() == 0 && !bad_flag)
         {
-            // Find the next cell along the ray to test
+            // Find the next cell along the ray to test, bad flag signals that we have hit the last valid cell
             const size_t next = vec<T>::grid_ray_next(grid_index, grid_ray, bad_flag, _scale);
 
             // check to see if we are still inside the grid
-            if (next >= _cells.size() || bad_flag)
+            if (next >= _cells.size())
             {
                 return _ray_hits;
             }

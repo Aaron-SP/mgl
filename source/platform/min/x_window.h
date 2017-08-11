@@ -119,7 +119,7 @@ class x_window
         TAB = XK_Tab,
         ENTER = XK_Return,
         BACKSPACE = XK_BackSpace,
-        SPACE = XK_Space,
+        SPACE = XK_space,
         LALT = XK_Alt_L,
         RALT = XK_Alt_R
     };
@@ -430,10 +430,10 @@ class x_window
             XCloseDisplay(_display);
         }
     }
-    void display_cursor(bool on) const
+    void display_cursor(bool set) const
     {
         // Set if cursor is visible
-        if (off)
+        if (!set)
         {
             // Create a set of empty pixels and set cursor to it
             Pixmap pixels;

@@ -74,6 +74,10 @@ class coord_sys<T, vec2> : public coord_sys_base<T, vec2>
         this->_x = r.transform(this->_x);
         this->_y = r.transform(this->_y);
     }
+    inline vec2<T> align(const vec2<T> &v) const
+    {
+        return vec2<T>(v.dot(this->_x), v.dot(this->_y));
+    }
 };
 
 // Specialization for vec3
@@ -95,6 +99,10 @@ class coord_sys<T, vec3> : public coord_sys_base<T, vec3>
         this->_y = r.transform(this->_y);
         this->_z = r.transform(this->_z);
     }
+    inline vec3<T> align(const vec3<T> &v) const
+    {
+        return vec3<T>(v.dot(this->_x), v.dot(this->_y), v.dot(this->_z));
+    }
 };
 
 // Specialization for vec4
@@ -115,6 +123,10 @@ class coord_sys<T, vec4> : public coord_sys_base<T, vec4>
         this->_x = r.transform(this->_x);
         this->_y = r.transform(this->_y);
         this->_z = r.transform(this->_z);
+    }
+    inline vec4<T> align(const vec4<T> &v) const
+    {
+        return vec4<T>(v.dot(this->_x), v.dot(this->_y), v.dot(this->_z), 1.0);
     }
 };
 }

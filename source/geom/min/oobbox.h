@@ -73,11 +73,8 @@ class oobbox_base
     }
     inline vec<T> align(const vec<T> &v) const
     {
-        // Calculate the inverse rotation
-        const rot<T> inv_rot = _rotation.inverse();
-
         // Transform the point in object space
-        return inv_rot.transform(v);
+        return _axes.align(v);
     }
     inline vec<T> closest_point(const vec<T> &p) const
     {

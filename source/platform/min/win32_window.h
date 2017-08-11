@@ -559,10 +559,10 @@ class win32_window
             UnregisterClass(window_class, _hinst);
         }
     }
-    void display_cursor(bool on) const
+    void display_cursor(bool set) const
     {
         // Set if cursor is visible
-        ShowCursor(on);
+        ShowCursor(set);
     }
     std::pair<uint16_t, uint16_t> get_cursor() const
     {
@@ -608,7 +608,7 @@ class win32_window
     void maximize() const
     {
         // Maximize the window
-        bool ret = ShowWindow(_hwnd, SW_MAXIMIZE);
+        ShowWindow(_hwnd, SW_MAXIMIZE);
 
         // Return value isn't used,
         // If window was previously hidden zero

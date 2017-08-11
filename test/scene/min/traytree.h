@@ -143,6 +143,65 @@ bool test_ray_tree()
         }
     }
 
+    // vec2 oobb tree
+    {
+        // Local variables
+        min::vec2<double> minW(-100000.0, -100000.0);
+        min::vec2<double> maxW(100000.0, 100000.0);
+        min::vec2<double> origin;
+        min::oobbox<double, min::vec2> world(minW, maxW);
+        min::tree<double, uint16_t, uint32_t, min::vec2, min::oobbox, min::oobbox> g(world);
+
+        // Number of oobboxs to make
+        const size_t N = 100;
+        std::vector<min::oobbox<double, min::vec2>> items;
+        items.reserve(N);
+
+        // Create oobboxs for test
+        // Local variables
+        const double low = -100000.0;
+        const double high = 100000.0;
+        double current = low;
+
+        // Create 'N' random cubic oobbox's
+        for (size_t i = 0; i < N; i++)
+        {
+            // Update current placement
+            current += 10.0 * (i + 1);
+
+            // Calculate oobb center and extent
+            min::vec2<double> center = min::vec2<double>().set_all(current);
+            const double extent = 4.5 * (i + 1);
+
+            // Create the oobb
+            const min::vec2<double> min = center - extent;
+            const min::vec2<double> max = center + extent;
+            items.emplace_back(min, max);
+        }
+
+        // Insert the spheres into the tree
+        g.insert(items);
+
+        // Shoot a bunch of rays
+        for (size_t i = 0; i < N; i++)
+        {
+            // Create ray from origin to shape
+            min::vec2<double> shoot_from = items[i].get_center();
+            shoot_from.y(high - 1.0);
+            min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            out = out && (collisions.size() == 1);
+            if (!out)
+            {
+                throw std::runtime_error("Failed oobbox tree vec2 ray failed");
+            }
+        }
+    }
+
     // vec3 sphere tree
     {
         // Local variables
@@ -259,6 +318,65 @@ bool test_ray_tree()
         }
     }
 
+    // vec3 oobb tree
+    {
+        // Local variables
+        min::vec3<double> minW(-100000.0, -100000.0, -100000.0);
+        min::vec3<double> maxW(100000.0, 100000.0, 100000.0);
+        min::vec3<double> origin;
+        min::oobbox<double, min::vec3> world(minW, maxW);
+        min::tree<double, uint16_t, uint32_t, min::vec3, min::oobbox, min::oobbox> g(world);
+
+        // Number of oobboxs to make
+        const size_t N = 100;
+        std::vector<min::oobbox<double, min::vec3>> items;
+        items.reserve(N);
+
+        // Create oobboxs for test
+        // Local variables
+        const double low = -100000.0;
+        const double high = 100000.0;
+        double current = low;
+
+        // Create 'N' random cubic oobbox's
+        for (size_t i = 0; i < N; i++)
+        {
+            // Update current placement
+            current += 10.0 * (i + 1);
+
+            // Calculate oobb center and extent
+            min::vec3<double> center = min::vec3<double>().set_all(current);
+            const double extent = 4.5 * (i + 1);
+
+            // Create the oobb
+            const min::vec3<double> min = center - extent;
+            const min::vec3<double> max = center + extent;
+            items.emplace_back(min, max);
+        }
+
+        // Insert the spheres into the tree
+        g.insert(items);
+
+        // Shoot a bunch of rays
+        for (size_t i = 0; i < N; i++)
+        {
+            // Create ray from origin to shape
+            min::vec3<double> shoot_from = items[i].get_center();
+            shoot_from.y(high - 1.0);
+            min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            out = out && (collisions.size() == 1);
+            if (!out)
+            {
+                throw std::runtime_error("Failed oobbox tree vec3 ray failed");
+            }
+        }
+    }
+
     // vec4 sphere tree
     {
         // Local variables
@@ -371,6 +489,65 @@ bool test_ray_tree()
             if (!out)
             {
                 throw std::runtime_error("Failed aabbox tree vec4 ray failed");
+            }
+        }
+    }
+
+    // vec4 oobb tree
+    {
+        // Local variables
+        min::vec4<double> minW(-100000.0, -100000.0, -100000.0, 1.0);
+        min::vec4<double> maxW(100000.0, 100000.0, 100000.0, 1.0);
+        min::vec4<double> origin;
+        min::oobbox<double, min::vec4> world(minW, maxW);
+        min::tree<double, uint16_t, uint32_t, min::vec4, min::oobbox, min::oobbox> g(world);
+
+        // Number of oobboxs to make
+        const size_t N = 100;
+        std::vector<min::oobbox<double, min::vec4>> items;
+        items.reserve(N);
+
+        // Create oobboxs for test
+        // Local variables
+        const double low = -100000.0;
+        const double high = 100000.0;
+        double current = low;
+
+        // Create 'N' random cubic oobbox's
+        for (size_t i = 0; i < N; i++)
+        {
+            // Update current placement
+            current += 10.0 * (i + 1);
+
+            // Calculate oobb center and extent
+            min::vec4<double> center = min::vec4<double>().set_all(current);
+            const double extent = 4.5 * (i + 1);
+
+            // Create the oobb
+            const min::vec4<double> min = center - extent;
+            const min::vec4<double> max = center + extent;
+            items.emplace_back(min, max);
+        }
+
+        // Insert the spheres into the tree
+        g.insert(items);
+
+        // Shoot a bunch of rays
+        for (size_t i = 0; i < N; i++)
+        {
+            // Create ray from origin to shape
+            min::vec4<double> shoot_from = items[i].get_center();
+            shoot_from.y(high - 1.0);
+            min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            out = out && (collisions.size() == 1);
+            if (!out)
+            {
+                throw std::runtime_error("Failed oobbox tree vec4 ray failed");
             }
         }
     }

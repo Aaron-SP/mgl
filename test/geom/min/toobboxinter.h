@@ -38,6 +38,43 @@ bool test_oobbox_intersect()
         obox1.set_rotation(min::mat2<double>(45.0));
         obox1.set_position(c);
 
+        // Test oobbox-ray intersection, should intersect at 0.586, 3.414
+        min::vec2<double> from = min::vec2<double>(0.586, 6.0);
+        min::vec2<double> to = min::vec2<double>(0.586, 0.0);
+        min::ray<double, min::vec2> r(from, to);
+        out = out && min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox-ray intersection");
+        }
+
+        // Test intersection point
+        out = out && compare(0.586, p.x(), 1E-4);
+        out = out && compare(3.4144, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox-ray intersection point");
+        }
+
+        // Test no intersection
+        p = min::vec2<double>(0.0, 0.0);
+        from = min::vec2<double>(0.585, 6.0);
+        to = min::vec2<double>(0.585, 0.0);
+        r = min::ray<double, min::vec2>(from, to);
+        out = out && !min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox-ray no intersection");
+        }
+
+        // Test no intersection point
+        out = out && compare(0.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox-ray no intersection point");
+        }
+
         // Test AABB-OOBB intersection
         out = out && min::intersect(obox1, abox, p);
         if (!out)
@@ -190,6 +227,45 @@ bool test_oobbox_intersect()
         // Test rotation, Rotate by 45 degrees across Z axis
         obox1.set_rotation(min::quat<double>(z, 45.0));
         obox1.set_position(c);
+
+        // Test oobbox-ray intersection, should intersect at 0.586, 3.414
+        min::vec3<double> from = min::vec3<double>(0.586, 6.0, 0.0);
+        min::vec3<double> to = min::vec3<double>(0.586, 0.0, 0.0);
+        min::ray<double, min::vec3> r(from, to);
+        out = out && min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox-ray intersection");
+        }
+
+        // Test intersection point
+        out = out && compare(0.586, p.x(), 1E-4);
+        out = out && compare(3.4144, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox-ray intersection point");
+        }
+
+        // Test no intersection
+        p = min::vec3<double>(0.0, 0.0, 0.0);
+        from = min::vec3<double>(0.585, 6.0, 0.0);
+        to = min::vec3<double>(0.585, 0.0, 0.0);
+        r = min::ray<double, min::vec3>(from, to);
+        out = out && !min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox-ray no intersection");
+        }
+
+        // Test no intersection point
+        out = out && compare(0.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox-ray no intersection point");
+        }
 
         // Test AABB-OOBB intersection
         out = out && min::intersect(obox1, abox, p);
@@ -349,6 +425,45 @@ bool test_oobbox_intersect()
         // Test rotation, Rotate by 45 degrees across Z axis
         obox1.set_rotation(min::quat<double>(z, 45.0));
         obox1.set_position(c);
+
+        // Test oobbox-ray intersection, should intersect at 0.586, 3.414
+        min::vec4<double> from = min::vec4<double>(0.586, 6.0, 0.0, 1.0);
+        min::vec4<double> to = min::vec4<double>(0.586, 0.0, 0.0, 1.0);
+        min::ray<double, min::vec4> r(from, to);
+        out = out && min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox-ray intersection");
+        }
+
+        // Test intersection point
+        out = out && compare(0.586, p.x(), 1E-4);
+        out = out && compare(3.4144, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox-ray intersection point");
+        }
+
+        // Test no intersection
+        p = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
+        from = min::vec4<double>(0.585, 6.0, 0.0, 1.0);
+        to = min::vec4<double>(0.585, 0.0, 0.0, 1.0);
+        r = min::ray<double, min::vec4>(from, to);
+        out = out && !min::intersect(obox1, r, p);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox-ray no intersection");
+        }
+
+        // Test no intersection point
+        out = out && compare(0.0, p.x(), 1E-4);
+        out = out && compare(0.0, p.y(), 1E-4);
+        out = out && compare(0.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox-ray no intersection point");
+        }
 
         // Test AABB-OOBB intersection
         out = out && min::intersect(obox1, abox, p);

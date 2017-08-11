@@ -596,6 +596,33 @@ bool test_oobbox()
         {
             throw std::runtime_error("Failed vec4 oobbox square_size");
         }
+
+        // Test roation, Rotate by 45 degrees across Z axis
+        box.set_rotation(min::quat<double>(z, 45.0));
+
+        // Test box align on (P-center)
+        p = box.align(min::vec3<double>(6.0, 6.0, 6.0) - box.get_center());
+        out = out && compare(7.0710, p.x(), 1E-4);
+        out = out && compare(-1.4142, p.y(), 1E-4);
+        out = out && compare(6.0, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox align z-axis");
+        }
+
+        // Test roation, Rotate by 45 degrees across Z axis
+        a = min::vec3<double>(1.0, 1.0, 1.0).normalize();
+        box.set_rotation(min::quat<double>(a, 25.0));
+
+        // Test box align multi-axis on (P-center)
+        p = box.align(min::vec3<double>(6.0, 6.0, 6.0) - box.get_center());
+        out = out && compare(5.4495, p.x(), 1E-4);
+        out = out && compare(4.1249, p.y(), 1E-4);
+        out = out && compare(6.4255, p.z(), 1E-4);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox align multi-axis");
+        }
     }
     return out;
 }

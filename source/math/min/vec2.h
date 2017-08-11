@@ -314,7 +314,7 @@ class vec2
         // return the ray tuple
         return std::make_tuple(drx, tx, dtx, dry, ty, dty);
     }
-    inline static size_t grid_ray_next(std::pair<size_t, size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const T scale)
+    inline static size_t grid_ray_next(std::pair<size_t, size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
     {
         // Get the cell row / col
         size_t &col = index.first;
@@ -330,24 +330,25 @@ class vec2
         T &ty = std::get<4>(grid_ray);
         const T &dty = std::get<5>(grid_ray);
 
-        // Test for falling off the grid
-        if (col == 0 && drx == -1)
+        // Test for falling off the grid so we can stop iterating
+        const size_t edge = scale - 2;
+        if ((col <= 1 && drx == -1) || (col >= edge && drx == 1))
         {
             flag = true;
         }
-        else if (row == 0 && dry == -1)
+        else if ((row <= 1 && dry == -1) || (row >= edge && dry == 1))
         {
             flag = true;
         }
 
-        // Should we move along the x or y axis?
-        if (tx <= ty)
+        // Should we move along the x or y axis? Guarantee a valid return value.
+        if (tx <= ty && !(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
         {
             // Increment column == choose x
             col += drx;
             tx += dtx;
         }
-        else
+        else if (!(row == 0 && dry == -1) && !(row == scale - 1 && dry == 1))
         {
             // Increment row == choose y
             row += dry;
@@ -436,7 +437,7 @@ class vec2
     inline bool inside(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
-        return (_x > min.x() && _x < max.x() && _y > min.y() && _y < max.y());
+        return (_x > min.x() - 1E-6 && _x < max.x() + 1E-6 && _y > min.y() - 1E-6 && _y < max.y() + 1E-6);
     }
     inline vec2<T> inverse() const
     {
@@ -1177,7 +1178,7 @@ class vec2
     inline bool within(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is within the min and max vector range
-        return (_x >= min.x() && _x <= max.x() && _y >= min.y() && _y <= max.y());
+        return (_x >= min.x() - 1E-6 && _x <= max.x() + 1E-6 && _y >= min.y() - 1E-6 && _y <= max.y() + 1E-6);
     }
     inline vec2<T> &operator+=(const T a)
     {
