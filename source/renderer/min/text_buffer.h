@@ -400,6 +400,14 @@ class text_buffer
             glDrawArrays(GL_TRIANGLES, 0, size);
         }
     }
+    inline std::pair<float, float> get_screen_size() const
+    {
+        return std::make_pair(_screen_x, _screen_y);
+    }
+    inline const std::pair<float, float> &get_text_location(const size_t index) const
+    {
+        return _location[index];
+    }
     inline void set_texture_uniform(const program &program, const std::string &name, const size_t layer) const
     {
         GLint sampler_location = glGetUniformLocation(program.id(), name.c_str());
@@ -433,19 +441,18 @@ class text_buffer
         // Update the text
         _text[index] = text;
     }
-    inline void set_text(const std::string &text, const size_t index, const float x, const float y)
+    inline void set_text_location(const size_t index, const float x, const float y)
     {
-        // Calculate the change in character count
-        const long diff = (long)(text.size() - _text[index].size());
-
-        // Update character count
-        _char_count += diff;
-
-        // Update the text
-        _text[index] = text;
-
         // Update the location
         _location[index] = std::make_pair(x, y);
+    }
+    inline void set_text(const std::string &text, const size_t index, const float x, const float y)
+    {
+        // Set the text
+        set_text(text, index);
+
+        // Set the text location
+        set_text_location(index, x, y);
     }
     void upload() const
     {
