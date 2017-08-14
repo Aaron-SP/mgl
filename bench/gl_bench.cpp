@@ -14,6 +14,7 @@ limitations under the License.
 */
 #include <iostream>
 #include <min/bmd5.h>
+#include <min/bmesh.h>
 #include <min/bphysics.h>
 #include <min/bspatial.h>
 #include <min/bwavefront.h>
@@ -359,11 +360,14 @@ int main(int argc, char *argv[])
 
         // Test load wavefront
         iR = bench_wavefront();
-        I += 1.0 / iR;
+        I += 100.0 / iR;
+
+        iR = bench_bmesh();
+        I += 100.0 / iR;
 
         // Test load md5
         iR = bench_md5();
-        I += 1.0 / iR;
+        I += 100.0 / iR;
 
         // Enable logging to cout
         std::cout.clear();

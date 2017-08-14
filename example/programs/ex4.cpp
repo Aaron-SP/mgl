@@ -275,5 +275,12 @@ int test_render_loop()
 
 int main()
 {
-    return test_render_loop();
+    try
+    {
+        return test_render_loop();
+    }
+    catch (std::exception &ex)
+    {
+        std::cout << ex.what() << std::endl;
+    }
 }

@@ -25,7 +25,7 @@ double bench_wavefront()
               << "wavefront: Opening a very large model: blender_suzanne.obj" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // load blender-suzanne model
     min::wavefront<float, uint32_t> wave("data/models/blender_suzanne.obj");
@@ -34,10 +34,10 @@ double bench_wavefront()
     suzanne.calculate_tangents();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "wavefront: OBJ mesh loaded in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)

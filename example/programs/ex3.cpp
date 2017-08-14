@@ -208,5 +208,12 @@ int test_screen_draw()
 
 int main()
 {
-    return test_screen_draw();
+    try
+    {
+        return test_screen_draw();
+    }
+    catch (std::exception &ex)
+    {
+        std::cout << ex.what() << std::endl;
+    }
 }

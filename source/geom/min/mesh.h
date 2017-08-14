@@ -14,9 +14,12 @@ limitations under the License.
 */
 #ifndef __MESH__
 #define __MESH__
+#include <fstream>
+#include <min/serial.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -320,6 +323,116 @@ class mesh
         {
             a *= factor;
         }
+    }
+    void deserialize(std::vector<uint8_t> &stream)
+    {
+        size_t next = 0;
+
+        // Read in vertices
+        vertex = read_le_vector_vec4<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec4<T>) * vertex.size();
+
+        // Read in uvs
+        uv = read_le_vector_vec2<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec2<T>) * uv.size();
+
+        // Read in normals
+        normal = read_le_vector_vec3<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec3<T>) * normal.size();
+
+        // Read in tangents
+        tangent = read_le_vector_vec3<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec3<T>) * tangent.size();
+
+        // Read in tangents
+        bitangent = read_le_vector_vec3<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec3<T>) * bitangent.size();
+
+        // Read in indices
+        index = read_le_vector<K>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(K) * index.size();
+
+        // Read in bone index
+        bone_index = read_le_vector_vec4<T>(stream, next);
+
+        // Advanced to the next record in stream
+        next += sizeof(uint32_t) + sizeof(vec4<T>) * bone_index.size();
+
+        // Read in bone index
+        bone_weight = read_le_vector_vec4<T>(stream, next);
+    }
+    void serialize(std::vector<uint8_t> &stream) const
+    {
+        // Write out vector data to byte stream
+        write_le_vector_vec4<T>(stream, vertex);
+        write_le_vector_vec2<T>(stream, uv);
+        write_le_vector_vec3<T>(stream, normal);
+        write_le_vector_vec3<T>(stream, tangent);
+        write_le_vector_vec3<T>(stream, bitangent);
+        write_le_vector<K>(stream, index);
+        write_le_vector_vec4<T>(stream, bone_index);
+        write_le_vector_vec4<T>(stream, bone_weight);
+    }
+    void to_file(const std::string &file_name) const
+    {
+        std::vector<uint8_t> stream;
+
+        // Serialize this object into bytes
+        this->serialize(stream);
+
+        // Save bytes to file
+        std::ofstream file(file_name, std::ios::out | std::ios::binary);
+        if (file.is_open())
+        {
+            file.write(reinterpret_cast<char *>(&stream[0]), stream.size());
+            file.close();
+        }
+        else
+        {
+            throw std::runtime_error("mesh: could not open file '" + file_name + "'");
+        }
+    }
+    void from_file(const std::string &file_name)
+    {
+        // Load file in memory
+        std::vector<uint8_t> stream;
+
+        // read bytes from file
+        std::ifstream file(file_name, std::ios::in | std::ios::binary | std::ios::ate);
+        if (file.is_open())
+        {
+            // Get the size of the file
+            std::streampos size = file.tellg();
+
+            // Reserve space for the bytes
+            stream.resize(size, 0);
+
+            // Adjust file pointer to beginning
+            file.seekg(0, std::ios::beg);
+
+            // Read bytes and close the file
+            file.read(reinterpret_cast<char *>(&stream[0]), size);
+            file.close();
+        }
+        else
+        {
+            throw std::runtime_error("mesh: could not open file '" + file_name + "'");
+        }
+
+        // deserialize the stream of bytes into object
+        this->deserialize(stream);
     }
 };
 }

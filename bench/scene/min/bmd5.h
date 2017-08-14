@@ -27,7 +27,7 @@ double bench_md5()
               << "md5: Opening a very large model: mech_warrior.md5mesh" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Load md5 model
     min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")));
@@ -42,10 +42,10 @@ double bench_md5()
     md5.calculate_tangents();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "md5: MD5 mesh loaded in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)

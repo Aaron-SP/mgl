@@ -41,6 +41,7 @@ limitations under the License.
 #include <min/traygrid.h>
 #include <min/traytree.h>
 #include <min/tsample.h>
+#include <min/tserial.h>
 #include <min/tsphere.h>
 #include <min/tsphgrid.h>
 #include <min/tsphinter.h>
@@ -99,6 +100,7 @@ int main()
         out = out && test_md5_mesh();
         out = out && test_md5_model();
         out = out && test_physics_aabb_grid();
+        out = out && test_serial();
         if (out)
         {
             std::cout << "Graphics tests passed!" << std::endl;

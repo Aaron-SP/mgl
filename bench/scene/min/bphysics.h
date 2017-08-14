@@ -33,7 +33,7 @@ double bench_physics_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world,
     std::cout << "physics_aabb_aabb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -50,14 +50,14 @@ double bench_physics_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world,
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_aabb_aabb: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_aabb_aabb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -72,7 +72,7 @@ double bench_physics_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world,
     std::cout << "physics_aabb_oobb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -89,14 +89,14 @@ double bench_physics_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world,
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_aabb_oobb: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_aabb_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -111,7 +111,7 @@ double bench_physics_aabb_sphere(const size_t N, const min::aabbox<T, vec> &worl
     std::cout << "physics_aabb_sphere: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -128,14 +128,14 @@ double bench_physics_aabb_sphere(const size_t N, const min::aabbox<T, vec> &worl
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_aabb_sphere: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_aabb_sphere: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -150,7 +150,7 @@ double bench_physics_sphere_aabb(const size_t N, const min::sphere<T, vec> &worl
     std::cout << "physics_sphere_aabb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -167,14 +167,14 @@ double bench_physics_sphere_aabb(const size_t N, const min::sphere<T, vec> &worl
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_sphere_aabb: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_sphere_aabb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -189,7 +189,7 @@ double bench_physics_sphere_oobb(const size_t N, const min::sphere<T, vec> &worl
     std::cout << "physics_sphere_oobb: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -206,14 +206,14 @@ double bench_physics_sphere_oobb(const size_t N, const min::sphere<T, vec> &worl
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_sphere_oobb: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_sphere_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -228,7 +228,7 @@ double bench_physics_sphere_sphere(const size_t N, const min::sphere<T, vec> &wo
     std::cout << "physics_sphere_sphere: Starting benchmark with " << N << " 2-body collisions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
@@ -245,14 +245,14 @@ double bench_physics_sphere_sphere(const size_t N, const min::sphere<T, vec> &wo
     simulation.solve(0.001, 0.01);
 
     // Calculate energy of the system
-    double energy = simulation.get_total_energy();
+    const double energy = simulation.get_total_energy();
     std::cout << "physics_sphere_sphere: Energy after solving is: " << energy << std::endl;
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "physics_sphere_sphere: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)

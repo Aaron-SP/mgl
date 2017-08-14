@@ -30,6 +30,11 @@ bool test_wavefront()
         int uv;
         int n;
         int i;
+        int t;
+        int bt;
+        int bi;
+        int bw;
+
         min::vec4<double> v3;
         min::vec3<double> n3;
         min::vec2<double> uv2;
@@ -128,14 +133,52 @@ bool test_wavefront()
         v = m1.vertex.size();
         uv = m1.uv.size();
         n = m1.normal.size();
+        t = m1.tangent.size();
+        bt = m1.bitangent.size();
         i = m1.index.size();
+        bi = m1.bone_index.size();
+        bw = m1.bone_weight.size();
         out = out && compare(52, v);
         out = out && compare(52, uv);
         out = out && compare(52, n);
+        out = out && compare(0, t);
+        out = out && compare(0, bt);
         out = out && compare(72, i);
+        out = out && compare(0, bi);
+        out = out && compare(0, bw);
         if (!out)
         {
             throw std::runtime_error("Failed wavefront mesh merge");
+        }
+
+        // Test serializing the mesh
+        std::vector<uint8_t> stream;
+        m1.serialize(stream);
+        min::mesh<double, uint16_t> m3("serialize");
+        m3.deserialize(stream);
+        v = m3.vertex.size();
+        uv = m3.uv.size();
+        n = m3.normal.size();
+        t = m3.tangent.size();
+        bt = m3.bitangent.size();
+        i = m3.index.size();
+        bi = m3.bone_index.size();
+        bw = m3.bone_weight.size();
+        out = out && compare(52, v);
+        out = out && compare(52, uv);
+        out = out && compare(52, n);
+        out = out && compare(0, t);
+        out = out && compare(0, bt);
+        out = out && compare(72, i);
+        out = out && compare(0, bi);
+        out = out && compare(0, bw);
+        out = out && compare(m1.vertex[13].x(), m3.vertex[13].x(), 1E-4);
+        out = out && compare(m1.uv[9].y(), m3.uv[9].y(), 1E-4);
+        out = out && compare(m1.normal[4].z(), m3.normal[4].z(), 1E-4);
+        out = out && compare(m1.index[51], m3.index[51]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed wavefront mesh serialize");
         }
 
         // Test clearing the mesh
@@ -160,14 +203,14 @@ bool test_wavefront()
         int uv;
         int n;
         int i;
-        min::vec4<double> v3;
-        min::vec3<double> n3;
-        min::vec2<double> uv2;
-        min::wavefront<double, uint32_t> w("data/models/blender_suzanne.obj");
-        std::vector<min::mesh<double, uint32_t>> meshes = w.get_meshes();
+        min::vec4<float> v3;
+        min::vec3<float> n3;
+        min::vec2<float> uv2;
+        min::wavefront<float, uint32_t> w("data/models/blender_suzanne.obj");
+        std::vector<min::mesh<float, uint32_t>> meshes = w.get_meshes();
 
         // Test parse file and check counts
-        const min::mesh<double, uint32_t> &m = meshes[0];
+        const min::mesh<float, uint32_t> &m = meshes[0];
         v = m.vertex.size();
         uv = m.uv.size();
         n = m.normal.size();
@@ -228,6 +271,42 @@ bool test_wavefront()
         if (!out)
         {
             throw std::runtime_error("Failed wavefront suzanne data access index");
+        }
+
+        // Test serializing the mesh
+        std::vector<uint8_t> stream;
+        m.serialize(stream);
+        min::mesh<float, uint32_t> m2("serialize");
+        m2.deserialize(stream);
+        v = m2.vertex.size();
+        uv = m2.uv.size();
+        n = m2.normal.size();
+        i = m2.index.size();
+        out = out && compare(188636, v);
+        out = out && compare(188636, uv);
+        out = out && compare(188636, n);
+        out = out && compare(188928, i);
+        if (!out)
+        {
+            throw std::runtime_error("Failed wavefront suzanne mesh serialize");
+        }
+
+        // Write the model to a file
+        m.to_file("data/models/blender_suzanne.bmesh");
+
+        // Read the model from a file
+        m2.from_file("data/models/blender_suzanne.bmesh");
+        v = m2.vertex.size();
+        uv = m2.uv.size();
+        n = m2.normal.size();
+        i = m2.index.size();
+        out = out && compare(188636, v);
+        out = out && compare(188636, uv);
+        out = out && compare(188636, n);
+        out = out && compare(188928, i);
+        if (!out)
+        {
+            throw std::runtime_error("Failed wavefront suzanne mesh serialize");
         }
     }
 

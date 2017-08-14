@@ -24,7 +24,6 @@ limitations under the License.
 #include <min/uniform_buffer.h>
 #include <min/utility.h>
 #include <min/vertex_buffer.h>
-#include <min/wavefront.h>
 #include <min/window.h>
 #include <string>
 
@@ -81,8 +80,8 @@ class render_loop_test
         std::cout << "Opening a very large model: blender_suzanne.obj" << std::endl;
 
         // load blender-suzanne model
-        min::wavefront<float, uint32_t> wave("data/models/blender_suzanne.obj");
-        min::mesh<float, uint32_t> &suzanne = wave.get_meshes()[0];
+        min::mesh<float, uint32_t> suzanne("suzanne");
+        suzanne.from_file("data/models/blender_suzanne.bmesh");
         suzanne.scale_uv(10.0);
         suzanne.calculate_tangents();
 
@@ -294,5 +293,12 @@ int test_render_loop()
 
 int main()
 {
-    return test_render_loop();
+    try
+    {
+        return test_render_loop();
+    }
+    catch (std::exception &ex)
+    {
+        std::cout << ex.what() << std::endl;
+    }
 }

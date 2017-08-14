@@ -165,7 +165,7 @@ double bench_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world, const s
     std::cout << "aabb_aabb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::aabbox> g(world);
@@ -177,7 +177,7 @@ double bench_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world, const s
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "aabb_aabb: Collisions found: " << collisions.size() << std::endl;
@@ -188,7 +188,7 @@ double bench_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world, const s
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "aabb_aabb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -203,7 +203,7 @@ double bench_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world, const s
     std::cout << "aabb_oobb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::oobbox> g(world);
@@ -215,7 +215,7 @@ double bench_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world, const s
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "aabb_oobb: Collisions found: " << collisions.size() << std::endl;
@@ -226,7 +226,7 @@ double bench_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world, const s
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "aabb_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -241,7 +241,7 @@ double bench_aabb_sphere(const size_t N, const min::aabbox<T, vec> &world, const
     std::cout << "aabb_sphere: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::sphere> g(world);
@@ -253,7 +253,7 @@ double bench_aabb_sphere(const size_t N, const min::aabbox<T, vec> &world, const
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "aabb_sphere: Collisions found: " << collisions.size() << std::endl;
@@ -264,7 +264,7 @@ double bench_aabb_sphere(const size_t N, const min::aabbox<T, vec> &world, const
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "aabb_sphere: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -279,7 +279,7 @@ double bench_sphere_aabb(const size_t N, const min::sphere<T, vec> &world, const
     std::cout << "sphere_aabb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::sphere, min::aabbox> g(world);
@@ -291,7 +291,7 @@ double bench_sphere_aabb(const size_t N, const min::sphere<T, vec> &world, const
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "sphere_aabb: Collisions found: " << collisions.size() << std::endl;
@@ -302,7 +302,7 @@ double bench_sphere_aabb(const size_t N, const min::sphere<T, vec> &world, const
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "sphere_aabb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -317,7 +317,7 @@ double bench_sphere_oobb(const size_t N, const min::sphere<T, vec> &world, const
     std::cout << "sphere_oobb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::sphere, min::oobbox> g(world);
@@ -329,7 +329,7 @@ double bench_sphere_oobb(const size_t N, const min::sphere<T, vec> &world, const
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "sphere_oobb: Collisions found: " << collisions.size() << std::endl;
@@ -340,7 +340,7 @@ double bench_sphere_oobb(const size_t N, const min::sphere<T, vec> &world, const
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "sphere_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -355,7 +355,7 @@ double bench_sphere_sphere(const size_t N, const min::sphere<T, vec> &world, con
     std::cout << "sphere_sphere: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::sphere, min::sphere> g(world);
@@ -367,7 +367,7 @@ double bench_sphere_sphere(const size_t N, const min::sphere<T, vec> &world, con
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "sphere_sphere: Collisions found: " << collisions.size() << std::endl;
@@ -378,7 +378,7 @@ double bench_sphere_sphere(const size_t N, const min::sphere<T, vec> &world, con
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "sphere_sphere: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -393,7 +393,7 @@ double bench_oobb_aabb(const size_t N, const min::oobbox<T, vec> &world, const s
     std::cout << "oobb_aabb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::aabbox> g(world);
@@ -405,7 +405,7 @@ double bench_oobb_aabb(const size_t N, const min::oobbox<T, vec> &world, const s
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "oobb_aabb: Collisions found: " << collisions.size() << std::endl;
@@ -416,7 +416,7 @@ double bench_oobb_aabb(const size_t N, const min::oobbox<T, vec> &world, const s
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "oobb_aabb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -431,7 +431,7 @@ double bench_oobb_oobb(const size_t N, const min::oobbox<T, vec> &world, const s
     std::cout << "oobb_oobb: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::oobbox> g(world);
@@ -443,7 +443,7 @@ double bench_oobb_oobb(const size_t N, const min::oobbox<T, vec> &world, const s
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "oobb_oobb: Collisions found: " << collisions.size() << std::endl;
@@ -454,7 +454,7 @@ double bench_oobb_oobb(const size_t N, const min::oobbox<T, vec> &world, const s
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "oobb_oobb: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
@@ -469,7 +469,7 @@ double bench_oobb_sphere(const size_t N, const min::oobbox<T, vec> &world, const
     std::cout << "oobb_sphere: Starting benchmark with " << N << " insertions" << std::endl;
 
     // Start the time clock
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
     spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::sphere> g(world);
@@ -481,7 +481,7 @@ double bench_oobb_sphere(const size_t N, const min::oobbox<T, vec> &world, const
     std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
-    auto dtime = std::chrono::high_resolution_clock::now() - start;
+    const auto dtime = std::chrono::high_resolution_clock::now() - start;
 
     // Report collisions found
     std::cout << "oobb_sphere: Collisions found: " << collisions.size() << std::endl;
@@ -492,7 +492,7 @@ double bench_oobb_sphere(const size_t N, const min::oobbox<T, vec> &world, const
     }
 
     // Print the execution time
-    double out = std::chrono::duration<double, std::milli>(dtime).count();
+    const double out = std::chrono::duration<double, std::milli>(dtime).count();
     std::cout << "oobb_sphere: tests completed in: " << out << " ms" << std::endl;
 
     // Calculate cost of calculation (milliseconds)
