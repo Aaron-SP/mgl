@@ -736,28 +736,29 @@ bool test_vec3()
     }
 
     // Test grid_index
-    min::vec3<double> extent(100000.0, 100000.0, 100000.0);
-    origin = min::vec3<double>(100.0, 100.0, 100.0);
+    min::vec3<double> cell_extent(1.0, 1.0, 1.0);
+    origin = min::vec3<double>(0.5, 0.5, 0.5);
     direction = min::vec3<double>(0.0, 1.0, 0.0);
     inverse = direction.inverse();
-    vmin = min::vec3<double>(-100000.0, -100000.0, -100000.0);
-    auto cell = min::vec3<double>::grid_index(vmin, extent, origin);
-    out = out && compare(1, std::get<0>(cell));
-    out = out && compare(1, std::get<1>(cell));
-    out = out && compare(1, std::get<2>(cell));
+    vmin = min::vec3<double>(-100.0, -100.0, -100.0);
+    auto cell = min::vec3<double>::grid_index(vmin, cell_extent, origin);
+
+    out = out && compare(100, std::get<0>(cell));
+    out = out && compare(100, std::get<1>(cell));
+    out = out && compare(100, std::get<2>(cell));
     if (!out)
     {
         throw std::runtime_error("Failed vec3 grid_index");
     }
 
     // Test grid_ray
-    auto t = min::vec3<double>::grid_ray(extent, origin, direction, inverse);
+    auto t = min::vec3<double>::grid_ray(cell_extent, origin, direction, inverse);
     out = out && compare(1, std::get<0>(t));
     out = out && compare(std::numeric_limits<double>::max(), std::get<1>(t), 1E-4);
     out = out && compare(std::numeric_limits<double>::max(), std::get<2>(t), 1E-4);
     out = out && compare(1, std::get<3>(t));
-    out = out && compare(99900.0, std::get<4>(t), 1E-4);
-    out = out && compare(100000.0, std::get<5>(t), 1E-4);
+    out = out && compare(0.5, std::get<4>(t), 1E-4);
+    out = out && compare(1.0, std::get<5>(t), 1E-4);
     out = out && compare(1, std::get<6>(t));
     out = out && compare(std::numeric_limits<double>::max(), std::get<7>(t), 1E-4);
     out = out && compare(std::numeric_limits<double>::max(), std::get<8>(t), 1E-4);
@@ -768,11 +769,62 @@ bool test_vec3()
 
     // Test grid_ray_next
     bool flag = false;
-    key = min::vec3<double>::grid_ray_next(cell, t, flag, 1.0);
-    out = out && compare(4, key);
+    key = min::vec3<double>::grid_ray_next(cell, t, flag, 200);
+    out = out && compare(4020300, key);
     if (!out)
     {
         throw std::runtime_error("Failed vec3 grid_ray_next");
+    }
+
+    // Test grid_ray on diagonal
+    origin = min::vec3<double>(0.0, 0.0, 0.0);
+    direction = min::vec3<double>(1.0, 1.0, 1.0);
+    inverse = direction.inverse();
+    cell = min::vec3<double>::grid_index(vmin, cell_extent, origin);
+    t = min::vec3<double>::grid_ray(cell_extent, origin, direction, inverse);
+    out = out && compare(1, std::get<0>(t));
+    out = out && compare(1.0, std::get<1>(t), 1E-4);
+    out = out && compare(1.0, std::get<2>(t), 1E-4);
+    out = out && compare(1, std::get<3>(t));
+    out = out && compare(1.0, std::get<4>(t), 1E-4);
+    out = out && compare(1.0, std::get<5>(t), 1E-4);
+    out = out && compare(1, std::get<6>(t));
+    out = out && compare(1.0, std::get<7>(t), 1E-4);
+    out = out && compare(1.0, std::get<8>(t), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_ray diagonal");
+    }
+
+    flag = false;
+
+    // Starting point x = 100, y = 100, z = 100
+    key = min::vec3<double>::grid_key(vmin, cell_extent, 200.0, origin);
+    out = out && compare(4020100, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_ray_next diagonal 1");
+    }
+    // point x = 101, y = 100, z = 100
+    key = min::vec3<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(4060100, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_ray_next diagonal 2");
+    }
+    // point x = 101, y = 101, z = 100
+    key = min::vec3<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(4060300, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_ray_next diagonal 3");
+    }
+    // point x = 101, y = 101, z = 101
+    key = min::vec3<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(4060301, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_ray_next diagonal 4");
     }
 
     // Test grid overlap

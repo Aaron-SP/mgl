@@ -520,27 +520,27 @@ bool test_vec2()
     }
 
     // Test grid_index
-    min::vec2<double> extent(100000.0, 100000.0);
-    origin = min::vec2<double>(100.0, 100.0);
+    min::vec2<double> cell_extent(1.0, 1.0);
+    origin = min::vec2<double>(0.5, 0.5);
     direction = min::vec2<double>(0.0, 1.0);
     inverse = direction.inverse();
-    vmin = min::vec2<double>(-100000.0, -100000.0);
-    auto cell = min::vec2<double>::grid_index(vmin, extent, origin);
-    out = out && compare(1, cell.first);
-    out = out && compare(1, cell.second);
+    vmin = min::vec2<double>(-100.0, -100.0);
+    auto cell = min::vec2<double>::grid_index(vmin, cell_extent, origin);
+    out = out && compare(100, cell.first);
+    out = out && compare(100, cell.second);
     if (!out)
     {
         throw std::runtime_error("Failed vec2 grid_index");
     }
 
     // Test grid_ray
-    auto t = min::vec2<double>::grid_ray(extent, origin, direction, inverse);
+    auto t = min::vec2<double>::grid_ray(cell_extent, origin, direction, inverse);
     out = out && compare(1, std::get<0>(t));
     out = out && compare(std::numeric_limits<double>::max(), std::get<1>(t), 1E-4);
     out = out && compare(std::numeric_limits<double>::max(), std::get<2>(t), 1E-4);
     out = out && compare(1, std::get<3>(t));
-    out = out && compare(99900.0, std::get<4>(t), 1E-4);
-    out = out && compare(100000.0, std::get<5>(t), 1E-4);
+    out = out && compare(0.5, std::get<4>(t), 1E-4);
+    out = out && compare(1.0, std::get<5>(t), 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed vec2 grid_ray");
@@ -548,11 +548,60 @@ bool test_vec2()
 
     // Test grid_ray_next
     bool flag = false;
-    key = min::vec2<double>::grid_ray_next(cell, t, flag, 1.0);
-    out = out && compare(3, key);
+    key = min::vec2<double>::grid_ray_next(cell, t, flag, 200);
+    out = out && compare(20101, key);
     if (!out)
     {
         throw std::runtime_error("Failed vec2 grid_ray_next");
+    }
+
+    // Test grid_ray on diagonal
+    origin = min::vec2<double>(0.0, 0.0);
+    direction = min::vec2<double>(1.0, 1.0);
+    inverse = direction.inverse();
+    cell = min::vec2<double>::grid_index(vmin, cell_extent, origin);
+    t = min::vec2<double>::grid_ray(cell_extent, origin, direction, inverse);
+    out = out && compare(1, std::get<0>(t));
+    out = out && compare(1.0, std::get<1>(t), 1E-4);
+    out = out && compare(1.0, std::get<2>(t), 1E-4);
+    out = out && compare(1, std::get<3>(t));
+    out = out && compare(1.0, std::get<4>(t), 1E-4);
+    out = out && compare(1.0, std::get<5>(t), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray diagonal");
+    }
+
+    flag = false;
+    key = min::vec2<double>::grid_key(vmin, cell_extent, 200.0, origin);
+    out = out && compare(20100, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray_next diagonal 1");
+    }
+    key = min::vec2<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(20300, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray_next diagonal 2");
+    }
+    key = min::vec2<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(20301, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray_next diagonal 3");
+    }
+    key = min::vec2<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(20501, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray_next diagonal 4");
+    }
+    key = min::vec2<double>::grid_ray_next(cell, t, flag, 200.0);
+    out = out && compare(20502, key);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 grid_ray_next diagonal 5");
     }
 
     // Test grid overlap

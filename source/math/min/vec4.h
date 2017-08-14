@@ -438,7 +438,7 @@ class vec4
         }
 
         // Should we move along the x or y axis? Guarantee a valid return value.
-        if (tx <= ty && !(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
+        if (tx <= ty && tx <= tz && !(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
         {
             // Increment column == choose x
             col += drx;
