@@ -331,44 +331,23 @@ class mesh
         // Read in vertices
         vertex = read_le_vector_vec4<T>(stream, next);
 
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec4<T>) * vertex.size();
-
         // Read in uvs
         uv = read_le_vector_vec2<T>(stream, next);
-
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec2<T>) * uv.size();
 
         // Read in normals
         normal = read_le_vector_vec3<T>(stream, next);
 
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec3<T>) * normal.size();
-
         // Read in tangents
         tangent = read_le_vector_vec3<T>(stream, next);
-
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec3<T>) * tangent.size();
 
         // Read in tangents
         bitangent = read_le_vector_vec3<T>(stream, next);
 
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec3<T>) * bitangent.size();
-
         // Read in indices
         index = read_le_vector<K>(stream, next);
 
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(K) * index.size();
-
         // Read in bone index
         bone_index = read_le_vector_vec4<T>(stream, next);
-
-        // Advanced to the next record in stream
-        next += sizeof(uint32_t) + sizeof(vec4<T>) * bone_index.size();
 
         // Read in bone index
         bone_weight = read_le_vector_vec4<T>(stream, next);

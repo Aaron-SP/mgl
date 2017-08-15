@@ -15,7 +15,6 @@ limitations under the License.
 #ifndef __TESTSERIALIZE__
 #define __TESTSERIALIZE__
 
-#include <iomanip>
 #include <min/serial.h>
 #include <min/test.h>
 #include <stdexcept>
@@ -27,6 +26,7 @@ bool test_serial()
     // Serialize int
     {
         // Test serializing int
+        size_t next = 0;
         std::vector<uint8_t> stream;
         int a = -19567;
         int b;
@@ -35,7 +35,7 @@ bool test_serial()
         min::write_le<int>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le<int>(stream, 0);
+        b = min::read_le<int>(stream, next);
         out = out && compare(-19567, b);
         if (!out)
         {
@@ -49,7 +49,7 @@ bool test_serial()
         min::write_be<int>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_be<int>(stream, sizeof(int));
+        b = min::read_be<int>(stream, next);
         out = out && compare(-2105678, b);
         if (!out)
         {
@@ -60,6 +60,7 @@ bool test_serial()
     // Serialize unsigned
     {
         // Test serializing unsigned
+        size_t next = 0;
         std::vector<uint8_t> stream;
         unsigned a = 19567;
         unsigned b;
@@ -68,7 +69,7 @@ bool test_serial()
         min::write_le<unsigned>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le<unsigned>(stream, 0);
+        b = min::read_le<unsigned>(stream, next);
         out = out && compare(19567, b);
         if (!out)
         {
@@ -82,7 +83,7 @@ bool test_serial()
         min::write_be<unsigned>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_be<unsigned>(stream, sizeof(unsigned));
+        b = min::read_be<unsigned>(stream, next);
         out = out && compare(2105678, b);
         if (!out)
         {
@@ -93,6 +94,7 @@ bool test_serial()
     // Serialize float
     {
         // Test serializing float
+        size_t next = 0;
         std::vector<uint8_t> stream;
         float a = 19567.53;
         float b;
@@ -101,7 +103,7 @@ bool test_serial()
         min::write_le<float>(stream, a);
 
         // Read little endian data from stream, notice floating point inaccuracy
-        b = min::read_le<float>(stream, 0);
+        b = min::read_le<float>(stream, next);
         out = out && compare(19567.5293, b, 1E-4);
         if (!out)
         {
@@ -115,7 +117,7 @@ bool test_serial()
         min::write_be<float>(stream, a);
 
         // Read big endian data from stream, notice floating point inaccuracy
-        b = min::read_be<float>(stream, sizeof(float));
+        b = min::read_be<float>(stream, next);
         out = out && compare(2105678.25, b, 1E-4);
         if (!out)
         {
@@ -126,6 +128,7 @@ bool test_serial()
     // Serialize double
     {
         // Test serializing double
+        size_t next = 0;
         std::vector<uint8_t> stream;
         double a = 19567.545;
         double b;
@@ -134,7 +137,7 @@ bool test_serial()
         min::write_le<double>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le<double>(stream, 0);
+        b = min::read_le<double>(stream, next);
         out = out && compare(19567.5450, b, 1E-4);
         if (!out)
         {
@@ -148,7 +151,7 @@ bool test_serial()
         min::write_be<double>(stream, a);
 
         // Read big endian data from stream
-        b = min::read_be<double>(stream, sizeof(double));
+        b = min::read_be<double>(stream, next);
         out = out && compare(2105678.3510, b, 1E-4);
         if (!out)
         {
@@ -159,6 +162,7 @@ bool test_serial()
     // Serialize int vector
     {
         // Test serializing int little endian
+        size_t next = 0;
         std::vector<uint8_t> stream;
         std::vector<int> a = {1, -34567, 1902365, -42};
         std::vector<int> b;
@@ -167,7 +171,7 @@ bool test_serial()
         min::write_le_vector<int>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le_vector<int>(stream, 0);
+        b = min::read_le_vector<int>(stream, next);
         out = out && compare(1, b[0]);
         out = out && compare(-34567, b[1]);
         out = out && compare(1902365, b[2]);
@@ -184,7 +188,7 @@ bool test_serial()
         min::write_be_vector<int>(stream, a);
 
         // Read big endian data from stream
-        b = min::read_be_vector<int>(stream, sizeof(uint32_t) + 4 * sizeof(int));
+        b = min::read_be_vector<int>(stream, next);
         out = out && compare(42, b[0]);
         out = out && compare(-34561, b[1]);
         out = out && compare(1028427, b[2]);
@@ -199,6 +203,7 @@ bool test_serial()
     // Serialize vec2<float> vector
     {
         // Test serializing int little endian
+        size_t next = 0;
         std::vector<uint8_t> stream;
         std::vector<min::vec2<float>> a = {min::vec2<float>(1.0, 0.1), min::vec2<float>(-3.0, -4.1)};
         std::vector<min::vec2<float>> b;
@@ -207,7 +212,7 @@ bool test_serial()
         min::write_le_vector_vec2<float>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le_vector_vec2<float>(stream, 0);
+        b = min::read_le_vector_vec2<float>(stream, next);
         out = out && compare(1.0, b[0].x(), 1E-4);
         out = out && compare(0.1, b[0].y(), 1E-4);
         out = out && compare(-3.0, b[1].x(), 1E-4);
@@ -224,7 +229,7 @@ bool test_serial()
         min::write_be_vector_vec2<float>(stream, a);
 
         // Read big endian data from stream
-        b = min::read_be_vector_vec2<float>(stream, sizeof(uint32_t) + sizeof(min::vec2<float>) * 2);
+        b = min::read_be_vector_vec2<float>(stream, next);
         out = out && compare(2.0, b[0].x(), 1E-4);
         out = out && compare(0.3, b[0].y(), 1E-4);
         out = out && compare(-7.0, b[1].x(), 1E-4);
@@ -238,6 +243,7 @@ bool test_serial()
     // Serialize vec3<float> vector
     {
         // Test serializing int little endian
+        size_t next = 0;
         std::vector<uint8_t> stream;
         std::vector<min::vec3<float>> a = {min::vec3<float>(1.0, 0.1, 3.2), min::vec3<float>(-3.0, -4.1, 7.2)};
         std::vector<min::vec3<float>> b;
@@ -246,7 +252,7 @@ bool test_serial()
         min::write_le_vector_vec3<float>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le_vector_vec3<float>(stream, 0);
+        b = min::read_le_vector_vec3<float>(stream, next);
         out = out && compare(1.0, b[0].x(), 1E-4);
         out = out && compare(0.1, b[0].y(), 1E-4);
         out = out && compare(3.2, b[0].z(), 1E-4);
@@ -265,7 +271,7 @@ bool test_serial()
         min::write_be_vector_vec3<float>(stream, a);
 
         // Read big endian data from stream
-        b = min::read_be_vector_vec3<float>(stream, sizeof(uint32_t) + sizeof(min::vec3<float>) * 2);
+        b = min::read_be_vector_vec3<float>(stream, next);
         out = out && compare(2.0, b[0].x(), 1E-4);
         out = out && compare(0.3, b[0].y(), 1E-4);
         out = out && compare(-2.4, b[0].z(), 1E-4);
@@ -281,6 +287,7 @@ bool test_serial()
     // Serialize vec4<float> vector
     {
         // Test serializing int little endian
+        size_t next = 0;
         std::vector<uint8_t> stream;
         std::vector<min::vec4<float>> a = {min::vec4<float>(1.0, 0.1, 3.2, 1.0), min::vec4<float>(-3.0, -4.1, 7.2, 1.0)};
         std::vector<min::vec4<float>> b;
@@ -289,7 +296,7 @@ bool test_serial()
         min::write_le_vector_vec4<float>(stream, a);
 
         // Read little endian data from stream
-        b = min::read_le_vector_vec4<float>(stream, 0);
+        b = min::read_le_vector_vec4<float>(stream, next);
         out = out && compare(1.0, b[0].x(), 1E-4);
         out = out && compare(0.1, b[0].y(), 1E-4);
         out = out && compare(3.2, b[0].z(), 1E-4);
@@ -310,7 +317,7 @@ bool test_serial()
         min::write_be_vector_vec4<float>(stream, a);
 
         // Read big endian data from stream
-        b = min::read_be_vector_vec4<float>(stream, sizeof(uint32_t) + sizeof(min::vec4<float>) * 2);
+        b = min::read_be_vector_vec4<float>(stream, next);
         out = out && compare(2.0, b[0].x(), 1E-4);
         out = out && compare(0.3, b[0].y(), 1E-4);
         out = out && compare(-2.4, b[0].z(), 1E-4);

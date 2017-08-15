@@ -106,9 +106,18 @@ class texture_buffer
         // Store this id in the internal id buffer
         _ids.push_back(id[0]);
 
+        // Mandate 4 bytes per pixel, since we change this in text_buffer!
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
         // Check if 24 or 32 bit image
         if (pixel_size == 3)
         {
+            // If image row is not aligned by 4 bytes throw error, this could cause texture distortion
+            if (width % 4 != 0)
+            {
+                throw std::runtime_error("texture_buffer: BMP is not 4 byte aligned");
+            }
+
             // bitmap is stored in GL_BGR8 which is the target for this function
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
         }
@@ -146,11 +155,20 @@ class texture_buffer
         // Store this id in the internal id buffer
         _ids.push_back(id[0]);
 
+        // Mandate 4 byte row alignment, we change this in
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
         // Figure out the type of compression based on the DDS format
         uint32_t type;
         if (format == dds::DXT1)
         {
             type = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+
+            // If image row is not aligned by 4 bytes throw error, this could cause texture distortion
+            if (width % 4 != 0)
+            {
+                throw std::runtime_error("texture_buffer: BMP is not 4 byte aligned");
+            }
         }
         else if (format == dds::DXT3)
         {

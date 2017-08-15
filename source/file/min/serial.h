@@ -19,7 +19,7 @@ namespace min
 {
 
 template <typename T>
-inline T read_le(const std::vector<uint8_t> &stream, const size_t start)
+inline T read_le(const std::vector<uint8_t> &stream, size_t &next)
 {
     // Check type is compatible
     static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
@@ -31,9 +31,12 @@ inline T read_le(const std::vector<uint8_t> &stream, const size_t start)
     for (size_t i = 0; i < size; i++)
     {
         // Unpack little endian stream
-        temp |= ((long long)stream[start + i] << shift);
+        temp |= ((long long)stream[next + i] << shift);
         shift += 8;
     }
+
+    // Change next position
+    next += size;
 
     // Avoiding strict aliasing rules of C/C++
     const T *out = reinterpret_cast<T *>(&temp);
@@ -41,7 +44,7 @@ inline T read_le(const std::vector<uint8_t> &stream, const size_t start)
 }
 
 template <typename T>
-inline T read_be(const std::vector<uint8_t> &stream, const size_t start)
+inline T read_be(const std::vector<uint8_t> &stream, size_t &next)
 {
     // Check type is compatible
     static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
@@ -53,9 +56,12 @@ inline T read_be(const std::vector<uint8_t> &stream, const size_t start)
     for (size_t i = 0; i < size; i++)
     {
         // Unpack big endian stream
-        temp |= ((long long)stream[start + i] << shift);
+        temp |= ((long long)stream[next + i] << shift);
         shift -= 8;
     }
+
+    // Change next position
+    next += size;
 
     // Avoiding strict aliasing rules of C/C++
     const T *out = reinterpret_cast<T *>(&temp);
@@ -94,20 +100,17 @@ inline void write_be(std::vector<uint8_t> &stream, const T data)
 }
 
 template <typename T>
-inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_le<uint32_t>(stream, start);
+    const uint32_t size = read_le<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<T> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(T) * size) > ssize)
+    if ((next + sizeof(T) * size) > ssize)
     {
         throw std::runtime_error("read_le_vector: ran out of data in stream");
     }
@@ -115,7 +118,7 @@ inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, const s
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const T data = read_le<T>(stream, offset + sizeof(T) * i);
+        const T data = read_le<T>(stream, next);
         out.push_back(data);
     }
 
@@ -123,20 +126,17 @@ inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, const s
 }
 
 template <typename T>
-inline std::vector<T> read_be_vector(const std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<T> read_be_vector(const std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_be<uint32_t>(stream, start);
+    const uint32_t size = read_be<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<T> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(T) * size) > ssize)
+    if ((next + sizeof(T) * size) > ssize)
     {
         throw std::runtime_error("read_be_vector: ran out of data in stream");
     }
@@ -144,7 +144,7 @@ inline std::vector<T> read_be_vector(const std::vector<uint8_t> &stream, const s
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const T data = read_be<T>(stream, offset + sizeof(T) * i);
+        const T data = read_be<T>(stream, next);
         out.push_back(data);
     }
 
@@ -184,51 +184,51 @@ inline void write_be_vector(std::vector<uint8_t> &stream, const std::vector<T> &
 }
 
 template <typename T>
-inline min::vec2<T> read_le_vec2(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec2<T> read_le_vec2(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_le<T>(stream, start);
-    const T y = read_le<T>(stream, start + sizeof(T));
+    const T x = read_le<T>(stream, next);
+    const T y = read_le<T>(stream, next);
     return min::vec2<T>(x, y);
 }
 template <typename T>
-inline min::vec2<T> read_be_vec2(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec2<T> read_be_vec2(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_be<T>(stream, start);
-    const T y = read_be<T>(stream, start + sizeof(T));
+    const T x = read_be<T>(stream, next);
+    const T y = read_be<T>(stream, next);
     return min::vec2<T>(x, y);
 }
 template <typename T>
-inline min::vec3<T> read_le_vec3(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec3<T> read_le_vec3(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_le<T>(stream, start);
-    const T y = read_le<T>(stream, start + sizeof(T));
-    const T z = read_le<T>(stream, start + sizeof(T) * 2);
+    const T x = read_le<T>(stream, next);
+    const T y = read_le<T>(stream, next);
+    const T z = read_le<T>(stream, next);
     return min::vec3<T>(x, y, z);
 }
 template <typename T>
-inline min::vec3<T> read_be_vec3(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec3<T> read_be_vec3(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_be<T>(stream, start);
-    const T y = read_be<T>(stream, start + sizeof(T));
-    const T z = read_be<T>(stream, start + sizeof(T) * 2);
+    const T x = read_be<T>(stream, next);
+    const T y = read_be<T>(stream, next);
+    const T z = read_be<T>(stream, next);
     return min::vec3<T>(x, y, z);
 }
 template <typename T>
-inline min::vec4<T> read_le_vec4(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec4<T> read_le_vec4(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_le<T>(stream, start);
-    const T y = read_le<T>(stream, start + sizeof(T));
-    const T z = read_le<T>(stream, start + sizeof(T) * 2);
-    const T w = read_le<T>(stream, start + sizeof(T) * 3);
+    const T x = read_le<T>(stream, next);
+    const T y = read_le<T>(stream, next);
+    const T z = read_le<T>(stream, next);
+    const T w = read_le<T>(stream, next);
     return min::vec4<T>(x, y, z, w);
 }
 template <typename T>
-inline min::vec4<T> read_be_vec4(std::vector<uint8_t> &stream, const size_t start)
+inline min::vec4<T> read_be_vec4(std::vector<uint8_t> &stream, size_t &next)
 {
-    const T x = read_be<T>(stream, start);
-    const T y = read_be<T>(stream, start + sizeof(T));
-    const T z = read_be<T>(stream, start + sizeof(T) * 2);
-    const T w = read_be<T>(stream, start + sizeof(T) * 3);
+    const T x = read_be<T>(stream, next);
+    const T y = read_be<T>(stream, next);
+    const T z = read_be<T>(stream, next);
+    const T w = read_be<T>(stream, next);
     return min::vec4<T>(x, y, z, w);
 }
 template <typename T>
@@ -275,20 +275,17 @@ inline void write_be_vec4(std::vector<uint8_t> &stream, const min::vec4<T> &v)
 }
 
 template <typename T>
-inline std::vector<min::vec2<T>> read_le_vector_vec2(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec2<T>> read_le_vector_vec2(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_le<uint32_t>(stream, start);
+    const uint32_t size = read_le<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec2<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec2<T>) * size) > ssize)
+    if ((next + sizeof(min::vec2<T>) * size) > ssize)
     {
         throw std::runtime_error("read_le_vector_vec2: ran out of data in stream");
     }
@@ -296,27 +293,24 @@ inline std::vector<min::vec2<T>> read_le_vector_vec2(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec2<T> data = read_le_vec2<T>(stream, offset + sizeof(min::vec2<T>) * i);
+        const min::vec2<T> data = read_le_vec2<T>(stream, next);
         out.push_back(data);
     }
 
     return out;
 }
 template <typename T>
-inline std::vector<min::vec2<T>> read_be_vector_vec2(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec2<T>> read_be_vector_vec2(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_be<uint32_t>(stream, start);
+    const uint32_t size = read_be<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec2<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec2<T>) * size) > ssize)
+    if ((next + sizeof(min::vec2<T>) * size) > ssize)
     {
         throw std::runtime_error("read_be_vector_vec2: ran out of data in stream");
     }
@@ -324,27 +318,24 @@ inline std::vector<min::vec2<T>> read_be_vector_vec2(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec2<T> data = read_be_vec2<T>(stream, offset + sizeof(min::vec2<T>) * i);
+        const min::vec2<T> data = read_be_vec2<T>(stream, next);
         out.push_back(data);
     }
 
     return out;
 }
 template <typename T>
-inline std::vector<min::vec3<T>> read_le_vector_vec3(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec3<T>> read_le_vector_vec3(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_le<uint32_t>(stream, start);
+    const uint32_t size = read_le<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec3<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec3<T>) * size) > ssize)
+    if ((next + sizeof(min::vec3<T>) * size) > ssize)
     {
         throw std::runtime_error("read_le_vector_vec3: ran out of data in stream");
     }
@@ -352,27 +343,24 @@ inline std::vector<min::vec3<T>> read_le_vector_vec3(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec3<T> data = read_le_vec3<T>(stream, offset + sizeof(min::vec3<T>) * i);
+        const min::vec3<T> data = read_le_vec3<T>(stream, next);
         out.push_back(data);
     }
 
     return out;
 }
 template <typename T>
-inline std::vector<min::vec3<T>> read_be_vector_vec3(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec3<T>> read_be_vector_vec3(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_be<uint32_t>(stream, start);
+    const uint32_t size = read_be<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec3<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec3<T>) * size) > ssize)
+    if ((next + sizeof(min::vec3<T>) * size) > ssize)
     {
         throw std::runtime_error("read_be_vector_vec3: ran out of data in stream");
     }
@@ -380,27 +368,24 @@ inline std::vector<min::vec3<T>> read_be_vector_vec3(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec3<T> data = read_be_vec3<T>(stream, offset + sizeof(min::vec3<T>) * i);
+        const min::vec3<T> data = read_be_vec3<T>(stream, next);
         out.push_back(data);
     }
 
     return out;
 }
 template <typename T>
-inline std::vector<min::vec4<T>> read_le_vector_vec4(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec4<T>> read_le_vector_vec4(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_le<uint32_t>(stream, start);
+    const uint32_t size = read_le<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec4<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec4<T>) * size) > ssize)
+    if ((next + sizeof(min::vec4<T>) * size) > ssize)
     {
         throw std::runtime_error("read_le_vector_vec4: ran out of data in stream");
     }
@@ -408,27 +393,24 @@ inline std::vector<min::vec4<T>> read_le_vector_vec4(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec4<T> data = read_le_vec4<T>(stream, offset + sizeof(min::vec4<T>) * i);
+        const min::vec4<T> data = read_le_vec4<T>(stream, next);
         out.push_back(data);
     }
 
     return out;
 }
 template <typename T>
-inline std::vector<min::vec4<T>> read_be_vector_vec4(std::vector<uint8_t> &stream, const size_t start)
+inline std::vector<min::vec4<T>> read_be_vector_vec4(std::vector<uint8_t> &stream, size_t &next)
 {
-    const uint32_t size = read_be<uint32_t>(stream, start);
+    const uint32_t size = read_be<uint32_t>(stream, next);
 
     // Create output vector and reserve memory
     std::vector<min::vec4<T>> out;
     out.reserve(size);
 
-    // Calculate data offset
-    const size_t offset = start + sizeof(uint32_t);
-
     // Check that the stream has enough data
     const size_t ssize = stream.size();
-    if ((offset + sizeof(min::vec4<T>) * size) > ssize)
+    if ((next + sizeof(min::vec4<T>) * size) > ssize)
     {
         throw std::runtime_error("read_be_vector_vec4: ran out of data in stream");
     }
@@ -436,7 +418,7 @@ inline std::vector<min::vec4<T>> read_be_vector_vec4(std::vector<uint8_t> &strea
     // Read all vector elements
     for (uint32_t i = 0; i < size; i++)
     {
-        const min::vec4<T> data = read_be_vec4<T>(stream, offset + sizeof(min::vec4<T>) * i);
+        const min::vec4<T> data = read_be_vec4<T>(stream, next);
         out.push_back(data);
     }
 

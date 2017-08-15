@@ -244,6 +244,10 @@ class text_buffer
             const float y_bot = y_top - h;
             const float x_right = x_left + w;
 
+            // Advance the cursor to the start of the next character
+            x += c.adv_x * scale_x;
+            y += c.adv_y * scale_y;
+
             // Skip glyphs that have no pixels
             if (w == 0 || h == 0)
                 continue;
@@ -263,10 +267,6 @@ class text_buffer
             _data.emplace_back(x_right, y_bot, uv_right, uv_bot);
             _data.emplace_back(x_left, y_top, uv_left, uv_top);
             _data.emplace_back(x_right, y_top, uv_right, uv_top);
-
-            // Advance the cursor to the start of the next character
-            x += c.adv_x * scale_x;
-            y += c.adv_y * scale_y;
         }
 
         // Return the number of triangles added to buffer for this string
