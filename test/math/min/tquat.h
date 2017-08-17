@@ -209,6 +209,21 @@ bool test_quat()
         throw std::runtime_error("Failed quat transform between two vectors 2");
     }
 
+    // Test constructing quat from two vectors, and specifying rotation axis
+    x = min::vec3<double>(1.0, 0.0, 0.0).normalize();
+    z = min::vec3<double>(-1.0, 0.0, 0.0).normalize();
+    y = min::vec3<double>(0.0, 1.0, 0.0).normalize();
+    q = min::quat<double>(x, z, y);
+    x = min::vec3<double>(1.0, 0.0, 0.0);
+    x = q.transform(x);
+    out = out && compare(-1.0, x.x(), 1E-4);
+    out = out && compare(0.0, x.y(), 1E-4);
+    out = out && compare(0.0, x.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed quat transform between two vectors axis 1");
+    }
+
     // Test rotate y-axis -> z-axis; indicates positive rotation
     x = min::vec3<double>(1.0, 0.0, 0.0);
     y = min::vec3<double>(0.0, 1.0, 0.0);

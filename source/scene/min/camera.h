@@ -61,6 +61,14 @@ class camera
 
   public:
     camera() : _look(0.0, 0.0, 1.0), _dirty(true), _proj_ortho(true) {}
+    inline void force_update()
+    {
+        // If the camera needs to be updated
+        if (_dirty)
+        {
+            update();
+        }
+    }
     inline const vec3<T> &get_forward() const
     {
         return _f.get_forward();
@@ -115,7 +123,7 @@ class camera
     {
         _dirty = true;
     }
-    inline void move_look_at(const T x, const T y)
+    inline quat<T> move_look_at(const T x, const T y)
     {
         // Calculate the direction camera is facing, centered at origin
         vec3<T> direction = _look - _p;
@@ -134,6 +142,9 @@ class camera
 
         // Convert to world space and look at point
         set_look_at(_p + direction);
+
+        // return quaternion that rotated camera
+        return rotation;
     }
     vec3<T> project_point(const T s)
     {

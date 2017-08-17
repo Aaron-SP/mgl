@@ -242,6 +242,9 @@ class md5_render_loop_test
         _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
         _ubuffer.set_matrix(_model_matrix, _model_id);
 
+        // Increase the loop iteration count so it doesnt stop
+        _md5_model.get_current_animation().set_loop_count(1);
+
         // Update the md5 animation
         _md5_model.step(time_step);
 

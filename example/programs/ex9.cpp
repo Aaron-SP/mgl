@@ -190,6 +190,11 @@ class character
     {
         _model_matrix = m;
     }
+    void set_animation_count(const unsigned count)
+    {
+        // Trigger animation
+        _md5_model.get_current_animation().set_loop_count(count);
+    }
 };
 
 class physics_test
@@ -457,6 +462,9 @@ class physics_test
 
         // Add linear velocity to body in forward direction
         bodies[1].set_linear_velocity(_forward * 10.0);
+
+        // Trigger animation for one cycle
+        _md5_char.set_animation_count(1);
     }
 
   public:
@@ -613,8 +621,12 @@ class physics_test
         // Draw the md5 character model
         _md5_char.draw(_cam, dt);
     }
-    void window_update()
+    void window_update(const double dt)
     {
+        // Update the keyboard
+        auto &keyboard = _win.get_keyboard();
+        keyboard.update(dt);
+
         // Update and swap buffers
         _win.update();
         _win.swap_buffers();
@@ -655,7 +667,7 @@ int test_render_loop()
             test.draw(frame_time);
 
             // Update the window after draw command
-            test.window_update();
+            test.window_update(frame_time);
 
             // Calculate needed delay to hit target
             frame_time = sync.sync();

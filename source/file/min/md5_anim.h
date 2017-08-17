@@ -181,6 +181,7 @@ class md5_anim
     std::vector<md5_frame<T>> _frames;
     unsigned _frame_rate;
     T _animation_length;
+    mutable unsigned _loops;
     mutable std::vector<mat4<T>> _current_frame;
     mutable T _time;
 
@@ -613,12 +614,12 @@ class md5_anim
     }
 
   public:
-    md5_anim(const std::string &file) : _frame_rate(0), _time(0.0)
+    md5_anim(const std::string &file) : _frame_rate(0), _loops(0), _time(0.0)
     {
         load(file);
 
         // Set the length of the animation
-        _animation_length = _frames.size() / _frame_rate;
+        _animation_length = ((T)_frames.size()) / _frame_rate;
 
         if (_frames.size() == 0)
         {
@@ -656,15 +657,39 @@ class md5_anim
     {
         return _transforms;
     }
+    inline unsigned get_loop_count() const
+    {
+        return _loops;
+    }
+    inline void set_loop_count(const unsigned count) const
+    {
+        // Reset loop count
+        _loops = count;
+    }
+    inline void set_time(const T time) const
+    {
+        // Reset the animation time
+        _time = time;
+    }
     inline void step(const T step) const
     {
         // Accumulate the time
         _time += step;
 
         // If time exceeds the animation length, loop
-        if (_time >= _animation_length)
+        if (_time >= _animation_length && _loops > 0)
         {
+            // Decriment loop count
+            _loops--;
+
+            // Calculate time in next loop
             _time = std::fmod(_time, _animation_length);
+        }
+
+        // If we ran out of loops, exit
+        if (_loops == 0)
+        {
+            return;
         }
 
         // Calculate the two frames to interpolate between

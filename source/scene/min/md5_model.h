@@ -32,7 +32,7 @@ class md5_model : public model<T, K, vec, bound>
     std::vector<md5_anim<T>> _animations;
     size_t _current;
 
-    void check_bones()
+    inline void check_bones()
     {
         // Check size of animated components
         for (const auto &m : this->_mesh)
@@ -44,7 +44,7 @@ class md5_model : public model<T, K, vec, bound>
             }
         }
     }
-    void make_bind_pose(const std::vector<md5_joint<T>> &joints)
+    inline void make_bind_pose(const std::vector<md5_joint<T>> &joints)
     {
         // Allocate bone matrices
         _inverse_bp.reserve(joints.size());
@@ -69,7 +69,8 @@ class md5_model : public model<T, K, vec, bound>
 
   public:
     // This will steal data from provider
-    md5_model(md5_mesh<T, K> &&model) : model<T, K, vec, bound>(std::move(model.get_meshes()))
+    md5_model(md5_mesh<T, K> &&model)
+        : model<T, K, vec, bound>(std::move(model.get_meshes())), _current(0)
     {
         // Joints are thrown away after this
         make_bind_pose(model.get_joints());
@@ -77,7 +78,8 @@ class md5_model : public model<T, K, vec, bound>
         // Check the mesh bone dimensions
         check_bones();
     }
-    md5_model(const md5_mesh<T, K> &model) : model<T, K, vec, bound>(model.get_meshes())
+    md5_model(const md5_mesh<T, K> &model)
+        : model<T, K, vec, bound>(model.get_meshes()), _current(0)
     {
         // Joints are thrown away after this
         make_bind_pose(model.get_joints());
@@ -89,9 +91,20 @@ class md5_model : public model<T, K, vec, bound>
     {
         return _bones;
     }
-    const md5_anim<T> &get_current_animation() const
+    inline const md5_anim<T> &get_current_animation() const
     {
         return _animations[_current];
+    }
+    inline bool is_animating() const
+    {
+        // If we loaded an animation file
+        if (_animations.size() > 0)
+        {
+            return (_animations[_current].get_loop_count() != 0);
+        }
+
+        // We haven't loaded any animations
+        return false;
     }
     inline void load_animation(const std::string &file)
     {
