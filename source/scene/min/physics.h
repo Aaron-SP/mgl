@@ -212,6 +212,20 @@ class body_base
     {
         _torque = angular{};
     }
+    inline void clear_no_force()
+    {
+        // Set no force on this object
+        _force = vec<T>();
+
+        // Clear all linear velocity
+        _linear_velocity = vec<T>();
+
+        // Clear all torques
+        _torque = angular{};
+
+        // Clear all rotational  velocity
+        _angular_velocity = angular{};
+    }
     inline const angular get_angular_acceleration(const angular angular_velocity, const T damping) const
     {
         // Calculate the acceleration

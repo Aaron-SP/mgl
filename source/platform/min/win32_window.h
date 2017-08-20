@@ -559,10 +559,29 @@ class win32_window
             UnregisterClass(window_class, _hinst);
         }
     }
-    void display_cursor(bool set) const
+    void display_cursor(const bool set) const
     {
         // Set if cursor is visible
-        ShowCursor(set);
+        // The cursor is displayed only if the display count is greater than or equal to 0
+        int count;
+        if (set)
+        {
+            // Set count to zero
+            count = ShowCursor(true);
+            while (count < 0)
+            {
+                count = ShowCursor(true);
+            }
+        }
+        else
+        {
+            // Set count to -1
+            count = ShowCursor(false);
+            while (count >= 0)
+            {
+                count = ShowCursor(false);
+            }
+        }
     }
     std::pair<uint16_t, uint16_t> get_cursor() const
     {

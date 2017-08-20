@@ -430,7 +430,7 @@ class x_window
             XCloseDisplay(_display);
         }
     }
-    void display_cursor(bool set) const
+    void display_cursor(const bool set) const
     {
         // Set if cursor is visible
         if (!set)
