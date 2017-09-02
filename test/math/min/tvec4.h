@@ -855,7 +855,7 @@ bool test_vec4()
     out = out && compare(1.0, p.first.x(), 1E-4);
     out = out && compare(0.0, p.first.y(), 1E-4);
     out = out && compare(0.0, p.first.z(), 1E-4);
-    out = out && compare(4.01, p.second, 1E-4);
+    out = out && compare(4.09, p.second, 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed vec4 sat penetration aligned");

@@ -881,7 +881,7 @@ class physics
                                                                 _lower_bound(world.get_min() + vec<T>().set_all(1.0)),
                                                                 _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
                                                                 _gravity(gravity), _elasticity(1.0) {}
-    inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t group)
+    inline size_t add_body(const shape<T, vec> &s, const T mass)
     {
         // Add shape to shape vector
         _shapes.push_back(s);
@@ -891,10 +891,6 @@ class physics
 
         // return the body id
         return _bodies.size() - 1;
-    }
-    inline size_t add_body(const shape<T, vec> &s, const T mass)
-    {
-        return add_body(s, mass, _shapes.size());
     }
     inline void clear()
     {

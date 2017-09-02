@@ -159,7 +159,7 @@ bool test_aabb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.048, b1.get_center().x(), 1E-4);
+        out = out && compare(0.04615, b1.get_center().x(), 1E-4);
         out = out && compare(1.05, b1.get_center().y(), 1E-4);
         out = out && compare(1.05, b1.get_center().z(), 1E-4);
         if (!out)
@@ -169,7 +169,7 @@ bool test_aabb_resolve()
 
         // Test magnitude between aabb centers
         double distance = (b1.get_center() - b2.get_center()).magnitude();
-        out = out && compare(2.3696, distance, 1E-4);
+        out = out && compare(2.3711, distance, 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 aabb-aabb resolution distance");
@@ -237,7 +237,7 @@ bool test_aabb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.048, b1.get_center().x(), 1E-4);
+        out = out && compare(0.04615, b1.get_center().x(), 1E-4);
         out = out && compare(1.05, b1.get_center().y(), 1E-4);
         out = out && compare(1.05, b1.get_center().z(), 1E-4);
         if (!out)
@@ -247,7 +247,7 @@ bool test_aabb_resolve()
 
         // Test magnitude between aabb centers
         double distance = (b1.get_center() - b2.get_center()).magnitude();
-        out = out && compare(2.3696, distance, 1E-4);
+        out = out && compare(2.3711, distance, 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 aabb-aabb resolution distance");

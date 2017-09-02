@@ -1124,17 +1124,53 @@ class vec3
         // For 3D, there are 3 axes that need to be tested against...
         // 3 local box axes
 
-        const vec3<T> d = center1 - center2;
-        const vec3<T> t = vec3<T>(d).abs();
+        // Rotation matrix expressing A2 in A1's coordinate frame
+        const T abs_x1x2 = 1.0 + tolerance;
+        const T abs_x1y2 = tolerance;
+        const T abs_x1z2 = tolerance;
+        const T abs_y1x2 = tolerance;
+        const T abs_y1y2 = 1.0 + tolerance;
+        const T abs_y1z2 = tolerance;
+        const T abs_z1x2 = tolerance;
+        const T abs_z1y2 = tolerance;
+        const T abs_z1z2 = 1.0 + tolerance;
 
-        // Test L = A1.x() = A2.x(); d1 and d2 is the length of extents along L
-        // Test L = A1.y() = A2.y(); d1 and d2 is the length of extents along L
-        // Test L = A1.z() = A2.z(); d1 and d2 is the length of extents along L
-        const vec3<T> dL = (extent1 + extent2 + tolerance) - t;
+        // Bring translation into A1's coordinate frame
+        const vec3<T> t = vec3<T>(center2 - center1);
 
         // Store axis and penetration depths
         const vec3<T> axes[3] = {vec3<T>(1.0, 0.0, 0.0), vec3<T>(0.0, 1.0, 0.0), vec3<T>(0.0, 0.0, 1.0)};
-        const T penetration[3] = {dL.x(), dL.y(), dL.z()};
+        T penetration[6];
+
+        // Test L = A1.x(); d1 and d2 is the length of extents along L
+        T dL1 = extent1.x();
+        T dL2 = extent2.x() * abs_x1x2 + extent2.y() * abs_x1y2 + extent2.z() * abs_x1z2;
+        penetration[0] = (dL1 + dL2) - std::abs(t.x());
+
+        // Test L = A1.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.y();
+        dL2 = extent2.x() * abs_y1x2 + extent2.y() * abs_y1y2 + extent2.z() * abs_y1z2;
+        penetration[1] = (dL1 + dL2) - std::abs(t.y());
+
+        // Test L = A1.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.z();
+        dL2 = extent2.x() * abs_z1x2 + extent2.y() * abs_z1y2 + extent2.z() * abs_z1z2;
+        penetration[2] = (dL1 + dL2) - std::abs(t.z());
+
+        // Test L = A2.x(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * abs_x1x2 + extent1.y() * abs_y1x2 + extent1.z() * abs_z1x2;
+        dL2 = extent2.x();
+        penetration[3] = (dL1 + dL2) - std::abs(t.x());
+
+        // Test L = A2.y(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * abs_x1y2 + extent1.y() * abs_y1y2 + extent1.z() * abs_z1y2;
+        dL2 = extent2.y();
+        penetration[4] = (dL1 + dL2) - std::abs(t.y());
+
+        // Test L = A2.z(); d1 and d2 is the length of extents along L
+        dL1 = extent1.x() * abs_x1z2 + extent1.y() * abs_y1z2 + extent1.z() * abs_z1z2;
+        dL2 = extent2.z();
+        penetration[5] = (dL1 + dL2) - std::abs(t.z());
 
         // normal default up vector return and zero penetration
         vec3<T> normal = vec3<T>::up();
@@ -1143,7 +1179,7 @@ class vec3
         // Find the minimum, non-zero penetration index
         T min = 1E15;
         int index = -1;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 6; i++)
         {
             // Prune all parallel normal vectors and non-penetrating depths
             if (penetration[i] > tolerance && penetration[i] < min)
@@ -1157,8 +1193,8 @@ class vec3
         if (index != -1)
         {
             // Calculate the sign of normal towards body1 and scale normal
-            const vec3<T> sign = d.sign();
-            normal = axes[index] * sign;
+            const vec3<T> sign = (center1 - center2).sign();
+            normal = axes[index % 3] * sign;
             overlap = min;
         }
 
