@@ -15,6 +15,8 @@ limitations under the License.
 #ifndef __CONVERT__
 #define __CONVERT__
 
+#include <array>
+#include <initializer_list>
 #include <min/aabbox.h>
 #include <min/mesh.h>
 #include <min/sphere.h>
@@ -22,15 +24,26 @@ limitations under the License.
 namespace min
 {
 
-// Converts a sphere into a mesh for drawing
+// Calculates normals and tangents
 template <typename T, typename K>
-inline mesh<T, K> to_mesh(const sphere<T, vec3> &s)
+inline void finalize_mesh(min::mesh<T, K> &m)
 {
-    min::mesh<T, K> m("sphere");
-    T radius = s.get_radius();
+    // Calculate the normals
+    m.calculate_normals();
 
-    // Create vertices
-    m.vertex = std::vector<vec4<T>>{
+    // Calculate the tangents
+    m.calculate_tangents();
+}
+
+// Appends a sphere into a mesh for drawing
+template <typename T, typename K>
+inline void append_mesh(const sphere<T, vec3> &s, min::mesh<T, K> &m)
+{
+    // Calculate the index offset
+    const size_t index_offset = m.vertex.size();
+
+    // Calculate sphere vertices
+    std::array<vec4<T>, 240> verts{
         vec4<T>(0, -0.707107, 0.707107, 1.0),
         vec4<T>(-0.270598, -0.92388, 0.270598, 1.0),
         vec4<T>(0, -0.92388, 0.382683, 1.0),
@@ -273,258 +286,263 @@ inline mesh<T, K> to_mesh(const sphere<T, vec3> &s)
         vec4<T>(0, 0.92388, 0.382683, 1.0)};
 
     // Scale the sphere points by radius
-    vec3<T> center = s.get_center();
-    for (auto &v : m.vertex)
+    const T radius = s.get_radius();
+    const vec3<T> center = s.get_center();
+    for (auto &v : verts)
     {
         v *= radius;
         v += center;
     }
 
-    // Create the uv coordinates
-    m.uv = std::vector<vec2<T>>{
-        vec2<T>(0.2856, 0.1505),
-        vec2<T>(0.2954, 0.227),
-        vec2<T>(0.2658, 0.2016),
-        vec2<T>(0.3535, 0.0001),
-        vec2<T>(0.4097, 0.1799),
-        vec2<T>(0.3133, 0.0875),
-        vec2<T>(0.7952, 0.3456),
-        vec2<T>(0.9125, 0.3133),
-        vec2<T>(0.8201, 0.4097),
-        vec2<T>(0.773, 0.2954),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7984, 0.2658),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2658, 0.2016),
-        vec2<T>(0.2954, 0.227),
-        vec2<T>(0.2856, 0.1505),
-        vec2<T>(0.4097, 0.1799),
-        vec2<T>(0.3456, 0.2048),
-        vec2<T>(0.8201, 0.4097),
-        vec2<T>(0.9999, 0.3535),
-        vec2<T>(0.8535, 0.4999),
-        vec2<T>(0.7952, 0.3456),
-        vec2<T>(0.7984, 0.2658),
-        vec2<T>(0.8495, 0.2856),
-        vec2<T>(0.7984, 0.2658),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7954, 0.227),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2954, 0.227),
-        vec2<T>(0.2984, 0.2658),
-        vec2<T>(0.3456, 0.2048),
-        vec2<T>(0.4125, 0.3133),
-        vec2<T>(0.3495, 0.2856),
-        vec2<T>(0.9125, 0.3133),
-        vec2<T>(0.9999, 0.1465),
-        vec2<T>(0.9999, 0.3535),
-        vec2<T>(0.7984, 0.2658),
-        vec2<T>(0.8456, 0.2048),
-        vec2<T>(0.8495, 0.2856),
-        vec2<T>(0.2954, 0.227),
-        vec2<T>(0.3495, 0.2856),
-        vec2<T>(0.2984, 0.2658),
-        vec2<T>(0.4999, 0.1465),
-        vec2<T>(0.4125, 0.3133),
-        vec2<T>(0.4097, 0.1799),
-        vec2<T>(0.8495, 0.2856),
-        vec2<T>(0.9097, 0.1799),
-        vec2<T>(0.9125, 0.3133),
-        vec2<T>(0.4125, 0.3133),
-        vec2<T>(0.2952, 0.3456),
-        vec2<T>(0.3495, 0.2856),
-        vec2<T>(0.9097, 0.1799),
-        vec2<T>(0.8535, 0.0001),
-        vec2<T>(0.9999, 0.1465),
-        vec2<T>(0.7954, 0.227),
-        vec2<T>(0.7856, 0.1505),
-        vec2<T>(0.8456, 0.2048),
-        vec2<T>(0.3495, 0.2856),
-        vec2<T>(0.273, 0.2954),
-        vec2<T>(0.2984, 0.2658),
-        vec2<T>(0.4999, 0.3535),
-        vec2<T>(0.3201, 0.4097),
-        vec2<T>(0.4125, 0.3133),
-        vec2<T>(0.9097, 0.1799),
-        vec2<T>(0.7856, 0.1505),
-        vec2<T>(0.8133, 0.0875),
-        vec2<T>(0.7954, 0.227),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7658, 0.2016),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2984, 0.2658),
-        vec2<T>(0.273, 0.2954),
-        vec2<T>(0.2952, 0.3456),
-        vec2<T>(0.2342, 0.2984),
-        vec2<T>(0.273, 0.2954),
-        vec2<T>(0.3535, 0.4999),
-        vec2<T>(0.1867, 0.4125),
-        vec2<T>(0.3201, 0.4097),
-        vec2<T>(0.7856, 0.1505),
-        vec2<T>(0.6799, 0.0903),
-        vec2<T>(0.8133, 0.0875),
-        vec2<T>(0.7658, 0.2016),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.727, 0.2046),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.273, 0.2954),
-        vec2<T>(0.2342, 0.2984),
-        vec2<T>(0.2952, 0.3456),
-        vec2<T>(0.1867, 0.4125),
-        vec2<T>(0.2144, 0.3495),
-        vec2<T>(0.8133, 0.0875),
-        vec2<T>(0.6465, 0.0001),
-        vec2<T>(0.8535, 0.0001),
-        vec2<T>(0.7658, 0.2016),
-        vec2<T>(0.7048, 0.1544),
-        vec2<T>(0.7856, 0.1505),
-        vec2<T>(0.1465, 0.4999),
-        vec2<T>(0.0903, 0.3201),
-        vec2<T>(0.1867, 0.4125),
-        vec2<T>(0.7048, 0.1544),
-        vec2<T>(0.5875, 0.1867),
-        vec2<T>(0.6799, 0.0903),
-        vec2<T>(0.727, 0.2046),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7016, 0.2342),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2342, 0.2984),
-        vec2<T>(0.2046, 0.273),
-        vec2<T>(0.2144, 0.3495),
-        vec2<T>(0.0903, 0.3201),
-        vec2<T>(0.1544, 0.2952),
-        vec2<T>(0.6799, 0.0903),
-        vec2<T>(0.5001, 0.1465),
-        vec2<T>(0.6465, 0.0001),
-        vec2<T>(0.727, 0.2046),
-        vec2<T>(0.6505, 0.2144),
-        vec2<T>(0.7048, 0.1544),
-        vec2<T>(0.2144, 0.3495),
-        vec2<T>(0.2046, 0.273),
-        vec2<T>(0.2342, 0.2984),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2046, 0.273),
-        vec2<T>(0.2016, 0.2342),
-        vec2<T>(0.1544, 0.2952),
-        vec2<T>(0.0875, 0.1867),
-        vec2<T>(0.1505, 0.2144),
-        vec2<T>(0.5001, 0.1465),
-        vec2<T>(0.5903, 0.3201),
-        vec2<T>(0.5001, 0.3535),
-        vec2<T>(0.7016, 0.2342),
-        vec2<T>(0.6544, 0.2952),
-        vec2<T>(0.6505, 0.2144),
-        vec2<T>(0.1544, 0.2952),
-        vec2<T>(0.2016, 0.2342),
-        vec2<T>(0.2046, 0.273),
-        vec2<T>(0.0001, 0.3535),
-        vec2<T>(0.0875, 0.1867),
-        vec2<T>(0.0903, 0.3201),
-        vec2<T>(0.6505, 0.2144),
-        vec2<T>(0.5903, 0.3201),
-        vec2<T>(0.5875, 0.1867),
-        vec2<T>(0.7016, 0.2342),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7046, 0.273),
-        vec2<T>(0.5903, 0.3201),
-        vec2<T>(0.6465, 0.4999),
-        vec2<T>(0.5001, 0.3535),
-        vec2<T>(0.7046, 0.273),
-        vec2<T>(0.7144, 0.3495),
-        vec2<T>(0.6544, 0.2952),
-        vec2<T>(0.2016, 0.2342),
-        vec2<T>(0.2048, 0.1544),
-        vec2<T>(0.227, 0.2046),
-        vec2<T>(0.0001, 0.1465),
-        vec2<T>(0.1799, 0.0903),
-        vec2<T>(0.0875, 0.1867),
-        vec2<T>(0.6544, 0.2952),
-        vec2<T>(0.6867, 0.4125),
-        vec2<T>(0.5903, 0.3201),
-        vec2<T>(0.7046, 0.273),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.7342, 0.2984),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.2016, 0.2342),
-        vec2<T>(0.227, 0.2046),
-        vec2<T>(0.0875, 0.1867),
-        vec2<T>(0.2048, 0.1544),
-        vec2<T>(0.1505, 0.2144),
-        vec2<T>(0.227, 0.2046),
-        vec2<T>(0.2856, 0.1505),
-        vec2<T>(0.2658, 0.2016),
-        vec2<T>(0.1465, 0.0001),
-        vec2<T>(0.3133, 0.0875),
-        vec2<T>(0.1799, 0.0903),
-        vec2<T>(0.7144, 0.3495),
-        vec2<T>(0.8201, 0.4097),
-        vec2<T>(0.6867, 0.4125),
-        vec2<T>(0.7342, 0.2984),
-        vec2<T>(0.75, 0.25),
-        vec2<T>(0.773, 0.2954),
-        vec2<T>(0.25, 0.25),
-        vec2<T>(0.227, 0.2046),
-        vec2<T>(0.2658, 0.2016),
-        vec2<T>(0.1799, 0.0903),
-        vec2<T>(0.2856, 0.1505),
-        vec2<T>(0.2048, 0.1544),
-        vec2<T>(0.6867, 0.4125),
-        vec2<T>(0.8535, 0.4999),
-        vec2<T>(0.6465, 0.4999),
-        vec2<T>(0.7342, 0.2984),
-        vec2<T>(0.7952, 0.3456),
-        vec2<T>(0.7144, 0.3495),
-        vec2<T>(0.3456, 0.2048),
-        vec2<T>(0.4999, 0.1465),
-        vec2<T>(0.8495, 0.2856),
-        vec2<T>(0.3133, 0.0875),
-        vec2<T>(0.9125, 0.3133),
-        vec2<T>(0.773, 0.2954),
-        vec2<T>(0.4097, 0.1799),
-        vec2<T>(0.9097, 0.1799),
-        vec2<T>(0.7954, 0.227),
-        vec2<T>(0.3456, 0.2048),
-        vec2<T>(0.4999, 0.3535),
-        vec2<T>(0.8456, 0.2048),
-        vec2<T>(0.3201, 0.4097),
-        vec2<T>(0.8133, 0.0875),
-        vec2<T>(0.7658, 0.2016),
-        vec2<T>(0.2952, 0.3456),
-        vec2<T>(0.3535, 0.4999),
-        vec2<T>(0.8456, 0.2048),
-        vec2<T>(0.2144, 0.3495),
-        vec2<T>(0.1465, 0.4999),
-        vec2<T>(0.7048, 0.1544),
-        vec2<T>(0.3201, 0.4097),
-        vec2<T>(0.6799, 0.0903),
-        vec2<T>(0.727, 0.2046),
-        vec2<T>(0.0001, 0.3535),
-        vec2<T>(0.6505, 0.2144),
-        vec2<T>(0.1867, 0.4125),
-        vec2<T>(0.5875, 0.1867),
-        vec2<T>(0.7016, 0.2342),
-        vec2<T>(0.1544, 0.2952),
-        vec2<T>(0.0903, 0.3201),
-        vec2<T>(0.5875, 0.1867),
-        vec2<T>(0.7046, 0.273),
-        vec2<T>(0.1505, 0.2144),
-        vec2<T>(0.0001, 0.1465),
-        vec2<T>(0.6544, 0.2952),
-        vec2<T>(0.6867, 0.4125),
-        vec2<T>(0.7342, 0.2984),
-        vec2<T>(0.1505, 0.2144),
-        vec2<T>(0.1465, 0.0001),
-        vec2<T>(0.7144, 0.3495),
-        vec2<T>(0.1799, 0.0903),
-        vec2<T>(0.2048, 0.1544),
-        vec2<T>(0.3535, 0.0001),
-        vec2<T>(0.7952, 0.3456),
-        vec2<T>(0.3133, 0.0875),
-        vec2<T>(0.8201, 0.4097),
-        vec2<T>(0.773, 0.2954)};
+    // Append vertices
+    m.vertex.insert(m.vertex.end(), verts.begin(), verts.end());
+
+    // Append the uv coordinates
+    m.uv.insert(m.uv.end(),
+                std::initializer_list<vec2<T>>{
+                    vec2<T>(0.2856, 0.1505),
+                    vec2<T>(0.2954, 0.227),
+                    vec2<T>(0.2658, 0.2016),
+                    vec2<T>(0.3535, 0.0001),
+                    vec2<T>(0.4097, 0.1799),
+                    vec2<T>(0.3133, 0.0875),
+                    vec2<T>(0.7952, 0.3456),
+                    vec2<T>(0.9125, 0.3133),
+                    vec2<T>(0.8201, 0.4097),
+                    vec2<T>(0.773, 0.2954),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7984, 0.2658),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2658, 0.2016),
+                    vec2<T>(0.2954, 0.227),
+                    vec2<T>(0.2856, 0.1505),
+                    vec2<T>(0.4097, 0.1799),
+                    vec2<T>(0.3456, 0.2048),
+                    vec2<T>(0.8201, 0.4097),
+                    vec2<T>(0.9999, 0.3535),
+                    vec2<T>(0.8535, 0.4999),
+                    vec2<T>(0.7952, 0.3456),
+                    vec2<T>(0.7984, 0.2658),
+                    vec2<T>(0.8495, 0.2856),
+                    vec2<T>(0.7984, 0.2658),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7954, 0.227),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2954, 0.227),
+                    vec2<T>(0.2984, 0.2658),
+                    vec2<T>(0.3456, 0.2048),
+                    vec2<T>(0.4125, 0.3133),
+                    vec2<T>(0.3495, 0.2856),
+                    vec2<T>(0.9125, 0.3133),
+                    vec2<T>(0.9999, 0.1465),
+                    vec2<T>(0.9999, 0.3535),
+                    vec2<T>(0.7984, 0.2658),
+                    vec2<T>(0.8456, 0.2048),
+                    vec2<T>(0.8495, 0.2856),
+                    vec2<T>(0.2954, 0.227),
+                    vec2<T>(0.3495, 0.2856),
+                    vec2<T>(0.2984, 0.2658),
+                    vec2<T>(0.4999, 0.1465),
+                    vec2<T>(0.4125, 0.3133),
+                    vec2<T>(0.4097, 0.1799),
+                    vec2<T>(0.8495, 0.2856),
+                    vec2<T>(0.9097, 0.1799),
+                    vec2<T>(0.9125, 0.3133),
+                    vec2<T>(0.4125, 0.3133),
+                    vec2<T>(0.2952, 0.3456),
+                    vec2<T>(0.3495, 0.2856),
+                    vec2<T>(0.9097, 0.1799),
+                    vec2<T>(0.8535, 0.0001),
+                    vec2<T>(0.9999, 0.1465),
+                    vec2<T>(0.7954, 0.227),
+                    vec2<T>(0.7856, 0.1505),
+                    vec2<T>(0.8456, 0.2048),
+                    vec2<T>(0.3495, 0.2856),
+                    vec2<T>(0.273, 0.2954),
+                    vec2<T>(0.2984, 0.2658),
+                    vec2<T>(0.4999, 0.3535),
+                    vec2<T>(0.3201, 0.4097),
+                    vec2<T>(0.4125, 0.3133),
+                    vec2<T>(0.9097, 0.1799),
+                    vec2<T>(0.7856, 0.1505),
+                    vec2<T>(0.8133, 0.0875),
+                    vec2<T>(0.7954, 0.227),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7658, 0.2016),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2984, 0.2658),
+                    vec2<T>(0.273, 0.2954),
+                    vec2<T>(0.2952, 0.3456),
+                    vec2<T>(0.2342, 0.2984),
+                    vec2<T>(0.273, 0.2954),
+                    vec2<T>(0.3535, 0.4999),
+                    vec2<T>(0.1867, 0.4125),
+                    vec2<T>(0.3201, 0.4097),
+                    vec2<T>(0.7856, 0.1505),
+                    vec2<T>(0.6799, 0.0903),
+                    vec2<T>(0.8133, 0.0875),
+                    vec2<T>(0.7658, 0.2016),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.727, 0.2046),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.273, 0.2954),
+                    vec2<T>(0.2342, 0.2984),
+                    vec2<T>(0.2952, 0.3456),
+                    vec2<T>(0.1867, 0.4125),
+                    vec2<T>(0.2144, 0.3495),
+                    vec2<T>(0.8133, 0.0875),
+                    vec2<T>(0.6465, 0.0001),
+                    vec2<T>(0.8535, 0.0001),
+                    vec2<T>(0.7658, 0.2016),
+                    vec2<T>(0.7048, 0.1544),
+                    vec2<T>(0.7856, 0.1505),
+                    vec2<T>(0.1465, 0.4999),
+                    vec2<T>(0.0903, 0.3201),
+                    vec2<T>(0.1867, 0.4125),
+                    vec2<T>(0.7048, 0.1544),
+                    vec2<T>(0.5875, 0.1867),
+                    vec2<T>(0.6799, 0.0903),
+                    vec2<T>(0.727, 0.2046),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7016, 0.2342),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2342, 0.2984),
+                    vec2<T>(0.2046, 0.273),
+                    vec2<T>(0.2144, 0.3495),
+                    vec2<T>(0.0903, 0.3201),
+                    vec2<T>(0.1544, 0.2952),
+                    vec2<T>(0.6799, 0.0903),
+                    vec2<T>(0.5001, 0.1465),
+                    vec2<T>(0.6465, 0.0001),
+                    vec2<T>(0.727, 0.2046),
+                    vec2<T>(0.6505, 0.2144),
+                    vec2<T>(0.7048, 0.1544),
+                    vec2<T>(0.2144, 0.3495),
+                    vec2<T>(0.2046, 0.273),
+                    vec2<T>(0.2342, 0.2984),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2046, 0.273),
+                    vec2<T>(0.2016, 0.2342),
+                    vec2<T>(0.1544, 0.2952),
+                    vec2<T>(0.0875, 0.1867),
+                    vec2<T>(0.1505, 0.2144),
+                    vec2<T>(0.5001, 0.1465),
+                    vec2<T>(0.5903, 0.3201),
+                    vec2<T>(0.5001, 0.3535),
+                    vec2<T>(0.7016, 0.2342),
+                    vec2<T>(0.6544, 0.2952),
+                    vec2<T>(0.6505, 0.2144),
+                    vec2<T>(0.1544, 0.2952),
+                    vec2<T>(0.2016, 0.2342),
+                    vec2<T>(0.2046, 0.273),
+                    vec2<T>(0.0001, 0.3535),
+                    vec2<T>(0.0875, 0.1867),
+                    vec2<T>(0.0903, 0.3201),
+                    vec2<T>(0.6505, 0.2144),
+                    vec2<T>(0.5903, 0.3201),
+                    vec2<T>(0.5875, 0.1867),
+                    vec2<T>(0.7016, 0.2342),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7046, 0.273),
+                    vec2<T>(0.5903, 0.3201),
+                    vec2<T>(0.6465, 0.4999),
+                    vec2<T>(0.5001, 0.3535),
+                    vec2<T>(0.7046, 0.273),
+                    vec2<T>(0.7144, 0.3495),
+                    vec2<T>(0.6544, 0.2952),
+                    vec2<T>(0.2016, 0.2342),
+                    vec2<T>(0.2048, 0.1544),
+                    vec2<T>(0.227, 0.2046),
+                    vec2<T>(0.0001, 0.1465),
+                    vec2<T>(0.1799, 0.0903),
+                    vec2<T>(0.0875, 0.1867),
+                    vec2<T>(0.6544, 0.2952),
+                    vec2<T>(0.6867, 0.4125),
+                    vec2<T>(0.5903, 0.3201),
+                    vec2<T>(0.7046, 0.273),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.7342, 0.2984),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.2016, 0.2342),
+                    vec2<T>(0.227, 0.2046),
+                    vec2<T>(0.0875, 0.1867),
+                    vec2<T>(0.2048, 0.1544),
+                    vec2<T>(0.1505, 0.2144),
+                    vec2<T>(0.227, 0.2046),
+                    vec2<T>(0.2856, 0.1505),
+                    vec2<T>(0.2658, 0.2016),
+                    vec2<T>(0.1465, 0.0001),
+                    vec2<T>(0.3133, 0.0875),
+                    vec2<T>(0.1799, 0.0903),
+                    vec2<T>(0.7144, 0.3495),
+                    vec2<T>(0.8201, 0.4097),
+                    vec2<T>(0.6867, 0.4125),
+                    vec2<T>(0.7342, 0.2984),
+                    vec2<T>(0.75, 0.25),
+                    vec2<T>(0.773, 0.2954),
+                    vec2<T>(0.25, 0.25),
+                    vec2<T>(0.227, 0.2046),
+                    vec2<T>(0.2658, 0.2016),
+                    vec2<T>(0.1799, 0.0903),
+                    vec2<T>(0.2856, 0.1505),
+                    vec2<T>(0.2048, 0.1544),
+                    vec2<T>(0.6867, 0.4125),
+                    vec2<T>(0.8535, 0.4999),
+                    vec2<T>(0.6465, 0.4999),
+                    vec2<T>(0.7342, 0.2984),
+                    vec2<T>(0.7952, 0.3456),
+                    vec2<T>(0.7144, 0.3495),
+                    vec2<T>(0.3456, 0.2048),
+                    vec2<T>(0.4999, 0.1465),
+                    vec2<T>(0.8495, 0.2856),
+                    vec2<T>(0.3133, 0.0875),
+                    vec2<T>(0.9125, 0.3133),
+                    vec2<T>(0.773, 0.2954),
+                    vec2<T>(0.4097, 0.1799),
+                    vec2<T>(0.9097, 0.1799),
+                    vec2<T>(0.7954, 0.227),
+                    vec2<T>(0.3456, 0.2048),
+                    vec2<T>(0.4999, 0.3535),
+                    vec2<T>(0.8456, 0.2048),
+                    vec2<T>(0.3201, 0.4097),
+                    vec2<T>(0.8133, 0.0875),
+                    vec2<T>(0.7658, 0.2016),
+                    vec2<T>(0.2952, 0.3456),
+                    vec2<T>(0.3535, 0.4999),
+                    vec2<T>(0.8456, 0.2048),
+                    vec2<T>(0.2144, 0.3495),
+                    vec2<T>(0.1465, 0.4999),
+                    vec2<T>(0.7048, 0.1544),
+                    vec2<T>(0.3201, 0.4097),
+                    vec2<T>(0.6799, 0.0903),
+                    vec2<T>(0.727, 0.2046),
+                    vec2<T>(0.0001, 0.3535),
+                    vec2<T>(0.6505, 0.2144),
+                    vec2<T>(0.1867, 0.4125),
+                    vec2<T>(0.5875, 0.1867),
+                    vec2<T>(0.7016, 0.2342),
+                    vec2<T>(0.1544, 0.2952),
+                    vec2<T>(0.0903, 0.3201),
+                    vec2<T>(0.5875, 0.1867),
+                    vec2<T>(0.7046, 0.273),
+                    vec2<T>(0.1505, 0.2144),
+                    vec2<T>(0.0001, 0.1465),
+                    vec2<T>(0.6544, 0.2952),
+                    vec2<T>(0.6867, 0.4125),
+                    vec2<T>(0.7342, 0.2984),
+                    vec2<T>(0.1505, 0.2144),
+                    vec2<T>(0.1465, 0.0001),
+                    vec2<T>(0.7144, 0.3495),
+                    vec2<T>(0.1799, 0.0903),
+                    vec2<T>(0.2048, 0.1544),
+                    vec2<T>(0.3535, 0.0001),
+                    vec2<T>(0.7952, 0.3456),
+                    vec2<T>(0.3133, 0.0875),
+                    vec2<T>(0.8201, 0.4097),
+                    vec2<T>(0.773, 0.2954)});
 
     // Create indices
-    m.index = std::vector<K>{
+    std::array<K, 336> indices{
         0, 1, 2, 3, 4, 5,
         6, 7, 8, 9, 10, 11,
         12, 13, 14, 15, 16, 17,
@@ -582,79 +600,86 @@ inline mesh<T, K> to_mesh(const sphere<T, vec3> &s)
         174, 236, 175, 183, 237, 184,
         186, 238, 187, 189, 239, 190};
 
-    // Calculate the normals
-    m.calculate_normals();
+    // Offset the uv for each box in the mesh
+    if (index_offset > 0)
+    {
+        for (auto &i : indices)
+        {
+            i += index_offset;
+        }
+    }
 
-    // Calculate the tangents
-    m.calculate_tangents();
-
-    return m;
+    // Append indices
+    m.index.insert(m.index.end(), indices.begin(), indices.end());
 }
 
 // Converts an aabbox into a mesh for drawing
 template <typename T, typename K>
-inline mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
+inline void append_mesh(const aabbox<T, vec3> &b, min::mesh<T, K> &m)
 {
-    min::mesh<T, K> m("aabbox");
+    // Get box dimensions
     const vec3<T> &min = b.get_min();
     const vec3<T> &max = b.get_max();
+    const size_t index_offset = m.vertex.size();
 
-    // Create vertices
-    m.vertex = std::vector<vec4<T>>{
-        vec4<T>(min.x(), min.y(), min.z(), 1.0),
-        vec4<T>(max.x(), min.y(), max.z(), 1.0),
-        vec4<T>(min.x(), min.y(), max.z(), 1.0),
-        vec4<T>(max.x(), max.y(), max.z(), 1.0),
-        vec4<T>(min.x(), max.y(), min.z(), 1.0),
-        vec4<T>(min.x(), max.y(), max.z(), 1.0),
-        vec4<T>(min.x(), max.y(), max.z(), 1.0),
-        vec4<T>(min.x(), min.y(), min.z(), 1.0),
-        vec4<T>(min.x(), min.y(), max.z(), 1.0),
-        vec4<T>(min.x(), max.y(), min.z(), 1.0),
-        vec4<T>(max.x(), min.y(), min.z(), 1.0),
-        vec4<T>(min.x(), min.y(), min.z(), 1.0),
-        vec4<T>(max.x(), min.y(), min.z(), 1.0),
-        vec4<T>(max.x(), max.y(), max.z(), 1.0),
-        vec4<T>(max.x(), min.y(), max.z(), 1.0),
-        vec4<T>(min.x(), min.y(), max.z(), 1.0),
-        vec4<T>(max.x(), max.y(), max.z(), 1.0),
-        vec4<T>(min.x(), max.y(), max.z(), 1.0),
-        vec4<T>(max.x(), min.y(), min.z(), 1.0),
-        vec4<T>(max.x(), max.y(), min.z(), 1.0),
-        vec4<T>(min.x(), max.y(), min.z(), 1.0),
-        vec4<T>(max.x(), max.y(), min.z(), 1.0),
-        vec4<T>(max.x(), max.y(), min.z(), 1.0),
-        vec4<T>(max.x(), min.y(), max.z(), 1.0)};
+    // Append vertices
+    m.vertex.insert(m.vertex.end(),
+                    std::initializer_list<vec4<T>>{
+                        vec4<T>(min.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), min.y(), max.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(min.x(), min.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(min.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), min.y(), max.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), max.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(min.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), max.y(), min.z(), 1.0),
+                        vec4<T>(max.x(), min.y(), max.z(), 1.0)});
 
-    // Create uv coordinates
-    m.uv = std::vector<vec2<T>>{
-        vec2<T>(1, 0),
-        vec2<T>(0, 1),
-        vec2<T>(0, 0),
-        vec2<T>(1, 0),
-        vec2<T>(0, 1),
-        vec2<T>(0, 0),
-        vec2<T>(1, 0),
-        vec2<T>(0, 1),
-        vec2<T>(0, 0),
-        vec2<T>(1, 0),
-        vec2<T>(0, 1),
-        vec2<T>(0, 0),
-        vec2<T>(0, 0),
-        vec2<T>(1, 1),
-        vec2<T>(0, 1),
-        vec2<T>(1, 0),
-        vec2<T>(0, 1),
-        vec2<T>(0, 0),
-        vec2<T>(1, 1),
-        vec2<T>(1, 1),
-        vec2<T>(1, 1),
-        vec2<T>(1, 1),
-        vec2<T>(1, 0),
-        vec2<T>(1, 1)};
+    // Append uv coordinates
+    m.uv.insert(m.uv.end(),
+                std::initializer_list<vec2<T>>{
+                    vec2<T>(1, 0),
+                    vec2<T>(0, 1),
+                    vec2<T>(0, 0),
+                    vec2<T>(1, 0),
+                    vec2<T>(0, 1),
+                    vec2<T>(0, 0),
+                    vec2<T>(1, 0),
+                    vec2<T>(0, 1),
+                    vec2<T>(0, 0),
+                    vec2<T>(1, 0),
+                    vec2<T>(0, 1),
+                    vec2<T>(0, 0),
+                    vec2<T>(0, 0),
+                    vec2<T>(1, 1),
+                    vec2<T>(0, 1),
+                    vec2<T>(1, 0),
+                    vec2<T>(0, 1),
+                    vec2<T>(0, 0),
+                    vec2<T>(1, 1),
+                    vec2<T>(1, 1),
+                    vec2<T>(1, 1),
+                    vec2<T>(1, 1),
+                    vec2<T>(1, 0),
+                    vec2<T>(1, 1)});
 
     // Create indices
-    m.index = std::vector<K>{
+    std::array<K, 36> indices{
         0, 1, 2,
         3, 4, 5,
         6, 7, 8,
@@ -668,12 +693,50 @@ inline mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
         12, 22, 13,
         15, 23, 16};
 
-    // Calculate the normals
-    m.calculate_normals();
+    // Offset the uv for each box in the mesh
+    if (index_offset > 0)
+    {
+        for (auto &i : indices)
+        {
+            i += index_offset;
+        }
+    }
 
-    // Calculate the tangents
-    m.calculate_tangents();
+    // Append indices
+    m.index.insert(m.index.end(), indices.begin(), indices.end());
+}
 
+// Converts a sphere into a mesh for drawing
+template <typename T, typename K>
+inline mesh<T, K> to_mesh(const sphere<T, vec3> &s)
+{
+    // Create a mesh to return
+    min::mesh<T, K> m("sphere");
+
+    // Append a sphere to the mesh
+    append_mesh<T, K>(s, m);
+
+    // Finalize the contents of the mesh based off sphere
+    finalize_mesh<T, K>(m);
+
+    // return mesh
+    return m;
+}
+
+// Converts an aabbox into a mesh for drawing
+template <typename T, typename K>
+inline mesh<T, K> to_mesh(const aabbox<T, vec3> &b)
+{
+    // Create a mesh to return
+    min::mesh<T, K> m("aabbox");
+
+    // Append a box to the mesh
+    append_mesh<T, K>(b, m);
+
+    // Finalize the contents of the mesh based off box
+    finalize_mesh<T, K>(m);
+
+    // return mesh
     return m;
 }
 }

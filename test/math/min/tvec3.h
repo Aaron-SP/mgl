@@ -82,7 +82,31 @@ bool test_vec3()
         throw std::runtime_error("Failed vec3 dot product operation");
     }
 
-    // Test cross product; should be 1 Z
+    // Test cross product; should be Y x Z = X
+    one = min::vec3<double>(0.0, 1.0, 0.0);
+    two = min::vec3<double>(0.0, 0.0, 1.0);
+    three = one.cross(two);
+    out = out && compare(1.0, three.x(), 1E-4);
+    out = out && compare(0.0, three.y(), 1E-4);
+    out = out && compare(0.0, three.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 cross product X operation");
+    }
+
+    // Test cross product; should be Z x X = Y
+    one = min::vec3<double>(0.0, 0.0, 1.0);
+    two = min::vec3<double>(1.0, 0.0, 0.0);
+    three = one.cross(two);
+    out = out && compare(0.0, three.x(), 1E-4);
+    out = out && compare(1.0, three.y(), 1E-4);
+    out = out && compare(0.0, three.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 cross product Y operation");
+    }
+
+    // Test cross product; should be X x Y = Z
     one = min::vec3<double>(1.0, 0.0, 0.0);
     two = min::vec3<double>(0.0, 1.0, 0.0);
     three = one.cross(two);
@@ -91,7 +115,7 @@ bool test_vec3()
     out = out && compare(1.0, three.z(), 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 cross product operation");
+        throw std::runtime_error("Failed vec3 cross product Z operation");
     }
 
     // Test magnitude; should be 3.74

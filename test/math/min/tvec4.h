@@ -84,17 +84,40 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 dot product operation");
     }
 
-    // Test cross product; should be 1 Z
+    // Test cross product; should be Y x Z = X
+    one = min::vec4<double>(0.0, 1.0, 0.0, 1.0);
+    two = min::vec4<double>(0.0, 0.0, 1.0, 1.0);
+    three = one.cross(two);
+    out = out && compare(1.0, three.x(), 1E-4);
+    out = out && compare(0.0, three.y(), 1E-4);
+    out = out && compare(0.0, three.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 cross product X operation");
+    }
+
+    // Test cross product; should be Z x X = Y
+    one = min::vec4<double>(0.0, 0.0, 1.0, 1.0);
+    two = min::vec4<double>(1.0, 0.0, 0.0, 1.0);
+    three = one.cross(two);
+    out = out && compare(0.0, three.x(), 1E-4);
+    out = out && compare(1.0, three.y(), 1E-4);
+    out = out && compare(0.0, three.z(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec4 cross product Y operation");
+    }
+
+    // Test cross product; should be X x Y = Z
     one = min::vec4<double>(1.0, 0.0, 0.0, 1.0);
     two = min::vec4<double>(0.0, 1.0, 0.0, 1.0);
     three = one.cross(two);
     out = out && compare(0.0, three.x(), 1E-4);
     out = out && compare(0.0, three.y(), 1E-4);
     out = out && compare(1.0, three.z(), 1E-4);
-    out = out && compare(1.0, three.w(), 1E-4);
     if (!out)
     {
-        throw std::runtime_error("Failed vec4 cross product operation");
+        throw std::runtime_error("Failed vec4 cross product Z operation");
     }
 
     // Test magnitude; should be 3.74
@@ -164,7 +187,7 @@ bool test_vec4()
     out = out && two.any_zero_outside(one, vmin, vmax);
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 any_zero_outside operation");
+        throw std::runtime_error("Failed vec4 any_zero_outside operation");
     }
 
     // Test not any_zero_outside
@@ -176,7 +199,7 @@ bool test_vec4()
     out = out && !two.any_zero_outside(one, vmin, vmax);
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 not any_zero_outside operation");
+        throw std::runtime_error("Failed vec4 not any_zero_outside operation");
     }
 
     // Test inverse

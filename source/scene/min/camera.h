@@ -64,10 +64,7 @@ class camera
     inline void force_update()
     {
         // If the camera needs to be updated
-        if (_dirty)
-        {
-            update();
-        }
+        update();
     }
     inline const vec3<T> &get_forward() const
     {
@@ -96,10 +93,7 @@ class camera
     inline const mat4<T> &get_pv_matrix()
     {
         // If the camera needs to be updated
-        if (_dirty)
-        {
-            update();
-        }
+        update();
 
         // Return the proj-view matrix in opengl format
         return _pv;
@@ -107,10 +101,7 @@ class camera
     inline const mat4<T> &get_v_matrix()
     {
         // If the camera needs to be updated
-        if (_dirty)
-        {
-            update();
-        }
+        update();
 
         // Return the view matrix in opengl format
         return _v;

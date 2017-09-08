@@ -292,7 +292,7 @@ class mesh
         // Find the index shift amount
         const size_t index_shift = vertex.size();
 
-        // Preallocate
+        // Preallocate, may be unnecessary
         vertex.reserve(vertex.size() + m.vertex.size());
         uv.reserve(uv.size() + m.uv.size());
         normal.reserve(normal.size() + m.normal.size());
