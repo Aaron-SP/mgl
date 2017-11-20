@@ -18,7 +18,7 @@ The GNU makefile contains various build targets.
 - 'make lib' - builds a static library (libmin.a)
 - 'make clean' - cleans up all generated output files
 
-These build targets have been tested for compilation on Arch Linux x64 and Windows 7 x64 platforms.
+These build targets have been tested for compilation on Arch Linux x64 and Windows 7 (x86,x64) platforms.
 
 GLEW is used within the engine for adding OpenGL function support.
 You can download GLEW at http://glew.sourceforge.net/
@@ -43,7 +43,8 @@ To perform code formatting, run the formatting script command in the project roo
 
 ### Usage
 
-After building the project tests and examples, you can run any example from the project root directory of the with 'bin/ex<1-9>'.
+After building the project tests and examples, you can run any example from the project root directory.
+- Running examples 'bin/ex<1-9>'
 All examples assume that the current working directory is the project root directory.
 
 #### Example 1
@@ -56,11 +57,11 @@ Commands
 - 'Q' will exit the example.
 #### Example 2
 This example is a texture compressor that will create DDS files using the GPU to perform DDS compression. 
-Usage definition: 'bin/ex2 <uncompressed.bmp> -o <compressed.dds> -t <compression_type> -m <bool>'
-    - <uncompressed.bmp>: File that will serve as input, BMP only.
-    - <compressed.dds>  : File that will serve as output, DDS only.
-    - <compression_type>: DXT1, DXT3, DXT5 compression types
-    - <bool>            : Generate mipmap flag | (true,false)
+- Usage definition: 'bin/ex2 <uncompressed.bmp> -o <compressed.dds> -t <compression_type> -m <bool>'
+- <uncompressed.bmp>: File that will serve as input, BMP only.
+- <compressed.dds>  : File that will serve as output, DDS only.
+- <compression_type>: DXT1, DXT3, DXT5 compression types
+- <bool>            : Generate mipmap flag | (true,false)
 
 Usage example:   'bin/ex2 infile.bmp -o outfile.dds -t DTX1 -m false'
 This will convert a BMP image into a DXT1 DDS file without generating mipmaps.
@@ -69,7 +70,7 @@ This will convert a BMP image into a DXT1 DDS file without generating mipmaps.
 ![Alt text](pictures/ex3.png)
 
 To run this project execute the command 'bin/ex3' in the project root directory. 
-The example will record mouse clicks in STDOUT and draw CW triangles on the screen.
+The example will record mouse clicks to the output log and draw CW triangles on the screen.
 
 Commands
 - 'Q' will exit the example.
