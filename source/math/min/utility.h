@@ -26,23 +26,18 @@ template <typename T>
 class var
 {
   public:
-    const static T PI;
-    const static T SQRT2;
-    const static T INV_SQRT2;
-    const static T SQRT3;
-    const static T INV_SQRT3;
-};
+    static constexpr T PI = 3.14159265358979323846;
+    static constexpr T SQRT2 = 1.4142135623731;
+    static constexpr T INV_SQRT2 = 0.707106781186547;
+    static constexpr T SQRT3 = 1.73205080756888;
+    static constexpr T INV_SQRT3 = 0.577350269189626;
+    static constexpr T TOL_PONE = 1.0 - 1E-6;
+    static constexpr T TOL_NONE = -1.0 + 1E-6;
+    static constexpr T TOL_REL = 1E-6;
 
-template <class T>
-const T var<T>::PI = 3.14159265358979323846;
-template <class T>
-const T var<T>::SQRT2 = 1.4142135623731;
-template <class T>
-const T var<T>::INV_SQRT2 = 0.707106781186547;
-template <class T>
-const T var<T>::SQRT3 = 1.73205080756888;
-template <class T>
-const T var<T>::INV_SQRT3 = 0.577350269189626;
+    // Use this for taking inverses without getting a NaN
+    static constexpr T TOL_ZERO = 1E-3;
+};
 
 template <typename T>
 constexpr inline T rad_to_deg(const T rad)
@@ -130,7 +125,7 @@ inline T safe_inverse(const T v)
     T out;
 
     // Test for division by zero
-    if (std::abs(v) < 1E-3)
+    if (std::abs(v) < var<T>::TOL_REL)
     {
         out = std::numeric_limits<T>::max();
     }

@@ -42,7 +42,7 @@ class vec3
     T _z;
 
   public:
-    vec3() : _x(0), _y(0), _z(0) {}
+    vec3() : _x(0.0), _y(0.0), _z(0.0) {}
     vec3(const T x, const T y, const T z) : _x(x), _y(y), _z(z) {}
     vec3(const vec2<T> &v) : _x(v.x()), _y(v.y()), _z(1.0) {}
     vec3(const vec4<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()) {}
@@ -89,17 +89,17 @@ class vec3
     inline bool any_zero_outside(const vec3<T> &p, const vec3<T> &min, const vec3<T> &max) const
     {
         // If p is zero and this is outside min and max return true else false
-        if (std::abs(p.x()) <= 1E-6)
+        if (std::abs(p.x()) <= var<T>::TOL_REL)
         {
             if (_x < min.x() || _x > max.x())
                 return true;
         }
-        else if (std::abs(p.y()) <= 1E-6)
+        else if (std::abs(p.y()) <= var<T>::TOL_REL)
         {
             if (_y < min.y() || _y > max.y())
                 return true;
         }
-        else if (std::abs(p.z()) <= 1E-6)
+        else if (std::abs(p.z()) <= var<T>::TOL_REL)
         {
             if (_z < min.z() || _z > max.z())
                 return true;
@@ -311,7 +311,7 @@ class vec3
         T tx = std::numeric_limits<T>::max();
         T dtx = std::numeric_limits<T>::max();
         int drx = 1;
-        if (std::abs(dir.x()) >= 1E-3)
+        if (std::abs(dir.x()) >= var<T>::TOL_ZERO)
         {
             // Choose distance based on ray direction
             if (dir.x() < 0.0)
@@ -338,7 +338,7 @@ class vec3
         T ty = std::numeric_limits<T>::max();
         T dty = std::numeric_limits<T>::max();
         int dry = 1;
-        if (std::abs(dir.y()) >= 1E-3)
+        if (std::abs(dir.y()) >= var<T>::TOL_ZERO)
         {
             // Choose distance based on ray direction
             if (dir.y() < 0.0)
@@ -365,7 +365,7 @@ class vec3
         T tz = std::numeric_limits<T>::max();
         T dtz = std::numeric_limits<T>::max();
         int drz = 1;
-        if (std::abs(dir.z()) >= 1E-3)
+        if (std::abs(dir.z()) >= var<T>::TOL_ZERO)
         {
             // Choose distance based on ray direction
             if (dir.z() < 0.0)
@@ -625,7 +625,7 @@ class vec3
     inline bool inside(const vec3<T> &min, const vec3<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
-        return (_x > min.x() - 1E-6 && _x < max.x() + 1E-6 && _y > min.y() - 1E-6 && _y < max.y() + 1E-6 && _z > min.z() - 1E-6 && _z < max.z() + 1E-6);
+        return (_x > min.x() - var<T>::TOL_REL && _x < max.x() + var<T>::TOL_REL && _y > min.y() - var<T>::TOL_REL && _y < max.y() + var<T>::TOL_REL && _z > min.z() - var<T>::TOL_REL && _z < max.z() + var<T>::TOL_REL);
     }
     inline vec3<T> inverse() const
     {
@@ -733,7 +733,7 @@ class vec3
     inline vec3<T> &normalize_safe(const vec3<T> &safe)
     {
         const T mag = magnitude();
-        if (std::abs(mag) > 1E-3)
+        if (std::abs(mag) > var<T>::TOL_ZERO)
         {
             T inv_mag = 1.0 / mag;
             _x *= inv_mag;
@@ -847,15 +847,15 @@ class vec3
         const T z1y2 = axis1.z().dot(axis2.y());
         const T z1z2 = axis1.z().dot(axis2.z());
 
-        const T abs_x1x2 = std::abs(x1x2) + 1E-6;
-        const T abs_x1y2 = std::abs(x1y2) + 1E-6;
-        const T abs_x1z2 = std::abs(x1z2) + 1E-6;
-        const T abs_y1x2 = std::abs(y1x2) + 1E-6;
-        const T abs_y1y2 = std::abs(y1y2) + 1E-6;
-        const T abs_y1z2 = std::abs(y1z2) + 1E-6;
-        const T abs_z1x2 = std::abs(z1x2) + 1E-6;
-        const T abs_z1y2 = std::abs(z1y2) + 1E-6;
-        const T abs_z1z2 = std::abs(z1z2) + 1E-6;
+        const T abs_x1x2 = std::abs(x1x2) + var<T>::TOL_REL;
+        const T abs_x1y2 = std::abs(x1y2) + var<T>::TOL_REL;
+        const T abs_x1z2 = std::abs(x1z2) + var<T>::TOL_REL;
+        const T abs_y1x2 = std::abs(y1x2) + var<T>::TOL_REL;
+        const T abs_y1y2 = std::abs(y1y2) + var<T>::TOL_REL;
+        const T abs_y1z2 = std::abs(y1z2) + var<T>::TOL_REL;
+        const T abs_z1x2 = std::abs(z1x2) + var<T>::TOL_REL;
+        const T abs_z1y2 = std::abs(z1y2) + var<T>::TOL_REL;
+        const T abs_z1z2 = std::abs(z1z2) + var<T>::TOL_REL;
 
         // Bring translation into A1's coordinate frame
         const vec3<T> d = center2 - center1;
@@ -1424,7 +1424,7 @@ class vec3
             flag = false;
 
             // Check that we are not parallel to y-axis
-            if (t.x() >= 0.0 && std::abs(dir.x()) >= 1E-3)
+            if (t.x() >= 0.0 && std::abs(dir.x()) >= var<T>::TOL_ZERO)
             {
                 // Calculate octant ranges
                 const T cy_hy = c.y() - h.y();
@@ -1510,7 +1510,7 @@ class vec3
             flag = false;
 
             // Check that we are not parallel to x-axis
-            if (t.y() >= 0.0 && std::abs(dir.y()) >= 1E-3)
+            if (t.y() >= 0.0 && std::abs(dir.y()) >= var<T>::TOL_ZERO)
             {
                 // Calculate octant ranges
                 const T cx_hx = c.x() - h.x();
@@ -1596,7 +1596,7 @@ class vec3
             flag = false;
 
             // Check that we are not parallel to x-axis
-            if (t.z() >= 0.0 && std::abs(dir.z()) >= 1E-3)
+            if (t.z() >= 0.0 && std::abs(dir.z()) >= var<T>::TOL_ZERO)
             {
                 // Calculate octant ranges
                 const T cx_hx = c.x() - h.x();
@@ -1807,7 +1807,7 @@ class vec3
             }
         }
         // t.x() == t.y() == t.z() == 0.0
-        else if (t_abs.x() < 1E-3 && t_abs.y() < 1E-3 && t_abs.z() < 1E-3)
+        else if (t_abs.x() < var<T>::TOL_ZERO && t_abs.y() < var<T>::TOL_ZERO && t_abs.z() < var<T>::TOL_ZERO)
         {
             out = {0, 1, 2, 3, 4, 5, 6, 7};
         }
@@ -1977,7 +1977,7 @@ class vec3
     inline bool within(const vec3<T> &min, const vec3<T> &max) const
     {
         // Return true if this vector is within the min and max vector range
-        return (_x >= min.x() - 1E-6 && _x <= max.x() + 1E-6 && _y >= min.y() - 1E-6 && _y <= max.y() + 1E-6 && _z >= min.z() - 1E-6 && _z <= max.z() + 1E-6);
+        return (_x >= min.x() - var<T>::TOL_REL && _x <= max.x() + var<T>::TOL_REL && _y >= min.y() - var<T>::TOL_REL && _y <= max.y() + var<T>::TOL_REL && _z >= min.z() - var<T>::TOL_REL && _z <= max.z() + var<T>::TOL_REL);
     }
     inline vec3<T> &operator+=(const T a)
     {

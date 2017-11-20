@@ -230,7 +230,7 @@ class mat3
         i = _a * _e - _d * _b;
 
         det = _a * _e * _i + _b * _f * _g + _c * _d * _h - _a * _f * _h - _c * _e * _g - _b * _d * _i;
-        if (std::abs(det) <= 1E-6)
+        if (std::abs(det) <= var<T>::TOL_REL)
         {
             return false;
         }

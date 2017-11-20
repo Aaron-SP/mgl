@@ -180,7 +180,7 @@ class mat4
         T w, x, y, z;
 
         T trace = _a + _f + _k;
-        if (trace > 1E-6)
+        if (trace > var<T>::TOL_REL)
         {
             T s = std::sqrt(1.0 + trace) * 2.0;
             w = 0.25 * s;
@@ -266,7 +266,7 @@ class mat4
 
         T det = _a * a + _b * e + _c * i + _d * m;
 
-        if (std::abs(det) <= 1E-6)
+        if (std::abs(det) <= var<T>::TOL_REL)
         {
             return false;
         }

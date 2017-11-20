@@ -90,10 +90,10 @@ class quat
     quat(const vec3<T> &v1, const vec3<T> &v2)
     {
         const T cos_theta = v1.dot(v2);
-        if (cos_theta < -0.995)
+        if (cos_theta < var<T>::TOL_NONE)
         {
             vec3<T> c = v1.cross_y();
-            if (c.magnitude() < 0.001)
+            if (c.magnitude() < var<T>::TOL_REL)
             {
                 c = v1.cross_x();
             }
@@ -103,7 +103,7 @@ class quat
             _y = c.y();
             _z = c.z();
         }
-        else if (cos_theta > 0.995)
+        else if (cos_theta > var<T>::TOL_PONE)
         {
             _w = 1.0;
             _x = 0.0;
@@ -126,14 +126,14 @@ class quat
     quat(const vec3<T> &v1, const vec3<T> &v2, const vec3<T> &v3)
     {
         const T cos_theta = v1.dot(v2);
-        if (cos_theta < -0.995)
+        if (cos_theta < var<T>::TOL_NONE)
         {
             _w = 0.0;
             _x = v3.x();
             _y = v3.y();
             _z = v3.z();
         }
-        else if (cos_theta > 0.995)
+        else if (cos_theta > var<T>::TOL_PONE)
         {
             _w = 1.0;
             _x = 0.0;

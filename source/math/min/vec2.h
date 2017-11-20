@@ -41,7 +41,7 @@ class vec2
     T _y;
 
   public:
-    vec2() : _x(0), _y(0) {}
+    vec2() : _x(0.0), _y(0.0) {}
     vec2(const T x, const T y) : _x(x), _y(y) {}
     inline T x() const
     {
@@ -76,12 +76,12 @@ class vec2
     inline bool any_zero_outside(const vec2<T> &p, const vec2<T> &min, const vec2<T> &max) const
     {
         // If p is zero and this is outside min and max return true else false
-        if (std::abs(p.x()) <= 1E-6)
+        if (std::abs(p.x()) <= var<T>::TOL_REL)
         {
             if (_x < min.x() || _x > max.x())
                 return true;
         }
-        else if (std::abs(p.y()) <= 1E-6)
+        else if (std::abs(p.y()) <= var<T>::TOL_REL)
         {
             if (_y < min.y() || _y > max.y())
                 return true;
@@ -267,7 +267,7 @@ class vec2
         T tx = std::numeric_limits<T>::max();
         T dtx = std::numeric_limits<T>::max();
         int drx = 1;
-        if (std::abs(dir.x()) >= 1E-3)
+        if (std::abs(dir.x()) >= var<T>::TOL_ZERO)
         {
             // Choose distance based on ray direction
             if (dir.x() < 0.0)
@@ -294,7 +294,7 @@ class vec2
         T ty = std::numeric_limits<T>::max();
         T dty = std::numeric_limits<T>::max();
         int dry = 1;
-        if (std::abs(dir.y()) >= 1E-3)
+        if (std::abs(dir.y()) >= var<T>::TOL_ZERO)
         {
             // Choose distance based on ray direction
             if (dir.y() < 0.0)
@@ -437,7 +437,7 @@ class vec2
     inline bool inside(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
-        return (_x > min.x() - 1E-6 && _x < max.x() + 1E-6 && _y > min.y() - 1E-6 && _y < max.y() + 1E-6);
+        return (_x > min.x() - var<T>::TOL_REL && _x < max.x() + var<T>::TOL_REL && _y > min.y() - var<T>::TOL_REL && _y < max.y() + var<T>::TOL_REL);
     }
     inline vec2<T> inverse() const
     {
@@ -532,7 +532,7 @@ class vec2
     inline vec2<T> &normalize_safe(const vec2<T> &safe)
     {
         const T mag = magnitude();
-        if (std::abs(mag) > 1E-3)
+        if (std::abs(mag) > var<T>::TOL_ZERO)
         {
             T inv_mag = 1.0 / mag;
             _x *= inv_mag;
@@ -612,10 +612,10 @@ class vec2
         const T y1x2 = axis1.y().dot(axis2.x());
         const T y1y2 = axis1.y().dot(axis2.y());
 
-        const T abs_x1x2 = std::abs(x1x2) + 1E-6;
-        const T abs_x1y2 = std::abs(x1y2) + 1E-6;
-        const T abs_y1x2 = std::abs(y1x2) + 1E-6;
-        const T abs_y1y2 = std::abs(y1y2) + 1E-6;
+        const T abs_x1x2 = std::abs(x1x2) + var<T>::TOL_REL;
+        const T abs_x1y2 = std::abs(x1y2) + var<T>::TOL_REL;
+        const T abs_y1x2 = std::abs(y1x2) + var<T>::TOL_REL;
+        const T abs_y1y2 = std::abs(y1y2) + var<T>::TOL_REL;
 
         // Bring translation into A1's coordinate frame
         const vec2<T> d = center2 - center1;
@@ -957,7 +957,7 @@ class vec2
             flag = false;
 
             // Check that we are not parallel to y-axis
-            if (t.x() >= 0.0 && std::abs(dir.x()) >= 1E-3)
+            if (t.x() >= 0.0 && std::abs(dir.x()) >= var<T>::TOL_ZERO)
             {
                 // Calculate octant ranges
                 const T cy_hy = c.y() - h.y();
@@ -1006,7 +1006,7 @@ class vec2
             flag = false;
 
             // Check that we are not parallel to x-axis
-            if (t.y() >= 0.0 && std::abs(dir.y()) >= 1E-3)
+            if (t.y() >= 0.0 && std::abs(dir.y()) >= var<T>::TOL_ZERO)
             {
                 // Calculate octant ranges
                 const T cx_hx = c.x() - h.x();
@@ -1090,7 +1090,7 @@ class vec2
             }
         }
         // t.x() == t.y() == 0.0
-        else if (t_abs.x() < 1E-3 && t_abs.y() < 1E-3)
+        else if (t_abs.x() < var<T>::TOL_ZERO && t_abs.y() < var<T>::TOL_ZERO)
         {
             out = {0, 1, 2, 3};
         }
@@ -1178,7 +1178,7 @@ class vec2
     inline bool within(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is within the min and max vector range
-        return (_x >= min.x() - 1E-6 && _x <= max.x() + 1E-6 && _y >= min.y() - 1E-6 && _y <= max.y() + 1E-6);
+        return (_x >= min.x() - var<T>::TOL_REL && _x <= max.x() + var<T>::TOL_REL && _y >= min.y() - var<T>::TOL_REL && _y <= max.y() + var<T>::TOL_REL);
     }
     inline vec2<T> &operator+=(const T a)
     {

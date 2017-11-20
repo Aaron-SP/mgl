@@ -356,7 +356,7 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
-        if (angle > 1E-4)
+        if (angle > var<T>::TOL_REL)
         {
             // Normalize rotation axis
             const T inv_angle = 1.0 / angle;
@@ -392,7 +392,7 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
-        if (angle > 1E-4)
+        if (angle > var<T>::TOL_REL)
         {
             // Normalize rotation axis
             const T inv_angle = 1.0 / angle;
@@ -612,7 +612,7 @@ class physics
 
         // Split offset in half and move b1 and b2 in opposite directions
         const T total = b1.get_inv_mass() + b2.get_inv_mass();
-        if (total > 1E-10)
+        if (total > var<T>::TOL_ZERO)
         {
             const T inv_total = 1.0 / total;
             const vec<T> half_offset1 = offset * (total - b2.get_inv_mass()) * inv_total;
