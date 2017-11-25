@@ -21,6 +21,7 @@ limitations under the License.
 #include <min/tbitflag.h>
 #include <min/tbmp.h>
 #include <min/tcamera.h>
+#include <min/tcubic.h>
 #include <min/tdds.h>
 #include <min/tfrustinter.h>
 #include <min/tfrustum.h>
@@ -69,6 +70,9 @@ int main()
         out = out && test_mat4();
         out = out && test_tran2();
         out = out && test_tran3();
+        out = out && test_bezier_cubic();
+        out = out && test_bspline_cubic();
+        out = out && test_hermite_cubic();
         out = out && test_plane();
         out = out && test_ray();
         out = out && test_ray_grid();
