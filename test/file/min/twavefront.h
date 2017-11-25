@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef __TESTWAVEFRONT__
 #define __TESTWAVEFRONT__
 
+#include <limits>
 #include <min/test.h>
 #include <min/wavefront.h>
 #include <stdexcept>

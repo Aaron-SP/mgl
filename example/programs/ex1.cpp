@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <iostream>
+#include <limits>
 #include <min/bmp.h>
 #include <min/camera.h>
 #include <min/loop_sync.h>

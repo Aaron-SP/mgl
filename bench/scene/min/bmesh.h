@@ -16,6 +16,7 @@ limitations under the License.
 #define __BENCH_BINARY_MESH__
 
 #include <chrono>
+#include <limits>
 #include <min/mesh.h>
 
 double bench_bmesh()
