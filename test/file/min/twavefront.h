@@ -199,6 +199,10 @@ bool test_wavefront()
 
     // Test large wavefront file
     {
+        // Since we are using a BMESH, assert floating point compatibility
+        static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 float required");
+        static_assert(sizeof(float) == 4, "32 bit IEEE 754 float required");
+
         int v;
         int uv;
         int n;

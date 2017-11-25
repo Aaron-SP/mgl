@@ -79,6 +79,10 @@ class render_loop_test
         // Warn user we are opening a large model
         std::cout << "Opening a very large model: blender_suzanne.obj" << std::endl;
 
+        // Since we are using a BMESH, assert floating point compatibility
+        static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 float required");
+        static_assert(sizeof(float) == 4, "32 bit IEEE 754 float required");
+
         // load blender-suzanne model
         min::mesh<float, uint32_t> suzanne("suzanne");
         suzanne.from_file("data/models/blender_suzanne.bmesh");
