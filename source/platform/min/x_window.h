@@ -140,9 +140,10 @@ class x_window
 
     // Callback functions
     void *_data;
-    void (*_lclick)(void *, const uint16_t width, const uint16_t);
-    void (*_rclick)(void *, const uint16_t width, const uint16_t);
-    void (*_drag)(void *, const uint16_t width, const uint16_t);
+    void (*_lclick_down)(void *, const uint16_t width, const uint16_t);
+    void (*_lclick_up)(void *, const uint16_t width, const uint16_t);
+    void (*_rclick_down)(void *, const uint16_t width, const uint16_t);
+    void (*_rclick_up)(void *, const uint16_t width, const uint16_t);
     void (*_update)(void *, const uint16_t width, const uint16_t);
 
     // Window class string literal
@@ -341,28 +342,36 @@ class x_window
         }
         std::cout << "x_window: opening X11 opengl context version " << major << "." << minor << std::endl;
     }
-    void on_lclick(const uint16_t x, const uint16_t y) const
+    void on_lclick_down(const uint16_t x, const uint16_t y) const
     {
-        // Call the click callback
-        if (_lclick)
+        // Call the lclick_down callback
+        if (_lclick_down)
         {
-            _lclick(_data, x, y);
+            _lclick_down(_data, x, y);
         }
     }
-    void on_rclick(const uint16_t x, const uint16_t y) const
+    void on_lclick_up(const uint16_t x, const uint16_t y) const
     {
-        // Call the click callback
-        if (_rclick)
+        // Call the lclick_up callback
+        if (_lclick_up)
         {
-            _rclick(_data, x, y);
+            _lclick_up(_data, x, y);
         }
     }
-    void on_drag(const uint16_t x, const uint16_t y) const
+    void on_rclick_down(const uint16_t x, const uint16_t y) const
     {
-        // Call the drag callback
-        if (_drag)
+        // Call the rlick_down callback
+        if (_rclick_down)
         {
-            _drag(_data, x, y);
+            _rclick_down(_data, x, y);
+        }
+    }
+    void on_rclick_up(const uint16_t x, const uint16_t y) const
+    {
+        // Call the rclick_up callback
+        if (_rclick_up)
+        {
+            _rclick_up(_data, x, y);
         }
     }
     void on_resize(const uint16_t width, const uint16_t height)
@@ -387,7 +396,8 @@ class x_window
 
   public:
     x_window(const std::string &title, const uint16_t width, const uint16_t height, int major, int minor)
-        : _w(width), _h(height), _major(major), _minor(minor), _shutdown(false), _lclick(nullptr), _rclick(nullptr), _drag(nullptr), _update(nullptr)
+        : _w(width), _h(height), _major(major), _minor(minor), _shutdown(false),
+          _lclick_down(nullptr), _lclick_up(nullptr), _rclick_down(nullptr), _rclick_up(nullptr), _update(nullptr)
     {
         // Create X11 window for certain opengl version
         create_window(title);
@@ -488,25 +498,30 @@ class x_window
         // Maximize the window
         // This functionality is dependent on the window manager
     }
-    void register_lclick(void (*click)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
     {
-        // Register callback on mouse up
-        _lclick = click;
+        // Register callback on lmouse down
+        _lclick_down = down;
     }
-    void register_rclick(void (*click)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
     {
-        // Register callback on mouse up
-        _rclick = click;
+        // Register callback on lmouse up
+        _lclick_up = up;
+    }
+    void register_rclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
+    {
+        // Register callback on rmouse down
+        _rclick_down = down;
+    }
+    void register_rclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
+    {
+        // Register callback on rmouse up
+        _rclick_up = up;
     }
     void register_data(void *ptr)
     {
         // Register callback data pointer
         _data = ptr;
-    }
-    void register_drag(void (*drag)(void *, const uint16_t x, const uint16_t y))
-    {
-        // Register callback on mouse down
-        _drag = drag;
     }
     void register_update(void (*update)(void *, const uint16_t width, const uint16_t height))
     {
@@ -569,20 +584,28 @@ class x_window
             }
             else if (event.type == ButtonPress)
             {
-                // Call the drag callback
-                on_drag(event.xbutton.x, _h - event.xbutton.y);
+                // Call the left click callback
+                if (event.xbutton.button == 1)
+                {
+                    on_lclick_down(event.xbutton.x, _h - event.xbutton.y);
+                }
+                // Call the right click callback, this may not work for all mice :|
+                else if (event.xbutton.button == 3)
+                {
+                    on_rclick_down(event.xbutton.x, _h - event.xbutton.y);
+                }
             }
             else if (event.type == ButtonRelease)
             {
                 // Call the left click callback
                 if (event.xbutton.button == 1)
                 {
-                    on_lclick(event.xbutton.x, _h - event.xbutton.y);
+                    on_lclick_up(event.xbutton.x, _h - event.xbutton.y);
                 }
                 // Call the right click callback, this may not work for all mice :|
                 else if (event.xbutton.button == 3)
                 {
-                    on_rclick(event.xbutton.x, _h - event.xbutton.y);
+                    on_rclick_up(event.xbutton.x, _h - event.xbutton.y);
                 }
             }
             else if (event.type == ClientMessage)

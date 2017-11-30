@@ -49,7 +49,7 @@ class screen_draw_test
 
         // Register callback function for mouse click
         _win.register_data((void *)this);
-        _win.register_lclick(screen_draw_test::on_click);
+        _win.register_lclick_up(screen_draw_test::on_click);
     }
     void load_vertex_buffer()
     {
