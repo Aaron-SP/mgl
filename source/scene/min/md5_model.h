@@ -106,7 +106,7 @@ class md5_model : public model<T, K, vec, bound>
         // We haven't loaded any animations
         return false;
     }
-    inline void load_animation(const std::string &file)
+    inline size_t load_animation(const std::string &file)
     {
         // Load animation in place
         _animations.emplace_back(file);
@@ -122,6 +122,17 @@ class md5_model : public model<T, K, vec, bound>
         if (_bones.size() != size || _inverse_bp.size() != size)
         {
             throw std::runtime_error("md5_model: animation is not compatible with model");
+        }
+
+        // return current animation index
+        return _current;
+    }
+    inline void reset_bones() const
+    {
+        // Reset bones to mind bose
+        for (auto &b : _bones)
+        {
+            b = mat4<T>();
         }
     }
     inline void set_current_animation(const size_t animation)

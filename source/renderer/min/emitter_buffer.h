@@ -53,6 +53,7 @@ class emitter_buffer
     T _spawn_accum;
     T _inv_mass; // Particle properties
     T _random;
+    vec3<T> _rot_axis;
     vec3<T> _grav_force;
     vec3<T> _start_pos;
     vec3<T> _start_speed;
@@ -74,7 +75,7 @@ class emitter_buffer
             const vec3<T> dp = position - a.first;
 
             // Calculate the attraction force
-            attract += (dp.cross_y() - dp) * a.second;
+            attract += (dp.cross(_rot_axis) - dp) * a.second;
         }
 
         // Compute the force from Newton's 2nd Law
@@ -94,8 +95,9 @@ class emitter_buffer
         {
             for (size_t i = start; i < size; i++)
             {
-                size_t group = i % attrs;
-                _particles[i] = _start_pos + _attractors[group].first;
+                const size_t group = i % attrs;
+                const T rand_interp = _dist(_rand) / _random;
+                _particles[i] = _start_pos + (_attractors[group].first - _start_pos) * rand_interp;
             }
         }
 
@@ -105,12 +107,12 @@ class emitter_buffer
             auto &speed = _speed[i];
 
             // Compute a random speed modifier for dispersion of particles
-            T randx = _dist(_rand);
-            T randy = _dist(_rand);
-            T randz = _dist(_rand);
+            const T randx = _dist(_rand);
+            const T randy = _dist(_rand);
+            const T randz = _dist(_rand);
 
             // Calculate random speed
-            vec3<T> rand_speed(randx, randy, randz);
+            const vec3<T> rand_speed(randx, randy, randz);
 
             // Set speed
             speed = _start_speed + rand_speed;
@@ -118,13 +120,13 @@ class emitter_buffer
     }
 
   public:
-    emitter_buffer(const vec3<T> &position, const size_t emit_count, const size_t emit_periods, const T emit_freq, const T spawn_freq, const T life)
+    emitter_buffer(const vec3<T> &position, const size_t emit_count, const size_t emit_periods, const T emit_freq, const T spawn_freq, const T random)
 
         : _emit_count(emit_count), _emit_pool_offset(0), _emit_pool_size(0),
           _emit_freq(emit_freq), _emit_accum(0.0), _spawn_freq(spawn_freq), _spawn_accum(0.0),
-          _inv_mass(2.0), _random(10.0),
-          _grav_force(0.0, -9.8, 0.0), _start_pos(position), _start_speed(0.0, 10.0, 0.0), _dist(-_random, _random),
-          _particles(emit_count * emit_periods), _speed(_particles.size())
+          _inv_mass(2.0), _random(random),
+          _rot_axis(vec3<T>::up()), _grav_force(0.0, -9.8, 0.0), _start_pos(position), _start_speed(0.0, 10.0, 0.0),
+          _dist(-_random, _random), _particles(emit_count * emit_periods), _speed(_particles.size())
     {
         // Generate the VAO for this vertex layout
         glGenVertexArrays(1, &_vao);
@@ -176,13 +178,23 @@ class emitter_buffer
         check_error();
     }
     emitter_buffer(const emitter_buffer &sb) = delete;
-    inline void attractor_add(const vec3<T> &center, const T power)
+    inline size_t attractor_add(const vec3<T> &center, const T power)
     {
+        // Create a new attractor
         _attractors.push_back(std::make_pair(center, power));
+
+        // Return attractor index
+        return _attractors.size() - 1;
     }
     inline void attractor_clear()
     {
         _attractors.clear();
+    }
+    inline void set_attractor(const vec3<T> &center, const T power, const size_t index)
+    {
+        // Update attractor properties
+        _attractors[index].first = center;
+        _attractors[index].second = power;
     }
     inline void bind() const
     {
@@ -216,13 +228,17 @@ class emitter_buffer
     {
         _grav_force = grav;
     }
+    inline void set_position(const vec3<T> &position)
+    {
+        _start_pos = position;
+    }
     inline void set_random(const T rand)
     {
         _dist = std::uniform_real_distribution<T>(-rand, rand);
     }
-    inline void set_position(const vec3<T> &position)
+    inline void set_rotation_axis(const min::vec3<T> &axis)
     {
-        _start_pos = position;
+        _rot_axis = axis;
     }
     inline void set_speed(const vec3<T> &speed)
     {
@@ -284,10 +300,10 @@ class emitter_buffer
             auto &speed = _speed[i];
 
             // Compute the force based on particle system settings
-            vec3<T> force = compute_force(position, speed);
+            const vec3<T> force = compute_force(position, speed);
 
             // Calculate the acceleration of the particle
-            vec3<T> accel = force * _inv_mass;
+            const vec3<T> accel = force * _inv_mass;
 
             // Update the particle velocity
             speed += accel * dt;
@@ -302,7 +318,7 @@ class emitter_buffer
         glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
         // Send the data to the GPU, calculate data size in bytes
-        size_t data_bytes = _emit_pool_size * particle_size;
+        const size_t data_bytes = _emit_pool_size * particle_size;
         glBufferData(GL_ARRAY_BUFFER, data_bytes, &_particles[0], GL_DYNAMIC_DRAW);
     }
 };

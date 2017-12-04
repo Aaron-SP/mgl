@@ -623,13 +623,14 @@ class physics
             b2.move_offset(half_offset2);
         }
     }
-    inline void collide_static(const size_t index, const shape<T, vec> &s2)
+    inline bool collide_static(const size_t index, const shape<T, vec> &s2)
     {
         // Get shapes from spatial index
         const shape<T, vec> &s1 = _shapes[index];
 
         // Test if the body is intersecting the static shape
-        if (intersect(s1, s2))
+        const bool collide = intersect(s1, s2);
+        if (collide)
         {
             // Calculate...
             // 1) the collision normal vector that points toward body
@@ -649,6 +650,9 @@ class physics
             // Move based off calculated offfset
             b.move_offset(offset);
         }
+
+        // return if we collided
+        return collide;
     }
 
     // The normal axis is defined to be the vector between b1 and b2, pointing towards b1
@@ -863,11 +867,6 @@ class physics
     }
     inline void solve_integrals(const T dt, const T damping)
     {
-        if (_bodies.size() != _shapes.size())
-        {
-            throw std::runtime_error("physics: body and shape sizes are disjoint");
-        }
-
         // Solve the first order initial value problem differential equations with Runge-Kutta4
         const size_t size = _bodies.size();
         for (size_t i = 0; i < size; i++)
@@ -899,6 +898,11 @@ class physics
 
         // Clear out the bodies
         _bodies.clear();
+    }
+    inline bool collide(const size_t index, const shape<T, vec> &s)
+    {
+        // return whether we collided or not
+        return collide_static(index, s);
     }
     inline const body<T, vec> &get_body(const size_t index) const
     {
@@ -966,20 +970,6 @@ class physics
 
             // Solve the simulation
             solve_integrals(dt, damping);
-        }
-    }
-    inline void solve_static(const std::vector<shape<T, vec>> &shapes, const size_t index, const T dt, const T damping)
-    {
-        if (_shapes.size() > 0)
-        {
-            // Perform N static collision checks against _bodies[index]
-            for (const auto &s : shapes)
-            {
-                collide_static(index, s);
-            }
-
-            // Solve the simulation
-            solve_integrals(index, dt, damping);
         }
     }
     inline T get_total_energy() const

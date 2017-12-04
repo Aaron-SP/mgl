@@ -113,7 +113,7 @@ class particle_test
           _vertex("data/shader/emitter.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 5.0),
+          _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 10.0),
           _ubuffer(0, 1),
           _force_type(0)
     {
@@ -209,8 +209,10 @@ class particle_test
         {
             _ebuffer.set_gravity(min::vec3<float>(0.0, 0.0, 0.0));
             _ebuffer.attractor_clear();
-            _ebuffer.attractor_add(min::vec3<float>(10.0, 0.0, 15.0), 0.1);
-            _ebuffer.attractor_add(min::vec3<float>(-10.0, 0.0, -15.0), 0.1);
+            _ebuffer.attractor_add(min::vec3<float>(10.0, 0.0, 0.0), 0.5);
+            _ebuffer.attractor_add(min::vec3<float>(-10.0, 0.0, 0.0), 0.5);
+            _ebuffer.attractor_add(min::vec3<float>(0.0, 10.0, 0.0), 2.0);
+            _ebuffer.attractor_add(min::vec3<float>(0.0, -10.0, 0.0), 2.0);
         }
     }
     void set_title(const std::string &title)

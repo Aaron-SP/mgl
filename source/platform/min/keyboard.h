@@ -37,16 +37,16 @@ class key
     key() : _down_data(nullptr), _up_data(nullptr), _is_down(false), _key_down(nullptr), _key_up(nullptr), _per_frame(false) {}
     void down(K step)
     {
-        // Call the callback function
-        if (_key_down && !_per_frame)
+        // Call the callback function, if not down previously and not per frame
+        if (_key_down && !_is_down && !_per_frame)
             _key_down(_down_data, step);
 
         _is_down = true;
     }
     void up(K step)
     {
-        // Call the callback function
-        if (_key_up && !_per_frame)
+        // Call the callback function, if not up previously and not per frame
+        if (_key_up && _is_down && !_per_frame)
             _key_up(_up_data, step);
 
         _is_down = false;
