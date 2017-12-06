@@ -266,6 +266,20 @@ class vec3
         // Return the row / col of cell
         return std::make_tuple(col, row, zin);
     }
+    inline static std::tuple<size_t, size_t, size_t> grid_index(const size_t index, const size_t scale)
+    {
+        // Precalculate the square scale
+        const size_t scale2 = scale * scale;
+
+        // Calculate row, col and height
+        const size_t col = index / scale2;
+        const size_t offset = index - col * scale2;
+        const size_t row = offset / scale;
+        const size_t zin = offset - (row * scale);
+
+        // return tuple
+        return std::make_tuple(col, row, zin);
+    }
     inline static size_t grid_key(const vec3<T> &min, const vec3<T> &extent, const size_t scale, const vec3<T> &point)
     {
         // Calculate the cell location

@@ -226,6 +226,14 @@ class vec2
         // Return the row / col of cell
         return std::make_pair(col, row);
     }
+    inline static std::pair<size_t, size_t> grid_index(const size_t index, const size_t scale)
+    {
+        const size_t col = index / scale;
+        const size_t row = index - (col * scale);
+
+        // return tuple
+        return std::make_pair(col, row);
+    }
     inline static size_t grid_key(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &point)
     {
         // Calculate the cell location

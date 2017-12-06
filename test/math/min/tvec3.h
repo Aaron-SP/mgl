@@ -772,7 +772,18 @@ bool test_vec3()
     out = out && compare(100, std::get<2>(cell));
     if (!out)
     {
-        throw std::runtime_error("Failed vec3 grid_index");
+        throw std::runtime_error("Failed vec3 grid_index 1");
+    }
+
+    // Test grid_index from key
+    key = min::vec3<double>::grid_key(vmin, cell_extent, 200, origin);
+    cell = min::vec3<double>::grid_index(key, 200);
+    out = out && compare(100, std::get<0>(cell));
+    out = out && compare(100, std::get<1>(cell));
+    out = out && compare(100, std::get<2>(cell));
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec3 grid_index 2");
     }
 
     // Test grid_ray
