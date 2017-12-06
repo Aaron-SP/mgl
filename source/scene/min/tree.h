@@ -48,6 +48,7 @@ class tree_node
     std::vector<tree_node<T, K, L, vec, cell, shape>> _child;
     std::vector<K> _keys;
     cell<T, vec> _cell;
+    mutable std::vector<size_t> _sub_ray_cache;
 
     inline void add_key(K key)
     {
@@ -82,6 +83,10 @@ class tree_node
     {
         return _cell;
     }
+    inline std::vector<size_t> &get_sub_ray_cache() const
+    {
+        return _sub_ray_cache;
+    }
     inline bool point_inside(const vec<T> &point) const
     {
         // The grid_key is assumed to be a box, so can't use _root.point_inside()!
@@ -98,6 +103,9 @@ class tree
 {
   private:
     std::vector<shape<T, vec>> _shapes;
+    std::vector<size_t> _index_map;
+    std::vector<size_t> _key_cache;
+    std::vector<uint8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
@@ -106,6 +114,7 @@ class tree
     K _scale;
     vec<T> _cell_extent;
     bool _depth_override;
+    size_t _flag_size;
 
     inline void build(tree_node<T, K, L, vec, cell, shape> &node, const K depth)
     {
@@ -134,8 +143,8 @@ class tree
             const vec<T> &center = node.get_cell().get_center();
 
             // Calculate intersection between shape and the node sub cells, sub_over.size() < 8
-            const std::vector<uint8_t> sub_over = vec<T>::sub_overlap(min, max, center);
-            for (const auto &sub : sub_over)
+            vec<T>::sub_overlap(_sub_overlap, min, max, center);
+            for (const auto &sub : _sub_overlap)
             {
                 // Set key for all overlapping sub cells
                 children[sub].add_key(key);
@@ -164,7 +173,21 @@ class tree
 
         // Reserve capacity for collisions and create flags index
         _hits.reserve(size);
-        _flags = bit_flag<K, L>(size, size);
+
+        // Reset the flag size if size changes
+        if (size > _flag_size)
+        {
+            // cache the flag size
+            _flag_size = size;
+
+            // Create flag buffer
+            _flags = bit_flag<K, L>(size, size);
+        }
+        else
+        {
+            // clear the flag buffer
+            _flags.clear();
+        }
     }
     inline size_t get_sorting_key(const vec<T> &point) const
     {
@@ -263,7 +286,8 @@ class tree
             const cell<T, vec> &c = node.get_cell();
 
             // For all child nodes intersecting ray
-            std::vector<size_t> keys = vec<T>::subdivide_ray(c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
+            std::vector<size_t> &keys = node.get_sub_ray_cache();
+            vec<T>::subdivide_ray(keys, c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
             for (const size_t k : keys)
             {
                 // Check the calculated key value
@@ -317,40 +341,37 @@ class tree
 
         return _depth;
     }
-    inline std::vector<size_t> sort(const std::vector<shape<T, vec>> &shapes)
+    inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
         // Create index vector to sort 0 to N
         const auto size = shapes.size();
-        std::vector<size_t> index(size);
-        std::iota(index.begin(), index.end(), 0);
+        _index_map.resize(size);
+        std::iota(_index_map.begin(), _index_map.end(), 0);
 
         // Cache key calculation for sorting speed up
-        std::vector<size_t> key_cache(size);
+        _key_cache.resize(size);
         for (size_t i = 0; i < size; i++)
         {
-            key_cache[i] = this->get_sorting_key(shapes[i].get_center());
+            _key_cache[i] = this->get_sorting_key(shapes[i].get_center());
         }
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on grid key
-        uint_sort<size_t>(index, [this, &key_cache](const size_t a) {
-            return key_cache[a];
+        uint_sort<size_t>(_index_map, [this](const size_t a) {
+            return this->_key_cache[a];
         });
 
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
         _shapes.reserve(size);
-        for (const auto &i : index)
+        for (const auto &i : _index_map)
         {
             _shapes.emplace_back(shapes[i]);
         }
-
-        // Return the index list so we can interpret the collision indices
-        return index;
     }
 
   public:
-    tree(const cell<T, vec> &c) : _root(c), _depth_override(false)
+    tree(const cell<T, vec> &c) : _root(c), _depth_override(false), _flag_size(0)
     {
         // Check that the tree max >= min
         const vec<T> &min = _root.get_cell().get_min();
@@ -444,7 +465,11 @@ class tree
     {
         return _depth;
     }
-    inline std::vector<size_t> insert(const std::vector<shape<T, vec>> &shapes)
+    inline const std::vector<size_t> &get_index_map() const
+    {
+        return _index_map;
+    }
+    inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
         // Check size of the number of objects to insert into grid
         if (shapes.size() > std::numeric_limits<K>::max() - 1)
@@ -456,7 +481,7 @@ class tree
         optimize_depth(shapes);
 
         // Sort shapes by grid key id
-        const std::vector<size_t> map = sort(shapes);
+        sort(shapes);
 
         // Clear out the root node
         _root.clear();
@@ -466,9 +491,6 @@ class tree
 
         // Rebuild the tree after changing the contents
         build(_root, _depth);
-
-        // Return this map so we can interpret the collision indices
-        return map;
     }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -482,7 +504,8 @@ class tree
         optimize_depth(shapes);
 
         // insert shapes without sorting
-        _shapes = shapes;
+        _shapes.clear();
+        _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
 
         // Clear out the root node
         _root.clear();
@@ -493,7 +516,7 @@ class tree
         // Rebuild the tree after changing the contents
         build(_root, _depth);
     }
-    inline std::vector<K> point_inside(const vec<T> &point) const
+    inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
         // Get the keys on the leaf node
         return this->get_node(point).get_keys();

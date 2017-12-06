@@ -85,12 +85,16 @@ class grid
   private:
     std::vector<shape<T, vec>> _shapes;
     std::vector<grid_node<T, K, L, vec, cell, shape>> _cells;
+    std::vector<size_t> _index_map;
+    std::vector<size_t> _key_cache;
+    std::vector<size_t> _grid_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     cell<T, vec> _root;
     K _scale;
     vec<T> _cell_extent;
+    size_t _flag_size;
 
     inline void build()
     {
@@ -111,18 +115,30 @@ class grid
         {
             // Get the surrounding overlapping neighbor cells
             const auto &b = _shapes[i];
-            const auto neighbors = vec<T>::grid_overlap(_root.get_min(), _cell_extent, _scale, b.get_min(), b.get_max());
+            vec<T>::grid_overlap(_grid_overlap, _root.get_min(), _cell_extent, _scale, b.get_min(), b.get_max());
 
             // All surrounding neighbors overlap
-            for (auto &n : neighbors)
+            for (auto &n : _grid_overlap)
             {
                 // Assign keys to cell
                 _cells[n].add_key(i);
             }
         }
 
-        // Preallocate cache dimensions
-        _flags = bit_flag<K, L>(size, size);
+        // Reset the flag size if size changes
+        if (size > _flag_size)
+        {
+            // cache the flag size
+            _flag_size = size;
+
+            // Create flag buffer
+            _flags = bit_flag<K, L>(size, size);
+        }
+        else
+        {
+            // clear the flag buffer
+            _flags.clear();
+        }
     }
     inline size_t get_key(const vec<T> &point) const
     {
@@ -218,40 +234,37 @@ class grid
             _cell_extent = _root.get_extent() / _scale;
         }
     }
-    inline std::vector<size_t> sort(const std::vector<shape<T, vec>> &shapes)
+    inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
         // Create index vector to sort 0 to N
         const auto size = shapes.size();
-        std::vector<size_t> index(size);
-        std::iota(index.begin(), index.end(), 0);
+        _index_map.resize(size);
+        std::iota(_index_map.begin(), _index_map.end(), 0);
 
         // Cache key calculation for sorting speed up
-        std::vector<size_t> key_cache(size);
+        _key_cache.resize(size);
         for (size_t i = 0; i < size; i++)
         {
-            key_cache[i] = this->get_key(shapes[i].get_center());
+            _key_cache[i] = this->get_key(shapes[i].get_center());
         }
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on grid key
-        uint_sort<size_t>(index, [this, &key_cache](const size_t a) {
-            return key_cache[a];
+        uint_sort<size_t>(_index_map, [this](const size_t a) {
+            return this->_key_cache[a];
         });
 
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
         _shapes.reserve(size);
-        for (auto &i : index)
+        for (auto &i : _index_map)
         {
             _shapes.emplace_back(shapes[i]);
         }
-
-        // Return the index list so we can interpret the collision indices
-        return index;
     }
 
   public:
-    grid(const cell<T, vec> &c) : _root(c), _scale(0)
+    grid(const cell<T, vec> &c) : _root(c), _scale(0), _flag_size(0)
     {
         // Check that the grid max >= min
         const vec<T> &min = _root.get_min();
@@ -357,11 +370,15 @@ class grid
         // Return the collision list
         return _ray_hits;
     }
+    inline const std::vector<size_t> &get_index_map() const
+    {
+        return _index_map;
+    }
     inline K get_scale() const
     {
         return _scale;
     }
-    inline std::vector<size_t> insert(const std::vector<shape<T, vec>> &shapes)
+    inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
         // Check size of the number of objects to insert into grid
         if (shapes.size() > std::numeric_limits<K>::max() - 1)
@@ -373,13 +390,10 @@ class grid
         set_scale(shapes);
 
         // Sort the shape array and store copy
-        const std::vector<size_t> map = sort(shapes);
+        sort(shapes);
 
         // Rebuild the grid after changing the contents
         build();
-
-        // Return this map so we can interpret the collision indices
-        return map;
     }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -393,7 +407,8 @@ class grid
         set_scale(shapes);
 
         // insert shapes without sorting
-        _shapes = shapes;
+        _shapes.clear();
+        _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
 
         // Rebuild the grid after changing the contents
         build();

@@ -936,7 +936,10 @@ class physics
         {
             // Create the spatial partitioning structure based off rigid bodies
             // This reorders the shapes vector so we need to reorganize the shape and body data to reflect this!
-            const std::vector<size_t> map = _spatial.insert(_shapes);
+            _spatial.insert(_shapes);
+
+            // Get the index map for reordering
+            const std::vector<size_t> &map = _spatial.get_index_map();
 
             // Determine intersecting shapes for contact resolution
             const std::vector<std::pair<K, K>> &collisions = _spatial.get_collisions();

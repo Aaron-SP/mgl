@@ -458,10 +458,10 @@ class vec3
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
     }
-    inline static std::vector<size_t> grid_overlap(const vec3<T> &min, const vec3<T> &extent, const size_t scale, const vec3<T> &b_min, const vec3<T> &b_max)
+    inline static void grid_overlap(std::vector<size_t> &out, const vec3<T> &min, const vec3<T> &extent, const size_t scale, const vec3<T> &b_min, const vec3<T> &b_max)
     {
-        // Create the output vector
-        std::vector<size_t> out;
+        // Reserve space for output
+        out.clear();
         out.reserve(27);
 
         // Calculate the grid dimensions
@@ -475,7 +475,7 @@ class vec3
         // Test for early out
         if (center.x() < min.x() || center.y() < min.y() || center.z() < min.z())
         {
-            return out;
+            return;
         }
 
         // Center cell indices
@@ -606,8 +606,6 @@ class vec3
                     out.push_back(px * scale2 + py * scale + pz); // +Z
             }
         }
-
-        return out;
     }
     inline static std::pair<vec3<T>, vec3<T>> extents(const std::vector<vec3<T>> &verts)
     {
@@ -1413,11 +1411,11 @@ class vec3
     // Each axis is axis aligned so we can simplify to, where nx = ny = 1
     // tx = (cx - nx · Px) / (nx · dx)
     // ty = (cy - ny · Py) / (ny · dy)
-    inline static std::vector<size_t> subdivide_ray(const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
+    inline static void subdivide_ray(std::vector<size_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
     {
-        // Output vector
-        std::vector<size_t> out;
-        out.reserve(3);
+        // Reserve space for output
+        out.clear();
+        out.reserve(4);
 
         // Temporaries for holding the quadrants across intersecting plane, flag signals if we need to push_back
         size_t f, s;
@@ -1839,12 +1837,11 @@ class vec3
             const uint8_t key = ratio.subdivide_key(0.5);
             out.push_back(key);
         }
-
-        return out;
     }
-    inline static std::vector<uint8_t> sub_overlap(const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
+    inline static void sub_overlap(std::vector<uint8_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
     {
-        std::vector<uint8_t> out;
+        // Reserve space for output
+        out.clear();
         out.reserve(8);
 
         const bool minx = min.x() < center.x();
@@ -1973,8 +1970,6 @@ class vec3
                 }
             }
         }
-
-        return out;
     }
     inline constexpr static T unit_length()
     {

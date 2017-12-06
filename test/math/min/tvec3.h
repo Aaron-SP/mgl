@@ -479,7 +479,8 @@ bool test_vec3()
     min::vec3<double> inverse = direction.inverse();
     vmin = min::vec3<double>(-100000.0, -100000.0, -100000.0);
     vmax = min::vec3<double>(100000.0, 100000.0, 100000.0);
-    std::vector<size_t> keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    std::vector<size_t> keys;
+    min::vec3<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
     out = out && compare(7, keys[0]);
     out = out && compare(6, keys[1]);
@@ -494,7 +495,7 @@ bool test_vec3()
     origin = min::vec3<double>(-300.0, -50.0, -100.0);
     direction = min::vec3<double>(1.0, 1.0, 1.0).normalize();
     inverse = direction.inverse();
-    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    min::vec3<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
     out = out && compare(0, keys[0]);
     out = out && compare(2, keys[1]);
@@ -509,7 +510,7 @@ bool test_vec3()
     origin = min::vec3<double>(-300.0, -300.0, -300.0);
     direction = min::vec3<double>(-1.0, -1.0, -1.0).normalize();
     inverse = direction.inverse();
-    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    min::vec3<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(1, keys.size());
     out = out && compare(0, keys[0]);
     if (!out)
@@ -521,7 +522,7 @@ bool test_vec3()
     origin = min::vec3<double>(-1E-6, 1E-6, 1E-6);
     direction = min::vec3<double>(1.0, -1.0, -1.0).normalize();
     inverse = direction.inverse();
-    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    min::vec3<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(8, keys.size());
     out = out && compare(0, keys[0]);
     out = out && compare(1, keys[1]);
@@ -540,7 +541,7 @@ bool test_vec3()
     origin = min::vec3<double>(-99999.0, 99999.0, -99999.0);
     direction = min::vec3<double>(0.0, -1.0, 0.0).normalize();
     inverse = direction.inverse_safe();
-    keys = min::vec3<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
+    min::vec3<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(2, keys.size());
     out = out && compare(2, keys[0]);
     out = out && compare(0, keys[1]);
@@ -553,7 +554,8 @@ bool test_vec3()
     one = min::vec3<double>(-1.0, -1.0, -1.0);
     two = min::vec3<double>(1.0, 1.0, 1.0);
     three = min::vec3<double>(0.0, 0.0, 0.0);
-    std::vector<uint8_t> sub_over = min::vec3<double>::sub_overlap(one, two, three);
+    std::vector<uint8_t> sub_over;
+    min::vec3<double>::sub_overlap(sub_over, one, two, three);
     out = out && compare(0, sub_over[0]);
     out = out && compare(1, sub_over[1]);
     out = out && compare(2, sub_over[2]);
@@ -867,7 +869,8 @@ bool test_vec3()
     two = min::vec3<double>(10000.0, 10000.0, 10000.0);
     vmin = min::vec3<double>(-100.0, -100.0, -100.0);
     vmax = min::vec3<double>(100.0, 100.0, 100.0);
-    std::vector<size_t> over = min::vec3<double>::grid_overlap(one, (two - one) / 40, 40, vmin, vmax);
+    std::vector<size_t> over;
+    min::vec3<double>::grid_overlap(over, one, (two - one) / 40, 40, vmin, vmax);
     out = out && compare(8, over.size());
     if (!out)
     {
