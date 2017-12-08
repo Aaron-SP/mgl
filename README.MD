@@ -10,7 +10,6 @@ A GNU makefile is available for compilation with GCC/MINGW for win32 platforms o
 The makefile should work for both environments without modification.
 
 The GNU makefile contains various build targets.
-
 - 'make' - builds all tests and examples.
 - 'make benchmarks' - builds only benchmarks (gl_bench)
 - 'make examples' - builds only examples (ex1-ex9)
@@ -24,7 +23,8 @@ GLEW is used within the engine for adding OpenGL function support.
 You can download GLEW at http://glew.sourceforge.net/
 
 Additional dependencies that are required and not distributed in this package include:
-
+- 'g++' - versions 6.0+
+- 'opengl3.3+' - all platforms
 - 'mingw32' - for win32 only
 - 'freetype' - for win32 and linux
 - 'X11' - for linux only
@@ -34,18 +34,19 @@ For Arch Linux users, the following pacman command should install all needed dep
 - pacman -S freetype2 xorg-server xorg-server-devel
 
 To verify freetype has been installed properly, query it using the following command:
-
 - freetype-config --cflags
 
 To perform code formatting, run the formatting script command in the project root (clang is required):
-
 - ./format
 
 ### Usage
 
 After building the project tests and examples, you can run any example from the project root directory.
 - Running examples 'bin/ex<1-9>'
+
 All examples assume that the current working directory is the project root directory.
+
+In order to link with the static library all template classes should be declared with 'extern template class' to prevent the automatic instantiation of members.
 
 #### Example 1
 ![Alt text](pictures/ex1.png)

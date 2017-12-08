@@ -1,4 +1,4 @@
-/* Copyright [2013-2016] [Aaron Springstroh, Minimal Graphics Library]
+/* Copyright [2013-2018] [Aaron Springstroh, Minimal Graphics Library]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,115 +24,124 @@ namespace min
 class loop_sync
 {
   private:
+    // History buffer
+    static constexpr size_t _error_count = 60;
+    std::vector<double> _error;
+    size_t _begin;
+    size_t _end;
+    double _ie;
+    double _de;
+
+    // Time properties
     std::chrono::high_resolution_clock::time_point _start;
-    std::chrono::high_resolution_clock::time_point _stop;
-    size_t _fps_count;
-    double _fps_time;
-    double _frame_time;
     std::chrono::high_resolution_clock::time_point _current_time;
+
+    // Control properties
     double _accum_time;
     double _idle_time;
+    double _set_point;
+    double _kp;
+    double _ki;
+    double _kd;
+    double _dt;
 
-    inline void get_time()
+    inline void calculate_control_parameters()
     {
-        _current_time = now();
+        // Drop off oldest record from buffer
+        const double drop = _error[_begin];
+        _begin = (_begin + 1) % _error_count;
+
+        // Create new record on buffer
+        const double prev = _error[_end];
+        _end = (_end + 1) % _error_count;
+
+        // Elapsed since start of frame, ensure not zero
+        if (_dt < 0.001)
+        {
+            _dt = 0.001;
+        }
+
+        // Calculate the error
+        _error[_end] = (_set_point - _dt);
+
+        // Calculate integral of errors
+        _ie = 0.0;
+        for (size_t i = _begin; i != _end; i = (i + 1) % _error_count)
+        {
+            _ie += _error[i] * _dt;
+        }
+
+        // Calculate the derivative of errors
+        _de = (_error[_end] - prev);
     }
-    inline double delta(const std::chrono::high_resolution_clock::time_point &start, const std::chrono::high_resolution_clock::time_point &stop) const
-    {
-        return std::chrono::duration<double, std::milli>(stop - start).count();
-    }
-    inline double seconds(const std::chrono::high_resolution_clock::time_point &start, const std::chrono::high_resolution_clock::time_point &stop) const
-    {
-        return std::chrono::duration<double>(stop - start).count();
-    }
-    inline std::chrono::high_resolution_clock::time_point now()
+    inline double diff()
     {
         // Calculate current time
         _current_time = std::chrono::high_resolution_clock::now();
 
-        // Return current time
-        return _current_time;
-    }
-    void stop()
-    {
-        _stop = now();
+        return std::chrono::duration<double>(_current_time - _start).count();
     }
 
   public:
-    loop_sync(const double fps) : _fps_count(0), _fps_time(0.0), _frame_time(1000.0 / fps), _accum_time(0.0), _idle_time(0.0) {}
-    double get_fps()
+    loop_sync(const double fps)
+        : _error(_error_count, 0.0), _begin(0), _end(_error_count - 1), _ie(0.0), _de(0.0),
+          _accum_time(0.0), _idle_time(0.0), _set_point(1.0 / fps),
+          _kp(1.0), _ki(0.25 / (_error_count * _set_point * _set_point)), _kd(1.0), _dt(0.0) {}
+
+    inline double get_fps() const
     {
-        // Calculate the frames per second, time is in milliseconds
-        double fps = (_fps_count) / _fps_time;
-
-        // Reset the frame count and time
-        _fps_count = 0;
-        _fps_time = 0.0;
-
-        // Return the calculated fps
-        return fps;
+        // Return the average fps
+        return 1.0 / (_set_point + (_ie / _error_count));
     }
-    double idle()
+    inline double idle() const
     {
         return _idle_time;
     }
-    void start()
+    inline void start()
     {
-        _start = now();
+        _start = std::chrono::high_resolution_clock::now();
     }
     double sync()
     {
-        // Get the stop time
-        stop();
+        // Calculate time spent rendering
+        _dt = diff();
+        const double idle_time = _set_point - _dt;
 
-        // calculate render time
-        const double render_time = delta(_start, _stop);
+        // Calculate the delay using PID equation
+        const double p = _kp * _error[_end];
+        const double i = _ki * _ie;
+        const double d = _kd * _de;
 
-        // Synchronize the loop to poll a frame at 'tick' seconds
-        if (_frame_time > render_time)
+        const double delay = idle_time * (p + i + d + 1.0);
+        const double adjust_delay = delay - _accum_time;
+
+        // If we have time to kill, sleep on it
+        if (adjust_delay > 0.0)
         {
-            // Calculate the required delay which is the difference between the frame time and the render time
-            // 'accum' is a 'catch up' variable and effectively lowers the calculated delay
-            const double delay = _frame_time - render_time;
-            const double adjust_delay = delay - _accum_time;
-            if (adjust_delay > 0.0)
-            {
-                // Sleep for the calculated delay
-                std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(adjust_delay));
+            // Sleep for the calculated delay
+            std::this_thread::sleep_for(std::chrono::duration<double>(adjust_delay));
 
-                // Get time spent sleeping in milliseconds
-                const auto time = now();
-                const double slept = delta(_start, time);
+            // Get time spent sleeping in seconds
+            _dt = diff();
 
-                // Calculate the idle percentage (%)
-                _idle_time = (delay / _frame_time) * 100;
+            // Set the accumulation if we over-slept
+            _accum_time = _dt - adjust_delay;
 
-                // Set the accumulation if we over-slept
-                _accum_time = slept - adjust_delay;
-            }
-            else
-            {
-                // Play 'catch up' and don't sleep
-                _accum_time -= delay;
-                _idle_time = 0;
-            }
+            // Calculate the idle percentage (%)
+            _idle_time = (idle_time / _set_point) * 100;
         }
         else
         {
-            // We took too long rendering the frame so we need to play catch up
-            _accum_time += render_time - _frame_time;
+            // We took too long rendering, accumulate this time
+            _accum_time -= idle_time;
             _idle_time = 0;
         }
 
-        // Calculate the elapsed time since start() called in seconds
-        const double out = seconds(_start, _current_time);
-
-        // Update the frame count and the elapsed time
-        _fps_count++;
-        _fps_time += out;
+        // Calculate PID variables
+        calculate_control_parameters();
 
         // Return the frame time step in seconds
-        return out;
+        return _dt;
     }
 };
 }
