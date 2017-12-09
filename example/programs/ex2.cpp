@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <algorithm>
-#include <map>
 #include <min/bmp.h>
 #include <min/dds.h>
 #include <min/strtoken.h>
@@ -21,7 +20,6 @@ limitations under the License.
 #include <min/window.h>
 #include <stdexcept>
 #include <string>
-#include <utility>
 
 void write_file(const std::string &file_path, const min::dds &d)
 {
@@ -91,30 +89,6 @@ void bmp_to_dds_compress(const std::string &input, const std::string &output, bo
     }
 }
 
-void parse_specifiers(std::map<std::string, std::string> &flags, char *argv[], unsigned index)
-{
-    // Convert to lowercase for comparison '-o' or '-t'
-    std::string command(tools::to_lower(argv[index]));
-
-    // Check if command is valid
-    if (command.compare("-o") == 0 || command.compare("-t") == 0 || command.compare("-m") == 0)
-    {
-        // <compressed.dds>
-        std::string value(argv[index + 1]);
-
-        // Try to insert the pair into the map
-        auto i = flags.insert(std::make_pair(command, value));
-        if (!i.second)
-        {
-            throw std::runtime_error("compress: Attribute '" + command + "' already specied");
-        }
-    }
-    else
-    {
-        throw std::runtime_error("Unknown argument '" + command + "' expected '-o', '-t', or '-m'");
-    }
-}
-
 void fatal_error()
 {
     std::cout << "ERROR: Invalid arguments specified" << std::endl;
@@ -127,7 +101,7 @@ int main(int argc, char *argv[])
     try
     {
         // Check the argument count
-        if (argc != 6 && argc != 8)
+        if (argc < 2)
         {
             fatal_error();
             return 1;
@@ -135,74 +109,70 @@ int main(int argc, char *argv[])
 
         // Input file name <uncompressed.bmp>
         std::string input(argv[1]);
+        std::string output("out.dds");
+        std::string format("dxt1");
+        std::string mip_flag("true");
 
-        // Map for storing command flags
-        std::map<std::string, std::string> flags;
-
-        // Get the -o and -t flags with values
-        parse_specifiers(flags, argv, 2);
-        parse_specifiers(flags, argv, 4);
-
-        // These are for setting mip maps with -m
-        if (argc == 8)
+        // Parse inputs on command line
+        for (int i = 3; i < argc; i += 2)
         {
-            parse_specifiers(flags, argv, 6);
-        }
+            // Get flag parameter
+            std::string flag(argv[i - 1]);
 
-        // Check that we have all needed inputs
-        if (flags.count("-o") > 0 && flags.count("-t") > 0)
-        {
-            // Output file name <compressed.dds>
-            std::string output(flags["-o"]);
-
-            // Convert to lowercase for string comparison
-            std::string format(tools::to_lower(flags["-t"]));
-
-            // Generate mip maps?
-            bool mips = true;
-
-            if (flags.count("-m") > 0)
+            // Check for overriding each flag
+            if (flag.compare("-o") == 0)
             {
-                // boolean value <bool>
-                std::string mip_flag(tools::to_lower(flags["-m"]));
-
-                // Check for disabling mip maps
-                if (mip_flag.compare("false") == 0)
-                {
-                    mips = false;
-                }
-                else if (mip_flag.compare("true") != 0)
-                {
-                    std::cout << "ERROR: Invalid mip flag: Valid boolean flags for -m are 'true' and 'false', default value is 'true'" << std::endl;
-                    return 1;
-                }
+                // Output file name <compressed.dds>
+                output = std::string(argv[i]);
             }
-
-            // Choose the correct format
-            if (format.compare("dxt1") == 0)
+            else if (flag.compare("-t") == 0)
             {
-                // Compressing to DXT1
-                bmp_to_dds_compress(input, output, mips, 1);
+                // Convert to lowercase for string comparison
+                format = std::string(tools::to_lower(argv[i]));
             }
-            else if (format.compare("dxt3") == 0)
+            else if (flag.compare("-m") == 0)
             {
-                // Compressing to DXT3
-                bmp_to_dds_compress(input, output, mips, 3);
-            }
-            else if (format.compare("dxt5") == 0)
-            {
-                // Compressing to DXT5
-                bmp_to_dds_compress(input, output, mips, 5);
+                mip_flag = std::string(tools::to_lower(argv[i]));
             }
             else
             {
-                std::cout << "ERROR: Invalid format: Valid formats are dxt1, dxt3, and dxt5 when using the -t flag" << std::endl;
+                std::cout << "ERROR: Invalid flag: unknown flag '"
+                          << flag << "', expected '-o', '-t' or 'm'" << std::endl;
                 return 1;
             }
         }
+
+        // Generate mip maps?
+        bool mips = true;
+        if (mip_flag.compare("false") == 0)
+        {
+            mips = false;
+        }
+        else if (mip_flag.compare("true") != 0)
+        {
+            std::cout << "ERROR: Invalid mip flag: Valid boolean flags for -m are 'true' and 'false', default value is 'true'" << std::endl;
+            return 1;
+        }
+
+        // Choose the correct format
+        if (format.compare("dxt1") == 0)
+        {
+            // Compressing to DXT1
+            bmp_to_dds_compress(input, output, mips, 1);
+        }
+        else if (format.compare("dxt3") == 0)
+        {
+            // Compressing to DXT3
+            bmp_to_dds_compress(input, output, mips, 3);
+        }
+        else if (format.compare("dxt5") == 0)
+        {
+            // Compressing to DXT5
+            bmp_to_dds_compress(input, output, mips, 5);
+        }
         else
         {
-            fatal_error();
+            std::cout << "ERROR: Invalid format: Valid formats are dxt1, dxt3, and dxt5 when using the -t flag" << std::endl;
             return 1;
         }
     }

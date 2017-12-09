@@ -23,7 +23,7 @@ GLEW is used within the engine for adding OpenGL function support.
 You can download GLEW at http://glew.sourceforge.net/
 
 Additional dependencies that are required and not distributed in this package include:
-- 'g++' - versions 6.0+
+- 'g++-5.4' - all platforms
 - 'opengl3.3+' - all platforms
 - 'mingw32' - for win32 only
 - 'freetype' - for win32 and linux

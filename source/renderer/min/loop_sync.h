@@ -25,10 +25,10 @@ class loop_sync
 {
   private:
     // History buffer
-    static constexpr size_t _error_count = 60;
+    static constexpr uint8_t _error_count = 15;
     std::vector<double> _error;
-    size_t _begin;
-    size_t _end;
+    uint8_t _begin;
+    uint8_t _end;
     double _ie;
     double _de;
 
@@ -48,7 +48,6 @@ class loop_sync
     inline void calculate_control_parameters()
     {
         // Drop off oldest record from buffer
-        const double drop = _error[_begin];
         _begin = (_begin + 1) % _error_count;
 
         // Create new record on buffer
@@ -66,7 +65,7 @@ class loop_sync
 
         // Calculate integral of errors
         _ie = 0.0;
-        for (size_t i = _begin; i != _end; i = (i + 1) % _error_count)
+        for (uint8_t i = _begin; i != _end; i = (i + 1) % _error_count)
         {
             _ie += _error[i] * _dt;
         }
