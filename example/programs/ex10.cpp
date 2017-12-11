@@ -167,12 +167,14 @@ class render_loop_test
     {
         // Load light into uniform buffer
         const min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
-        const min::vec4<float> light_position(0.5, 100.0, 0.0, 1.0);
-        const min::vec4<float> light_power(0.1, 2.0, 2.0, 1.0);
+        const min::vec4<float> light_position(0.0, 100.0, 0.0, 1.0);
+        const min::vec4<float> light_power(0.1, 2.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load light position and look into the shadow buffer
         const min::vec3<float> light_look(0.0, 0.0, 0.0);
+        _shadow_buffer.set_view_width(1.5);
+        _shadow_buffer.set_view_height(1.5);
         _shadow_buffer.set_light(light_position, light_look);
 
         // Load projection, view matrix, model & shadow into uniform buffer
@@ -241,10 +243,12 @@ class render_loop_test
         const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
         glClearBufferfv(GL_COLOR, 0, color);
         glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_BACK);
     }
     void clear_depth() const
     {
         glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
     }
     bool is_closed() const
     {

@@ -1,26 +1,94 @@
 #version 330 core
 
 // Inputs from vertex shader
-in vec2 out_uv;
-in vec4 out_color;
-in vec4 out_shadow;
+in vec4 _vertex;
+in vec2 _uv;
+in vec3 _normal;
+in vec3 _eye;
+in vec4 _shadow;
+
+// Create the light struct and the uniform blocks
+// This is the maximum light count and is needed since UBO expires an explicit array count
+#define MAX_NUM_TOTAL_LIGHTS 1
+struct light
+{
+    vec4 color;
+    vec4 position;
+    vec4 power;
+};
+
+layout(std140) uniform light_block
+{
+    light lights[MAX_NUM_TOTAL_LIGHTS];
+    int size;
+} light_buffer;
 
 // Texture input
 uniform sampler2D in_texture;
+
+// Shadow input
 uniform sampler2DShadow shadow_texture;
 
 // Output color
 out vec4 color;
 
+// Poisson sampling
+vec2 poissonDisk[4] = vec2[](
+  vec2( -0.94201624, -0.39906216 ),
+  vec2( 0.94558609, -0.76890725 ),
+  vec2( -0.094184101, -0.92938870 ),
+  vec2( 0.34495938, 0.29387760 )
+);
+
 void main(void)
 {
-	// Weighted sum of passing depth test from texture depth (0.0 or 1.0)
-	// Sum is proportional to the number of samples in the shadow texture that pass the comparison
-	float shadow = textureProj(shadow_texture, out_shadow);
+	// Initialize reference color
+    vec4 _color = vec4(0.0, 0.0, 0.0, 1.0);
 
-	// Calculate the base color with lighting applied
-	vec3 base_color = (texture(in_texture, out_uv).rgba * out_color).rgb;
+    // For all lights in the scene
+    for(int i = 0; i < light_buffer.size; i++)
+    {
+        // Calculate the light world coordinates
+        vec3 light_direction = normalize(light_buffer.lights[i].position - _vertex).xyz;
 
-	// Calculate the output color
-	color = vec4(shadow, shadow, shadow, 1.0);
+        // Calculate reflection and drop off
+        float angle = dot(_normal, light_direction);
+        float cos_theta = clamp(angle, 0.0, 1.0);
+        vec3 reflection = reflect(-light_direction, _normal);
+        float cos_alpha = clamp(dot(_eye, reflection), 0, 1.0);
+
+        // Calculate ambient, diffuse and specular
+        float ambient = light_buffer.lights[i].power.x;
+        float diffuse = light_buffer.lights[i].power.y * cos_theta;
+        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5);
+
+        // Weighted sum of passing depth test from texture depth (0.0 or 1.0)
+        // Sum is proportional to the number of samples in the shadow texture that pass the comparison
+        float shadow = 0.0;
+        if(angle > 0.0)
+        {
+            // Calculate bias shadow bias
+            float bias = 0.001 * tan(acos(angle));
+            for (int i = 0; i < 4; i++)
+            {
+                vec2 sampling = poissonDisk[i] / 50.0;
+                vec4 shadow_coord = _shadow;
+                shadow_coord.x += sampling.x;
+                shadow_coord.y += sampling.y;
+                shadow_coord.z += bias;
+                shadow += textureProj(shadow_texture, shadow_coord) * 0.25;
+            }
+        }
+
+        // Calculate the output color
+        _color += light_buffer.lights[i].color * ambient;
+        _color += light_buffer.lights[i].color * ((diffuse + specular) * shadow);
+
+
+        // Render shadows only
+        //color += vec4(shadow, shadow, shadow, 1.0);
+        
+        // Render color and shadows together
+        color =  vec4(texture(in_texture, _uv).rgb * _color.rgb, 1.0);
+    }
 }

@@ -254,8 +254,17 @@ class frustum
         // forward: look - eye
         _forward = (look - eye).normalize();
 
-        // right: _up x forward - left handed coordinates
-        _right = up.cross(_forward).normalize();
+        // Check for forward vector parallel to up vector
+        if (std::abs(_forward.dot(up)) > var<float>::TOL_PONE)
+        {
+            // Construct the view matrix with special axis, right == x
+            _right = vec3<float>(1.0, 0.0, 0.0);
+        }
+        else
+        {
+            // right: _up x forward - left handed coordinates
+            _right = up.cross(_forward).normalize();
+        }
 
         // up: = forward x right - left handed coordinates
         // up is recalculated for stabilization

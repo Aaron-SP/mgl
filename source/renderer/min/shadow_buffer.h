@@ -44,8 +44,18 @@ class shadow_buffer
         // forward: look - eye
         const vec3<float> forward = (look - eye).normalize();
 
-        // right: _up x forward - left handed coordinates
-        const vec3<float> right = up.cross(forward).normalize();
+        // Check for forward vector parallel to up vector
+        vec3<float> right;
+        if (std::abs(forward.dot(up)) > var<float>::TOL_PONE)
+        {
+            // Construct the view matrix with special axis, right == x
+            right = vec3<float>(1.0, 0.0, 0.0);
+        }
+        else
+        {
+            // right: _up x forward - left handed coordinates
+            right = up.cross(forward).normalize();
+        }
 
         // up: = forward x right - left handed coordinates
         // up is recalculated for stabilization
