@@ -90,6 +90,10 @@ class mat4
     mat4(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z, const vec3<T> &e)
         : _a(x.x()), _b(x.y()), _c(x.z()), _d(-x.dot(e)), _e(y.x()), _f(y.y()), _g(y.z()), _h(-y.dot(e)), _i(z.x()), _j(z.y()), _k(z.z()), _l(-z.dot(e)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
 
+    // constructs an orthographic projection matrix
+    mat4(const T dx, const T dy, const T near, const T far)
+        : _a(1.0 / dx), _b(0.0), _c(0.0), _d(0.0), _e(0.0), _f(1.0 / dy), _g(0.0), _h(0.0), _i(0.0), _j(0.0), _k(-2.0 / (far - near)), _l((far + near) / (far - near)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
+
     inline mat4<T> operator*(const mat4<T> &A) const
     {
         mat4<T> out;

@@ -1,0 +1,22 @@
+#version 330 core
+
+layout (location = 0) in vec4 vertex;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec3 normal;
+
+#define MAX_NUM_TOTAL_MATRIX 5
+layout(std140) uniform matrix_block
+{
+    mat4 matrix[MAX_NUM_TOTAL_MATRIX];
+    int size;
+} matrix_buffer;
+
+void main(void)
+{
+    // Get the model matrix from the uniform buffer
+    mat4 shadow = matrix_buffer.matrix[3];
+    mat4 model = matrix_buffer.matrix[4];
+
+	// Calculate transformed position
+	gl_Position =  shadow * model * vertex;
+}

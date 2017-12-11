@@ -6,7 +6,7 @@ layout (location = 2) in vec3 normal;
 
 // Create the light struct and the uniform blocks
 // This is the maximum light count and is needed since UBO expires an explicit array count
-#define MAX_NUM_TOTAL_LIGHTS 100
+#define MAX_NUM_TOTAL_LIGHTS 1
 struct light
 {
     vec4 color;
@@ -20,7 +20,7 @@ layout(std140) uniform light_block
     int size;
 } light_buffer;
 
-#define MAX_NUM_TOTAL_MATRIX 100
+#define MAX_NUM_TOTAL_MATRIX 5
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
@@ -29,19 +29,21 @@ layout(std140) uniform matrix_block
 
 out vec2 out_uv;
 out vec4 out_color;
+out vec4 out_shadow;
 
 void main(void)
 {
     // Get the model matrix from the uniform buffer
     mat4 pv = matrix_buffer.matrix[0];
     mat4 view = matrix_buffer.matrix[1];
-    mat4 model = matrix_buffer.matrix[2];
-
-	// Calculate transformed position
-	gl_Position =  pv * model * vertex;
+    mat4 shadow = matrix_buffer.matrix[2];
+    mat4 model = matrix_buffer.matrix[4];
 
 	// Calculate the vertex world coordinates
     vec4 vertex_world = model * vertex;
+
+	// Calculate transformed position
+	gl_Position =  pv * vertex_world;
 
     // Calculate the camera direction
     vec3 eye_camera = normalize(vec3(0, 0, 0) - (view * vertex_world).xyz);
@@ -56,9 +58,7 @@ void main(void)
     for(int i = 0; i < light_buffer.size; i++)
     {
         // Calculate the light world coordinates
-        vec3 light_direction = (light_buffer.lights[i].position - vertex_world).xyz;
-        float inv_d2 = 1.0 / dot(light_direction, light_direction);
-        light_direction = normalize(light_direction);
+        vec3 light_direction = normalize(light_buffer.lights[i].position - vertex_world).xyz;
 
         // Calculate reflection and drop off
         float cos_theta = max(dot(normal_world, light_direction), 0);
@@ -67,8 +67,8 @@ void main(void)
 
         // Calculate ambient, diffuse and specular
         float ambient = light_buffer.lights[i].power.x;
-        float diffuse = light_buffer.lights[i].power.y * cos_theta * inv_d2;
-        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5) * inv_d2;
+        float diffuse = light_buffer.lights[i].power.y * cos_theta;
+        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5);
 
         // Calculate the output color
         color += light_buffer.lights[i].color * (ambient + diffuse + specular);
@@ -79,4 +79,7 @@ void main(void)
 
     // Pass the color to the fragment shader
     out_color = vec4(color.rgb, 1.0);
+
+    // Pass the shadow coordinate to the fragment shader
+    out_shadow = shadow * vertex_world;
 }

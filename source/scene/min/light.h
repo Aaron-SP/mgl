@@ -31,15 +31,15 @@ class light
   public:
     light() {}
     light(const vec4<T> &color, const vec4<T> &position, const vec4<T> &power) : _color(color), _position(position), _power(power) {}
-    const vec4<T> &get_color()
+    const vec4<T> &get_color() const
     {
         return _color;
     }
-    const vec4<T> &get_position()
+    const vec4<T> &get_position() const
     {
         return _position;
     }
-    const vec4<T> &get_power()
+    const vec4<T> &get_power() const
     {
         return _power;
     }

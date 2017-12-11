@@ -1,0 +1,26 @@
+#version 330 core
+
+// Inputs from vertex shader
+in vec2 out_uv;
+in vec4 out_color;
+in vec4 out_shadow;
+
+// Texture input
+uniform sampler2D in_texture;
+uniform sampler2DShadow shadow_texture;
+
+// Output color
+out vec4 color;
+
+void main(void)
+{
+	// Weighted sum of passing depth test from texture depth (0.0 or 1.0)
+	// Sum is proportional to the number of samples in the shadow texture that pass the comparison
+	float shadow = textureProj(shadow_texture, out_shadow);
+
+	// Calculate the base color with lighting applied
+	vec3 base_color = (texture(in_texture, out_uv).rgba * out_color).rgb;
+
+	// Calculate the output color
+	color = vec4(shadow, shadow, shadow, 1.0);
+}

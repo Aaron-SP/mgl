@@ -329,6 +329,16 @@ class uniform_buffer
         // set the matrix buffer
         set_matrix(p);
     }
+    inline void set_program_light_only(const program &p) const
+    {
+        // set the light buffer
+        set_lights(p);
+    }
+    inline void set_program_matrix_only(const program &p) const
+    {
+        // set the matrix buffer
+        set_matrix(p);
+    }
     inline void update() const
     {
         // Update the light buffer

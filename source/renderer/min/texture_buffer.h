@@ -247,7 +247,7 @@ class texture_buffer
     }
     inline void set_texture_uniform(const program &program, const std::string &name, const size_t layer) const
     {
-        GLint sampler_location = glGetUniformLocation(program.id(), name.c_str());
+        const GLint sampler_location = glGetUniformLocation(program.id(), name.c_str());
         if (sampler_location == -1)
         {
             throw std::runtime_error("texture_buffer: could not find uniform '" + name + "'");

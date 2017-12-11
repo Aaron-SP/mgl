@@ -81,27 +81,9 @@ class frustum
         const T t = _near.y();
         const T near = _near.z();
         const T far = _far.z();
-        const T idz = 1.0 / (far - near);
 
-        // Set symmetric matrix values
-        T a = 1.0 / r;
-        T b = 0.0;
-        T c = 0.0;
-        T d = 0.0;
-        T e = 0.0;
-        T f = 1.0 / t;
-        T g = 0.0;
-        T h = 0.0;
-        T i = 0.0;
-        T j = 0.0;
-        T k = -2.0 * idz;
-        T l = (far + near) * idz;
-        T m = 0.0;
-        T n = 0.0;
-        T o = 0.0;
-        T p = 1.0;
-
-        _proj = mat4<T>(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
+        // Create orthographic projection matrix
+        _proj = mat4<T>(r, t, near, far);
     }
     inline void perspective_frustum()
     {

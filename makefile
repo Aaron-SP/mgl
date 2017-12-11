@@ -29,6 +29,7 @@ EX6 = $(EXTRA) example/programs/ex6.cpp
 EX7 = $(EXTRA) example/programs/ex7.cpp
 EX8 = $(EXTRA) example/programs/ex8.cpp
 EX9 = $(EXTRA) example/programs/ex9.cpp
+EX10 = $(EXTRA) example/programs/ex10.cpp
 
 # Linker parameters
 ifeq ($(OS),Windows_NT)
@@ -78,7 +79,9 @@ example8:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX8) -o bin/ex8 $(LINKER) 2> "min_ex8.txt"
 example9:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX9) -o bin/ex9 $(LINKER) 2> "min_ex9.txt"
-examples: example1 example2 example3 example4 example5 example6 example7 example8 example9
+example10:
+	g++ $(LIB_SOURCES) $(TEST_SOURCES) $(WL_INCLUDE) $(PARAMS) $(EX10) -o bin/ex10 $(LINKER) 2> "min_ex10.txt"
+examples: example1 example2 example3 example4 example5 example6 example7 example8 example9 example10
 	
 
 # pattern matching .cpp
@@ -86,39 +89,15 @@ examples: example1 example2 example3 example4 example5 example6 example7 example
 	g++ $(LIB_SOURCES) $(PARAMS) $(WL_INCLUDE) -c $< -o $@ 2> "gcc.txt"
 
 # clean targets
-clean: clean_junk clean_source clean_tests clean_benchmarks clean_examples
+clean: clean_junk clean_source clean_tests clean_benchmarks clean_bin
 clean_junk:
-	rm -f gcc.txt
-	rm -f gcc_bench.txt
-	rm -f gl_test.txt
-	rm -f wl_test.txt
-	rm -f min_ex1.txt
-	rm -f min_ex2.txt
-	rm -f min_ex3.txt
-	rm -f min_ex4.txt
-	rm -f min_ex5.txt
-	rm -f min_ex6.txt
-	rm -f min_ex7.txt
-	rm -f min_ex8.txt
-	rm -f min_ex9.txt
+	rm -f *.txt
 clean_source:
 	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
-	rm -f bin/libmin.a
 clean_tests:
 	rm -f test/*.o
-	rm -f bin/gl_test
-	rm -f bin/wl_test
 clean_benchmarks:
 	rm -f bench/*.o
-	rm -f bin/gl_bench
-clean_examples:
-	rm -f bin/ex1
-	rm -f bin/ex2
-	rm -f bin/ex3
-	rm -f bin/ex4
-	rm -f bin/ex5
-	rm -f bin/ex6
-	rm -f bin/ex7
-	rm -f bin/ex8
-	rm -f bin/ex9
+clean_bin:
+	rm -f bin/*

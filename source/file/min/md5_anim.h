@@ -619,7 +619,7 @@ class md5_anim
         load(file);
 
         // Set the length of the animation
-        _animation_length = ((T)_frames.size()) / _frame_rate;
+        _animation_length = static_cast<T>(_frames.size()) / _frame_rate;
 
         if (_frames.size() == 0)
         {
@@ -695,10 +695,10 @@ class md5_anim
         // Calculate the two frames to interpolate between
         const T frame_time = _time * _frame_rate;
         const unsigned frame_low = std::floor(frame_time);
-        const unsigned frame_high = std::ceil(frame_time);
+        const unsigned frame_high = frame_low + 1;
 
         // Calculate position between the two frames for interpolation
-        const T ratio = (frame_time - frame_low) / (frame_high - frame_low);
+        const T ratio = frame_time - frame_low;
 
         const size_t frames = _frames.size();
         const unsigned frame0 = frame_low % frames;

@@ -20,6 +20,7 @@ limitations under the License.
 #include <min/program.h>
 #include <min/settings.h>
 #include <min/shader.h>
+#include <min/shadow_buffer.h>
 #include <min/static_vertex.h>
 #include <min/texture_buffer.h>
 #include <min/uniform_buffer.h>
@@ -33,9 +34,16 @@ class render_loop_test
   private:
     // OpenGL pipeline
     min::window _win;
-    min::shader _vertex;
-    min::shader _fragment;
-    min::program _prog;
+
+    // First shader pass
+    min::shader _v1;
+    min::shader _f1;
+    min::program _prog1;
+
+    // Second shader pass
+    min::shader _v2;
+    min::shader _f2;
+    min::program _prog2;
 
     // Buffers for model data and textures
     min::vertex_buffer<float, uint32_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_INT> _sbuffer;
@@ -45,23 +53,70 @@ class render_loop_test
     // Camera and uniform data
     min::camera<float> _cam;
     min::uniform_buffer<float> _ubuffer;
+    min::shadow_buffer _shadow_buffer;
     size_t _proj_view_id;
     size_t _view_id;
+    size_t _shadow_id;
+    size_t _proj_light_id;
     size_t _model_id;
 
     // Model matrix for rotating suzanne
     min::mat4<float> _model_matrix;
 
+    void pass1()
+    {
+        // Bind the shadow buffer
+        _shadow_buffer.bind();
+
+        // Clear color and depth
+        clear_depth();
+
+        // Use first shader pass
+        _prog1.use();
+
+        // Render entire scene shadows
+        render();
+    }
+    void pass2()
+    {
+        // Switch back to the default framebuffer
+        _shadow_buffer.bind_default(_win.get_width(), _win.get_height());
+
+        // Clear color and depth
+        clear_background();
+
+        // Use second shader pass
+        _prog2.use();
+
+        // Render the entire scene again
+        render();
+    }
+    void render()
+    {
+        // Bind VAO
+        _sbuffer.bind();
+
+        // Set first monkey below second monkey
+        _model_matrix = min::mat4<float>(min::vec3<float>(0.0, -1.25, 0.0));
+        _ubuffer.set_matrix(_model_matrix, _model_id);
+        _ubuffer.update_matrix();
+
+        // Draw blender-suzanne, on layer 0
+        _sbuffer.draw(GL_TRIANGLES, 0);
+
+        // Move the second monkey up above first monkey
+        _model_matrix = min::mat4<float>(min::vec3<float>(0.0, 0.75, 0.0));
+        _ubuffer.set_matrix(_model_matrix, _model_id);
+        _ubuffer.update_matrix();
+
+        // Draw blender-suzanne again
+        _sbuffer.draw(GL_TRIANGLES, 0);
+    }
     void load_camera()
     {
-        // Move and camera to -X and look at origin
-        const min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
-        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
-
-        // Test perspective projection
-        // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
+        // Create camera, set location and look at, and perspective projection
+        _cam.set_position(min::vec3<float>(-5.0, 2.0, 0.0));
+        _cam.set_look_at(min::vec3<float>(0.0, 0.0, 0.0));
         _cam.set_perspective();
     }
     void load_keyboard()
@@ -77,9 +132,6 @@ class render_loop_test
     }
     void load_model_texture()
     {
-        // Warn user we are opening a large model
-        std::cout << "Opening a very large model: blender_suzanne.bmesh" << std::endl;
-
         // Since we are using a BMESH, assert floating point compatibility
         static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 float required");
         static_assert(sizeof(float) == 4, "32 bit IEEE 754 float required");
@@ -93,12 +145,17 @@ class render_loop_test
         // Load textures
         const min::bmp b = min::bmp("data/texture/stone.bmp");
 
-        // Query max texture size
-        const size_t size = _tbuffer.get_max_texture_size();
-        std::cout << "Max texture size is: " << size << "x" << size << std::endl;
-
         // Load texture buffer
         _bmp_id = _tbuffer.add_bmp_texture(b);
+
+        // Bind this texture for drawing, texture layer default 0
+        _tbuffer.bind(_bmp_id, 0);
+
+        // Set the texture layer for the shadow texture
+        _shadow_buffer.set_texture_uniform(_prog2, "shadow_texture", 1);
+
+        // Bind the shadow texture, on layer 1
+        _shadow_buffer.bind_shadow_texture(1);
 
         // Add mesh and update buffers
         _sbuffer.add_mesh(suzanne);
@@ -108,40 +165,46 @@ class render_loop_test
     }
     void load_uniforms()
     {
-        const size_t size = _ubuffer.get_max_buffer_size();
-        std::cout << "Max uniform buffer size(bytes) is: " << size << std::endl;
-
         // Load light into uniform buffer
         const min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
-        const min::vec4<float> light_position(-2.0, 2.0, 0.0, 1.0);
-        const min::vec4<float> light_power(0.1, 6.0, 5.0, 1.0);
+        const min::vec4<float> light_position(0.5, 100.0, 0.0, 1.0);
+        const min::vec4<float> light_power(0.1, 2.0, 2.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
-        // Load projection and view matrix into uniform buffer
+        // Load light position and look into the shadow buffer
+        const min::vec3<float> light_look(0.0, 0.0, 0.0);
+        _shadow_buffer.set_light(light_position, light_look);
+
+        // Load projection, view matrix, model & shadow into uniform buffer
         _proj_view_id = _ubuffer.add_matrix(_cam.get_pv_matrix());
         _view_id = _ubuffer.add_matrix(_cam.get_v_matrix());
-
-        // Get model ID for later use
+        _shadow_id = _ubuffer.add_matrix(_shadow_buffer.get_shadow_matrix());
+        _proj_light_id = _ubuffer.add_matrix(_shadow_buffer.get_pv_matrix());
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
-
-        // Bind this uniform buffer for use
-        _ubuffer.bind();
+        _ubuffer.set_program_matrix_only(_prog1);
+        _ubuffer.set_program(_prog2);
 
         // Load the buffer with data
         _ubuffer.update();
+
+        // Bind this uniform buffer for use
+        _ubuffer.bind();
     }
 
   public:
     // Load window shaders and program
     render_loop_test()
         : _win("Example render loop with first person camera", 720, 480, 3, 3),
-          _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
-          _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment),
-          _ubuffer(100, 100)
+          _v1("data/shader/shadow1.vertex", GL_VERTEX_SHADER),
+          _f1("data/shader/shadow1.fragment", GL_FRAGMENT_SHADER),
+          _prog1(_v1, _f1),
+          _v2("data/shader/shadow2.vertex", GL_VERTEX_SHADER),
+          _f2("data/shader/shadow2.fragment", GL_FRAGMENT_SHADER),
+          _prog2(_v2, _f2),
+          _ubuffer(1, 5),
+          _shadow_buffer(1024, 1024)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -179,34 +242,25 @@ class render_loop_test
         glClearBufferfv(GL_COLOR, 0, color);
         glClear(GL_DEPTH_BUFFER_BIT);
     }
+    void clear_depth() const
+    {
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
     bool is_closed() const
     {
         return _win.get_shutdown();
     }
     void draw()
     {
-        // Bind VAO
-        _sbuffer.bind();
-
-        // Bind this texture for drawing
-        _tbuffer.bind(_bmp_id, 0);
-
-        // Rotate the model around the Z axis
-        _model_matrix *= min::mat4<float>(min::mat2<float>(2.0));
-
-        // Update matrix uniforms
+        // Update camera uniform matrices
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
         _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
-        _ubuffer.set_matrix(_model_matrix, _model_id);
 
-        // Update the data in the uniform buffer
-        _ubuffer.update();
+        // Create shadow map in pass1
+        pass1();
 
-        // Use the shader program to draw models
-        _prog.use();
-
-        // Draw blender-suzanne
-        _sbuffer.draw(GL_TRIANGLES, 0);
+        // Use shadow map in pass2
+        pass2();
     }
     void set_title(const std::string &title)
     {
@@ -269,9 +323,6 @@ int test_render_loop()
         {
             // Start synchronizing the loop
             sync.start();
-
-            // Clear the background color
-            test.clear_background();
 
             // Update the camera movement
             test.update_camera();
