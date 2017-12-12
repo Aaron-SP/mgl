@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#include <chrono>
 #include <iostream>
 #include <limits>
 #include <min/bmp.h>
@@ -27,6 +28,7 @@ limitations under the License.
 #include <min/utility.h>
 #include <min/vertex_buffer.h>
 #include <min/window.h>
+#include <random>
 #include <string>
 
 class render_loop_test
@@ -198,7 +200,7 @@ class render_loop_test
   public:
     // Load window shaders and program
     render_loop_test()
-        : _win("Example render loop with first person camera", 720, 480, 3, 3),
+        : _win("Example shadow buffer render loop", 720, 480, 3, 3),
           _v1("data/shader/shadow1.vertex", GL_VERTEX_SHADER),
           _f1("data/shader/shadow1.fragment", GL_FRAGMENT_SHADER),
           _prog1(_v1, _f1),
@@ -351,10 +353,63 @@ int test_render_loop()
     return 0;
 }
 
+void generate_poisson_disk()
+{
+    // Number of samples needed
+    constexpr size_t N = 4;
+
+    // Output point list
+    std::vector<min::vec2<float>> points;
+
+    // Random numbers between -1.0, and 1.0
+    std::uniform_real_distribution<float> dist(-1.0, 1.0);
+    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+
+    // Add first point to vector
+    points.emplace_back(dist(gen), dist(gen));
+
+    // Generate points
+    std::cout << "Generating poisson disk samples" << std::endl;
+    while (points.size() != N)
+    {
+        // Generate random point
+        min::vec2<float> point(dist(gen), dist(gen));
+
+        // Test all existing points
+        bool bad = false;
+        for (size_t i = 0; i < points.size(); i++)
+        {
+            // Generate samples atleast one unit between each other
+            if ((point - points[i]).magnitude() < 1.0)
+            {
+                // Fails poisson sample test
+                bad = true;
+                break;
+            }
+        }
+
+        // Only use valid points
+        if (!bad)
+        {
+            points.push_back(point);
+        }
+    }
+
+    // Print all points x, y in sample
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        std::cout << "vec2(" << points[i].x() << ", " << points[i].y() << ")," << std::endl;
+    }
+}
+
 int main()
 {
     try
     {
+        // Generate a random set of points
+        generate_poisson_disk();
+
+        // Run the example
         return test_render_loop();
     }
     catch (std::exception &ex)
