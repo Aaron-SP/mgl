@@ -52,10 +52,12 @@ In order to link with the static library all template classes should be declared
 ![Alt text](pictures/ex1.png)
 
 To run this project execute the command 'bin/ex1' in the project root directory. 
-The example will load a textured OBJ mesh and rotate it on the screen.
+The example will load a textured mesh and rotate it on the screen.
 
 Commands
+- 'MOUSE' move camera
 - 'Q' will exit the example.
+
 #### Example 2
 This example is a texture compressor that will create DDS files using the GPU to perform DDS compression. 
 - Usage definition: 'bin/ex2 <uncompressed.bmp> -o <compressed.dds> -t <compression_type> -m <bool>'
@@ -75,6 +77,7 @@ The example will record mouse clicks to the output log and draw CW triangles on 
 
 Commands
 - 'Q' will exit the example.
+
 #### Example 4
 ![Alt text](pictures/ex4.png)
 
@@ -84,6 +87,7 @@ The example will render an animated particle system and allow switching force ap
 Commands
 - 'ENTER' to change force applicators
 - 'Q' will exit the example.
+
 #### Example 5
 ![Alt text](pictures/ex5.png)
 
@@ -92,6 +96,7 @@ The example will render an animated MD5 model and allow looking around the viewp
 
 Commands
 - 'Q' will exit the example.
+
 #### Example 6-8
 ![Alt text](pictures/ex6.png)
 
@@ -100,6 +105,7 @@ The example will render an animated physics simulation using spheres, aabb, or o
 
 Commands
 - 'Q' will exit the example.
+
 #### Example 9
 ![Alt text](pictures/ex9.png)
 
@@ -110,4 +116,14 @@ A physics simulation will run and allow dynamic interaction between MD5 player m
 Commands
 - 'W' move forward in direction of camera
 - 'ENTER' spawn a OOBB physics cube
+- 'Q' will exit the example.
+
+#### Example 10
+![Alt text](pictures/ex10.png)
+
+To run this project execute the command 'bin/ex10' in the project root directory. 
+The example will load two shadowed meshes, one shadowing the other using a shadow map.
+
+Commands
+- 'MOUSE' move camera
 - 'Q' will exit the example.
