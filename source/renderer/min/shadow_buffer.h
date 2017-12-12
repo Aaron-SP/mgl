@@ -97,6 +97,10 @@ class shadow_buffer
         glGenTextures(1, &_depth);
         if (_depth == 0)
         {
+            // Delete the frame buffer
+            glDeleteFramebuffers(1, &_id);
+
+            // Throw exception after cleaning up
             throw std::runtime_error("shadow_buffer: Failed to generate depth texture.");
         }
 
@@ -120,8 +124,18 @@ class shadow_buffer
         // Check that the frame buffer is valid
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
+            // Delete the texture buffer
+            glDeleteTextures(1, &_depth);
+
+            // Delete the frame buffer
+            glDeleteFramebuffers(1, &_id);
+
+            // Throw exception after cleaning up
             throw std::runtime_error("shadow_buffer: Failed framebuffer status check.");
         }
+
+        // Do not draw to the color buffer
+        glDrawBuffer(GL_NONE);
 
         // Switch back to the default framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -142,12 +156,6 @@ class shadow_buffer
         // Bind framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
-        // Bind texture
-        glBindTexture(GL_TEXTURE_2D, _depth);
-
-        // Do not draw to the color buffer
-        glDrawBuffer(GL_NONE);
-
         // Adjust the viewport size
         glViewport(0, 0, _width, _height);
     }
@@ -155,10 +163,6 @@ class shadow_buffer
     {
         // Bind default framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // Bind the default value for default frame buffer
-        // GL_BACK is for double buffered
-        glDrawBuffer(GL_BACK);
 
         // Adjust the viewport size
         glViewport(0, 0, width, height);
