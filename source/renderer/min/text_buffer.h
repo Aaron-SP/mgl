@@ -216,15 +216,15 @@ class text_buffer
         // Upload all glyphs into the texture buffer
         upload_character_glyphs(face);
     }
-    unsigned process_text(const std::string &text, const float pos_x, const float pos_y, const float screen_x, const float screen_y) const
+    unsigned process_text(const std::string &text, const float sx, const float sy) const
     {
         // Create conversion to screen coordinates using screen size
-        const float scale_x = 2.0 / screen_x;
-        const float scale_y = 2.0 / screen_y;
+        const float scale_x = 2.0 / _screen_x;
+        const float scale_y = 2.0 / _screen_y;
 
-        // Convert x & y to screen coordinates, start from bottom left corner
-        float x = pos_x * scale_x - 1.0;
-        float y = pos_y * scale_y - 1.0;
+        // Start from bottom left corner
+        float x = sx;
+        float y = sy;
 
         // Starting triangle offset for this string
         const unsigned start = _data.size();
@@ -271,6 +271,25 @@ class text_buffer
 
         // Return the number of triangles added to buffer for this string
         return _data.size() - start;
+    }
+    inline std::pair<float, float> to_screen_coords(const float x, const float y) const
+    {
+        // Convert x & y to screen coordinates
+        const float sx = (2.0 / _screen_x) * x - 1.0;
+        const float sy = (2.0 / _screen_y) * y - 1.0;
+
+        // Return the screen coordinates
+        return std::make_pair(sx, sy);
+    }
+
+    inline std::pair<float, float> to_pixel_coords(const std::pair<float, float> &p) const
+    {
+        // Convert x & y to pixel coordinates
+        const float px = (p.first + 1.0) * (_screen_x / 2.0);
+        const float py = (p.second + 1.0) * (_screen_y / 2.0);
+
+        // Return the screen coordinates
+        return std::make_pair(px, py);
     }
 
   public:
@@ -343,7 +362,7 @@ class text_buffer
         _text.push_back(text);
 
         // Store the location
-        _location.push_back(std::make_pair(x, y));
+        _location.push_back(to_screen_coords(x, y));
 
         // return the string index
         return _text.size() - 1;
@@ -404,9 +423,9 @@ class text_buffer
     {
         return std::make_pair(_screen_x, _screen_y);
     }
-    inline const std::pair<float, float> &get_text_location(const size_t index) const
+    inline const std::pair<float, float> get_text_location(const size_t index) const
     {
-        return _location[index];
+        return to_pixel_coords(_location[index]);
     }
     inline void set_texture_uniform(const program &program, const std::string &name, const size_t layer) const
     {
@@ -444,7 +463,7 @@ class text_buffer
     inline void set_text_location(const size_t index, const float x, const float y)
     {
         // Update the location
-        _location[index] = std::make_pair(x, y);
+        _location[index] = to_screen_coords(x, y);
     }
     inline void set_text(const std::string &text, const size_t index, const float x, const float y)
     {
@@ -480,7 +499,7 @@ class text_buffer
             const auto loc = _location[i];
 
             // count = number of triangles (char * 6) added to buffer
-            const size_t count = process_text(_text[i], loc.first, loc.second, _screen_x, _screen_y);
+            const size_t count = process_text(_text[i], loc.first, loc.second);
 
             // Calculate the index parameters
             _data_index.push_back(std::make_pair(offset, count));

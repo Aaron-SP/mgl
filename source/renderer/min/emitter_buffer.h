@@ -16,6 +16,7 @@ limitations under the License.
 #define __EMITTERBUFFER__
 
 #include <cmath>
+#include <functional>
 #include <min/vec3.h>
 #include <min/window.h>
 #include <random>
@@ -42,27 +43,27 @@ class emitter_buffer
     static constexpr size_t particle_size = sizeof(vec3<T>);
 
   private:
-    GLuint _vao; // Buffer properties
+    GLuint _vao;
     GLuint _vbo;
     size_t _emit_count;
     size_t _emit_pool_offset;
     size_t _emit_pool_size;
     T _emit_freq;
-    T _emit_accum; // Solver properties
+    T _emit_accum;
     T _spawn_freq;
     T _spawn_accum;
-    T _inv_mass; // Particle properties
+    T _inv_mass;
     T _random;
     vec3<T> _rot_axis;
     vec3<T> _grav_force;
     vec3<T> _start_pos;
     vec3<T> _start_speed;
     vec3<T> _wind_force;
-    std::uniform_real_distribution<T> _dist; // Randomness
+    std::uniform_real_distribution<T> _dist;
     std::mt19937 _rand;
-    std::vector<vec3<T>> _particles; // Particle buffers
+    std::vector<vec3<T>> _position;
     std::vector<vec3<T>> _speed;
-    std::vector<std::pair<vec3<T>, T>> _attractors; // Gravity attractors
+    std::vector<std::pair<vec3<T>, T>> _attractors;
 
     inline vec3<T> compute_force(const vec3<T> &position, const vec3<T> &speed)
     {
@@ -87,7 +88,11 @@ class emitter_buffer
         const size_t size = start + len;
         for (size_t i = start; i < size; i++)
         {
-            _particles[i] = _start_pos;
+            // Set particle position to start position
+            _position[i] = _start_pos;
+
+            // Set speed
+            _speed[i] = _start_speed + random();
         }
 
         const size_t attrs = _attractors.size();
@@ -97,25 +102,8 @@ class emitter_buffer
             {
                 const size_t group = i % attrs;
                 const T rand_interp = _dist(_rand) / _random;
-                _particles[i] = _start_pos + (_attractors[group].first - _start_pos) * rand_interp;
+                _position[i] = _start_pos + (_attractors[group].first - _start_pos) * rand_interp;
             }
-        }
-
-        // Reset all particle speeds
-        for (size_t i = start; i < size; i++)
-        {
-            auto &speed = _speed[i];
-
-            // Compute a random speed modifier for dispersion of particles
-            const T randx = _dist(_rand);
-            const T randy = _dist(_rand);
-            const T randz = _dist(_rand);
-
-            // Calculate random speed
-            const vec3<T> rand_speed(randx, randy, randz);
-
-            // Set speed
-            speed = _start_speed + rand_speed;
         }
     }
 
@@ -126,7 +114,7 @@ class emitter_buffer
           _emit_freq(emit_freq), _emit_accum(0.0), _spawn_freq(spawn_freq), _spawn_accum(0.0),
           _inv_mass(2.0), _random(random),
           _rot_axis(vec3<T>::up()), _grav_force(0.0, -9.8, 0.0), _start_pos(position), _start_speed(0.0, 10.0, 0.0),
-          _dist(-_random, _random), _particles(emit_count * emit_periods), _speed(_particles.size())
+          _dist(-_random, _random), _position(emit_count * emit_periods), _speed(_position.size())
     {
         // Generate the VAO for this vertex layout
         glGenVertexArrays(1, &_vao);
@@ -148,7 +136,7 @@ class emitter_buffer
         _rand.seed(453178);
 
         // Initialize the simulation
-        seed(0, _particles.size());
+        seed(0, _position.size());
     }
     ~emitter_buffer()
     {
@@ -207,18 +195,31 @@ class emitter_buffer
         // Draw all objects in the static buffer
         glDrawArrays(GL_POINTS, 0, _emit_pool_size);
     }
+    inline vec3<T> random()
+    {
+        // Compute a random speed modifier for dispersion of particles
+        const T randx = _dist(_rand);
+        const T randy = _dist(_rand);
+        const T randz = _dist(_rand);
+
+        // Calculate random speed
+        return vec3<T>(randx, randy, randz);
+    }
     inline void reset()
     {
         // Initialize the simulation
-        seed(0, _particles.size());
+        seed(0, _position.size());
 
         // Reset the accumulated time
+        _emit_pool_size = 0;
+        _emit_pool_offset = 0;
         _emit_accum = 0.0;
         _spawn_accum = 0.0;
     }
     inline void resize(const size_t n)
     {
-        _particles.resize(n);
+        _position.resize(n);
+        _speed.resize(n);
     }
     inline void set_mass(const T mass)
     {
@@ -232,9 +233,9 @@ class emitter_buffer
     {
         _start_pos = position;
     }
-    inline void set_random(const T rand)
+    inline void set_random(const T lower, const T upper)
     {
-        _dist = std::uniform_real_distribution<T>(-rand, rand);
+        _dist = std::uniform_real_distribution<T>(lower, upper);
     }
     inline void set_rotation_axis(const min::vec3<T> &axis)
     {
@@ -260,7 +261,7 @@ class emitter_buffer
             _emit_accum -= _emit_freq;
 
             // Emit more particles if the buffer is not full
-            if (_emit_pool_size != _particles.size())
+            if (_emit_pool_size != _position.size())
             {
                 // Emit more particles
                 _emit_pool_size += _emit_count;
@@ -268,7 +269,7 @@ class emitter_buffer
         }
 
         // If pool is full
-        if (_emit_pool_size == _particles.size())
+        if (_emit_pool_size == _position.size())
         {
             // Accumulate spawn timer
             _spawn_accum += dt;
@@ -296,8 +297,9 @@ class emitter_buffer
         // Update all particles
         for (size_t i = 0; i < _emit_pool_size; i++)
         {
-            auto &position = _particles[i];
-            auto &speed = _speed[i];
+            // Get particle positon and speed
+            vec3<T> &position = _position[i];
+            vec3<T> &speed = _speed[i];
 
             // Compute the force based on particle system settings
             const vec3<T> force = compute_force(position, speed);
@@ -312,6 +314,18 @@ class emitter_buffer
             position += speed * dt;
         }
     }
+    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const float inv_mass)> &f)
+    {
+        // Expand buffer
+        _emit_pool_size = _position.size();
+
+        // Update all particles
+        for (size_t i = 0; i < _emit_pool_size; i++)
+        {
+            // Call custom function
+            f(_position[i], _speed[i], _inv_mass);
+        }
+    }
     inline void upload() const
     {
         // Bind the buffer to hold data
@@ -319,7 +333,7 @@ class emitter_buffer
 
         // Send the data to the GPU, calculate data size in bytes
         const size_t data_bytes = _emit_pool_size * particle_size;
-        glBufferData(GL_ARRAY_BUFFER, data_bytes, &_particles[0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, data_bytes, &_position[0], GL_DYNAMIC_DRAW);
     }
 };
 }

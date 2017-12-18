@@ -192,6 +192,9 @@ class md5_render_loop_test
         // Set depth, cull and blend settings
         min::settings::initialize();
 
+        // Set the screen size
+        _text_buffer.set_screen(_win.get_width(), _win.get_height());
+
         // Load the camera
         load_camera();
 
@@ -322,9 +325,6 @@ class md5_render_loop_test
     }
     void update_text(const double fps, const double idle)
     {
-        // Set the screen size
-        _text_buffer.set_screen(720, 480);
-
         // Update the FPS text in buffer
         _text_buffer.set_text("FPS: " + std::to_string(fps), _fps_id);
 

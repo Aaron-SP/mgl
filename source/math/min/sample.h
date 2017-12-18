@@ -25,26 +25,58 @@ class sample
     vec<T> _src;
     vec<T> _dst;
     T _t;
+    T _weight;
 
   public:
-    sample() : _t(0.0) {}
-    sample(const vec<T> &src, const vec<T> &dst) : _src(src), _dst(dst), _t(0.0) {}
-
-    // Calls interpolate which is the slower, more accurate interpolation mechanism of 'vec'
+    sample() : _t(0.0), _weight(1.0) {}
+    sample(const vec<T> &src, const vec<T> &dst) : _src(src), _dst(dst), _t(0.0), _weight(1.0) {}
+    sample(const vec<T> &src, const vec<T> &dst, const T weight) : _src(src), _dst(dst), _t(0.0), _weight(weight) {}
+    bool done() const
+    {
+        return _t > 1.0;
+    }
+    const vec<T> &get_start() const
+    {
+        return _src;
+    }
+    const vec<T> &get_dest() const
+    {
+        return _dst;
+    }
     vec<T> interpolate(const T dt)
     {
         // Adds dt to the current time and interpolates from _src to _dst
         // values of _t > 1.0 are valid
         _t += dt;
+
+        // Calls interpolate which is the slower, more accurate interpolation mechanism of 'vec'
         return vec<T>::interpolate(_src, _dst, _t);
     }
+    vec<T> weight_interpolate(const T dt)
+    {
+        // Adds dt to the current time and interpolates from _src to _dst
+        // values of _t > 1.0 are valid
+        _t += _weight * dt;
 
-    // Calls strictly lerp on the type of 'vec'
+        // Calls interpolate which is the slower, more accurate interpolation mechanism of 'vec'
+        return vec<T>::interpolate(_src, _dst, _t);
+    }
     vec<T> lerp(const T dt)
     {
         // Adds dt to the current time and lerps from _src to _dst
         // values of _t > 1.0 are valid
         _t += dt;
+
+        // Calls strictly lerp on the type of 'vec'
+        return vec<T>::lerp(_src, _dst, _t);
+    }
+    vec<T> weight_lerp(const T dt)
+    {
+        // Adds dt to the current time and lerps from _src to _dst
+        // values of _t > 1.0 are valid
+        _t += _weight * dt;
+
+        // Calls strictly lerp on the type of 'vec'
         return vec<T>::lerp(_src, _dst, _t);
     }
     void reset()
