@@ -137,7 +137,7 @@ class camera
         // return quaternion that rotated camera
         return rotation;
     }
-    vec3<T> project_point(const T s)
+    vec3<T> project_point(const T s) const
     {
         return _p + _f.get_forward() * s;
     }

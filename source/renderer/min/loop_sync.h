@@ -16,8 +16,8 @@ limitations under the License.
 #define __LOOPSYNC__
 
 #include <chrono>
+#include <cmath>
 #include <thread>
-#include <vector>
 
 namespace min
 {
@@ -26,11 +26,13 @@ class loop_sync
 {
   private:
     // History buffer
-    static constexpr uint8_t _error_count = 15;
-    std::vector<double> _error;
+    static constexpr uint8_t _error_count = 16;
+    double _error[_error_count];
+    double _idle[_error_count];
     uint8_t _begin;
     uint8_t _end;
     double _ie;
+    double _idle_time;
     double _de;
 
     // Time properties
@@ -39,14 +41,14 @@ class loop_sync
 
     // Control properties
     double _accum_time;
-    double _idle_time;
     double _set_point;
     double _kp;
     double _ki;
     double _kd;
     double _dt;
+    double _error_tol;
 
-    inline void calculate_control_parameters()
+    inline void calculate_control_parameters(const double idle_time)
     {
         // Drop off oldest record from buffer
         _begin = (_begin + 1) % _error_count;
@@ -55,24 +57,54 @@ class loop_sync
         const double prev = _error[_end];
         _end = (_end + 1) % _error_count;
 
-        // Elapsed since start of frame, ensure not zero
-        if (_dt < 0.001)
+        // Elapsed since start of frame
+        // Ensure not zero, max 2000 FPS
+        if (_dt < 0.0005)
         {
-            _dt = 0.001;
+            _dt = 0.0005;
         }
 
-        // Calculate the error
-        _error[_end] = (_set_point - _dt);
-
         // Calculate integral of errors
-        _ie = 0.0;
+        _ie = _error[_end] = _set_point - _dt;
         for (uint8_t i = _begin; i != _end; i = (i + 1) % _error_count)
         {
-            _ie += _error[i] * _dt;
+            _ie += _error[i];
+        }
+
+        // Calculate integral of idle time per frame
+        _idle_time = _idle[_end] = idle_time;
+        for (uint8_t i = _begin; i != _end; i = (i + 1) % _error_count)
+        {
+            _idle_time += _idle[i];
         }
 
         // Calculate the derivative of errors
         _de = (_error[_end] - prev);
+    }
+    inline double calculate_delay(const double idle_time) const
+    {
+        // Calculate the delay using PID equation
+        double delay;
+        if (std::abs(_error[_end]) > _error_tol)
+        {
+            const double p = _kp * _error[_end];
+            const double i = _ki * _ie;
+            const double d = _kd * _de;
+            delay = idle_time * (p + i + d + 1.0);
+
+            // Check if delay is unstable
+            if (delay > _set_point)
+            {
+                delay = _set_point;
+            }
+        }
+        else
+        {
+            delay = idle_time;
+        }
+
+        // return delay
+        return delay;
     }
     inline double diff()
     {
@@ -84,18 +116,21 @@ class loop_sync
 
   public:
     loop_sync(const double fps)
-        : _error(_error_count, 0.0), _begin(0), _end(_error_count - 1), _ie(0.0), _de(0.0),
-          _accum_time(0.0), _idle_time(0.0), _set_point(1.0 / fps),
-          _kp(1.0), _ki(0.25 / (_error_count * _set_point * _set_point)), _kd(1.0), _dt(0.0) {}
+        : _error{}, _idle{}, _begin(0), _end(_error_count - 1),
+          _ie(0.0), _idle_time(0.0), _de(0.0),
+          _accum_time(0.0), _set_point(1.0 / fps),
+          _kp(1.0), _ki(1.0 / (_error_count * _set_point)), _kd(1.0), _dt(0.0),
+          _error_tol(0.002) {}
 
     inline double get_fps() const
     {
         // Return the average fps
-        return 1.0 / (_set_point + (_ie / _error_count));
+        return _error_count / (_set_point * _error_count + _ie);
     }
     inline double idle() const
     {
-        return _idle_time;
+        // return the average idle time
+        return (_idle_time * 100.0) / (_set_point * _error_count);
     }
     inline void start()
     {
@@ -107,13 +142,8 @@ class loop_sync
         _dt = diff();
         const double idle_time = _set_point - _dt;
 
-        // Calculate the delay using PID equation
-        const double p = _kp * _error[_end];
-        const double i = _ki * _ie;
-        const double d = _kd * _de;
-
-        const double delay = idle_time * (p + i + d + 1.0);
-        const double adjust_delay = delay - _accum_time;
+        // Calculate the delay using PID equation and account for accumulated time
+        const double adjust_delay = calculate_delay(idle_time) - _accum_time;
 
         // If we have time to kill, sleep on it
         if (adjust_delay > 0.0)
@@ -126,19 +156,15 @@ class loop_sync
 
             // Set the accumulation if we over-slept
             _accum_time = _dt - adjust_delay;
-
-            // Calculate the idle percentage (%)
-            _idle_time = (idle_time / _set_point) * 100;
         }
         else
         {
             // We took too long rendering, accumulate this time
             _accum_time -= idle_time;
-            _idle_time = 0;
         }
 
         // Calculate PID variables
-        calculate_control_parameters();
+        calculate_control_parameters(idle_time);
 
         // Return the frame time step in seconds
         return _dt;
