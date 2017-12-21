@@ -88,22 +88,26 @@ class static_vertex
         glDisableVertexAttribArray(3);
         glDisableVertexAttribArray(4);
     }
-    inline static void copy(const mesh<T, K> &m, std::vector<T> &data, const size_t data_offset, size_t i)
+    inline static void copy(std::vector<T> &data, const mesh<T, K> &m, const size_t mesh_offset)
     {
-        // Copy the vertex data, 4 floats
-        std::memcpy(&data[data_offset], &m.vertex[i], vertex_size);
+        const auto attr_size = m.vertex.size();
+        for (size_t i = 0, j = mesh_offset; i < attr_size; i++, j += width_size)
+        {
+            // Copy the vertex data, 4 floats
+            std::memcpy(&data[j], &m.vertex[i], vertex_size);
 
-        // Copy the uv data, 2 floats, offset is in number of floats
-        std::memcpy(&data[data_offset + uv_off], &m.uv[i], uv_size);
+            // Copy the uv data, 2 floats, offset is in number of floats
+            std::memcpy(&data[j + uv_off], &m.uv[i], uv_size);
 
-        // Copy the normal data, 3 floats, offset is in number of floats
-        std::memcpy(&data[data_offset + normal_off], &m.normal[i], normal_size);
+            // Copy the normal data, 3 floats, offset is in number of floats
+            std::memcpy(&data[j + normal_off], &m.normal[i], normal_size);
 
-        // Copy the tangent data, 3 floats, offset is in number of floats
-        std::memcpy(&data[data_offset + tangent_off], &m.tangent[i], tangent_size);
+            // Copy the tangent data, 3 floats, offset is in number of floats
+            std::memcpy(&data[j + tangent_off], &m.tangent[i], tangent_size);
 
-        // Copy the bitangent data, 3 floats, offset is in number of floats
-        std::memcpy(&data[data_offset + bitangent_off], &m.bitangent[i], bitangent_size);
+            // Copy the bitangent data, 3 floats, offset is in number of floats
+            std::memcpy(&data[j + bitangent_off], &m.bitangent[i], bitangent_size);
+        }
     }
     inline static constexpr size_t width()
     {

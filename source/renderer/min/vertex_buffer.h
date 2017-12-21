@@ -76,12 +76,8 @@ class vertex_buffer
             // Store the data dimensions in the data index buffer
             _data_index.push_back(std::make_pair(data_size, data_offset));
 
-            // Interlace the data in the buffer
-            for (size_t i = 0; i < attr_size; i++, data_offset += width)
-            {
-                // Vertex specific element-wise copy
-                vertex_type<T, K, FLOAT_TYPE>::copy(m, _data, data_offset, i);
-            }
+            // Interlace the data in the buffer in place
+            vertex_type<T, K, FLOAT_TYPE>::copy(_data, m, data_offset);
         }
         else
         {
@@ -125,12 +121,8 @@ class vertex_buffer
             }
 
             // Interlace the data in the buffer in place
-            size_t data_offset = d.second;
-            for (size_t i = 0; i < attr_size; i++, data_offset += width)
-            {
-                // Vertex specific element-wise copy
-                vertex_type<T, K, FLOAT_TYPE>::copy(m, _data, data_offset, i);
-            }
+            const size_t data_offset = d.second;
+            vertex_type<T, K, FLOAT_TYPE>::copy(_data, m, data_offset);
         }
         else
         {
