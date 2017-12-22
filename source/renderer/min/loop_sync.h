@@ -46,7 +46,6 @@ class loop_sync
     double _ki;
     double _kd;
     double _dt;
-    double _error_tol;
 
     inline void calculate_control_parameters(const double idle_time)
     {
@@ -56,13 +55,6 @@ class loop_sync
         // Create new record on buffer
         const double prev = _error[_end];
         _end = (_end + 1) % _error_count;
-
-        // Elapsed since start of frame
-        // Ensure not zero, max 2000 FPS
-        if (_dt < 0.0005)
-        {
-            _dt = 0.0005;
-        }
 
         // Calculate integral of errors
         _ie = _error[_end] = _set_point - _dt;
@@ -84,23 +76,15 @@ class loop_sync
     inline double calculate_delay(const double idle_time) const
     {
         // Calculate the delay using PID equation
-        double delay;
-        if (std::abs(_error[_end]) > _error_tol)
-        {
-            const double p = _kp * _error[_end];
-            const double i = _ki * _ie;
-            const double d = _kd * _de;
-            delay = idle_time + (p + i + d);
+        const double p = _kp * _error[_end];
+        const double i = _ki * _ie;
+        const double d = _kd * _de;
+        double delay = idle_time + (p + i + d);
 
-            // Check if delay is unstable
-            if (delay > _set_point)
-            {
-                delay = _set_point;
-            }
-        }
-        else
+        // Check if delay is unstable
+        if (delay > _set_point)
         {
-            delay = idle_time;
+            delay = _set_point;
         }
 
         // return delay
@@ -115,12 +99,11 @@ class loop_sync
     }
 
   public:
-    loop_sync(const double fps)
+    loop_sync(const double fps, const double kp = 0.5, const double ki = 0.75, const double kd = 0.75)
         : _error{}, _idle{}, _begin(0), _end(_error_count - 1),
           _ie(0.0), _idle_time(0.0), _de(0.0),
           _accum_time(0.0), _set_point(1.0 / fps),
-          _kp(0.75), _ki(1.25), _kd(1.5), _dt(0.0),
-          _error_tol(0.002) {}
+          _kp(kp), _ki(ki), _kd(kd), _dt(0.0) {}
 
     inline double get_fps() const
     {
