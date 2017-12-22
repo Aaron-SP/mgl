@@ -90,7 +90,7 @@ class loop_sync
             const double p = _kp * _error[_end];
             const double i = _ki * _ie;
             const double d = _kd * _de;
-            delay = idle_time * (p + i + d + 1.0);
+            delay = idle_time + (p + i + d);
 
             // Check if delay is unstable
             if (delay > _set_point)
@@ -119,13 +119,13 @@ class loop_sync
         : _error{}, _idle{}, _begin(0), _end(_error_count - 1),
           _ie(0.0), _idle_time(0.0), _de(0.0),
           _accum_time(0.0), _set_point(1.0 / fps),
-          _kp(1.0), _ki(1.0 / (_error_count * _set_point)), _kd(1.0), _dt(0.0),
+          _kp(0.75), _ki(1.25), _kd(1.5), _dt(0.0),
           _error_tol(0.002) {}
 
     inline double get_fps() const
     {
         // Return the average fps
-        return _error_count / (_set_point * _error_count + _ie);
+        return _error_count / (_set_point * _error_count - _ie);
     }
     inline double idle() const
     {
