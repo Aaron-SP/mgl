@@ -130,7 +130,8 @@ class win32_window
         BACKSPACE = VK_BACK,
         SPACE = VK_SPACE,
         LALT = VK_LMENU,
-        RALT = VK_RMENU
+        RALT = VK_RMENU,
+        ESCAPE = VK_ESCAPE
     };
 
   private:

@@ -121,7 +121,8 @@ class x_window
         BACKSPACE = XK_BackSpace,
         SPACE = XK_space,
         LALT = XK_Alt_L,
-        RALT = XK_Alt_R
+        RALT = XK_Alt_R,
+        ESCAPE = XK_Escape
     };
 
   private:
