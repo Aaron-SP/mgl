@@ -419,6 +419,18 @@ class text_buffer
             glDrawArrays(GL_TRIANGLES, 0, size);
         }
     }
+    inline void draw(const size_t start, const size_t stop) const
+    {
+        // Draw object at index 'n'
+        const auto &start_n = _data_index[start];
+        const auto &stop_n = _data_index[stop];
+
+        // Calculate
+        const size_t size = stop_n.second + (stop_n.first - start_n.first);
+
+        // Draw all of the text from start_n to stop_n
+        glDrawArrays(GL_TRIANGLES, start_n.first, size);
+    }
     inline std::pair<float, float> get_screen_size() const
     {
         return std::make_pair(_screen_x, _screen_y);

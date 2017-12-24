@@ -94,13 +94,22 @@ class keyboard
 {
   private:
     std::unordered_map<T, key<K>> _keys;
+    bool _disable;
 
   public:
-    keyboard() {}
+    keyboard() : _disable(false) {}
     void add(const T &code)
     {
         // Add key to the key map
         _keys.insert(std::make_pair(code, key<K>()));
+    }
+    void disable()
+    {
+        _disable = true;
+    }
+    void enable()
+    {
+        _disable = false;
     }
     bool is_down(const T &code) const
     {
@@ -116,20 +125,26 @@ class keyboard
     }
     void key_down(const T &code, const K step)
     {
-        // Lookup key in the map
-        const auto &i = _keys.find(code);
-        if (i != _keys.end())
+        if (!_disable)
         {
-            i->second.down(step);
+            // Lookup key in the map
+            const auto &i = _keys.find(code);
+            if (i != _keys.end())
+            {
+                i->second.down(step);
+            }
         }
     }
     void key_up(const T &code, const K step)
     {
-        // Lookup key in the map
-        const auto &i = _keys.find(code);
-        if (i != _keys.end())
+        if (!_disable)
         {
-            i->second.up(step);
+            // Lookup key in the map
+            const auto &i = _keys.find(code);
+            if (i != _keys.end())
+            {
+                i->second.up(step);
+            }
         }
     }
     void register_keydown(const T &code, void (*on_down)(void *, K), void *data)
@@ -173,10 +188,24 @@ class keyboard
     }
     void update(const K step)
     {
-        // Update all keys per frame
-        for (const auto &k : _keys)
+        if (!_disable)
         {
-            k.second.update(step);
+            // Update all keys per frame
+            for (const auto &k : _keys)
+            {
+                k.second.update(step);
+            }
+        }
+        else
+        {
+            // Set all keys up if down
+            for (auto &k : _keys)
+            {
+                if (k.second.is_down())
+                {
+                    k.second.up(step);
+                }
+            }
         }
     }
 };
