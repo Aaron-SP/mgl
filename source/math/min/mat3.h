@@ -88,6 +88,33 @@ class mat3
     mat3(const vec2<T> &t, const mat2<T> &r)
         : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) {}
 
+    inline void one(vec3<T> &v)
+    {
+        _a = v.x();
+        _b = v.y();
+        _c = v.z();
+    }
+    inline void two(vec3<T> &v)
+    {
+        _d = v.x();
+        _e = v.y();
+        _f = v.z();
+    }
+    inline void three(vec3<T> &v)
+    {
+        _g = v.x();
+        _h = v.y();
+        _i = v.z();
+    }
+    inline void w(const T w)
+    {
+        _i = w;
+    }
+    inline T w() const
+    {
+        return _i;
+    }
+
     // constructs a 3D rotation matrix
     mat3(const quat<T> &r)
     {

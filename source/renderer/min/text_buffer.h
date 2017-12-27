@@ -16,6 +16,7 @@ limitations under the License.
 #define __TEXTBUFFER__
 
 #include <min/program.h>
+#include <min/vec2.h>
 #include <min/vec4.h>
 #include <min/window.h>
 
@@ -25,11 +26,64 @@ limitations under the License.
 #include <algorithm>
 #include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace min
 {
+
+class text
+{
+  private:
+    std::string _str;
+    vec2<float> _location;
+    vec2<float> _line_wrap;
+    size_t _offset;
+    size_t _size;
+
+  public:
+    text(const std::string &text, const vec2<float> &p, const size_t offset)
+        : _str(text), _location(p), _line_wrap(1000.0, 50.0), _offset(offset), _size(text.size() * 6) {}
+
+    const vec2<float> &line_wrap() const
+    {
+        return _line_wrap;
+    }
+    void set_line_wrap(const vec2<float> &line_wrap)
+    {
+        _line_wrap = line_wrap;
+    }
+    const vec2<float> &location() const
+    {
+        return _location;
+    }
+    void set_location(const vec2<float> &location)
+    {
+        _location = location;
+    }
+    size_t offset() const
+    {
+        return _offset;
+    }
+    void set_offset(const size_t offset)
+    {
+        _offset = offset;
+    }
+    size_t size() const
+    {
+        // returns the number of triangles to draw for this string
+        // 6 * std::string.size()
+        return _size;
+    }
+    const std::string &str() const
+    {
+        return _str;
+    }
+    void set_string(const std::string &str)
+    {
+        _str = str;
+        _size = str.size() * 6;
+    }
+};
 
 class text_buffer
 {
@@ -51,13 +105,11 @@ class text_buffer
     GLuint _tid;
     GLuint _vao;
     GLuint _vbo;
-    std::vector<std::string> _text;
-    std::vector<std::pair<float, float>> _location;
+    std::vector<text> _text;
     mutable std::vector<vec4<float>> _data;
-    mutable std::vector<std::pair<size_t, size_t>> _data_index;
     size_t _char_count;
-    float _screen_x;
-    float _screen_y;
+    uint16_t _screen_x;
+    uint16_t _screen_y;
 
     inline void bind_vao() const
     {
@@ -204,7 +256,6 @@ class text_buffer
             maxh = std::max(maxh, (unsigned)c.height);
         }
     }
-
     void create_texture_atlas(const FT_Face &face)
     {
         // Calculate dimensions of the texture atlas
@@ -216,21 +267,65 @@ class text_buffer
         // Upload all glyphs into the texture buffer
         upload_character_glyphs(face);
     }
-    unsigned process_text(const std::string &text, const float sx, const float sy) const
+    vec2<float> get_pixel_size(const text &t) const
+    {
+        // Get the line wrap settings in pixels
+        const float lwx = t.line_wrap().x();
+        const float lwy = t.line_wrap().y();
+
+        // For all characters in string
+        float x = 0.0;
+        float y = 0.0;
+        float x_out = 0.0;
+        for (const auto &ch : t.str())
+        {
+            // get the character data
+            const unsigned index = ch;
+            const char_data &c = _chars[index];
+
+            // Advance the cursor to the start of the next character
+            x += c.adv_x;
+            y += c.adv_y;
+
+            // Check line wrap settings
+            if (x > lwx)
+            {
+                // Get the maximum x dimension
+                x_out = std::max(x, x_out);
+
+                // Reset x coord
+                x = 0.0;
+
+                // Adjust vertical position downward
+                y += lwy;
+            }
+        }
+
+        // Get the maximum x dimension
+        x_out = std::max(x, x_out);
+
+        // Return the size of the text in a box
+        return vec2<float>(x_out, y);
+    }
+    void process_text(const text &t) const
     {
         // Create conversion to screen coordinates using screen size
         const float scale_x = 2.0 / _screen_x;
         const float scale_y = 2.0 / _screen_y;
 
-        // Start from bottom left corner
-        float x = sx;
-        float y = sy;
+        // Get the location of the text
+        const vec2<float> &p = t.location();
+        const float lwx = t.line_wrap().x() * scale_x;
+        const float lwy = t.line_wrap().y() * scale_y;
 
-        // Starting triangle offset for this string
-        const unsigned start = _data.size();
+        // Start from bottom left corner
+        float x0 = 0.0;
+        float y0 = 0.0;
+        float x = p.x();
+        float y = p.y();
 
         // For all characters in string
-        for (const auto &ch : text)
+        for (const auto &ch : t.str())
         {
             // get the character data
             const unsigned index = ch;
@@ -245,12 +340,22 @@ class text_buffer
             const float x_right = x_left + w;
 
             // Advance the cursor to the start of the next character
-            x += c.adv_x * scale_x;
-            y += c.adv_y * scale_y;
+            x0 += c.adv_x * scale_x;
+            y0 -= c.adv_y * scale_y;
 
-            // Skip glyphs that have no pixels
-            if (w == 0 || h == 0)
-                continue;
+            // Check line wrap settings
+            if (x0 > lwx)
+            {
+                // Reset x coord
+                x0 = 0.0;
+
+                // Adjust vertical position downward
+                y0 -= lwy;
+            }
+
+            // Reset the start position
+            x = p.x() + x0;
+            y = p.y() + y0;
 
             // Create triangles, 2 for each character, data format: (x_pos, y_pos, uv_x, uv_y)
             // We flip the y-uv coordinates here because of OpenGL (0,0) == bottom, left
@@ -268,28 +373,25 @@ class text_buffer
             _data.emplace_back(x_left, y_top, uv_left, uv_top);
             _data.emplace_back(x_right, y_top, uv_right, uv_top);
         }
-
-        // Return the number of triangles added to buffer for this string
-        return _data.size() - start;
     }
-    inline std::pair<float, float> to_screen_coords(const float x, const float y) const
+    inline vec2<float> to_screen_coords(const float x, const float y) const
     {
         // Convert x & y to screen coordinates
         const float sx = (2.0 / _screen_x) * x - 1.0;
         const float sy = (2.0 / _screen_y) * y - 1.0;
 
         // Return the screen coordinates
-        return std::make_pair(sx, sy);
+        return vec2<float>(sx, sy);
     }
 
-    inline std::pair<float, float> to_pixel_coords(const std::pair<float, float> &p) const
+    inline vec2<float> to_pixel_coords(const vec2<float> &p) const
     {
         // Convert x & y to pixel coordinates
-        const float px = (p.first + 1.0) * (_screen_x / 2.0);
-        const float py = (p.second + 1.0) * (_screen_y / 2.0);
+        const float px = (p.x() + 1.0) * (_screen_x / 2);
+        const float py = (p.y() + 1.0) * (_screen_y / 2);
 
         // Return the screen coordinates
-        return std::make_pair(px, py);
+        return vec2<float>(px, py);
     }
 
   public:
@@ -353,16 +455,13 @@ class text_buffer
         // Check for opengl errors
         check_error();
     }
-    inline size_t add_text(const std::string &text, const float x, const float y)
+    inline size_t add_text(const std::string &str, const float x, const float y)
     {
+        // Store the string
+        _text.emplace_back(str, to_screen_coords(x, y), _char_count * 6);
+
         // Record the total character count
-        _char_count += text.size();
-
-        // Store the text
-        _text.push_back(text);
-
-        // Store the location
-        _location.push_back(to_screen_coords(x, y));
+        _char_count += str.size();
 
         // return the string index
         return _text.size() - 1;
@@ -382,14 +481,10 @@ class text_buffer
     inline void clear()
     {
         // Clears the data in this buffer, but data will remain on GPU until next upload is called
-
-        // Clear cached mutable data
         _data.clear();
-        _data_index.clear();
 
         // Clear the string and index buffer
         _text.clear();
-        _location.clear();
 
         // Reset char count
         _char_count = 0;
@@ -397,47 +492,47 @@ class text_buffer
     inline void draw(const size_t index) const
     {
         // Check if we have text to draw
-        if (_data_index.size() > 0)
+        if (_text.size() > 0)
         {
             // Get the draw index
-            const auto &n = _data_index[index];
+            const auto &t = _text[index];
 
             // Draw the specific string from index
-            glDrawArrays(GL_TRIANGLES, n.first, n.second);
+            glDrawArrays(GL_TRIANGLES, t.offset(), t.size());
         }
     }
     inline void draw_all() const
     {
         // Check if we have text to draw
-        if (_data_index.size() > 0)
+        if (_text.size() > 0)
         {
             // Calculate total buffer size
-            const auto &n = _data_index.back();
-            const size_t size = n.first + n.second;
+            const auto &t = _text.back();
+            const size_t size = t.offset() + t.size();
 
             // Draw all of the text in one pass
             glDrawArrays(GL_TRIANGLES, 0, size);
         }
     }
-    inline void draw(const size_t start, const size_t stop) const
+    inline void draw(const size_t from, const size_t to) const
     {
-        // Draw object at index 'n'
-        const auto &start_n = _data_index[start];
-        const auto &stop_n = _data_index[stop];
+        // Draw object at index 'from' to index 'to'
+        const auto &start = _text[from];
+        const auto &stop = _text[to];
 
         // Calculate
-        const size_t size = stop_n.second + (stop_n.first - start_n.first);
+        const size_t size = stop.size() + (stop.offset() - start.offset());
 
-        // Draw all of the text from start_n to stop_n
-        glDrawArrays(GL_TRIANGLES, start_n.first, size);
+        // Draw all of the text from 'start' to index 'stop'
+        glDrawArrays(GL_TRIANGLES, start.offset(), size);
     }
-    inline std::pair<float, float> get_screen_size() const
+    inline std::pair<uint16_t, uint16_t> get_screen_size() const
     {
         return std::make_pair(_screen_x, _screen_y);
     }
-    inline const std::pair<float, float> get_text_location(const size_t index) const
+    inline const vec2<float> get_text_location(const size_t index) const
     {
-        return to_pixel_coords(_location[index]);
+        return to_pixel_coords(_text[index].location());
     }
     inline void set_texture_uniform(const program &program, const std::string &name, const size_t layer) const
     {
@@ -456,26 +551,58 @@ class text_buffer
         // Check for opengl errors
         check_error();
     }
-    inline void set_screen(const float screen_x, const float screen_y)
+    inline void set_screen(const uint16_t width, const uint16_t height)
     {
-        _screen_x = screen_x;
-        _screen_y = screen_y;
+        _screen_x = width;
+        _screen_y = height;
     }
-    inline void set_text(const std::string &text, const size_t index)
+    inline void set_text(const std::string &str, const size_t index)
     {
         // Calculate the change in character count
-        const long diff = (long)(text.size() - _text[index].size());
+        const long diff = (long)(str.size() - _text[index].str().size());
 
         // Update character count
         _char_count += diff;
 
         // Update the text
-        _text[index] = text;
+        _text[index].set_string(str);
+
+        // If the size of text changed in buffer
+        if (diff != 0)
+        {
+            // Reset all calculated offsets in buffer
+            const size_t size = _text.size();
+            size_t offset = _text[index].offset() + _text[index].size();
+            for (size_t i = index + 1; i < size; i++)
+            {
+                // Set the changed text offset
+                _text[i].set_offset(offset);
+
+                // Update the offset for next text
+                offset += _text[i].size();
+            }
+        }
+    }
+    inline void set_text_center(const size_t index, const float x, const float y)
+    {
+        // Get the pixel size of the text
+        const vec2<float> size = get_pixel_size(_text[index]);
+
+        // Offset the x and y by half the box size
+        const vec2<float> center = vec2<float>(x, y) - size * 0.5;
+
+        // Update the location
+        _text[index].set_location(to_screen_coords(center.x(), center.y()));
     }
     inline void set_text_location(const size_t index, const float x, const float y)
     {
         // Update the location
-        _location[index] = to_screen_coords(x, y);
+        _text[index].set_location(to_screen_coords(x, y));
+    }
+    inline void set_line_wrap(const size_t index, const float x, const float y)
+    {
+        // Update the line wrap setting
+        _text[index].set_line_wrap(vec2<float>(x, y));
     }
     inline void set_text(const std::string &text, const size_t index, const float x, const float y)
     {
@@ -500,24 +627,10 @@ class text_buffer
         // Reserve space for the text, 2 triangles for each character
         _data.reserve(6 * _char_count);
 
-        // Clear and reserve space for index parameters
-        _data_index.clear();
-        _data_index.reserve(size);
-
-        size_t offset = 0;
         for (size_t i = 0; i < size; i++)
         {
-            // Draw text at location and scale
-            const auto loc = _location[i];
-
-            // count = number of triangles (char * 6) added to buffer
-            const size_t count = process_text(_text[i], loc.first, loc.second);
-
-            // Calculate the index parameters
-            _data_index.push_back(std::make_pair(offset, count));
-
-            // Calculate the next offset
-            offset += count;
+            // Add each string to the text buffer
+            process_text(_text[i]);
         }
 
         // Bind the text buffer to hold data

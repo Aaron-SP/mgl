@@ -94,6 +94,42 @@ class mat4
     mat4(const T dx, const T dy, const T near, const T far)
         : _a(1.0 / dx), _b(0.0), _c(0.0), _d(0.0), _e(0.0), _f(1.0 / dy), _g(0.0), _h(0.0), _i(0.0), _j(0.0), _k(-2.0 / (far - near)), _l((far + near) / (far - near)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
 
+    inline void one(vec4<T> &v)
+    {
+        _a = v.x();
+        _b = v.y();
+        _c = v.z();
+        _d = v.w();
+    }
+    inline void two(vec4<T> &v)
+    {
+        _e = v.x();
+        _f = v.y();
+        _g = v.z();
+        _h = v.w();
+    }
+    inline void three(vec4<T> &v)
+    {
+        _i = v.x();
+        _j = v.y();
+        _k = v.z();
+        _l = v.w();
+    }
+    inline void four(vec4<T> &v)
+    {
+        _m = v.x();
+        _n = v.y();
+        _o = v.z();
+        _p = v.w();
+    }
+    inline void w(const T w)
+    {
+        _p = w;
+    }
+    inline T w() const
+    {
+        return _p;
+    }
     inline mat4<T> operator*(const mat4<T> &A) const
     {
         mat4<T> out;
