@@ -478,6 +478,10 @@ class text_buffer
         // Bind texture to this texture target
         glBindTexture(GL_TEXTURE_2D, _tid);
     }
+    inline void unbind() const
+    {
+        glBindVertexArray(0);
+    }
     inline void clear()
     {
         // Clears the data in this buffer, but data will remain on GPU until next upload is called

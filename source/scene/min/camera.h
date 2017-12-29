@@ -143,6 +143,7 @@ class camera
     }
     inline void set_look_at(const vec3<T> &look)
     {
+        // Update look
         _look = look;
 
         // Camera has moved
@@ -175,6 +176,17 @@ class camera
 
         // Update position
         _p = p;
+
+        // Camera has moved
+        _dirty = true;
+    }
+    inline void set(const vec3<T> &p, const vec3<T> &look)
+    {
+        // Update position
+        _p = p;
+
+        // Update look
+        _look = look;
 
         // Camera has moved
         _dirty = true;

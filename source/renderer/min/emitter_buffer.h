@@ -190,6 +190,10 @@ class emitter_buffer
         // Do not call this function often as it is unneeded context switching
         glBindVertexArray(_vao);
     }
+    inline void unbind() const
+    {
+        glBindVertexArray(0);
+    }
     inline void draw() const
     {
         // Draw all objects in the static buffer
