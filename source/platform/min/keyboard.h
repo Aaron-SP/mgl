@@ -103,6 +103,10 @@ class keyboard
         // Add key to the key map
         _keys.insert(std::make_pair(code, key<K>()));
     }
+    void clear()
+    {
+        _keys.clear();
+    }
     void disable()
     {
         _disable = true;
