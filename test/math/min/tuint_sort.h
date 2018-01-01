@@ -26,6 +26,7 @@ bool test_uint_sort()
 
     // Creator vector N > 128 to sort
     std::vector<uint64_t> uints(256, 100000000);
+    std::vector<uint64_t> sort_copy;
     uints[0] = 100000;
     uints[1] = 70000;
     uints[37] = 130000;
@@ -34,7 +35,7 @@ bool test_uint_sort()
     uints[200] = 5000000;
 
     // Test uint radix sort
-    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -58,7 +59,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort ordered
-    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -79,7 +80,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort reverse
-    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -100,7 +101,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort same
-    min::uint_sort<uint64_t>(uints, [](const size_t a) {
+    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -111,6 +112,43 @@ bool test_uint_sort()
         if (!out)
         {
             throw std::runtime_error("Failed uint radix sort same");
+        }
+    }
+
+    // Test duplicates
+    for (size_t i = 0; i < 128; i++)
+    {
+        uints[i] = 211;
+    }
+
+    // Test duplicates
+    for (size_t i = 128; i < 256; i++)
+    {
+        uints[i] = 203;
+    }
+
+    // Test uint radix sort same
+    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+        return a;
+    });
+
+    // Verify same
+    for (size_t i = 0; i < 128; i++)
+    {
+        out = out && compare(203, uints[i]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed uint radix sort duplicates");
+        }
+    }
+
+    // Verify same
+    for (size_t i = 128; i < 256; i++)
+    {
+        out = out && compare(211, uints[i]);
+        if (!out)
+        {
+            throw std::runtime_error("Failed uint radix sort duplicates");
         }
     }
 

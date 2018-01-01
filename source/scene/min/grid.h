@@ -87,6 +87,7 @@ class grid
     std::vector<grid_node<T, K, L, vec, cell, shape>> _cells;
     std::vector<size_t> _index_map;
     std::vector<size_t> _key_cache;
+    std::vector<size_t> _sort_copy;
     std::vector<size_t> _grid_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
@@ -250,7 +251,7 @@ class grid
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on grid key
-        uint_sort<size_t>(_index_map, [this](const size_t a) {
+        uint_sort<size_t>(_index_map, _sort_copy, [this](const size_t a) {
             return this->_key_cache[a];
         });
 

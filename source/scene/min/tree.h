@@ -105,6 +105,7 @@ class tree
     std::vector<shape<T, vec>> _shapes;
     std::vector<size_t> _index_map;
     std::vector<size_t> _key_cache;
+    std::vector<size_t> _sort_copy;
     std::vector<uint8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
@@ -357,7 +358,7 @@ class tree
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on grid key
-        uint_sort<size_t>(_index_map, [this](const size_t a) {
+        uint_sort<size_t>(_index_map, _sort_copy, [this](const size_t a) {
             return this->_key_cache[a];
         });
 

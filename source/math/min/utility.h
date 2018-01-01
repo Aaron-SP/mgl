@@ -223,7 +223,7 @@ class bit_flag
 
 // radix sort for unsigned integers
 template <typename T, typename F>
-inline void uint_sort(std::vector<T> &uints, F &&key_function)
+inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_function)
 {
     const size_t size = uints.size();
 
@@ -238,7 +238,7 @@ inline void uint_sort(std::vector<T> &uints, F &&key_function)
     }
 
     // Initialize copy vector
-    std::vector<T> copy(size, 0);
+    copy.resize(size, 0);
     std::vector<T> *from = &uints;
     std::vector<T> *to = &copy;
     std::vector<T> *temp = nullptr;
