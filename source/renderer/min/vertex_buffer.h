@@ -274,7 +274,7 @@ class vertex_buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo[0]);
 
         // vertex specific creation routine
-        vertex_type<T, K, FLOAT_TYPE>::create();
+        vertex_type<T, K, FLOAT_TYPE>::create(_vbo[0]);
     }
     ~vertex_buffer()
     {
@@ -340,7 +340,7 @@ class vertex_buffer
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo[_index]);
 
         // vertex specific creation routine
-        vertex_type<T, K, FLOAT_TYPE>::create();
+        vertex_type<T, K, FLOAT_TYPE>::change_bind_buffer(_vbo[_index]);
     }
     inline void clear()
     {

@@ -376,7 +376,7 @@ class win32_window
             WGL_CONTEXT_MAJOR_VERSION_ARB, major,
             WGL_CONTEXT_MINOR_VERSION_ARB, minor,
             WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-            0}; // End
+            0, 0}; // End
 
         // Check if opengl extensions are available
         if (wglewIsSupported("WGL_ARB_create_context") == GL_TRUE && wglewIsSupported("WGL_ARB_pixel_format") == GL_TRUE)

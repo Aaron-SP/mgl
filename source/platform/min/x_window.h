@@ -271,7 +271,7 @@ class x_window
             GLX_CONTEXT_MAJOR_VERSION_ARB, major,
             GLX_CONTEXT_MINOR_VERSION_ARB, minor,
             GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-            None};
+            None, None};
 
         // Create GL context
         _context = glXCreateContextAttribsARB(_display, choosen_config, 0, true, context_attr);

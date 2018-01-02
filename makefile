@@ -14,8 +14,13 @@ LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isour
 TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/scene -Itest/renderer
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
+# Enable GS rendering
+ifdef MGL_VB43
+	MGL_VB43 = -DMGL_VB43
+endif
+
 # Compile parameters
-PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
+PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200 $(MGL_VB43)
 EXTRA = source/platform/min/glew.cpp
 WL_INCLUDE = -DGLEW_STATIC
 TEST_GL = test/gl_test.cpp

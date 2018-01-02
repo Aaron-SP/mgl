@@ -39,6 +39,13 @@ To verify freetype has been installed properly, query it using the following com
 To perform code formatting, run the formatting script command in the project root (clang is required):
 - ./format
 
+### Compile Flags
+
+An alternative VBO mode can be enabled by exporting a variable to bash before compiling with the makefile. 
+This mode allows faster vertex_buffer.bind_buffer() switching because it uses OpenGL 4.3 features to separate VBO specification from within VAO state.
+This mode requires using a OpenGL 4.3 core profile.
+- 'export MGL_VB43=true'
+
 ### Usage
 
 After building the project tests and examples, you can run any example from the project root directory.

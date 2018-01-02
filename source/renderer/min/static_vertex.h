@@ -48,27 +48,68 @@ class static_vertex
     static constexpr size_t width_size = width_bytes / sizeof(T);
 
   public:
-    inline static void create()
+    inline static void change_bind_buffer(const GLuint vbo)
     {
+#ifdef MGL_VB43
+        // No offset, standard stride, binding point 0
+        glBindVertexBuffer(0, vbo, 0, width_bytes);
+#else
+        // Redundantly recreate the vertex attributes
+        create_vertex_attributes();
+#endif
+    }
+    inline static void create_vertex_attributes()
+    {
+#ifdef MGL_VB43
+        // Specify the vertex attributes in location = 0, no offset
+        glVertexAttribFormat(0, 4, FLOAT_TYPE, GL_FALSE, 0);
+        // Specify the uv attributes in location = 1, offset is in bytes
+        glVertexAttribFormat(1, 2, FLOAT_TYPE, GL_FALSE, uv_off * sizeof(T));
+        // Specify the normal attributes in location = 2, offset is in bytes
+        glVertexAttribFormat(2, 3, FLOAT_TYPE, GL_FALSE, normal_off * sizeof(T));
+        // Specify the tangent attributes in location = 3, offset is in bytes
+        glVertexAttribFormat(3, 3, FLOAT_TYPE, GL_FALSE, tangent_off * sizeof(T));
+        // Specify the bitangent attributes in location = 4, offset is in bytes
+        glVertexAttribFormat(4, 3, FLOAT_TYPE, GL_FALSE, bitangent_off * sizeof(T));
+#else
         // Specify the vertex attributes in location = 0, no offset
         glVertexAttribPointer(0, 4, FLOAT_TYPE, GL_FALSE, width_bytes, nullptr);
-        glEnableVertexAttribArray(0);
-
         // Specify the uv attributes in location = 1, offset is in bytes
         glVertexAttribPointer(1, 2, FLOAT_TYPE, GL_FALSE, width_bytes, (GLvoid *)(uv_off * sizeof(T)));
-        glEnableVertexAttribArray(1);
-
         // Specify the normal attributes in location = 2, offset is in bytes
         glVertexAttribPointer(2, 3, FLOAT_TYPE, GL_FALSE, width_bytes, (GLvoid *)(normal_off * sizeof(T)));
-        glEnableVertexAttribArray(2);
-
         // Specify the tangent attributes in location = 3, offset is in bytes
         glVertexAttribPointer(3, 3, FLOAT_TYPE, GL_FALSE, width_bytes, (GLvoid *)(tangent_off * sizeof(T)));
-        glEnableVertexAttribArray(3);
-
         // Specify the bitangent attributes in location = 4, offset is in bytes
         glVertexAttribPointer(4, 3, FLOAT_TYPE, GL_FALSE, width_bytes, (GLvoid *)(bitangent_off * sizeof(T)));
-        glEnableVertexAttribArray(4);
+#endif
+    }
+    inline static void create_buffer_binding(const GLuint vbo, const GLuint bind_point)
+    {
+#ifdef MGL_VB43
+        //  Create the buffer binding point
+        glVertexAttribBinding(0, bind_point);
+        glVertexAttribBinding(1, bind_point);
+        glVertexAttribBinding(2, bind_point);
+        glVertexAttribBinding(3, bind_point);
+        glVertexAttribBinding(4, bind_point);
+
+        // No offset, standard stride, binding point 0
+        glBindVertexBuffer(bind_point, vbo, 0, width_bytes);
+#endif
+    }
+    inline static void create(const GLuint vbo)
+    {
+        // Enable the attributes
+        enable_attributes();
+
+        // Create the vertex attributes
+        create_vertex_attributes();
+
+#ifdef MGL_VB43
+        // Create the buffer binding point
+        create_buffer_binding(vbo, 0);
+#endif
     }
     inline static void check(const mesh<T, K> &m)
     {
@@ -78,15 +119,6 @@ class static_vertex
         {
             throw std::runtime_error("static_vertex: uv, normals or tangents invalid length");
         }
-    }
-    inline static void destroy()
-    {
-        // Disable the vertex attributes
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-        glDisableVertexAttribArray(3);
-        glDisableVertexAttribArray(4);
     }
     inline static void copy(std::vector<T> &data, const mesh<T, K> &m, const size_t mesh_offset)
     {
@@ -108,6 +140,28 @@ class static_vertex
             // Copy the bitangent data, 3 floats, offset is in number of floats
             std::memcpy(&data[j + bitangent_off], &m.bitangent[i], bitangent_size);
         }
+    }
+    inline static void destroy()
+    {
+        // Disable the vertex attributes before destruction
+        disable_attributes();
+    }
+    inline static void disable_attributes()
+    {
+        // Disable the vertex attributes
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
+        glDisableVertexAttribArray(4);
+    }
+    inline static void enable_attributes()
+    {
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
     }
     inline static constexpr size_t width()
     {
