@@ -421,38 +421,45 @@ class vec3
         T &tz = std::get<7>(grid_ray);
         const T &dtz = std::get<8>(grid_ray);
 
-        // Test for falling off the grid so we can stop iterating
-        const size_t edge = scale - 2;
-        if ((col <= 1 && drx == -1) || (col >= edge && drx == 1))
+        // Should we move along the x, y, or z axis? Guarantee a valid return value.
+        if (tx <= ty && tx <= tz)
         {
-            flag = true;
+            if (!(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
+            {
+                // Increment column == choose x
+                col += drx;
+                tx += dtx;
+            }
+            else
+            {
+                flag = true;
+            }
         }
-        else if ((row <= 1 && dry == -1) || (row >= edge && dry == 1))
+        else if (ty <= tx && ty <= tz)
         {
-            flag = true;
+            if (!(row == 0 && dry == -1) && !(row == scale - 1 && dry == 1))
+            {
+                // Increment row == choose y
+                row += dry;
+                ty += dty;
+            }
+            else
+            {
+                flag = true;
+            }
         }
-        else if ((zin <= 1 && drz == -1) || (zin >= edge && drz == 1))
+        else
         {
-            flag = true;
-        }
-
-        // Should we move along the x or y axis? Guarantee a valid return value.
-        if (tx <= ty && tx <= tz && !(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
-        {
-            // Increment column == choose x
-            col += drx;
-            tx += dtx;
-        }
-        else if (ty <= tx && ty <= tz && !(row == 0 && dry == -1) && !(row == scale - 1 && dry == 1))
-        {
-            // Increment row == choose y
-            row += dry;
-            ty += dty;
-        }
-        else if (!(zin == 0 && drz == -1) && !(zin == scale - 1 && drz == 1))
-        {
-            zin += drz;
-            tz += dtz;
+            if (!(zin == 0 && drz == -1) && !(zin == scale - 1 && drz == 1))
+            {
+                // Increment column == choose x
+                zin += drz;
+                tz += dtz;
+            }
+            else
+            {
+                flag = true;
+            }
         }
 
         // Return the grid index key for accessing cell

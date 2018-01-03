@@ -338,29 +338,32 @@ class vec2
         T &ty = std::get<4>(grid_ray);
         const T &dty = std::get<5>(grid_ray);
 
-        // Test for falling off the grid so we can stop iterating
-        const size_t edge = scale - 2;
-        if ((col <= 1 && drx == -1) || (col >= edge && drx == 1))
+        // Should we move along the x, y, or z axis? Guarantee a valid return value.
+        if (tx <= ty)
         {
-            flag = true;
+            if (!(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
+            {
+                // Increment column == choose x
+                col += drx;
+                tx += dtx;
+            }
+            else
+            {
+                flag = true;
+            }
         }
-        else if ((row <= 1 && dry == -1) || (row >= edge && dry == 1))
+        else
         {
-            flag = true;
-        }
-
-        // Should we move along the x or y axis? Guarantee a valid return value.
-        if (tx <= ty && !(col == 0 && drx == -1) && !(col == scale - 1 && drx == 1))
-        {
-            // Increment column == choose x
-            col += drx;
-            tx += dtx;
-        }
-        else if (!(row == 0 && dry == -1) && !(row == scale - 1 && dry == 1))
-        {
-            // Increment row == choose y
-            row += dry;
-            ty += dty;
+            if (!(row == 0 && dry == -1) && !(row == scale - 1 && dry == 1))
+            {
+                // Increment row == choose y
+                row += dry;
+                ty += dty;
+            }
+            else
+            {
+                flag = true;
+            }
         }
 
         // Return the grid index key for accessing cell

@@ -110,9 +110,9 @@ class instance_test
         _ubuffer.bind();
 
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 0.0, 0.0, 1.0);
+        min::vec4<float> light_color(1.0, 1.0, 1.0, 1.0);
         min::vec4<float> light_position(0.0, 0.0, 20.0, 1.0);
-        min::vec4<float> light_power(0.1, 100.0, 1.0, 1.0);
+        min::vec4<float> light_power(0.1, 10.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
 
         // Load projection and view matrix into uniform buffer
@@ -198,10 +198,10 @@ bool test_static_instance()
     // Update the window after draw command
     test.window_update();
 
-    std::string s = ask("Can you see the particles?");
+    std::string s = ask("Can you see the instanced spheres?");
     if (!s.compare("n"))
     {
-        throw std::runtime_error("Failed static_instance particle test");
+        throw std::runtime_error("Failed static_instance sphere test");
     }
 
     return out;
