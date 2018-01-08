@@ -1,7 +1,7 @@
 # MGL
 ## Repository for the Minimal Graphics Library
 
-### Building and Dependencies
+### Building
 
 Welcome to the Minimal Graphics Library! This is the prerelease alpha version 0.1.
 
@@ -19,22 +19,38 @@ The GNU makefile contains various build targets.
 
 These build targets have been tested for compilation on Arch Linux x64 and Windows 7 (x86,x64) platforms.
 
+### Dependencies
+
+#### GLEW
+
 GLEW is used within the engine for adding OpenGL function support.
-You can download GLEW at http://glew.sourceforge.net/
+No configuration is necessary, but you can find further information about GLEW at http://glew.sourceforge.net/.
+
+#### OPENAL
+
+OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org/.
+OpenAL-Soft can also be used for providing a software renderer. OpenAL-Soft can be downloaded at http://kcat.strangesoft.net/openal.html.
+
+#### Platform Specific
 
 Additional dependencies that are required and not distributed in this package include:
 - 'g++-5.4' - all platforms
 - 'opengl3.3+' - all platforms
+- 'openal' - all platforms
+- 'openal-soft' - for linux only
 - 'mingw32' - for win32 only
 - 'freetype' - for win32 and linux
 - 'X11' - for linux only
 
-For Arch Linux users, the following pacman command should install all needed dependencies:
+#### Arch Linux Users
 
-- pacman -S freetype2 xorg-server xorg-server-devel
+For Arch Linux users, the following pacman command should install all needed dependencies:
+- pacman -S freetype2 xorg-server xorg-server-devel openal
 
 To verify freetype has been installed properly, query it using the following command:
 - freetype-config --cflags
+
+#### Code Formatting
 
 To perform code formatting, run the formatting script command in the project root (clang is required):
 - ./format

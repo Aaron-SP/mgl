@@ -46,6 +46,7 @@ class bmp
                 throw std::runtime_error("bmp: ''" + _file + "' not large enough to be BMP file");
             }
 
+            // Read the 18 byte header
             std::string header(18, 0);
             file.seekg(0, std::ios::beg);
             file.read(&header[0], 18);

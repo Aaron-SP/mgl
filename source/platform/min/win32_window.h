@@ -192,6 +192,7 @@ class win32_window
             PostQuitMessage(0);
             break;
         }
+        case WM_SYSKEYDOWN:
         case WM_KEYDOWN:
         {
             // Get the window class
@@ -201,6 +202,7 @@ class win32_window
             window->_keyboard.key_down(wParam, 0);
             break;
         }
+        case WM_SYSKEYUP:
         case WM_KEYUP:
         {
             // Get the window class
@@ -289,13 +291,25 @@ class win32_window
             window = reinterpret_cast<win32_window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             // Get the screen properties
-            uint16_t w = LOWORD(lParam);
-            uint16_t h = HIWORD(lParam);
+            const uint16_t w = LOWORD(lParam);
+            const uint16_t h = HIWORD(lParam);
 
             // Call the resize callback
             window->on_resize(w, h);
 
             break;
+        }
+        case WM_SYSCOMMAND:
+        {
+            // Disable the syscommand menu focus when pressing down 'ALT + something'
+            // lParam holds the ASCII key pressed with ALT
+            if (wParam == SC_KEYMENU)
+            {
+                return 0;
+            }
+
+            // Default window procedure is called
+            return DefWindowProc(hwnd, message, wParam, lParam);
         }
         default:
         {

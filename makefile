@@ -10,8 +10,8 @@ OBJGRAPH_SOURCES = $(CGRAPH_SOURCES:.cpp=.o)
 FREETYPE2_INCLUDE = $(shell freetype-config --cflags)
 
 # Include directories
-LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isource/scene -Isource/renderer $(FREETYPE2_INCLUDE)
-TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/scene -Itest/renderer
+LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isource/renderer -Isource/scene -Isource/sound $(FREETYPE2_INCLUDE)
+TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/renderer -Itest/scene -Itest/sound
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
 # Enable GS rendering
@@ -23,6 +23,7 @@ endif
 PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200 $(MGL_VB43)
 EXTRA = source/platform/min/glew.cpp
 WL_INCLUDE = -DGLEW_STATIC
+TEST_AL = test/al_test.cpp
 TEST_GL = test/gl_test.cpp
 TEST_WL = $(EXTRA) test/wl_test.cpp
 EX1 = $(EXTRA) example/programs/ex1.cpp
@@ -39,10 +40,10 @@ EX10 = $(EXTRA) example/programs/ex10.cpp
 # Linker parameters
 ifeq ($(OS),Windows_NT)
 	MGL_PATH = C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
-	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll
+	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll -lOpenAL32.dll
 else
 	MGL_PATH = /usr/include/mgl
-	LINKER = -lX11 -lGL -lfreetype
+	LINKER = -lX11 -lGL -lfreetype -lOpenAL32
 endif
 
 # Override if MGL_DESTDIR specified
@@ -61,9 +62,14 @@ uninstall:
 	rm -rI $(MGL_PATH)
 lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
-tests:
+al_test:
+	g++ $(LIB_SOURCES) $(TEST_SOURCES) -Itest $(PARAMS) $(TEST_AL) -o bin/al_test $(LINKER) 2> "al_test.txt"
+gl_test:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) -Itest $(PARAMS) $(TEST_GL) -o bin/gl_test $(LINKER) 2> "gl_test.txt"
+wl_test:
 	g++ $(LIB_SOURCES) $(TEST_SOURCES) -Itest $(WL_INCLUDE) $(PARAMS) $(TEST_WL) -o bin/wl_test $(LINKER) 2> "wl_test.txt"
+tests: al_test gl_test wl_test
+	
 benchmarks:
 	g++ $(LIB_SOURCES) $(BENCH_SOURCES) -Ibench $(PARAMS) bench/gl_bench.cpp -o bin/gl_bench $(LINKER) 2> "gcc_bench.txt"
 example1:
