@@ -86,7 +86,7 @@ class texture_buffer
         }
 
         // Check for opengl errors
-        check_error();
+        check_internal_error();
     }
     texture_buffer(const texture_buffer &sb) = delete;
     GLuint add_bmp_texture(const bmp &b)
@@ -260,7 +260,7 @@ class texture_buffer
         glUniform1i(sampler_location, layer);
 
         // Check for opengl errors
-        check_error();
+        check_internal_error();
     }
 };
 }

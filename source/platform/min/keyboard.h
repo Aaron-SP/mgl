@@ -26,19 +26,27 @@ template <typename K>
 class key
 {
   private:
-    void *_down_data;
-    void *_up_data;
     bool _is_down;
+    void *_down_data;
+    void *_down_data_pf;
+    void *_up_data;
+    void *_up_data_pf;
     void (*_key_down)(void *, K);
+    void (*_key_down_pf)(void *, K);
     void (*_key_up)(void *, K);
-    bool _per_frame;
+    void (*_key_up_pf)(void *, K);
 
   public:
-    key() : _down_data(nullptr), _up_data(nullptr), _is_down(false), _key_down(nullptr), _key_up(nullptr), _per_frame(false) {}
+    key() : _is_down(false),
+            _down_data(nullptr), _down_data_pf(nullptr),
+            _up_data(nullptr), _up_data_pf(nullptr),
+            _key_down(nullptr), _key_down_pf(nullptr),
+            _key_up(nullptr), _key_up_pf(nullptr) {}
+
     void down(K step)
     {
         // Call the callback function, if not down previously and not per frame
-        if (_key_down && !_is_down && !_per_frame)
+        if (_key_down && !_is_down)
             _key_down(_down_data, step);
 
         _is_down = true;
@@ -46,7 +54,7 @@ class key
     void up(K step)
     {
         // Call the callback function, if not up previously and not per frame
-        if (_key_up && _is_down && !_per_frame)
+        if (_key_up && _is_down)
             _key_up(_up_data, step);
 
         _is_down = false;
@@ -65,26 +73,27 @@ class key
         _up_data = data;
         _key_up = on_up;
     }
-    void set_per_frame(const bool flag)
+    void set_down_per_frame(void (*on_down)(void *, K), void *data)
     {
-        _per_frame = flag;
+        _down_data_pf = data;
+        _key_down_pf = on_down;
+    }
+    void set_up_per_frame(void (*on_up)(void *, K), void *data)
+    {
+        _up_data_pf = data;
+        _key_up_pf = on_up;
     }
     void update(const K step) const
     {
-        if (_per_frame)
+        if (_key_down_pf && _is_down)
         {
-            if (_is_down)
-            {
-                // Call the callback function
-                if (_key_down)
-                    _key_down(_down_data, step);
-            }
-            else
-            {
-                // Call the callback function
-                if (_key_up)
-                    _key_up(_up_data, step);
-            }
+            // Call down_per_frame callback function
+            _key_down_pf(_down_data_pf, step);
+        }
+        else if (_key_up_pf && !_is_down)
+        {
+            // Call up_per_frame callback function
+            _key_up_pf(_up_data_pf, step);
         }
     }
 };
@@ -177,13 +186,26 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void set_per_frame(const T &code, const bool flag)
+    void register_keydown_per_frame(const T &code, void (*on_down)(void *, K), void *data)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
         if (i != _keys.end())
         {
-            i->second.set_per_frame(flag);
+            i->second.set_down_per_frame(on_down, data);
+        }
+        else
+        {
+            throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
+        }
+    }
+    void register_keyup_per_frame(const T &code, void (*on_up)(void *, K), void *data)
+    {
+        // Lookup key in the map
+        const auto &i = _keys.find(code);
+        if (i != _keys.end())
+        {
+            i->second.set_up_per_frame(on_up, data);
         }
         else
         {

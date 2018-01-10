@@ -128,7 +128,7 @@ class program
         }
 
         // check for errors
-        check_error();
+        check_internal_error();
     }
     program(const program &p) = delete;
     inline void use() const

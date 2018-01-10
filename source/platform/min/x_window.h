@@ -34,7 +34,13 @@ void window_error(const std::string &error)
     std::cout << error << std::endl;
 }
 
-void check_error()
+bool check_gl_error()
+{
+    const GLenum error = glGetError();
+    return error != GL_NO_ERROR;
+}
+
+void check_internal_error()
 {
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)

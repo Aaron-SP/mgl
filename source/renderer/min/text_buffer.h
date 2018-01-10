@@ -453,7 +453,7 @@ class text_buffer
         }
 
         // Check for opengl errors
-        check_error();
+        check_internal_error();
     }
     inline size_t add_text(const std::string &str, const float x, const float y)
     {
@@ -553,7 +553,7 @@ class text_buffer
         glUniform1i(sampler_location, layer);
 
         // Check for opengl errors
-        check_error();
+        check_internal_error();
     }
     inline void set_screen(const uint16_t width, const uint16_t height)
     {

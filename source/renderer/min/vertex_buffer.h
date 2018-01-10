@@ -304,7 +304,7 @@ class vertex_buffer
         }
 
         // Check for opengl errors
-        check_error();
+        check_internal_error();
     }
     vertex_buffer(const vertex_buffer &sb) = delete;
     size_t add_mesh(const mesh<T, K> &m)

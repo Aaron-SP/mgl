@@ -111,7 +111,7 @@ class shader
         }
 
         // check for errors
-        check_error();
+        check_internal_error();
     }
     shader(const shader &s) = delete;
     inline GLuint id() const

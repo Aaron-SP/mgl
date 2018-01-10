@@ -30,8 +30,11 @@ bool test_sound_buffer()
         player.enumerate_devices();
 
         // Load a WAVE file
-        const min::wave sound = min::wave("data/sound/invention_no_1.wav");
+        min::wave sound = min::wave("data/sound/invention_no_1.wav");
         size_t wav = player.add_wave_pcm(sound);
+
+        // Clear the sound data
+        sound.clear();
 
         // Create a source
         size_t s = player.add_source();
@@ -41,7 +44,15 @@ bool test_sound_buffer()
 
         // Play the sound file synchronously
         player.play_sync(s);
+
+        // See if we got any errors
+        out = out && !min::check_al_error();
+        if (!out)
+        {
+            throw std::runtime_error("Failed sound buffer test");
+        }
     }
+
     return out;
 }
 

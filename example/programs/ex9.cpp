@@ -263,8 +263,7 @@ class physics_test
         keyboard.register_keydown(min::window::key_code::ENTER, physics_test::launch, (void *)this);
 
         // Register callback function W
-        keyboard.register_keydown(min::window::key_code::KEYW, physics_test::forward, (void *)this);
-        keyboard.set_per_frame(min::window::key_code::KEYW, true);
+        keyboard.register_keydown_per_frame(min::window::key_code::KEYW, physics_test::forward, (void *)this);
     }
     void load_meshes()
     {
