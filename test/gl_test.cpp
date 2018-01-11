@@ -31,6 +31,7 @@ limitations under the License.
 #include <min/tmd5anim.h>
 #include <min/tmd5mesh.h>
 #include <min/tmd5model.h>
+#include <min/tmem_chunk.h>
 #include <min/tmodel.h>
 #include <min/toobbox.h>
 #include <min/toobboxinter.h>
@@ -105,6 +106,7 @@ int main()
         out = out && test_md5_model();
         out = out && test_physics_aabb_grid();
         out = out && test_serial();
+        out = out && test_mem_chunk();
         if (out)
         {
             std::cout << "Graphics tests passed!" << std::endl;
