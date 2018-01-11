@@ -85,25 +85,34 @@ class sound_buffer
     }
     inline void create_openal_context()
     {
-        // Get the default device specifier
-        const ALCchar *default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-        std::cout << "Creating sound buffer device on: " << default_device << std::endl;
-
         // Clear the error stack
         clear_error();
 
-        // Create the default device
-        _device = alcOpenDevice(default_device);
+        // Try to use OpenAL Soft renderer
+        _device = alcOpenDevice("OpenAL Soft");
         if (_device == nullptr)
         {
-            throw std::runtime_error("openal: Could get default alc device");
+            // Get the default device specifier
+            const ALCchar *default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+            std::cout << "Creating sound buffer device on: " << default_device << std::endl;
+
+            // Create the default device
+            _device = alcOpenDevice(default_device);
+            if (_device == nullptr)
+            {
+                throw std::runtime_error("openal: Could not get default alc device");
+            }
+        }
+        else
+        {
+            std::cout << "Creating sound buffer device on: OpenAL Soft" << std::endl;
         }
 
         // Create the OpenAL context on the default device
         _context = alcCreateContext(_device, nullptr);
         if (_context == nullptr)
         {
-            throw std::runtime_error("openal: Could get default alc context");
+            throw std::runtime_error("openal: Could not get default alc context");
         }
 
         // Make the context current
@@ -265,24 +274,39 @@ class sound_buffer
             std::this_thread::sleep_for(std::chrono::duration<double>(1.0));
         }
     }
+    inline void set_distance_model(const ALenum model) const
+    {
+        alDistanceModel(model);
+    }
     inline void set_listener_position(const min::vec3<float> &p)
     {
         // Cache the listener position
         _listener = p;
 
         // Update the listener position
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&p);
-        alListenerfv(AL_POSITION, data);
-    }
-    inline void set_listener_velocity(const min::vec3<float> &v) const
-    {
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&v);
-        alListenerfv(AL_VELOCITY, data);
+        const ALfloat pos[3] = {-p.x(), p.y(), p.z()};
+        alListenerfv(AL_POSITION, pos);
     }
     inline void set_listener_orientation(const min::vec3<float> &at, const min::vec3<float> &up) const
     {
-        ALfloat orien[6] = {at.x(), at.y(), at.z(), up.x(), up.y(), up.z()};
+        // OpenAL is right handed so we flip the X & Z axis coordinates!
+        const ALfloat orien[6] = {-at.x(), at.y(), at.z(), -up.x(), up.y(), up.z()};
         alListenerfv(AL_ORIENTATION, orien);
+    }
+    inline void set_listener_velocity(const min::vec3<float> &v) const
+    {
+        const ALfloat vel[3] = {-v.x(), v.y(), v.z()};
+        alListenerfv(AL_VELOCITY, vel);
+    }
+    inline void set_source_at_listener(const size_t source) const
+    {
+        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&_listener);
+        alSourcefv(_sources[source], AL_POSITION, data);
+    }
+    inline void set_source_direction(const size_t source, const min::vec3<float> &d) const
+    {
+        const ALfloat dir[3] = {-d.x(), d.y(), d.z()};
+        alSourcefv(_sources[source], AL_DIRECTION, dir);
     }
     inline void set_source_gain(const size_t source, const float gain) const
     {
@@ -294,18 +318,25 @@ class sound_buffer
     }
     inline void set_source_position(const size_t source, const min::vec3<float> &p) const
     {
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&p);
-        alSourcefv(_sources[source], AL_POSITION, data);
+        const ALfloat pos[3] = {-p.x(), p.y(), p.z()};
+        alSourcefv(_sources[source], AL_POSITION, pos);
     }
-    inline void set_source_at_listener(const size_t source) const
+    inline void set_source_max_dist(const size_t source, const float dist) const
     {
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&_listener);
-        alSourcefv(_sources[source], AL_POSITION, data);
+        alSourcef(_sources[source], AL_MAX_DISTANCE, dist);
+    }
+    inline void set_source_ref_dist(const size_t source, const float dist) const
+    {
+        alSourcef(_sources[source], AL_REFERENCE_DISTANCE, dist);
+    }
+    inline void set_source_rolloff(const size_t source, const float rf) const
+    {
+        alSourcef(_sources[source], AL_ROLLOFF_FACTOR, rf);
     }
     inline void set_source_velocity(const size_t source, const min::vec3<float> &v) const
     {
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&v);
-        alSourcefv(_sources[source], AL_VELOCITY, data);
+        const ALfloat vel[3] = {-v.x(), v.y(), v.z()};
+        alSourcefv(_sources[source], AL_VELOCITY, vel);
     }
 };
 }
