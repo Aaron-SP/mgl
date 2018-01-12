@@ -28,6 +28,62 @@ class shader
     GLuint _id;
     GLenum _type;
 
+    inline void load_file(const std::string path, const GLenum type)
+    {
+        std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
+        if (file.is_open())
+        {
+            // Get the size of the file
+            std::streampos one = 1;
+            std::ifstream::pos_type size = file.tellg();
+
+            // Adjust file pointer to beginning
+            file.seekg(0, std::ios::beg);
+
+            // Allocate space for new file
+            std::string data(size + one, '\0');
+
+            // Read bytes and close the file
+            file.read(&data[0], size);
+
+            // Close the file
+            file.close();
+
+            // Process the DDS file
+            load(data, type);
+        }
+        else
+        {
+            throw std::runtime_error("shader: File '" + path + "' doesn't exist.");
+        }
+    }
+    inline void load(const std::string &src, const GLenum type)
+    {
+        // Create a shader id
+        _id = glCreateShader(_type);
+        if (_id == 0)
+        {
+            throw std::runtime_error("shader: Failed to create shader ID.");
+        }
+
+        // This function can take multiple strings and concatenate them together for combining fragments
+        // We only use one file for now, give source code to opengl
+        // NULL means that string is null terminated
+        const char *array_strings = &src[0];
+        glShaderSource(_id, 1, &array_strings, nullptr);
+
+        // Compile the shader
+        glCompileShader(_id);
+
+        // Check that the compile was successful
+        GLint status = GL_FALSE;
+        glGetShaderiv(_id, GL_COMPILE_STATUS, &status);
+        if (status == GL_FALSE)
+        {
+            print_errors();
+            throw std::runtime_error("shader: Failed to compile opengl shader.");
+        }
+    }
     void print_errors() const
     {
         GLint log_length = 0;
@@ -58,50 +114,11 @@ class shader
   public:
     shader(const std::string &path, const GLenum type) : _id(0), _type(type)
     {
-        std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
-        if (file.is_open())
-        {
-            // Get the file content size
-            std::streampos one = 1;
-            std::ifstream::pos_type size = file.tellg();
-            file.seekg(0, std::ios::beg);
-
-            // Read data into string, this will terminate the string
-            std::string src = std::string(size + one, '\0');
-            file.read(&src[0], size);
-
-            // Close the file
-            file.close();
-
-            // Create a shader id
-            _id = glCreateShader(_type);
-            if (_id == 0)
-            {
-                throw std::runtime_error("shader: Failed to create shader ID.");
-            }
-
-            // This function can take multiple strings and concatenate them together for combining fragments
-            // We only use one file for now, give source code to opengl
-            // NULL means that string is null terminated
-            const char *array_strings = &src[0];
-            glShaderSource(_id, 1, &array_strings, nullptr);
-
-            // Compile the shader
-            glCompileShader(_id);
-
-            // Check that the compile was successful
-            GLint status = GL_FALSE;
-            glGetShaderiv(_id, GL_COMPILE_STATUS, &status);
-            if (status == GL_FALSE)
-            {
-                print_errors();
-                throw std::runtime_error("shader: Failed to compile opengl shader.");
-            }
-        }
-        else
-        {
-            throw std::runtime_error("shader: File '" + path + "' doesn't exist.");
-        }
+        load_file(path, type);
+    }
+    shader(const mem_file &mem, const GLenum type) : _id(0), _type(type)
+    {
+        load_file(mem.to_string(), type);
     }
     ~shader()
     {
