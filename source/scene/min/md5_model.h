@@ -127,6 +127,27 @@ class md5_model : public model<T, K, vec, bound>
         // return current animation index
         return _current;
     }
+    inline size_t load_animation(const mem_file &mem)
+    {
+        // Load animation in place
+        _animations.emplace_back(mem);
+
+        // Update the current animation
+        _current = _animations.size() - 1;
+
+        // Get current frame of animation
+        const std::vector<mat4<T>> &frame = _animations[_current].get_current_frame();
+
+        // Validate that the animation frame size matches the model bones
+        const size_t size = frame.size();
+        if (_bones.size() != size || _inverse_bp.size() != size)
+        {
+            throw std::runtime_error("md5_model: animation is not compatible with model");
+        }
+
+        // return current animation index
+        return _current;
+    }
     inline void reset_bones() const
     {
         // Reset bones to mind bose

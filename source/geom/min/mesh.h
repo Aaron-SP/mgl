@@ -15,7 +15,7 @@ limitations under the License.
 #ifndef __MESH__
 #define __MESH__
 #include <fstream>
-#include <min/serial.h>
+#include <min/mem_chunk.h>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
@@ -324,7 +324,8 @@ class mesh
             a *= factor;
         }
     }
-    void deserialize(std::vector<uint8_t> &stream)
+    template <class M>
+    void deserialize(const M &stream)
     {
         size_t next = 0;
 
@@ -410,8 +411,13 @@ class mesh
             throw std::runtime_error("mesh: could not open file '" + file_name + "'");
         }
 
-        // deserialize the stream of bytes into object
-        this->deserialize(stream);
+        // Deserialize the stream of bytes into object
+        deserialize<std::vector<uint8_t>>(stream);
+    }
+    void from_file(const mem_file &mem)
+    {
+        // Deserialize the stream of bytes into object
+        deserialize<mem_file>(mem);
     }
 };
 }

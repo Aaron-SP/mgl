@@ -16,6 +16,7 @@ limitations under the License.
 #define __SHADER__
 
 #include <fstream>
+#include <min/mem_chunk.h>
 #include <min/window.h>
 #include <string>
 
@@ -118,7 +119,7 @@ class shader
     }
     shader(const mem_file &mem, const GLenum type) : _id(0), _type(type)
     {
-        load_file(mem.to_string(), type);
+        load(mem.to_string(), type);
     }
     ~shader()
     {
