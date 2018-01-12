@@ -18,6 +18,7 @@ limitations under the License.
 #include <fstream>
 #include <min/aabbox.h>
 #include <min/mat4.h>
+#include <min/mem_chunk.h>
 #include <min/quat.h>
 #include <min/strtoken.h>
 #include <min/vec3.h>
@@ -185,136 +186,142 @@ class md5_anim
     mutable std::vector<mat4<T>> _current_frame;
     mutable T _time;
 
-    void load(const std::string &_file)
+    inline void load_file(const std::string _file)
     {
-        // Open the file
         std::ifstream file(_file, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.is_open())
         {
             // Get the size of the file
-            const auto file_size = file.tellg();
+            const auto size = file.tellg();
 
-            // Allocate memory for data
-            std::string data(file_size, 0);
-
-            // Read the contents of the file into string buffer
+            // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
-            file.read(&data[0], file_size);
 
-            // Get locations of all lines in string buffer
-            const auto lines = tools::read_lines(data);
+            // Allocate space for new file
+            std::string data(size, 0);
 
-            // Read line by line
-            unsigned frames, nodes, components;
-            frames = nodes = components = 0;
-            const size_t size = lines.size();
-            for (size_t i = 0; i < size; i++)
-            {
-                // read line and trim the line whitespace
-                const auto &position = lines[i];
-                std::string line = data.substr(position.first, position.second);
-                tools::trim(line);
-
-                // skip empty line size in bytes
-                if (line.size() == 0)
-                {
-                    continue;
-                }
-
-                // Read the property of this line
-                std::string field;
-                std::istringstream s(line);
-                s >> field;
-
-                // Execute action based on property
-                if (tools::to_lower(field).compare("md5version") == 0)
-                {
-                    // Parse the version number and check against target
-                    int version;
-                    s >> version;
-
-                    // Expected version 10
-                    if (version != 10)
-                    {
-                        throw std::runtime_error("md5_anim: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
-                    }
-                }
-                else if (tools::to_lower(field).compare("commandline") == 0)
-                {
-                    // Skip these command parameters, as they are unused
-                    continue;
-                }
-                else if (tools::to_lower(field).compare("numframes") == 0)
-                {
-                    s >> frames;
-                }
-                else if (tools::to_lower(field).compare("numjoints") == 0)
-                {
-                    s >> nodes;
-                }
-                else if (tools::to_lower(field).compare("framerate") == 0)
-                {
-                    s >> _frame_rate;
-                }
-                else if (tools::to_lower(field).compare("numanimatedcomponents") == 0)
-                {
-                    s >> components;
-                }
-                else if (tools::to_lower(field).compare("hierarchy") == 0)
-                {
-                    // Parse the next 'nodes' lines in the file
-                    const std::vector<std::string> h_lines = tools::get_lines(data, lines, nodes, i);
-
-                    // process the hierarchy data
-                    process_hierarchy(h_lines);
-                }
-                else if (tools::to_lower(field).compare("bounds") == 0)
-                {
-                    // Parse the next 'frames' lines in the file
-                    const std::vector<std::string> b_lines = tools::get_lines(data, lines, frames, i);
-
-                    // process the bounds data
-                    process_bounds(b_lines);
-                }
-                else if (tools::to_lower(field).compare("baseframe") == 0)
-                {
-                    // Parse the next 'nodes' lines in the file
-                    const std::vector<std::string> bf_lines = tools::get_lines(data, lines, nodes, i);
-
-                    // process the baseframe data
-                    process_baseframe(bf_lines);
-                }
-                else if (tools::to_lower(field).compare("frame") == 0)
-                {
-                    // Get the frame ID
-                    unsigned id;
-                    s >> id;
-
-                    // Parse the next 'nodes' lines in the file
-                    const std::vector<std::string> f_lines = tools::get_lines(data, lines, nodes, i);
-
-                    // process the frame data
-                    process_frame_data(f_lines, id, components);
-                }
-                else if (field.compare("}") != 0)
-                {
-                    // There is another command that we do not know about
-                    throw std::runtime_error("md5_anim: unknown property '" + field + "'");
-                }
-
-                // Check for errors
-                if (s.fail())
-                {
-                    throw std::runtime_error("md5_anim: Invalid line in file '" + line + "'");
-                }
-            }
+            // Read bytes and close the file
+            file.read(&data[0], size);
 
             // Close the file
             file.close();
+
+            // Process the DDS file
+            load(data);
         }
         else
         {
             throw std::runtime_error("md5_anim: Could not load file '" + _file + "'");
+        }
+    }
+    inline void load(const std::string &data)
+    {
+        // Get locations of all lines in string buffer
+        const auto lines = tools::read_lines(data);
+
+        // Read line by line
+        unsigned frames, nodes, components;
+        frames = nodes = components = 0;
+        const size_t size = lines.size();
+        for (size_t i = 0; i < size; i++)
+        {
+            // read line and trim the line whitespace
+            const auto &position = lines[i];
+            std::string line = data.substr(position.first, position.second);
+            tools::trim(line);
+
+            // skip empty line size in bytes
+            if (line.size() == 0)
+            {
+                continue;
+            }
+
+            // Read the property of this line
+            std::string field;
+            std::istringstream s(line);
+            s >> field;
+
+            // Execute action based on property
+            if (tools::to_lower(field).compare("md5version") == 0)
+            {
+                // Parse the version number and check against target
+                int version;
+                s >> version;
+
+                // Expected version 10
+                if (version != 10)
+                {
+                    throw std::runtime_error("md5_anim: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
+                }
+            }
+            else if (tools::to_lower(field).compare("commandline") == 0)
+            {
+                // Skip these command parameters, as they are unused
+                continue;
+            }
+            else if (tools::to_lower(field).compare("numframes") == 0)
+            {
+                s >> frames;
+            }
+            else if (tools::to_lower(field).compare("numjoints") == 0)
+            {
+                s >> nodes;
+            }
+            else if (tools::to_lower(field).compare("framerate") == 0)
+            {
+                s >> _frame_rate;
+            }
+            else if (tools::to_lower(field).compare("numanimatedcomponents") == 0)
+            {
+                s >> components;
+            }
+            else if (tools::to_lower(field).compare("hierarchy") == 0)
+            {
+                // Parse the next 'nodes' lines in the file
+                const std::vector<std::string> h_lines = tools::get_lines(data, lines, nodes, i);
+
+                // process the hierarchy data
+                process_hierarchy(h_lines);
+            }
+            else if (tools::to_lower(field).compare("bounds") == 0)
+            {
+                // Parse the next 'frames' lines in the file
+                const std::vector<std::string> b_lines = tools::get_lines(data, lines, frames, i);
+
+                // process the bounds data
+                process_bounds(b_lines);
+            }
+            else if (tools::to_lower(field).compare("baseframe") == 0)
+            {
+                // Parse the next 'nodes' lines in the file
+                const std::vector<std::string> bf_lines = tools::get_lines(data, lines, nodes, i);
+
+                // process the baseframe data
+                process_baseframe(bf_lines);
+            }
+            else if (tools::to_lower(field).compare("frame") == 0)
+            {
+                // Get the frame ID
+                unsigned id;
+                s >> id;
+
+                // Parse the next 'nodes' lines in the file
+                const std::vector<std::string> f_lines = tools::get_lines(data, lines, nodes, i);
+
+                // process the frame data
+                process_frame_data(f_lines, id, components);
+            }
+            else if (field.compare("}") != 0)
+            {
+                // There is another command that we do not know about
+                throw std::runtime_error("md5_anim: unknown property '" + field + "'");
+            }
+
+            // Check for errors
+            if (s.fail())
+            {
+                throw std::runtime_error("md5_anim: Invalid line in file '" + line + "'");
+            }
         }
     }
     inline void interpolate_current_frame(const md5_frame<T> &frame0, const md5_frame<T> &frame1, T ratio) const
@@ -616,7 +623,22 @@ class md5_anim
   public:
     md5_anim(const std::string &file) : _frame_rate(0), _loops(0), _time(0.0)
     {
-        load(file);
+        load_file(file);
+
+        // Set the length of the animation
+        _animation_length = static_cast<T>(_frames.size()) / _frame_rate;
+
+        if (_frames.size() == 0)
+        {
+            throw std::runtime_error("md5_anim: no frames in animation");
+        }
+
+        // Set the current frame
+        _current_frame = _frames[0].get_bones();
+    }
+    md5_anim(const mem_file &mem) : _frame_rate(0), _loops(0), _time(0.0)
+    {
+        load(mem.to_string());
 
         // Set the length of the animation
         _animation_length = static_cast<T>(_frames.size()) / _frame_rate;

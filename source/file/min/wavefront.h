@@ -19,6 +19,7 @@ limitations under the License.
 #include <fstream>
 #include <limits>
 #include <map>
+#include <min/mem_chunk.h>
 #include <min/mesh.h>
 #include <min/strtoken.h>
 #include <sstream>
@@ -57,75 +58,81 @@ class wavefront
             process_mesh(_mesh.back());
         }
     }
-    inline void load(const std::string &_file)
+    inline void load_file(const std::string _file)
     {
-        // Open the file
         std::ifstream file(_file, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.is_open())
         {
             // Get the size of the file
-            auto size = file.tellg();
+            const auto size = file.tellg();
 
-            // Allocate memory for data
+            // Adjust file pointer to beginning
+            file.seekg(0, std::ios::beg);
+
+            // Allocate space for new file
             std::string data(size, 0);
 
-            // Read the contents of the file into string buffer
-            file.seekg(0, std::ios::beg);
+            // Read bytes and close the file
             file.read(&data[0], size);
-
-            // Get locations of all lines in string buffer
-            auto lines = tools::read_lines(data);
-
-            // Read line by line
-            for (auto &position : lines)
-            {
-                // read line and trim the line whitespace
-                std::string line = data.substr(position.first, position.second);
-                tools::trim(line);
-
-                // skip empty line size in bytes
-                if (line.size() == 0)
-                {
-                    continue;
-                }
-
-                // if new object
-                if (line.compare(0, 2, "o ") == 0)
-                {
-                    process_object(line);
-                }
-                // If vertex coordinate
-                else if (line.compare(0, 2, "v ") == 0)
-                {
-                    process_vertex(line);
-                }
-                // if texture coordinate
-                else if (line.compare(0, 2, "vt") == 0)
-                {
-                    process_uv(line);
-                }
-                // if normal coordinate
-                else if (line.compare(0, 2, "vn") == 0)
-                {
-                    process_normal(line);
-                }
-                // if face coordinate
-                else if (line.compare(0, 1, "f") == 0)
-                {
-                    process_face(line);
-                }
-            }
-
-            // Consume data in buffers
-            flush();
 
             // Close the file
             file.close();
+
+            // Process the DDS file
+            load(data);
         }
         else
         {
-            throw std::runtime_error("wavefront: Could not load file '" + _file + "'");
+            throw std::runtime_error("md5_mesh: Could not load file '" + _file + "'");
         }
+    }
+    inline void load(const std::string &data)
+    {
+        // Get locations of all lines in string buffer
+        auto lines = tools::read_lines(data);
+
+        // Read line by line
+        for (auto &position : lines)
+        {
+            // read line and trim the line whitespace
+            std::string line = data.substr(position.first, position.second);
+            tools::trim(line);
+
+            // skip empty line size in bytes
+            if (line.size() == 0)
+            {
+                continue;
+            }
+
+            // if new object
+            if (line.compare(0, 2, "o ") == 0)
+            {
+                process_object(line);
+            }
+            // If vertex coordinate
+            else if (line.compare(0, 2, "v ") == 0)
+            {
+                process_vertex(line);
+            }
+            // if texture coordinate
+            else if (line.compare(0, 2, "vt") == 0)
+            {
+                process_uv(line);
+            }
+            // if normal coordinate
+            else if (line.compare(0, 2, "vn") == 0)
+            {
+                process_normal(line);
+            }
+            // if face coordinate
+            else if (line.compare(0, 1, "f") == 0)
+            {
+                process_face(line);
+            }
+        }
+
+        // Consume data in buffers
+        flush();
     }
     inline void process_mesh(mesh<T, K> &mesh)
     {
@@ -290,7 +297,11 @@ class wavefront
   public:
     wavefront(const std::string &file, const bool invert = false) : _invert(invert)
     {
-        load(file);
+        load_file(file);
+    }
+    wavefront(const mem_file &mem, const bool invert = false) : _invert(invert)
+    {
+        load(mem.to_string());
     }
     const std::vector<mesh<T, K>> &get_meshes() const
     {

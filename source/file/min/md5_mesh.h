@@ -18,6 +18,7 @@ limitations under the License.
 #include <array>
 #include <min/mat4.h>
 #include <min/md5_anim.h>
+#include <min/mem_chunk.h>
 #include <min/mesh.h>
 #include <min/quat.h>
 #include <min/strtoken.h>
@@ -117,233 +118,232 @@ class md5_mesh
     std::vector<weight<T>> _weights;
     std::vector<vertex_weight<T>> _vertex_weights;
 
-    void load(const std::string &_file)
+    inline void load_file(const std::string _file)
     {
-        // Open the file
         std::ifstream file(_file, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.is_open())
         {
             // Get the size of the file
-            const auto file_size = file.tellg();
+            const auto size = file.tellg();
 
-            // Allocate memory for data
-            std::string data(file_size, 0);
-
-            // Read the contents of the file into string buffer
+            // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
-            file.read(&data[0], file_size);
 
-            // Get locations of all lines in string buffer
-            const auto lines = tools::read_lines(data);
+            // Allocate space for new file
+            std::string data(size, 0);
 
-            // Read line by line
-            unsigned joints, meshes, mesh_counter;
-            joints = meshes = mesh_counter = 0;
-            const size_t size = lines.size();
-            for (size_t i = 0; i < size; i++)
-            {
-                // read line and trim the line whitespace
-                const auto &position = lines[i];
-                std::string line = data.substr(position.first, position.second);
-                tools::trim(line);
-
-                // skip empty line size in bytes
-                if (line.size() == 0)
-                {
-                    continue;
-                }
-
-                // Read the property of this line
-                std::string field;
-                std::istringstream s(line);
-                s >> field;
-
-                // Execute action based on property
-                if (tools::to_lower(field).compare("md5version") == 0)
-                {
-                    // Parse the version number and check against target
-                    int version;
-                    s >> version;
-
-                    // Expected version 10
-                    if (version != 10)
-                    {
-                        throw std::runtime_error("md5_mesh: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
-                    }
-                }
-                else if (tools::to_lower(field).compare("commandline") == 0)
-                {
-                    // Skip these command parameters, as they are unused
-                    continue;
-                }
-                else if (tools::to_lower(field).compare("numjoints") == 0)
-                {
-                    // Reserve space for the joints and bones
-                    s >> joints;
-                    if (joints > 0)
-                    {
-                        _joints.reserve(joints);
-                    }
-                    else
-                    {
-                        throw std::runtime_error("md5_mesh: no joints specified in file");
-                    }
-                }
-                else if (tools::to_lower(field).compare("nummeshes") == 0)
-                {
-                    // Get number of meshes in file
-                    s >> meshes;
-                }
-                else if (tools::to_lower(field).compare("joints") == 0)
-                {
-                    // Parse the next 'joints' lines in the file
-                    const std::vector<std::string> j_lines = tools::get_lines(data, lines, joints, i);
-
-                    // process the hierarchy data
-                    process_joints(j_lines);
-                }
-                else if (tools::to_lower(field).compare("mesh") == 0)
-                {
-                    // Create a new mesh
-                    _mesh.emplace_back(std::to_string(++mesh_counter));
-                    std::istringstream ss;
-
-                    {
-                        // Scan lines looking for 'numverts'
-                        while (tools::to_lower(field).compare("numverts") != 0)
-                        {
-                            std::string line = tools::get_lines(data, lines, 1, i)[0];
-                            ss.str(line);
-                            ss.clear();
-
-                            // Parse the first token
-                            ss >> field;
-
-                            // Check for error
-                            if (ss.fail())
-                            {
-                                throw std::runtime_error("md5_mesh: couldn't find 'numverts'");
-                            }
-                        }
-
-                        // Get the number of verts
-                        unsigned verts;
-                        ss >> verts;
-
-                        // Check for error
-                        if (ss.fail())
-                        {
-                            throw std::runtime_error("md5_mesh: bad vertex count");
-                        }
-
-                        // Parse the next 'verts' lines in the file
-                        const std::vector<std::string> v_lines = tools::get_lines(data, lines, verts, i);
-
-                        // process the hierarchy data
-                        process_vertices(v_lines);
-                    }
-
-                    {
-                        // Scan lines looking for 'numtris'
-                        while (tools::to_lower(field).compare("numtris") != 0)
-                        {
-                            std::string line = tools::get_lines(data, lines, 1, i)[0];
-                            ss.str(line);
-                            ss.clear();
-
-                            // Parse the first token
-                            ss >> field;
-
-                            // Check for error
-                            if (ss.fail())
-                            {
-                                throw std::runtime_error("md5_mesh: couldn't find 'numtris'");
-                            }
-                        }
-
-                        // Get the number of triangles
-                        unsigned triangles;
-                        ss >> triangles;
-
-                        // Check for error
-                        if (ss.fail())
-                        {
-                            throw std::runtime_error("md5_mesh: bad triangle count");
-                        }
-
-                        // Parse the next 'triangles' lines in the file
-                        const std::vector<std::string> t_lines = tools::get_lines(data, lines, triangles, i);
-
-                        // process the hierarchy data
-                        process_triangles(t_lines);
-                    }
-
-                    {
-                        // Scan lines looking for 'numweights'
-                        while (tools::to_lower(field).compare("numweights") != 0)
-                        {
-                            std::string line = tools::get_lines(data, lines, 1, i)[0];
-                            ss.str(line);
-                            ss.clear();
-
-                            // Parse the first token
-                            ss >> field;
-
-                            // Check for error
-                            if (ss.fail())
-                            {
-                                throw std::runtime_error("md5_mesh: couldn't find 'numweights'");
-                            }
-                        }
-
-                        // Get the number of weights
-                        unsigned weights;
-                        ss >> weights;
-
-                        // Check for error
-                        if (ss.fail())
-                        {
-                            throw std::runtime_error("md5_mesh: bad weight count");
-                        }
-
-                        // Parse the next 'weights' lines in the file
-                        const std::vector<std::string> w_lines = tools::get_lines(data, lines, weights, i);
-
-                        // process the hierarchy data
-                        process_weights(w_lines);
-                    }
-
-                    // Process mesh
-                    process_mesh();
-                }
-                else if (field.compare("}") != 0)
-                {
-                    // There is another command that we do not know about
-                    throw std::runtime_error("md5_mesh: unknown property '" + field + "'");
-                }
-
-                // Check for errors
-                if (s.fail())
-                {
-                    throw std::runtime_error("md5_mesh: Invalid line in file '" + line + "'");
-                }
-            }
+            // Read bytes and close the file
+            file.read(&data[0], size);
 
             // Close the file
             file.close();
 
-            // Check that we loaded all available meshes
-            if (_mesh.size() != meshes)
-            {
-                throw std::runtime_error("md5_mesh: some meshes seem to be missing");
-            }
+            // Process the DDS file
+            load(data);
         }
         else
         {
             throw std::runtime_error("md5_mesh: Could not load file '" + _file + "'");
         }
     }
+    inline void load(const std::string &data)
+    {
+        // Get locations of all lines in string buffer
+        const auto lines = tools::read_lines(data);
 
+        // Read line by line
+        unsigned joints, meshes, mesh_counter;
+        joints = meshes = mesh_counter = 0;
+        const size_t size = lines.size();
+        for (size_t i = 0; i < size; i++)
+        {
+            // read line and trim the line whitespace
+            const auto &position = lines[i];
+            std::string line = data.substr(position.first, position.second);
+            tools::trim(line);
+
+            // skip empty line size in bytes
+            if (line.size() == 0)
+            {
+                continue;
+            }
+
+            // Read the property of this line
+            std::string field;
+            std::istringstream s(line);
+            s >> field;
+
+            // Execute action based on property
+            if (tools::to_lower(field).compare("md5version") == 0)
+            {
+                // Parse the version number and check against target
+                int version;
+                s >> version;
+
+                // Expected version 10
+                if (version != 10)
+                {
+                    throw std::runtime_error("md5_mesh: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
+                }
+            }
+            else if (tools::to_lower(field).compare("commandline") == 0)
+            {
+                // Skip these command parameters, as they are unused
+                continue;
+            }
+            else if (tools::to_lower(field).compare("numjoints") == 0)
+            {
+                // Reserve space for the joints and bones
+                s >> joints;
+                if (joints > 0)
+                {
+                    _joints.reserve(joints);
+                }
+                else
+                {
+                    throw std::runtime_error("md5_mesh: no joints specified in file");
+                }
+            }
+            else if (tools::to_lower(field).compare("nummeshes") == 0)
+            {
+                // Get number of meshes in file
+                s >> meshes;
+            }
+            else if (tools::to_lower(field).compare("joints") == 0)
+            {
+                // Parse the next 'joints' lines in the file
+                const std::vector<std::string> j_lines = tools::get_lines(data, lines, joints, i);
+
+                // process the hierarchy data
+                process_joints(j_lines);
+            }
+            else if (tools::to_lower(field).compare("mesh") == 0)
+            {
+                // Create a new mesh
+                _mesh.emplace_back(std::to_string(++mesh_counter));
+                std::istringstream ss;
+
+                {
+                    // Scan lines looking for 'numverts'
+                    while (tools::to_lower(field).compare("numverts") != 0)
+                    {
+                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        ss.str(line);
+                        ss.clear();
+
+                        // Parse the first token
+                        ss >> field;
+
+                        // Check for error
+                        if (ss.fail())
+                        {
+                            throw std::runtime_error("md5_mesh: couldn't find 'numverts'");
+                        }
+                    }
+
+                    // Get the number of verts
+                    unsigned verts;
+                    ss >> verts;
+
+                    // Check for error
+                    if (ss.fail())
+                    {
+                        throw std::runtime_error("md5_mesh: bad vertex count");
+                    }
+
+                    // Parse the next 'verts' lines in the file
+                    const std::vector<std::string> v_lines = tools::get_lines(data, lines, verts, i);
+
+                    // process the hierarchy data
+                    process_vertices(v_lines);
+                }
+
+                {
+                    // Scan lines looking for 'numtris'
+                    while (tools::to_lower(field).compare("numtris") != 0)
+                    {
+                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        ss.str(line);
+                        ss.clear();
+
+                        // Parse the first token
+                        ss >> field;
+
+                        // Check for error
+                        if (ss.fail())
+                        {
+                            throw std::runtime_error("md5_mesh: couldn't find 'numtris'");
+                        }
+                    }
+
+                    // Get the number of triangles
+                    unsigned triangles;
+                    ss >> triangles;
+
+                    // Check for error
+                    if (ss.fail())
+                    {
+                        throw std::runtime_error("md5_mesh: bad triangle count");
+                    }
+
+                    // Parse the next 'triangles' lines in the file
+                    const std::vector<std::string> t_lines = tools::get_lines(data, lines, triangles, i);
+
+                    // process the hierarchy data
+                    process_triangles(t_lines);
+                }
+
+                {
+                    // Scan lines looking for 'numweights'
+                    while (tools::to_lower(field).compare("numweights") != 0)
+                    {
+                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        ss.str(line);
+                        ss.clear();
+
+                        // Parse the first token
+                        ss >> field;
+
+                        // Check for error
+                        if (ss.fail())
+                        {
+                            throw std::runtime_error("md5_mesh: couldn't find 'numweights'");
+                        }
+                    }
+
+                    // Get the number of weights
+                    unsigned weights;
+                    ss >> weights;
+
+                    // Check for error
+                    if (ss.fail())
+                    {
+                        throw std::runtime_error("md5_mesh: bad weight count");
+                    }
+
+                    // Parse the next 'weights' lines in the file
+                    const std::vector<std::string> w_lines = tools::get_lines(data, lines, weights, i);
+
+                    // process the hierarchy data
+                    process_weights(w_lines);
+                }
+
+                // Process mesh
+                process_mesh();
+            }
+            else if (field.compare("}") != 0)
+            {
+                // There is another command that we do not know about
+                throw std::runtime_error("md5_mesh: unknown property '" + field + "'");
+            }
+
+            // Check for errors
+            if (s.fail())
+            {
+                throw std::runtime_error("md5_mesh: Invalid line in file '" + line + "'");
+            }
+        }
+    }
     inline void process_joints(const std::vector<std::string> &lines)
     {
         if (lines.size() > 0)
@@ -606,7 +606,11 @@ class md5_mesh
   public:
     md5_mesh(const std::string &file)
     {
-        load(file);
+        load_file(file);
+    }
+    md5_mesh(const mem_file &mem)
+    {
+        load(mem.to_string());
     }
     const std::vector<md5_joint<T>> &get_joints() const
     {

@@ -2,10 +2,12 @@
 #define __SERIALIZE__
 
 #include <cstdint>
+#include <cstring>
 #include <min/vec2.h>
 #include <min/vec3.h>
 #include <min/vec4.h>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 // A CPU register is neither big or little endian
@@ -17,6 +19,41 @@
 
 namespace min
 {
+
+class mem_file
+{
+  private:
+    const std::vector<uint8_t> *const _data;
+    size_t _offset;
+    size_t _size;
+
+  public:
+    mem_file(const std::vector<uint8_t> *const data, const size_t offset, const size_t size)
+        : _data(data), _offset(offset), _size(size) {}
+    const uint8_t &operator[](const size_t index) const
+    {
+        return (*_data)[_offset + index];
+    }
+    size_t offset() const
+    {
+        return _offset;
+    }
+    size_t size() const
+    {
+        return _size;
+    }
+    std::string to_string() const
+    {
+        // Allocate space for the bytes
+        std::string out(_size, 0);
+
+        // Copy data into string
+        std::memcpy(&out[0], &(*_data)[_offset], _size);
+
+        // Return the copied string
+        return out;
+    }
+};
 
 template <typename T>
 inline T read_le(const std::vector<uint8_t> &stream, size_t &next)
@@ -69,6 +106,56 @@ inline T read_be(const std::vector<uint8_t> &stream, size_t &next)
 }
 
 template <typename T>
+inline T read_le(const mem_file &stream, size_t &next)
+{
+    // Check type is compatible
+    static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
+
+    // Size of T in bytes
+    const size_t size = sizeof(T);
+    long long temp = 0;
+    uint8_t shift = 0;
+    for (size_t i = 0; i < size; i++)
+    {
+        // Unpack little endian stream
+        temp |= ((long long)stream[next + i] << shift);
+        shift += 8;
+    }
+
+    // Change next position
+    next += size;
+
+    // Avoiding strict aliasing rules of C/C++
+    const T *out = reinterpret_cast<T *>(&temp);
+    return *out;
+}
+
+template <typename T>
+inline T read_be(const mem_file &stream, size_t &next)
+{
+    // Check type is compatible
+    static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
+
+    // Size of T in bytes
+    const size_t size = sizeof(T);
+    long long temp = 0;
+    uint8_t shift = (sizeof(T) - 1) * 8;
+    for (size_t i = 0; i < size; i++)
+    {
+        // Unpack big endian stream
+        temp |= ((long long)stream[next + i] << shift);
+        shift -= 8;
+    }
+
+    // Change next position
+    next += size;
+
+    // Avoiding strict aliasing rules of C/C++
+    const T *out = reinterpret_cast<T *>(&temp);
+    return *out;
+}
+
+template <typename T>
 inline void write_le(std::vector<uint8_t> &stream, const T data)
 {
     // Pointer to data
@@ -96,6 +183,37 @@ inline void write_be(std::vector<uint8_t> &stream, const T data)
     {
         // Pack big endian stream
         stream.push_back(ptr[offset - i]);
+    }
+}
+
+template <typename T>
+inline void write_le(std::vector<uint8_t> &stream, const T data, const size_t offset)
+{
+    // Pointer to data
+    uint8_t *const ptr = (uint8_t *)&data;
+
+    // Size of T in bytes
+    const size_t size = sizeof(T);
+    for (size_t i = 0; i < size; i++)
+    {
+        // Pack little endian stream
+        stream[offset + i] = ptr[i];
+    }
+}
+
+template <typename T>
+inline void write_be(std::vector<uint8_t> &stream, const T data, const size_t offset)
+{
+    // Pointer to data
+    uint8_t *const ptr = (uint8_t *)&data;
+
+    // Size of T in bytes
+    const size_t size = sizeof(T);
+    const size_t be_offset = size - 1;
+    for (size_t i = 0; i < size; i++)
+    {
+        // Pack big endian stream
+        stream[offset + i] = ptr[be_offset - i];
     }
 }
 

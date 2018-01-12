@@ -25,30 +25,6 @@ limitations under the License.
 namespace min
 {
 
-class mem_file
-{
-  private:
-    const std::vector<uint8_t> *const _data;
-    size_t _offset;
-    size_t _size;
-
-  public:
-    mem_file(const std::vector<uint8_t> *const data, const size_t offset, const size_t size)
-        : _data(data), _offset(offset), _size(size) {}
-    uint8_t operator[](const size_t index) const
-    {
-        return (*_data)[_offset + index];
-    }
-    size_t offset() const
-    {
-        return _offset;
-    }
-    size_t size() const
-    {
-        return _size;
-    }
-};
-
 class mem_chunk
 {
   private:
@@ -62,7 +38,7 @@ class mem_chunk
         if (file.is_open())
         {
             // Get the size of the file
-            std::streampos size = file.tellg();
+            const std::streampos size = file.tellg();
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
