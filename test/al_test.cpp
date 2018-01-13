@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #include <iostream>
+#include <min/togg.h>
 #include <min/tsound_buffer.h>
 #include <min/twave.h>
 
@@ -22,6 +23,7 @@ int main()
     {
         bool out = true;
         out = out && test_wave();
+        out = out && test_ogg();
         out = out && test_sound_buffer();
         if (out)
         {

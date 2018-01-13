@@ -168,10 +168,7 @@ class dds
 
         // Read the pixel data
         _pixel.resize(_size);
-        for (size_t i = 0; i < _size; i++)
-        {
-            _pixel[i] = data[i + DDS_HEADER_SIZE];
-        }
+        std::memcpy(&_pixel[0], &data[DDS_HEADER_SIZE], _size);
     }
 
   public:

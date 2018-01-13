@@ -195,10 +195,7 @@ class bmp
 
         // Read the image data starting at data offset
         _pixel.resize(_size);
-        for (size_t i = 0; i < _size; i++)
-        {
-            _pixel[i] = data[i + _data];
-        }
+        std::memcpy(&_pixel[0], &data[_data], _size);
     }
 
   public:

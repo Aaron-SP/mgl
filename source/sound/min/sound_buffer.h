@@ -19,6 +19,7 @@ limitations under the License.
 #include <AL/alc.h>
 #include <cstring>
 #include <iostream>
+#include <min/ogg.h>
 #include <min/wave.h>
 #include <stdexcept>
 #include <string>
@@ -43,13 +44,10 @@ class sound_buffer
     std::vector<ALuint> _sources;
     min::vec3<float> _listener;
 
-    inline static ALenum al_format(const min::wave &wave)
+    inline static ALenum al_format(const bool stereo, const uint32_t depth)
     {
-        const bool stereo = wave.is_stereo();
-        const uint32_t bits = wave.get_bits_per_sample();
-
         // Select the ALenum for this data
-        switch (bits)
+        switch (depth)
         {
         case 16:
             if (stereo)
@@ -66,6 +64,21 @@ class sound_buffer
         default:
             throw std::runtime_error("openal: Unsupported wave data found");
         }
+    }
+    inline size_t add_pcm_data(const ALvoid *const data, const ALenum format, const ALsizei size, const ALsizei freq)
+    {
+        // Allocate space for a buffer
+        _buffers.emplace_back();
+
+        // Generate a buffer for this sound
+        ALuint &buffer = _buffers.back();
+        alGenBuffers(1, &buffer);
+
+        // Buffer data into buffer
+        alBufferData(buffer, format, data, size, freq);
+
+        // Return the index for this data
+        return _buffers.size() - 1;
     }
     inline void check_internal_error() const
     {
@@ -218,24 +231,33 @@ class sound_buffer
     }
     inline size_t add_wave_pcm(const min::wave &wave)
     {
-        // Allocate space for a buffer
-        _buffers.emplace_back();
-
-        // Generate a buffer for this sound
-        ALuint &buffer = _buffers.back();
-        alGenBuffers(1, &buffer);
-
         // Get the al_format for this data
-        const ALenum format = al_format(wave);
+        const bool stereo = wave.is_stereo();
+        const uint32_t bits = wave.get_bits_per_sample();
+        const ALenum format = al_format(stereo, bits);
 
-        // Copy wave data into buffer
+        // Copy WAVE data into buffer
         const ALvoid *const data = reinterpret_cast<const ALvoid *const>(wave.data().data());
         const ALsizei size = wave.data().size();
         const ALsizei freq = wave.get_sample_rate();
-        alBufferData(buffer, format, data, size, freq);
 
-        // Return the index for this data
-        return _buffers.size() - 1;
+        // Add audio data
+        return add_pcm_data(data, format, size, freq);
+    }
+    inline size_t add_ogg_pcm(const min::ogg &ogg)
+    {
+        // Get the al_format for this data
+        const bool stereo = ogg.is_stereo();
+        const uint32_t bits = ogg.get_bits_per_sample();
+        const ALenum format = al_format(stereo, bits);
+
+        // Copy OGG data into buffer
+        const ALvoid *const data = reinterpret_cast<const ALvoid *const>(ogg.data().data());
+        const ALsizei size = ogg.data().size();
+        const ALsizei freq = ogg.get_sample_rate();
+
+        // Add audio data
+        return add_pcm_data(data, format, size, freq);
     }
     inline void bind(const size_t buffer, const size_t source) const
     {
@@ -324,6 +346,10 @@ class sound_buffer
     inline void set_source_max_dist(const size_t source, const float dist) const
     {
         alSourcef(_sources[source], AL_MAX_DISTANCE, dist);
+    }
+    inline void set_source_pitch(const size_t source, const float pitch) const
+    {
+        alSourcef(_sources[source], AL_PITCH, pitch);
     }
     inline void set_source_ref_dist(const size_t source, const float dist) const
     {

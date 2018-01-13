@@ -9,6 +9,28 @@ OBJGRAPH_SOURCES = $(CGRAPH_SOURCES:.cpp=.o)
 # Query the freetype2 package config for the include directory
 FREETYPE2_INCLUDE = $(shell freetype-config --cflags)
 
+# Linker parameters
+ifeq ($(OS),Windows_NT)
+	# 64 bit
+	ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        MGL_PATH = C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+    endif
+
+	#64 bit
+	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+        MGL_PATH = C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+    else
+	#32 bit
+        MGL_PATH = C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
+    endif
+
+	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll -lOpenAL32.dll -lvorbisfile.dll
+else
+	MGL_PATH = /usr/include/mgl
+	LINKER = -lX11 -lGL -lfreetype -lOpenAL32 -lvorbisfile
+	VORBIS_INCLUDE = -I/usr/include
+endif
+
 # Include directories
 LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isource/renderer -Isource/scene -Isource/sound $(FREETYPE2_INCLUDE)
 TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/renderer -Itest/scene -Itest/sound
@@ -20,7 +42,7 @@ ifdef MGL_VB43
 endif
 
 # Compile parameters
-PARAMS = -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200 $(MGL_VB43)
+PARAMS = -s -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200 $(MGL_VB43)
 EXTRA = source/platform/min/glew.cpp
 WL_INCLUDE = -DGLEW_STATIC
 TEST_AL = test/al_test.cpp
@@ -36,15 +58,6 @@ EX7 = $(EXTRA) example/programs/ex7.cpp
 EX8 = $(EXTRA) example/programs/ex8.cpp
 EX9 = $(EXTRA) example/programs/ex9.cpp
 EX10 = $(EXTRA) example/programs/ex10.cpp
-
-# Linker parameters
-ifeq ($(OS),Windows_NT)
-	MGL_PATH = C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
-	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll -lOpenAL32.dll
-else
-	MGL_PATH = /usr/include/mgl
-	LINKER = -lX11 -lGL -lfreetype -lOpenAL32
-endif
 
 # Override if MGL_DESTDIR specified
 ifdef MGL_DESTDIR

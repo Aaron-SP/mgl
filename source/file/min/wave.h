@@ -193,10 +193,7 @@ class wave
 
         // Allocate data and write into data buffer
         _data.resize(subchunk2_size);
-        for (size_t i = 0; i < subchunk2_size; i++)
-        {
-            _data[i] = data[i + offset];
-        }
+        std::memcpy(&_data[0], &data[offset], subchunk2_size);
     }
 
   public:

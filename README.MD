@@ -37,6 +37,7 @@ Additional dependencies that are required and not distributed in this package in
 - 'g++-5.4' - all platforms
 - 'opengl3.3+' - all platforms
 - 'openal' - all platforms
+- 'libvorbis' - all platforms
 - 'openal-soft' - for linux only
 - 'mingw32' - for win32 only
 - 'freetype' - for win32 and linux
@@ -45,7 +46,7 @@ Additional dependencies that are required and not distributed in this package in
 #### Arch Linux Users
 
 For Arch Linux users, the following pacman command should install all needed dependencies:
-- pacman -S freetype2 xorg-server xorg-server-devel openal
+- pacman -S freetype2 xorg-server xorg-server-devel openal libvorbis
 
 To verify freetype has been installed properly, query it using the following command:
 - freetype-config --cflags
