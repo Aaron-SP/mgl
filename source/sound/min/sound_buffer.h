@@ -82,7 +82,7 @@ class sound_buffer
     }
     inline void check_internal_error() const
     {
-        const ALCenum error = alGetError();
+        const ALCenum error = alcGetError(_device);
         if (error != AL_NO_ERROR)
         {
             throw std::runtime_error("openal: Error: " + std::to_string(error));
@@ -90,17 +90,14 @@ class sound_buffer
     }
     inline void clear_error() const
     {
-        ALCenum error = alGetError();
+        ALCenum error = alcGetError(_device);
         while (error != AL_NO_ERROR)
         {
-            error = alGetError();
+            error = alcGetError(_device);
         }
     }
     inline void create_openal_context()
     {
-        // Clear the error stack
-        clear_error();
-
         // Try to use OpenAL Soft renderer
         _device = alcOpenDevice("OpenAL Soft");
         if (_device == nullptr)
@@ -135,12 +132,18 @@ class sound_buffer
             throw std::runtime_error("openal: Could not make context current");
         }
 
+        // Clear the error stack
+        clear_error();
+
         // Check for any errors
         check_internal_error();
     }
 
     inline void shutdown()
     {
+        // Check for any errors
+        check_internal_error();
+
         // Delete sources
         for (auto s : _sources)
         {
@@ -169,9 +172,6 @@ class sound_buffer
         {
             throw std::runtime_error("openal: Could not close device");
         }
-
-        // Check for any errors
-        check_internal_error();
     }
 
   public:

@@ -27,7 +27,7 @@ ifeq ($(OS),Windows_NT)
 	LINKER = -lopengl32 -lgdi32 -lmingw32 -lfreetype.dll -lOpenAL32.dll -lvorbisfile.dll
 else
 	MGL_PATH = /usr/include/mgl
-	LINKER = -lX11 -lGL -lfreetype -lOpenAL32 -lvorbisfile
+	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile
 endif
 
 # Include directories
