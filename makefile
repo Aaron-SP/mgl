@@ -28,7 +28,6 @@ ifeq ($(OS),Windows_NT)
 else
 	MGL_PATH = /usr/include/mgl
 	LINKER = -lX11 -lGL -lfreetype -lOpenAL32 -lvorbisfile
-	VORBIS_INCLUDE = -I/usr/include
 endif
 
 # Include directories
