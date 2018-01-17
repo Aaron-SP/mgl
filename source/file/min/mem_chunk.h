@@ -236,6 +236,11 @@ class mem_chunk
             throw std::runtime_error("mem_chunk: duplicate file " + file + " insert request");
         }
     }
+    void clear()
+    {
+        _file_data.clear();
+        _files.clear();
+    }
     const mem_file &get_file(const std::string &key) const
     {
         // Lookup key in the map
