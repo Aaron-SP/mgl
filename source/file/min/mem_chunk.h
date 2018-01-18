@@ -238,8 +238,9 @@ class mem_chunk
     }
     void clear()
     {
-        _file_data.clear();
-        _files.clear();
+        // This function should deallocate all held memory
+        std::vector<uint8_t>().swap(_file_data);
+        std::unordered_map<std::string, mem_file>().swap(_files);
     }
     const mem_file &get_file(const std::string &key) const
     {
