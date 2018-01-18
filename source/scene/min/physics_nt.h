@@ -12,8 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __PHYSICS__
-#define __PHYSICS__
+#ifndef __PHYSICS_NO_TORQUE__
+#define __PHYSICS_NO_TORQUE__
+
+// !!THESE PHYSICS IGNORE ALL TORQUES!!
 
 // The physics equations governing rigid bodies are listed below
 // V = linear_velocity
@@ -23,10 +25,8 @@ limitations under the License.
 // C = contact_position
 // G = Gravity
 // m = mass
-// I = inertia
 // k = damping parameter
 // 1.) dV/dt = a = (F - k*V + G) / m
-// 2.) domega/dt = alpha = ((C - P) x F - k*omega) / I
 
 // These equations are solved using RK4
 // dy/dt = f(t, y)
@@ -52,57 +52,28 @@ class body_base
 {
   protected:
     vec<T> _force;
-    angular _torque;
     vec<T> _position; // This is at the center of mass
     rot<T> _rotation;
     vec<T> _linear_velocity;
     angular _angular_velocity;
     T _mass;
     T _inv_mass;
-    angular _inertia;
-    angular _inv_inertia;
     size_t _id;
 
   public:
-    body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const angular &inertia, const size_t id)
-        : _force(gravity * mass), _torque{}, _position(center), _angular_velocity{},
-          _mass(mass), _inv_mass(1.0 / mass), _inertia(inertia), _inv_inertia(inverse<T>(inertia)),
-          _id(id) {}
+    body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const size_t id)
+        : _force(gravity * mass), _position(center), _angular_velocity{},
+          _mass(mass), _inv_mass(1.0 / mass), _id(id) {}
 
     inline void add_force(const vec<T> &force)
     {
         // Add force to force vector
         _force += force;
     }
-    inline void add_torque(const vec<T> &local_torque)
-    {
-        // Add local torque to torque vector
-        _torque += local_torque;
-    }
-    inline void add_torque(const vec<T> &force, const vec<T> &contact)
-    {
-        // Calculate the torque in world space
-        const auto torque = (contact - _position).cross(force);
-
-        // Convert the world space torque to object space
-        const auto local_torque = min::align<T>(torque, _rotation);
-
-        // Add local torque to torque vector
-        _torque += local_torque;
-    }
-    inline vec<T> align(const vec<T> &v) const
-    {
-        // Transform the point in object space
-        return _rotation.inverse().transform(v);
-    }
     inline void clear_force(const vec<T> &gravity)
     {
         // Gravity = mg
         _force = gravity * _mass;
-    }
-    inline void clear_torque()
-    {
-        _torque = angular{};
     }
     inline void clear_no_force()
     {
@@ -112,16 +83,8 @@ class body_base
         // Clear all linear velocity
         _linear_velocity = vec<T>();
 
-        // Clear all torques
-        _torque = angular{};
-
         // Clear all rotational  velocity
         _angular_velocity = angular{};
-    }
-    inline const angular get_angular_acceleration(const angular angular_velocity, const T damping) const
-    {
-        // Calculate the acceleration
-        return (_torque - angular_velocity * damping) * _inv_inertia;
     }
     inline const angular &get_angular_velocity() const
     {
@@ -148,16 +111,6 @@ class body_base
     {
         return _inv_mass;
     }
-    inline const angular &get_inertia() const
-    {
-        // In object coordinates
-        return _inertia;
-    }
-    inline const angular &get_inv_inertia() const
-    {
-        // In object coordinates
-        return _inv_inertia;
-    }
     inline const rot<T> &get_rotation() const
     {
         return _rotation;
@@ -179,12 +132,6 @@ class body_base
         // Make the object's mass infinite
         _inv_mass = 0.0;
         _mass = 0.0;
-    }
-    inline void set_no_rotate()
-    {
-        // Make the object's inertia infinite
-        _inv_inertia = angular{};
-        _inertia = angular{};
     }
     inline void set_position(const vec<T> &p)
     {
@@ -224,8 +171,8 @@ class body<T, vec2> : public body_base<T, vec2, T, mat2>
     std::function<void(body<T, vec2> &, body<T, vec2> &)> _f;
 
   public:
-    body(const vec2<T> &center, const vec2<T> &gravity, const T mass, const T inertia, const size_t id)
-        : body_base<T, vec2, T, mat2>(center, gravity, mass, inertia, id), _f(nullptr) {}
+    body(const vec2<T> &center, const vec2<T> &gravity, const T mass, const size_t id)
+        : body_base<T, vec2, T, mat2>(center, gravity, mass, id), _f(nullptr) {}
 
     inline void callback(body<T, vec2> &b2)
     {
@@ -239,10 +186,8 @@ class body<T, vec2> : public body_base<T, vec2, T, mat2>
     {
         this->_f = f;
     }
-    inline mat2<T> update_rotation(const T angular_velocity, const T time_step)
+    inline mat2<T> update_rotation(const T time_step)
     {
-        this->_angular_velocity = angular_velocity;
-
         // Rotation is around the Z axis in euler angles
         const mat2<T> out(this->_angular_velocity * time_step);
 
@@ -262,8 +207,8 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
     std::function<void(body<T, vec3> &, body<T, vec3> &)> _f;
 
   public:
-    body(const vec3<T> &center, const vec3<T> &gravity, const T mass, const vec3<T> &inertia, const size_t id)
-        : body_base<T, vec3, vec3<T>, quat>(center, gravity, mass, inertia, id), _f(nullptr) {}
+    body(const vec3<T> &center, const vec3<T> &gravity, const T mass, const size_t id)
+        : body_base<T, vec3, vec3<T>, quat>(center, gravity, mass, id), _f(nullptr) {}
 
     inline void callback(body<T, vec3> &b2)
     {
@@ -277,10 +222,8 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
     {
         this->_f = f;
     }
-    inline quat<T> update_rotation(const vec3<T> &angular_velocity, const T time_step)
+    inline quat<T> update_rotation(const T time_step)
     {
-        this->_angular_velocity = angular_velocity;
-
         // Calculate rotation for this timestep
         vec3<T> rotation = this->_angular_velocity * time_step;
 
@@ -315,8 +258,8 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
     std::function<void(body<T, vec4> &, body<T, vec4> &)> _f;
 
   public:
-    body(const vec4<T> &center, const vec4<T> &gravity, const T mass, const vec4<T> &inertia, const size_t id)
-        : body_base<T, vec4, vec4<T>, quat>(center, gravity, mass, inertia, id), _f(nullptr) {}
+    body(const vec4<T> &center, const vec4<T> &gravity, const T mass, const size_t id)
+        : body_base<T, vec4, vec4<T>, quat>(center, gravity, mass, id), _f(nullptr) {}
 
     inline void callback(body<T, vec4> &b2)
     {
@@ -330,10 +273,8 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
     {
         this->_f = f;
     }
-    inline quat<T> update_rotation(const vec4<T> &angular_velocity, const T time_step)
+    inline quat<T> update_rotation(const T time_step)
     {
-        this->_angular_velocity = angular_velocity;
-
         // Calculate rotation for this timestep
         vec3<T> rotation = this->_angular_velocity * time_step;
 
@@ -490,37 +431,11 @@ class physics
         const vec<T> &v1 = b1.get_linear_velocity();
         const vec<T> &v2 = b2.get_linear_velocity();
 
-        // Get inverse inertia of bodies in object space
-        const auto &inv_I1 = b1.get_inv_inertia();
-        const auto &inv_I2 = b2.get_inv_inertia();
-
-        // Get angular velocities of bodies in object space
-        const auto &w1_local = b1.get_angular_velocity();
-        const auto &w2_local = b2.get_angular_velocity();
-
-        // convert angular velocity to world space
-        const auto w1_world = transform<T>(w1_local, b1.get_rotation());
-        const auto w2_world = transform<T>(w2_local, b2.get_rotation());
-
-        // Calculate the vector from the intersection point and object center in object coordinates
-        const vec<T> r1 = (intersect - b1.get_position()).normalize_safe(vec<T>());
-        const vec<T> r2 = (intersect - b2.get_position()).normalize_safe(vec<T>());
-
         // Calculate the relative velocity between b1 and b2 in world space
-        const vec<T> v12 = (v1 + cross<T>(w1_world, r1)) - (v2 + cross<T>(w2_world, r2));
-
-        // Convert cross product into object space since inertia is in object space
-        const auto r1n = align<T>(r1.cross(n), b1.get_rotation());
-        const auto r2n = align<T>(r2.cross(n), b2.get_rotation());
-        const auto r1i = r1n * inv_I1;
-        const auto r2i = r2n * inv_I2;
-
-        // (A x B)^2 = (A X B) * (A X B)
-        const T r1r = dot<T>(r1i, r1n);
-        const T r2r = dot<T>(r2i, r2n);
+        const vec<T> v12 = v1 - v2;
 
         // Calculate the kinetic resistance of the object
-        const T resistance = inv_m1 + inv_m2 + r1r + r2r;
+        const T resistance = inv_m1 + inv_m2;
 
         // Calculate the impulse
         const T j = -(1.0 + _elasticity) * (v12.dot(n) / resistance);
@@ -532,17 +447,9 @@ class physics
         const vec<T> v1_out = v1 + impulse * inv_m1;
         const vec<T> v2_out = v2 - impulse * inv_m2;
 
-        // Calculate angular velocity vectors
-        const auto w1_out = w1_local + r1i * j;
-        const auto w2_out = w2_local - r2i * j;
-
         // Update body linear velocity
         b1.set_linear_velocity(v1_out);
         b2.set_linear_velocity(v2_out);
-
-        // Update body angular velocity
-        b1.set_angular_velocity(w1_out);
-        b2.set_angular_velocity(w2_out);
     }
 
     // Collision with object of infinite mass
@@ -570,30 +477,11 @@ class physics
         // Get velocities of bodies in world space
         const vec<T> &v = b.get_linear_velocity();
 
-        // Get inverse inertia of bodies in object space
-        const auto &inv_I = b.get_inv_inertia();
-
-        // Get angular velocities of bodies in object space
-        const auto &w_local = b.get_angular_velocity();
-
-        // convert angular velocity to world space
-        const auto w_world = transform<T>(w_local, b.get_rotation());
-
-        // Calculate the vector from the intersection point and object center in object coordinates
-        const vec<T> r = (intersect - b.get_position()).normalize_safe(vec<T>());
-
         // Calculate the relative velocity of body
-        const vec<T> v_rel = (v + cross<T>(w_world, r));
-
-        // Convert cross product into object space since inertia is in object space
-        const auto rn = align<T>(r.cross(n), b.get_rotation());
-        const auto ri = rn * inv_I;
-
-        // (A x B)^2 = (A X B) * (A X B)
-        const T rr = dot<T>(ri, rn);
+        const vec<T> v_rel = v;
 
         // Calculate the kinetic resistance of the object
-        const T resistance = inv_m + rr;
+        const T resistance = inv_m;
 
         // Calculate the impulse
         const T j = -(1.0 + _elasticity) * (v_rel.dot(n) / resistance);
@@ -604,14 +492,8 @@ class physics
         // Calculate linear velocity vectors
         const vec<T> v_out = v + impulse * inv_m;
 
-        // Calculate angular velocity vectors
-        const auto w_out = w_local + ri * j;
-
         // Update body linear velocity
         b.set_linear_velocity(v_out);
-
-        // Update body angular velocity
-        b.set_angular_velocity(w_out);
     }
     inline void solve_integrals(const size_t index, const T dt, const T damping)
     {
@@ -621,18 +503,6 @@ class physics
 
         body<T, vec> &b = _bodies[index];
         shape<T, vec> &s = _shapes[index];
-
-        // Solve for angular velocity
-        const auto &w_n = b.get_angular_velocity();
-
-        // Evaluate the derivative at different angular velocities
-        const auto wk1 = b.get_angular_acceleration(w_n, damping);
-        const auto wk2 = b.get_angular_acceleration(w_n + wk1 * dt2, damping);
-        const auto wk3 = b.get_angular_acceleration(w_n + wk2 * dt2, damping);
-        const auto wk4 = b.get_angular_acceleration(w_n + wk3 * dt, damping);
-
-        // Calculate the angular velocity at this time step
-        const auto w_n1 = w_n + (wk1 + (wk2 * 2.0) + (wk3 * 2.0) + wk4) * dt6;
 
         // Solve for linear velocity
         const auto v_n = b.get_linear_velocity();
@@ -650,11 +520,10 @@ class physics
         b.update_position(v_n1, dt, _lower_bound, _upper_bound);
 
         // Update the body rotation at this timestep
-        const auto abs_rotation = b.update_rotation(w_n1, dt);
+        const auto abs_rotation = b.update_rotation(dt);
 
         // Clear any acting forces on this object
         b.clear_force(_gravity);
-        b.clear_torque();
 
         // Update the shapes position
         s.set_position(b.get_position());
@@ -683,7 +552,7 @@ class physics
         _shapes.push_back(s);
 
         // Create rigid body for this shape
-        _bodies.emplace_back(s.get_center(), _gravity, mass, get_inertia(s, mass), id);
+        _bodies.emplace_back(s.get_center(), _gravity, mass, id);
 
         // return the body id
         return _bodies.size() - 1;
@@ -785,7 +654,6 @@ class physics
     {
         T KE2 = 0.0;
         T PE = 0.0;
-        T AE = 0.0;
 
         for (auto &b : _bodies)
         {
@@ -796,14 +664,9 @@ class physics
 
             // Calculate the potential energy = -mgh
             PE += m * _gravity.dot(_lower_bound - b.get_position());
-
-            // Calculate the rotational energy
-            const auto I = b.get_inertia();
-            const auto w = b.get_angular_velocity();
-            AE += dot<T>(I * w, w);
         }
 
-        return 0.5 * KE2 + PE + AE;
+        return 0.5 * KE2 + PE;
     }
     inline void set_elasticity(const T e)
     {
