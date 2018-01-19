@@ -382,12 +382,6 @@ class vec2
         // Calculate the center cell
         const vec2<T> center = (b_min + b_max) * 0.5;
 
-        // Test for early out
-        if (center.x() < min.x() || center.y() < min.y())
-        {
-            return;
-        }
-
         // Center cell indices
         const size_t x = (center.x() - min.x()) / dx;
         const size_t y = (center.y() - min.y()) / dy;
@@ -405,16 +399,16 @@ class vec2
         const int py = y + 1;
 
         // Calculate whether neighbors are outside the main grid
-        bool nxg = nx >= 0;
-        bool pxg = px < (long)scale;
-        bool nyg = ny >= 0;
-        bool pyg = py < (long)scale;
-        bool lx = b_min.x() < minx;
-        bool ly = b_min.y() < miny;
-        bool gx = b_max.x() >= maxx;
-        bool gy = b_max.y() >= maxy;
-        bool tny = ly && nyg;
-        bool tgy = gy && pyg;
+        const bool nxg = nx >= 0;
+        const bool pxg = px < (long)scale;
+        const bool nyg = ny >= 0;
+        const bool pyg = py < (long)scale;
+        const bool lx = b_min.x() < minx;
+        const bool ly = b_min.y() < miny;
+        const bool gx = b_max.x() >= maxx;
+        const bool gy = b_max.y() >= maxy;
+        const bool tny = ly && nyg;
+        const bool tgy = gy && pyg;
 
         // -X
         if (lx && nxg)

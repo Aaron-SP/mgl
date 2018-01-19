@@ -59,11 +59,13 @@ class body_base
     T _mass;
     T _inv_mass;
     size_t _id;
+    bool _dead;
 
   public:
     body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const size_t id)
         : _force(gravity * mass), _position(center), _angular_velocity{},
-          _mass(mass), _inv_mass(1.0 / mass), _id(id) {}
+          _mass(mass), _inv_mass(1.0 / mass),
+          _id(id), _dead(false) {}
 
     inline void add_force(const vec<T> &force)
     {
@@ -118,6 +120,14 @@ class body_base
     inline const vec<T> &get_position() const
     {
         return _position;
+    }
+    inline bool is_dead() const
+    {
+        return _dead;
+    }
+    inline void kill()
+    {
+        _dead = true;
     }
     inline void set_angular_velocity(const angular w)
     {
@@ -309,15 +319,27 @@ class physics
     spatial<T, K, L, vec, cell, shape> _spatial;
     std::vector<shape<T, vec>> _shapes;
     std::vector<body<T, vec>> _bodies;
+    std::vector<size_t> _dead;
     vec<T> _lower_bound;
     vec<T> _upper_bound;
     vec<T> _gravity;
     T _elasticity;
+    bool _clean;
 
     static constexpr T _collision_tolerance = 1E-4;
 
     inline void collide(const size_t index1, const size_t index2)
     {
+        // Get rigid bodies to solve energy equations
+        body<T, vec> &b1 = _bodies[index1];
+        body<T, vec> &b2 = _bodies[index2];
+
+        // Check if either body has died
+        if (b1.is_dead() || b2.is_dead())
+        {
+            return;
+        }
+
         // Get shapes from spatial index
         const shape<T, vec> &s1 = _shapes[index1];
         const shape<T, vec> &s2 = _shapes[index2];
@@ -330,10 +352,6 @@ class physics
         vec<T> collision_normal;
         vec<T> intersection;
         const vec<T> offset = resolve<T, vec>(s1, s2, collision_normal, intersection, _collision_tolerance);
-
-        // Get rigid bodies to solve energy equations
-        body<T, vec> &b1 = _bodies[index1];
-        body<T, vec> &b2 = _bodies[index2];
 
         // Do the collision callback function
         b1.callback(b2);
@@ -363,6 +381,15 @@ class physics
     }
     inline bool collide_static(const size_t index, const shape<T, vec> &s2)
     {
+        // Get rigid bodies to solve energy equations
+        body<T, vec> &b = _bodies[index];
+
+        // Check if body has died
+        if (b.is_dead())
+        {
+            return false;
+        }
+
         // Get shapes from spatial index
         const shape<T, vec> &s1 = _shapes[index];
 
@@ -378,9 +405,6 @@ class physics
             vec<T> collision_normal;
             vec<T> intersection;
             const vec<T> offset = resolve<T, vec>(s1, s2, collision_normal, intersection, _collision_tolerance);
-
-            // Get rigid bodies to solve energy equations
-            body<T, vec> &b = _bodies[index];
 
             // Solve linear and angular momentum conservation equations
             solve_energy_conservation_static(b, collision_normal, intersection);
@@ -497,12 +521,16 @@ class physics
     }
     inline void solve_integrals(const size_t index, const T dt, const T damping)
     {
+        // Check if body has died
+        body<T, vec> &b = _bodies[index];
+        if (b.is_dead())
+        {
+            return;
+        }
+
         // Precalculate time constants
         const T dt2 = dt * 0.5;
         const T dt6 = dt * 0.16667;
-
-        body<T, vec> &b = _bodies[index];
-        shape<T, vec> &s = _shapes[index];
 
         // Solve for linear velocity
         const auto v_n = b.get_linear_velocity();
@@ -526,6 +554,7 @@ class physics
         b.clear_force(_gravity);
 
         // Update the shapes position
+        shape<T, vec> &s = _shapes[index];
         s.set_position(b.get_position());
 
         // Rotate the shapes by the relative rotation
@@ -542,12 +571,37 @@ class physics
     }
 
   public:
-    physics(const cell<T, vec> &world, const vec<T> &gravity) : _spatial(world),
-                                                                _lower_bound(world.get_min() + vec<T>().set_all(1.0)),
-                                                                _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
-                                                                _gravity(gravity), _elasticity(1.0) {}
+    physics(const cell<T, vec> &world, const vec<T> &gravity)
+        : _spatial(world),
+          _lower_bound(world.get_min() + vec<T>().set_all(1.0)),
+          _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
+          _gravity(gravity), _elasticity(1.0), _clean(true) {}
+
     inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t id = 0)
     {
+        // If bodies can be recycled
+        if (_dead.size() > 0)
+        {
+            // Get recycle index
+            const size_t index = _dead.back();
+            _dead.pop_back();
+
+            // Flag clean if no more dead bodies
+            if (_dead.size() == 0)
+            {
+                _clean = true;
+            }
+
+            // Recycle shape
+            _shapes[index] = s;
+
+            // Recycle body
+            _bodies[index] = body<T, vec>(s.get_center(), _gravity, mass, id);
+
+            // Return recycled index
+            return index;
+        }
+
         // Add shape to shape vector
         _shapes.push_back(s);
 
@@ -556,6 +610,17 @@ class physics
 
         // return the body id
         return _bodies.size() - 1;
+    }
+    inline void clear_body(const size_t index)
+    {
+        // Flag this body for destruction
+        _bodies[index].kill();
+
+        // Add body index to the dead list
+        _dead.push_back(index);
+
+        // Flag that we dirtied up
+        _clean = false;
     }
     inline void clear()
     {
@@ -590,15 +655,46 @@ class physics
     {
         return _shapes[index];
     }
+    inline void prune_after(const size_t index)
+    {
+        // Check if we need to prune
+        if (!_clean)
+        {
+            prune_after_force(index);
+        }
+    }
+    inline void prune_after_force(const size_t index)
+    {
+        // Clear all dead bodies
+        _dead.clear();
+
+        // Shorten shape and body buffers
+        const size_t size = index + 1;
+        _shapes.resize(size);
+        _bodies.resize(size);
+
+        // Scan for dead bodies in remnants
+        for (size_t i = 0; i < size; i++)
+        {
+            if (_bodies.is_dead())
+            {
+                _dead.push_back(i);
+            }
+        }
+
+        // Flag that we cleaned up
+        _clean = true;
+    }
     inline void register_callback(const size_t index, const std::function<void(body<T, vec> &, body<T, vec> &)> &f)
     {
         _bodies[index].register_callback(f);
     }
-    inline void reserve(const size_t N)
+    inline void reserve(const size_t size)
     {
         // Reserve memory for shapes and bodies
-        _shapes.reserve(N);
-        _bodies.reserve(N);
+        _shapes.reserve(size);
+        _bodies.reserve(size);
+        _dead.reserve(size);
     }
     inline void solve(const T dt, const T damping)
     {
