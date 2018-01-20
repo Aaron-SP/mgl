@@ -88,7 +88,7 @@ class texture_buffer
         // Check for opengl errors
         check_internal_error();
     }
-    texture_buffer(const texture_buffer &sb) = delete;
+    texture_buffer(const texture_buffer &tb) = delete;
     GLuint add_bmp_texture(const bmp &b)
     {
         // Extracted input image data

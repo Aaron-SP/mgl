@@ -179,7 +179,7 @@ class uniform_buffer
 
         // Add the lights to the light uniform array
         // We can use one copy here because the array is tightly packed
-        size_t copy_bytes = _lights.size() * sizeof_light;
+        const size_t copy_bytes = _lights.size() * sizeof_light;
         std::memcpy(&data[_light_offsets[0]], &_lights[0], copy_bytes);
 
         // GLSL likes to use int vs uint in older drivers
@@ -190,7 +190,7 @@ class uniform_buffer
         }
 
         // Set the size property
-        int32_t size = (int32_t)_lights.size();
+        const int32_t size = (int32_t)_lights.size();
         std::memcpy(&data[_light_offsets[1]], &size, size_bytes);
 
         // Bind buffer and copy data into it
@@ -214,7 +214,7 @@ class uniform_buffer
 
         // Add the matrices to the matrix uniform array
         // We can use one copy here because the array is tightly packed
-        size_t copy_bytes = _matrix.size() * sizeof_matrix;
+        const size_t copy_bytes = _matrix.size() * sizeof_matrix;
         std::memcpy(&data[_matrix_offsets[0]], &_matrix[0], copy_bytes);
 
         // GLSL likes to use int vs uint in older drivers
@@ -225,7 +225,7 @@ class uniform_buffer
         }
 
         // Set the size property
-        int32_t size = (int32_t)_matrix.size();
+        const int32_t size = (int32_t)_matrix.size();
         std::memcpy(&data[_matrix_offsets[1]], &size, size_bytes);
 
         // Bind buffer and copy data into it
@@ -236,12 +236,33 @@ class uniform_buffer
     }
 
   public:
+    uniform_buffer()
+        : _max_lights(0), _max_matrix(0),
+          _light_offsets{0, 0}, _matrix_offsets{0, 0} {}
+
     uniform_buffer(const uint32_t light_size, const uint32_t matrix_size)
         : _max_lights(light_size), _max_matrix(matrix_size),
           _light_offsets{0, (GLint)(get_light_bytes() - size_bytes)},
           _matrix_offsets{0, (GLint)(get_matrix_bytes() - size_bytes)}
     {
-        size_t max_size = get_max_buffer_size();
+        // Load light and matrix buffers
+        load_buffers();
+    }
+    void defer_construct(const uint32_t light_size, const uint32_t matrix_size)
+    {
+        _max_lights = light_size;
+        _max_matrix = matrix_size;
+        _light_offsets[0] = 0;
+        _light_offsets[1] = static_cast<GLint>(get_light_bytes() - size_bytes);
+        _matrix_offsets[0] = 0;
+        _matrix_offsets[1] = static_cast<GLint>(get_matrix_bytes() - size_bytes);
+
+        // Load light and matrix buffers
+        load_buffers();
+    }
+    void load_buffers()
+    {
+        const size_t max_size = get_max_buffer_size();
         if (max_size < get_light_bytes() || max_size < get_matrix_bytes())
         {
             throw std::runtime_error("uniform_buffer: max uniform buffer size is too small");
@@ -305,13 +326,45 @@ class uniform_buffer
         // Connect the binding index = 1 to the buffer
         glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
     }
-    inline size_t get_max_buffer_size() const
+    inline void clear_lights()
+    {
+        _lights.clear();
+    }
+    inline void clear_matrix()
+    {
+        _matrix.clear();
+    }
+    inline static size_t get_max_buffer_size()
     {
         // Get the maximum uniform buffer size
         GLint size;
         glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &size);
 
         return (size_t)size;
+    }
+    inline void insert_light(const std::vector<mat4<T>> &v)
+    {
+        _lights.insert(_lights.end(), v.begin(), v.end());
+    }
+    inline void insert_matrix(const std::vector<mat4<T>> &v)
+    {
+        _matrix.insert(_matrix.end(), v.begin(), v.end());
+    }
+    inline size_t light_size() const
+    {
+        return _lights.size();
+    }
+    inline size_t matrix_size() const
+    {
+        return _matrix.size();
+    }
+    inline void reserve_lights(const size_t size)
+    {
+        _lights.reserve(size);
+    }
+    inline void reserve_matrix(const size_t size)
+    {
+        _matrix.reserve(size);
     }
     inline void set_light(const light<T> &light, const size_t id)
     {

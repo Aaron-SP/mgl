@@ -151,6 +151,7 @@ class shadow_buffer
         // Check for opengl errors
         check_internal_error();
     }
+    shadow_buffer(const shadow_buffer &sb) = delete;
     inline void bind() const
     {
         // Bind framebuffer

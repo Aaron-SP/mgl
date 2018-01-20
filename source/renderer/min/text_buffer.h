@@ -455,6 +455,7 @@ class text_buffer
         // Check for opengl errors
         check_internal_error();
     }
+    text_buffer(const text_buffer &tb) = delete;
     inline size_t add_text(const std::string &str, const float x, const float y)
     {
         // Store the string

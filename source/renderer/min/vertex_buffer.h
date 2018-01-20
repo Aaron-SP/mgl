@@ -391,6 +391,21 @@ class vertex_buffer
         const size_t byte_offset = n.second * sizeof(K);
         glDrawElementsInstanced(mode, n.first, INT_TYPE, (GLvoid *)byte_offset, count);
     }
+    inline void reserve(const size_t vertex, const size_t index, const size_t meshes)
+    {
+        // Get the width of the vertex structure, in floats not bytes
+        const size_t width = vertex_type<T, K, FLOAT_TYPE>::width();
+
+        // Reserve memory for vertex buffer
+        _data[_index].reserve(vertex * width);
+
+        // Reserve memory for element buffer
+        _element[_index].reserve(index);
+
+        // Reserve memory for mesh indices
+        _data_index[_index].reserve(meshes);
+        _element_index[_index].reserve(meshes);
+    }
     inline void set_buffer(const size_t index) const
     {
         // Set the active buffer

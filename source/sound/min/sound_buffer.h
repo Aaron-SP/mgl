@@ -80,14 +80,6 @@ class sound_buffer
         // Return the index for this data
         return _buffers.size() - 1;
     }
-    inline void check_internal_error() const
-    {
-        const ALCenum error = alcGetError(_device);
-        if (error != AL_NO_ERROR)
-        {
-            throw std::runtime_error("openal: Error: " + std::to_string(error));
-        }
-    }
     inline void clear_error() const
     {
         ALCenum error = alcGetError(_device);
@@ -187,6 +179,7 @@ class sound_buffer
     {
         shutdown();
     }
+    sound_buffer(const sound_buffer &sb) = delete;
     inline void enumerate_devices() const
     {
         // Enumerate available devices
@@ -263,6 +256,19 @@ class sound_buffer
     {
         // Bind source to buffer
         alSourcei(_sources[source], AL_BUFFER, _buffers[buffer]);
+    }
+    inline bool check_error() const
+    {
+        const ALCenum error = alcGetError(_device);
+        return error != AL_NO_ERROR;
+    }
+    inline void check_internal_error() const
+    {
+        const ALCenum error = alcGetError(_device);
+        if (error != AL_NO_ERROR)
+        {
+            throw std::runtime_error("openal: Error: " + std::to_string(error));
+        }
     }
     inline bool is_playing(const size_t source) const
     {
