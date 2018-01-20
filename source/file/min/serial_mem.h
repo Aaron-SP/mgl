@@ -23,14 +23,18 @@ namespace min
 class mem_file
 {
   private:
-    const std::vector<uint8_t> *const _data;
+    std::vector<uint8_t> *const _data;
     size_t _offset;
     size_t _size;
 
   public:
-    mem_file(const std::vector<uint8_t> *const data, const size_t offset, const size_t size)
+    mem_file(std::vector<uint8_t> *const data, const size_t offset, const size_t size)
         : _data(data), _offset(offset), _size(size) {}
     const uint8_t &operator[](const size_t index) const
+    {
+        return (*_data)[_offset + index];
+    }
+    uint8_t &operator[](const size_t index)
     {
         return (*_data)[_offset + index];
     }

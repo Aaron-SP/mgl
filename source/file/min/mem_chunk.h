@@ -255,6 +255,19 @@ class mem_chunk
             throw std::runtime_error("mem_chunk: file " + key + " is not in the file list");
         }
     }
+    mem_file &get_file(const std::string &key)
+    {
+        // Lookup key in the map
+        const auto &i = _files.find(key);
+        if (i != _files.end())
+        {
+            return i->second;
+        }
+        else
+        {
+            throw std::runtime_error("mem_chunk: file " + key + " is not in the file list");
+        }
+    }
     size_t size() const
     {
         return _files.size();
