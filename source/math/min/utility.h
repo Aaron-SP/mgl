@@ -34,6 +34,7 @@ class var
     static constexpr T TOL_PONE = 1.0 - 1E-6;
     static constexpr T TOL_NONE = -1.0 + 1E-6;
     static constexpr T TOL_REL = 1E-6;
+    static constexpr T TOL_REL2 = 2E-6;
 
     // Use this for taking inverses without getting a NaN
     static constexpr T TOL_ZERO = 1E-3;

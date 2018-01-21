@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cmath>
 #include <cstdio>
+#include <min/utility.h>
 #include <utility>
 #include <vector>
 
@@ -44,8 +45,8 @@ class aabbox
         if (size >= 2)
         {
             const std::pair<vec<T>, vec<T>> p = vec<T>::extents(verts);
-            _min = p.first;
-            _max = p.second;
+            _min = p.first - var<T>::TOL_REL2;
+            _max = p.second + var<T>::TOL_REL2;
         }
         else if (size == 1)
         {

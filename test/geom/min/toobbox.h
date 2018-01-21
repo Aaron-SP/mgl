@@ -195,10 +195,17 @@ bool test_oobbox()
         }
 
         // Test point inside
-        out = out && box.point_inside(b);
+        out = out && box.point_inside(b - 0.01);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 oobbox point_inside 5");
+        }
+
+        // Test point not inside
+        out = out && !box.point_inside(b);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec2 oobbox not point_inside 4");
         }
 
         // Test square size
@@ -389,10 +396,17 @@ bool test_oobbox()
         }
 
         // Test point inside
-        out = out && box.point_inside(b);
+        out = out && box.point_inside(b - 0.01);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 oobbox point_inside 5");
+        }
+
+        // Test point not inside
+        out = out && !box.point_inside(b);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec3 oobbox not point_inside 4");
         }
 
         // Test square size
@@ -583,10 +597,17 @@ bool test_oobbox()
         }
 
         // Test point inside
-        out = out && box.point_inside(b);
+        out = out && box.point_inside(b - 0.01);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 oobbox point_inside 5");
+        }
+
+        // Test point not inside
+        out = out && !box.point_inside(b);
+        if (!out)
+        {
+            throw std::runtime_error("Failed vec4 oobbox not point_inside 4");
         }
 
         // Test square size

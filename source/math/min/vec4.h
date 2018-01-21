@@ -653,7 +653,7 @@ class vec4
     inline bool inside(const vec4<T> &min, const vec4<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
-        return (_x > min.x() - var<T>::TOL_REL && _x < max.x() + var<T>::TOL_REL && _y > min.y() - var<T>::TOL_REL && _y < max.y() + var<T>::TOL_REL && _z > min.z() - var<T>::TOL_REL && _z < max.z() + var<T>::TOL_REL);
+        return (_x > min.x() + var<T>::TOL_REL && _x < max.x() - var<T>::TOL_REL && _y > min.y() + var<T>::TOL_REL && _y < max.y() - var<T>::TOL_REL && _z > min.z() + var<T>::TOL_REL && _z < max.z() - var<T>::TOL_REL);
     }
     inline vec4<T> inverse() const
     {
@@ -2004,7 +2004,7 @@ class vec4
     inline bool within(const vec4<T> &min, const vec4<T> &max) const
     {
         // Return true if this vector is within the min and max vector range
-        return (_x >= min.x() - var<T>::TOL_REL && _x <= max.x() + var<T>::TOL_REL && _y >= min.y() - var<T>::TOL_REL && _y <= max.y() + var<T>::TOL_REL && _z >= min.z() - var<T>::TOL_REL && _z <= max.z() + var<T>::TOL_REL);
+        return (_x >= min.x() + var<T>::TOL_REL && _x <= max.x() - var<T>::TOL_REL && _y >= min.y() + var<T>::TOL_REL && _y <= max.y() - var<T>::TOL_REL && _z >= min.z() + var<T>::TOL_REL && _z <= max.z() - var<T>::TOL_REL);
     }
     inline vec4<T> &operator+=(const T a)
     {

@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cmath>
 #include <min/coord_sys.h>
+#include <min/utility.h>
 #include <vector>
 
 namespace min
@@ -39,8 +40,8 @@ class oobbox_base
         if (size >= 2)
         {
             const std::pair<vec<T>, vec<T>> p = vec<T>::extents(verts);
-            min = p.first;
-            max = p.second;
+            min = p.first - var<T>::TOL_REL2;
+            max = p.second + var<T>::TOL_REL2;
         }
         else if (size == 1)
         {

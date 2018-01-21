@@ -440,7 +440,7 @@ class vec2
     inline bool inside(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is inside the min and max vector range
-        return (_x > min.x() - var<T>::TOL_REL && _x < max.x() + var<T>::TOL_REL && _y > min.y() - var<T>::TOL_REL && _y < max.y() + var<T>::TOL_REL);
+        return (_x > min.x() + var<T>::TOL_REL && _x < max.x() - var<T>::TOL_REL && _y > min.y() + var<T>::TOL_REL && _y < max.y() - var<T>::TOL_REL);
     }
     inline vec2<T> inverse() const
     {
@@ -1178,7 +1178,7 @@ class vec2
     inline bool within(const vec2<T> &min, const vec2<T> &max) const
     {
         // Return true if this vector is within the min and max vector range
-        return (_x >= min.x() - var<T>::TOL_REL && _x <= max.x() + var<T>::TOL_REL && _y >= min.y() - var<T>::TOL_REL && _y <= max.y() + var<T>::TOL_REL);
+        return (_x >= min.x() + var<T>::TOL_REL && _x <= max.x() - var<T>::TOL_REL && _y >= min.y() + var<T>::TOL_REL && _y <= max.y() - var<T>::TOL_REL);
     }
     inline vec2<T> &operator+=(const T a)
     {

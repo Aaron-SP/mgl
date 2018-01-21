@@ -37,6 +37,7 @@ constexpr size_t N = 40000;
 constexpr unsigned long float_bb = 808207;
 constexpr unsigned long float_sphere = 808185;
 constexpr unsigned long double_both = 810661;
+constexpr unsigned long double_oobb = 810662;
 
 // Make various sphere world sizes
 min::sphere<float, min::vec2> fsw2 = make_sphere<float, min::vec2>();
@@ -99,13 +100,13 @@ double tree(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec2, min::tree>(V, dabw2, dab2);
-    iR += 1.0 / bench_aabb_oobb<double, double_both, min::vec2, min::tree>(V, dabw2, dob2);
+    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec2, min::tree>(V, dabw2, dob2);
     iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec2, min::tree>(V, dabw2, ds2);
     iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec2, min::tree>(V, dobw2, dab2);
-    iR += 1.0 / bench_oobb_oobb<double, double_both, min::vec2, min::tree>(V, dobw2, dob2);
+    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec2, min::tree>(V, dobw2, dob2);
     iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec2, min::tree>(V, dobw2, ds2);
     iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec2, min::tree>(V, dsw2, dab2);
-    iR += 1.0 / bench_sphere_oobb<double, double_both, min::vec2, min::tree>(V, dsw2, dob2);
+    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec2, min::tree>(V, dsw2, dob2);
     iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec2, min::tree>(V, dsw2, ds2);
 
     // Run 3D benchmarks in single precision
@@ -129,13 +130,13 @@ double tree(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec3, min::tree>(V, dabw3, dab3);
-    iR += 1.0 / bench_aabb_oobb<double, double_both, min::vec3, min::tree>(V, dabw3, dob3);
+    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec3, min::tree>(V, dabw3, dob3);
     iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec3, min::tree>(V, dabw3, ds3);
     iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec3, min::tree>(V, dobw3, dab3);
-    iR += 1.0 / bench_oobb_oobb<double, double_both, min::vec3, min::tree>(V, dobw3, dob3);
+    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec3, min::tree>(V, dobw3, dob3);
     iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec3, min::tree>(V, dobw3, ds3);
     iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec3, min::tree>(V, dsw3, dab3);
-    iR += 1.0 / bench_sphere_oobb<double, double_both, min::vec3, min::tree>(V, dsw3, dob3);
+    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec3, min::tree>(V, dsw3, dob3);
     iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec3, min::tree>(V, dsw3, ds3);
 
     return iR;
@@ -166,13 +167,13 @@ double grid(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec2, min::grid>(V, dabw2, dab2);
-    iR += 1.0 / bench_aabb_oobb<double, double_both, min::vec2, min::grid>(V, dabw2, dob2);
+    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec2, min::grid>(V, dabw2, dob2);
     iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec2, min::grid>(V, dabw2, ds2);
     iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec2, min::grid>(V, dobw2, dab2);
-    iR += 1.0 / bench_oobb_oobb<double, double_both, min::vec2, min::grid>(V, dobw2, dob2);
+    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec2, min::grid>(V, dobw2, dob2);
     iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec2, min::grid>(V, dobw2, ds2);
     iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec2, min::grid>(V, dsw2, dab2);
-    iR += 1.0 / bench_sphere_oobb<double, double_both, min::vec2, min::grid>(V, dsw2, dob2);
+    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec2, min::grid>(V, dsw2, dob2);
     iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec2, min::grid>(V, dsw2, ds2);
 
     // Run 3D benchmarks in single precision
@@ -196,13 +197,13 @@ double grid(const size_t V)
               << std::endl;
 
     iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec3, min::grid>(V, dabw3, dab3);
-    iR += 1.0 / bench_aabb_oobb<double, double_both, min::vec3, min::grid>(V, dabw3, dob3);
+    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec3, min::grid>(V, dabw3, dob3);
     iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec3, min::grid>(V, dabw3, ds3);
     iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec3, min::grid>(V, dobw3, dab3);
-    iR += 1.0 / bench_oobb_oobb<double, double_both, min::vec3, min::grid>(V, dobw3, dob3);
+    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec3, min::grid>(V, dobw3, dob3);
     iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec3, min::grid>(V, dobw3, ds3);
     iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec3, min::grid>(V, dsw3, dab3);
-    iR += 1.0 / bench_sphere_oobb<double, double_both, min::vec3, min::grid>(V, dsw3, dob3);
+    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec3, min::grid>(V, dsw3, dob3);
     iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec3, min::grid>(V, dsw3, ds3);
 
     return iR;
