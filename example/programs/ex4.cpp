@@ -97,7 +97,8 @@ class particle_test
         _ubuffer.add_matrix(_cam.get_pv_matrix());
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
 
         // Bind this uniform buffer for use
         _ubuffer.bind();
@@ -114,7 +115,7 @@ class particle_test
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
           _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 10.0),
-          _ubuffer(0, 1),
+          _ubuffer(0, 1, 0),
           _force_type(0)
     {
         // Set depth and cull settings

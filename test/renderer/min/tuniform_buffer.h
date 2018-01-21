@@ -57,7 +57,7 @@ class uniform_test
           _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(100, 100)
+          _ubuffer(100, 100, 0)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -112,7 +112,8 @@ class uniform_test
         _cam.set_perspective();
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
 
         // Bind this uniform buffer for use
         _ubuffer.bind();

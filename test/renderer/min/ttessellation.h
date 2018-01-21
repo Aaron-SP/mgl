@@ -68,7 +68,7 @@ class tessellation_test
           _fragment("data/shader/height_map.fragment", GL_FRAGMENT_SHADER),
           _shaders({_vertex.id(), _tcs.id(), _tes.id(), _fragment.id()}),
           _prog(_shaders),
-          _ubuffer(0, 2)
+          _ubuffer(0, 2, 0)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -106,7 +106,8 @@ class tessellation_test
         _cam.set_perspective();
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
 
         // Bind this uniform buffer for use
         _ubuffer.bind();

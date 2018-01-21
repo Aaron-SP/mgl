@@ -187,8 +187,9 @@ class render_loop_test
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program_matrix_only(_prog1);
-        _ubuffer.set_program(_prog2);
+        _ubuffer.set_program_matrix(_prog1);
+        _ubuffer.set_program_lights(_prog2);
+        _ubuffer.set_program_matrix(_prog2);
 
         // Load the buffer with data
         _ubuffer.update();
@@ -207,7 +208,7 @@ class render_loop_test
           _v2("data/shader/shadow2.vertex", GL_VERTEX_SHADER),
           _f2("data/shader/shadow2.fragment", GL_FRAGMENT_SHADER),
           _prog2(_v2, _f2),
-          _ubuffer(1, 5),
+          _ubuffer(1, 5, 0),
           _shadow_buffer(1024, 1024)
     {
         // Set depth and cull settings

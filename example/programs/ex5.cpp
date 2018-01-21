@@ -163,7 +163,8 @@ class md5_render_loop_test
         }
 
         // Load the uniform buffer with the program we will use
-        _ubuffer.set_program(_vert_prog);
+        _ubuffer.set_program_lights(_vert_prog);
+        _ubuffer.set_program_matrix(_vert_prog);
 
         // Bind this uniform buffer for use
         _ubuffer.bind();
@@ -184,7 +185,7 @@ class md5_render_loop_test
           _text_prog(_text_vertex, _text_fragment),
           _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
           _text_buffer("data/fonts/open_sans.ttf", 14),
-          _ubuffer(1, 100),
+          _ubuffer(1, 100, 0),
           _light_color(1.0, 1.0, 1.0, 1.0),
           _light_position(-9.0, 10.0, 0.0, 1.0),
           _light_power(0.1, 200.0, 100.0, 1.0)

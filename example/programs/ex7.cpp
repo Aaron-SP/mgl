@@ -101,7 +101,8 @@ class physics_test
     void load_uniforms()
     {
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
 
         // Bind this uniform buffer for use
         _ubuffer.bind();
@@ -165,7 +166,7 @@ class physics_test
           _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(10, 102),
+          _ubuffer(10, 102, 0),
           _world(min::vec3<float>(-115, -115, -115), min::vec3<float>(115, 115, 115)),
           _gravity(0.0, -10.0, 0.0),
           _simulation(_world, _gravity),

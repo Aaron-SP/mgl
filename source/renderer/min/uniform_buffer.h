@@ -21,6 +21,7 @@ limitations under the License.
 #include <min/light.h>
 #include <min/mat4.h>
 #include <min/program.h>
+#include <min/vec4.h>
 #include <min/window.h>
 #include <stdexcept>
 
@@ -40,15 +41,22 @@ class uniform_buffer
     // size of matrix uniform buffer
     static constexpr size_t sizeof_matrix = sizeof(mat4<T>);
 
+    // size of matrix uniform buffer
+    static constexpr size_t sizeof_vector = sizeof(vec4<T>);
+
   private:
     std::vector<light<T>> _lights;
     std::vector<mat4<T>> _matrix;
+    std::vector<vec4<T>> _vector;
     GLuint _lbo;
     GLuint _mbo;
+    GLuint _vbo;
     uint32_t _max_lights;
     uint32_t _max_matrix;
+    uint32_t _max_vector;
     GLint _light_offsets[2];
     GLint _matrix_offsets[2];
+    GLint _vector_offsets[2];
 
     inline size_t get_light_bytes() const
     {
@@ -57,6 +65,10 @@ class uniform_buffer
     inline size_t get_matrix_bytes() const
     {
         return _max_matrix * sizeof_matrix + size_bytes;
+    }
+    inline size_t get_vector_bytes() const
+    {
+        return _max_vector * sizeof_vector + size_bytes;
     }
     void set_lights(const program &p) const
     {
@@ -164,12 +176,60 @@ class uniform_buffer
             glUniformBlockBinding(p.id(), matrix_index, 1);
         }
     }
+    void set_vector(const program &p) const
+    {
+        if (_max_vector > 0)
+        {
+            // Calculate the vector block indices, 4-N byte alignment
+            const GLchar *names[2] = {
+                "vector_block.vector[0]",
+                "vector_block.size"};
+
+            // Array to store the indices
+            GLuint indices[2];
+
+            // Get the indices from the program
+            glGetUniformIndices(p.id(), 2, names, indices);
+
+            // Check that the indices are valid
+            if (indices[0] == GL_INVALID_INDEX || indices[1] == GL_INVALID_INDEX)
+            {
+                throw std::runtime_error("uniform_buffer: vector uniform indices are invalid");
+            }
+
+            // Get the member offsets from the program
+            GLint vector_offsets[2];
+            glGetActiveUniformsiv(p.id(), 2, indices, GL_UNIFORM_OFFSET, vector_offsets);
+
+            // Check the array offset, offset MUST BE ZERO
+            if (vector_offsets[0] != _vector_offsets[0])
+            {
+                throw std::runtime_error("uniform_buffer: vector_block.vector offset calculated by opengl is not std140");
+            }
+
+            // Check the size offset
+            if (vector_offsets[1] != _vector_offsets[1])
+            {
+                throw std::runtime_error("uniform_buffer: vector_block.size offset calculated by opengl is not std140");
+            }
+
+            const GLuint vector_index = glGetUniformBlockIndex(p.id(), "vector_block");
+
+            // Set the block binding index = 0
+            glUniformBlockBinding(p.id(), vector_index, 2);
+        }
+    }
     void update_light_buffer() const
     {
         // Check for empty matrix array and return
         if (_lights.size() == 0)
         {
             return;
+        }
+        else if (_lights.size() > _max_lights)
+        {
+            // Check if the buffer is overfilled
+            throw std::runtime_error("uniform_buffer: light buffer contains more lights than allowed");
         }
 
         // The size of the maximum light count and the size
@@ -190,7 +250,7 @@ class uniform_buffer
         }
 
         // Set the size property
-        const int32_t size = (int32_t)_lights.size();
+        const int32_t size = static_cast<int32_t>(_lights.size());
         std::memcpy(&data[_light_offsets[1]], &size, size_bytes);
 
         // Bind buffer and copy data into it
@@ -205,6 +265,11 @@ class uniform_buffer
         if (_matrix.size() == 0)
         {
             return;
+        }
+        else if (_matrix.size() > _max_matrix)
+        {
+            // Check if the buffer is overfilled
+            throw std::runtime_error("uniform_buffer: matrix buffer contains more matrices than allowed");
         }
 
         // The size of the maximum matrix count and the size
@@ -225,7 +290,7 @@ class uniform_buffer
         }
 
         // Set the size property
-        const int32_t size = (int32_t)_matrix.size();
+        const int32_t size = static_cast<int32_t>(_matrix.size());
         std::memcpy(&data[_matrix_offsets[1]], &size, size_bytes);
 
         // Bind buffer and copy data into it
@@ -234,28 +299,74 @@ class uniform_buffer
         // Send the data to the GPU with matrix_bytes calculated
         glBufferData(GL_UNIFORM_BUFFER, matrix_bytes, &data[0], GL_DYNAMIC_DRAW);
     }
+    void update_vector_buffer() const
+    {
+        // Check for empty vector array and return
+        if (_vector.size() == 0)
+        {
+            return;
+        }
+        else if (_vector.size() > _max_vector)
+        {
+            // Check if the buffer is overfilled
+            throw std::runtime_error("uniform_buffer: vector buffer contains more vectors than allowed");
+        }
+
+        // The size of the maximum vector count and the size
+        // (vec4 = 16) * N + (1 * int = 4)
+        const size_t vector_bytes = get_vector_bytes();
+        std::vector<uint8_t> data(vector_bytes, 0);
+
+        // Add the vectors to the vector uniform array
+        // We can use one copy here because the array is tightly packed
+        const size_t copy_bytes = _vector.size() * sizeof_vector;
+        std::memcpy(&data[_vector_offsets[0]], &_vector[0], copy_bytes);
+
+        // GLSL likes to use int vs uint in older drivers
+        // We must check for overflow
+        if (_vector.size() > std::numeric_limits<int32_t>::max())
+        {
+            throw std::runtime_error("uniform_buffer: vector integer overflow");
+        }
+
+        // Set the size property
+        const int32_t size = static_cast<int32_t>(_vector.size());
+        std::memcpy(&data[_vector_offsets[1]], &size, size_bytes);
+
+        // Bind buffer and copy data into it
+        glBindBuffer(GL_UNIFORM_BUFFER, _vbo);
+
+        // Send the data to the GPU with vector_bytes calculated
+        glBufferData(GL_UNIFORM_BUFFER, vector_bytes, &data[0], GL_DYNAMIC_DRAW);
+    }
 
   public:
     uniform_buffer()
-        : _max_lights(0), _max_matrix(0),
-          _light_offsets{0, 0}, _matrix_offsets{0, 0} {}
+        : _max_lights(0), _max_matrix(0), _max_vector(0),
+          _light_offsets{0, 0}, _matrix_offsets{0, 0}, _vector_offsets{0, 0} {}
 
-    uniform_buffer(const uint32_t light_size, const uint32_t matrix_size)
-        : _max_lights(light_size), _max_matrix(matrix_size),
-          _light_offsets{0, (GLint)(get_light_bytes() - size_bytes)},
-          _matrix_offsets{0, (GLint)(get_matrix_bytes() - size_bytes)}
+    uniform_buffer(const uint32_t light_size, const uint32_t matrix_size, const uint32_t vector_size)
+        : _max_lights(light_size), _max_matrix(matrix_size), _max_vector(vector_size),
+          _light_offsets{0, static_cast<GLint>(get_light_bytes() - size_bytes)},
+          _matrix_offsets{0, static_cast<GLint>(get_matrix_bytes() - size_bytes)},
+          _vector_offsets{0, static_cast<GLint>(get_vector_bytes() - size_bytes)}
     {
         // Load light and matrix buffers
         load_buffers();
     }
-    void defer_construct(const uint32_t light_size, const uint32_t matrix_size)
+    void defer_construct(const uint32_t light_size, const uint32_t matrix_size, const uint32_t vector_size)
     {
         _max_lights = light_size;
         _max_matrix = matrix_size;
+        _max_vector = vector_size;
+
+        // Set the uniform offsets
         _light_offsets[0] = 0;
         _light_offsets[1] = static_cast<GLint>(get_light_bytes() - size_bytes);
         _matrix_offsets[0] = 0;
         _matrix_offsets[1] = static_cast<GLint>(get_matrix_bytes() - size_bytes);
+        _vector_offsets[0] = 0;
+        _vector_offsets[1] = static_cast<GLint>(get_vector_bytes() - size_bytes);
 
         // Load light and matrix buffers
         load_buffers();
@@ -263,29 +374,53 @@ class uniform_buffer
     void load_buffers()
     {
         const size_t max_size = get_max_buffer_size();
-        if (max_size < get_light_bytes() || max_size < get_matrix_bytes())
+        if (max_size < get_light_bytes() || max_size < get_matrix_bytes() || max_size < get_vector_bytes())
         {
             throw std::runtime_error("uniform_buffer: max uniform buffer size is too small");
         }
 
-        // create light uniform buffer
-        glGenBuffers(1, &_lbo);
+        // Create lights
+        if (_max_lights > 0)
+        {
+            // create light uniform buffer
+            glGenBuffers(1, &_lbo);
+        }
 
-        // create matrix uniform buffer
-        glGenBuffers(1, &_mbo);
+        // Create matrix
+        if (_max_matrix > 0)
+        {
+            // create matrix uniform buffer
+            glGenBuffers(1, &_mbo);
+        }
+
+        // Create vector
+        if (_max_vector > 0)
+        {
+            // create vector uniform buffer
+            glGenBuffers(1, &_vbo);
+        }
     }
     ~uniform_buffer()
     {
-        if (_lbo > 0)
+        // Unbind the uniform buffer
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+        // Delete lights
+        if (_max_lights > 0)
         {
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
             glDeleteBuffers(1, &_lbo);
         }
 
-        if (_mbo > 0)
+        // Delete matrix
+        if (_max_matrix > 0)
         {
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
             glDeleteBuffers(1, &_mbo);
+        }
+
+        // Delete vector
+        if (_max_vector > 0)
+        {
+            glDeleteBuffers(1, &_vbo);
         }
 
         // Check for opengl errors
@@ -294,12 +429,6 @@ class uniform_buffer
     uniform_buffer(const uniform_buffer &sb) = delete;
     inline size_t add_light(const light<T> &light)
     {
-        // Check if the buffer is full yet
-        if (_lights.size() == _max_lights)
-        {
-            throw std::runtime_error("uniform_buffer: light buffer is full, you can't add any more lights");
-        }
-
         _lights.push_back(light);
 
         // Return light ID
@@ -307,24 +436,40 @@ class uniform_buffer
     }
     inline size_t add_matrix(const mat4<T> &mat)
     {
-        // Check if the buffer is full yet
-        if (_matrix.size() == _max_matrix)
-        {
-            throw std::runtime_error("uniform_buffer: matrix buffer is full, you can't add any more matrices");
-        }
-
         _matrix.push_back(mat);
 
         // Return matrix ID
         return _matrix.size() - 1;
     }
+    inline size_t add_vector(const vec4<T> &v)
+    {
+        _vector.push_back(v);
+
+        // Return vector ID
+        return _vector.size() - 1;
+    }
     inline void bind() const
     {
-        // Connect the binding index = 0 to the buffer
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, _lbo);
+        // Bind lights
+        if (_max_lights > 0)
+        {
+            // Connect the binding index = 0 to the buffer
+            glBindBufferBase(GL_UNIFORM_BUFFER, 0, _lbo);
+        }
 
-        // Connect the binding index = 1 to the buffer
-        glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
+        // Bind matrix
+        if (_max_matrix > 0)
+        {
+            // Connect the binding index = 1 to the buffer
+            glBindBufferBase(GL_UNIFORM_BUFFER, 1, _mbo);
+        }
+
+        // Bind vector
+        if (_max_vector > 0)
+        {
+            // Connect the binding index = 2 to the buffer
+            glBindBufferBase(GL_UNIFORM_BUFFER, 2, _vbo);
+        }
     }
     inline void clear_lights()
     {
@@ -333,6 +478,10 @@ class uniform_buffer
     inline void clear_matrix()
     {
         _matrix.clear();
+    }
+    inline void clear_vector()
+    {
+        _vector.clear();
     }
     inline static size_t get_max_buffer_size()
     {
@@ -350,6 +499,10 @@ class uniform_buffer
     {
         _matrix.insert(_matrix.end(), v.begin(), v.end());
     }
+    inline void insert_vector(const std::vector<vec4<T>> &v)
+    {
+        _vector.insert(_vector.end(), v.begin(), v.end());
+    }
     inline size_t light_size() const
     {
         return _lights.size();
@@ -357,6 +510,10 @@ class uniform_buffer
     inline size_t matrix_size() const
     {
         return _matrix.size();
+    }
+    inline size_t vector_size() const
+    {
+        return _vector.size();
     }
     inline void reserve_lights(const size_t size)
     {
@@ -366,6 +523,10 @@ class uniform_buffer
     {
         _matrix.reserve(size);
     }
+    inline void reserve_vector(const size_t size)
+    {
+        _vector.reserve(size);
+    }
     inline void set_light(const light<T> &light, const size_t id)
     {
         _lights[id] = light;
@@ -374,23 +535,24 @@ class uniform_buffer
     {
         _matrix[id] = mat;
     }
-    inline void set_program(const program &p) const
+    inline void set_vector(const vec4<T> &v, const size_t id)
     {
-        // set the light buffer
-        set_lights(p);
-
-        // set the matrix buffer
-        set_matrix(p);
+        _vector[id] = v;
     }
-    inline void set_program_light_only(const program &p) const
+    inline void set_program_lights(const program &p) const
     {
         // set the light buffer
         set_lights(p);
     }
-    inline void set_program_matrix_only(const program &p) const
+    inline void set_program_matrix(const program &p) const
     {
         // set the matrix buffer
         set_matrix(p);
+    }
+    inline void set_program_vector(const program &p) const
+    {
+        // set the vector buffer
+        set_vector(p);
     }
     inline void update() const
     {
@@ -399,6 +561,9 @@ class uniform_buffer
 
         // Update the matrix buffer
         update_matrix_buffer();
+
+        // Update the matrix buffer
+        update_vector_buffer();
     }
     inline void update_lights() const
     {
@@ -409,6 +574,11 @@ class uniform_buffer
     {
         // Update the light buffer
         update_matrix_buffer();
+    }
+    inline void update_vector() const
+    {
+        // Update the light buffer
+        update_vector_buffer();
     }
 };
 }

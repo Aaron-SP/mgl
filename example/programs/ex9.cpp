@@ -123,7 +123,8 @@ class character
         }
 
         // Load the uniform buffer with the program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
     }
 
   public:
@@ -131,7 +132,7 @@ class character
                   _fragment("data/shader/md5.fragment", GL_FRAGMENT_SHADER),
                   _prog(_vertex, _fragment),
                   _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
-                  _ubuffer(1, 100),
+                  _ubuffer(1, 100, 0),
                   _light_color(1.0, 1.0, 1.0, 1.0),
                   _light_position(0.0, 40.0, 0.0, 1.0),
                   _light_power(0.1, 1000.0, 10.0, 1.0)
@@ -376,7 +377,8 @@ class physics_test
         body2.set_no_rotate();
 
         // Load the uniform buffer with program we will use
-        _ubuffer.set_program(_prog);
+        _ubuffer.set_program_lights(_prog);
+        _ubuffer.set_program_matrix(_prog);
     }
     void update_cursor()
     {
@@ -473,7 +475,7 @@ class physics_test
           _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(10, 102),
+          _ubuffer(10, 102, 0),
           _world(min::vec3<float>(-115.0, 0.0, -115.0), min::vec3<float>(115.0, 115.0, 115.0)),
           _gravity(0.0, -10.0, 0.0),
           _simulation(_world, _gravity),
