@@ -85,24 +85,12 @@ class shadow_buffer
     {
         // Generate the shadow frame buffer
         glGenFramebuffers(1, &_id);
-        if (_id == 0)
-        {
-            throw std::runtime_error("shadow_buffer: Failed to generate shadow_buffer.");
-        }
 
         // Bind framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, _id);
 
         // Generate texture to hold shadows
         glGenTextures(1, &_depth);
-        if (_depth == 0)
-        {
-            // Delete the frame buffer
-            glDeleteFramebuffers(1, &_id);
-
-            // Throw exception after cleaning up
-            throw std::runtime_error("shadow_buffer: Failed to generate depth texture.");
-        }
 
         // Bind texture
         glBindTexture(GL_TEXTURE_2D, _depth);
