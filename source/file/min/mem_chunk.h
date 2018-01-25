@@ -94,35 +94,35 @@ class mem_chunk
             size_t next = 0;
 
             // Get the number of files in file data
-            const size_t file_data_size = read_le<size_t>(data, next);
+            const uint32_t file_data_size = read_le<uint32_t>(data, next);
 
             // Allocate space for the data file list
             _file_data.resize(file_data_size);
 
             // Get the number of files in file list
-            const size_t files = read_le<size_t>(data, next);
+            const uint32_t files = read_le<uint32_t>(data, next);
 
             // Read each file description
-            size_t accum_file = 0;
-            for (size_t i = 0; i < files; i++)
+            uint32_t accum_file = 0;
+            for (uint32_t i = 0; i < files; i++)
             {
                 // Get the offset into data of file
-                const size_t offset = read_le<size_t>(data, next);
+                const uint32_t offset = read_le<uint32_t>(data, next);
 
                 // Get the size of the file
-                const size_t file_size = read_le<size_t>(data, next);
+                const uint32_t file_size = read_le<uint32_t>(data, next);
 
                 // Accumulate the file sizes
                 accum_file += file_size;
 
                 // Read size of the file name
-                const size_t str_size = read_le<size_t>(data, next);
+                const uint32_t str_size = read_le<uint32_t>(data, next);
 
                 // Allocate space for file name
                 std::string name(str_size, 0);
 
                 // Read the file name
-                for (size_t j = 0; j < str_size; j++)
+                for (uint32_t j = 0; j < str_size; j++)
                 {
                     name[j] = read_le<char>(data, next);
                 }
@@ -171,23 +171,23 @@ class mem_chunk
             std::vector<uint8_t> header;
 
             // Write the size of the file data
-            write_le<size_t>(header, _file_data.size());
+            write_le<uint32_t>(header, _file_data.size());
 
             // Write the number of files in file list
-            write_le<size_t>(header, _files.size());
+            write_le<uint32_t>(header, _files.size());
 
             // Write the map contents to header
             for (auto &p : _files)
             {
                 // Write the file offset to header
-                write_le<size_t>(header, p.second.offset());
+                write_le<uint32_t>(header, p.second.offset());
 
                 // Write file size to header
-                write_le<size_t>(header, p.second.size());
+                write_le<uint32_t>(header, p.second.size());
 
                 // Write the size of the file name string
                 const size_t str_size = p.first.size();
-                write_le<size_t>(header, str_size);
+                write_le<uint32_t>(header, str_size);
 
                 // Write each character in file name
                 for (size_t i = 0; i < str_size; i++)
