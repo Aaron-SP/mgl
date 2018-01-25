@@ -335,8 +335,8 @@ class tree
                 _depth = std::ceil(std::log2(d2 / max));
             }
 
-            // Set the grid cell extent 2^depth
-            _scale = (0x1 << _depth);
+            // Set the tree cell extent 2^depth
+            _scale = static_cast<K>((0x1 << _depth));
             _cell_extent = _root.get_cell().get_extent() / _scale;
         }
 
@@ -357,7 +357,7 @@ class tree
         }
 
         // use uint radix sort for sorting keys
-        // lambda function to create sorted array indices based on grid key
+        // lambda function to create sorted array indices based on tree key
         uint_sort<size_t>(_index_map, _sort_copy, [this](const size_t a) {
             return this->_key_cache[a];
         });
@@ -372,14 +372,17 @@ class tree
     }
 
   public:
-    tree(const cell<T, vec> &c) : _root(c), _depth_override(false), _flag_size(0)
+    tree(const cell<T, vec> &c) : _root(c), _depth_override(false), _flag_size(0) {}
+    inline void resize(const cell<T, vec> &c)
     {
-        // Check that the tree max >= min
-        const vec<T> &min = _root.get_cell().get_min();
-        const vec<T> &max = _root.get_cell().get_max();
-        if (min >= max)
+        _root = c;
+    }
+    inline void check_size(const std::vector<shape<T, vec>> &shapes) const
+    {
+        // Check size of the number of objects to insert into tree
+        if (shapes.size() > std::numeric_limits<K>::max() - 1)
         {
-            throw std::runtime_error("tree(): invalid tree root cell dimensions");
+            throw std::runtime_error("tree(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
         }
     }
     inline const tree_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
@@ -419,6 +422,10 @@ class tree
 
         // Return the cell node
         return *child;
+    }
+    inline K get_scale() const
+    {
+        return _scale;
     }
     inline const std::vector<shape<T, vec>> &get_shapes()
     {
@@ -472,12 +479,6 @@ class tree
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
-        // Check size of the number of objects to insert into grid
-        if (shapes.size() > std::numeric_limits<K>::max() - 1)
-        {
-            throw std::runtime_error("tree(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
-        }
-
         // Set the tree depth
         optimize_depth(shapes);
 
@@ -493,14 +494,29 @@ class tree
         // Rebuild the tree after changing the contents
         build(_root, _depth);
     }
+    inline void insert(const std::vector<shape<T, vec>> &shapes, const K depth)
+    {
+        // Set the depth
+        _depth = depth;
+
+        // Set the tree cell extent 2^depth
+        _scale = 0x1 << _depth;
+        _cell_extent = _root.get_cell().get_extent() / _scale;
+
+        // Sort shapes by grid key id
+        sort(shapes);
+
+        // Clear out the root node
+        _root.clear();
+
+        // Create box keys
+        create_keys();
+
+        // Rebuild the tree after changing the contents
+        build(_root, _depth);
+    }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
-        // Check size of the number of objects to insert into grid
-        if (shapes.size() > std::numeric_limits<K>::max() - 1)
-        {
-            throw std::runtime_error("tree(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
-        }
-
         // Set the tree depth
         optimize_depth(shapes);
 
@@ -520,7 +536,7 @@ class tree
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
         // Get the keys on the leaf node
-        return this->get_node(point).get_keys();
+        return get_node(point).get_keys();
     }
     inline void set_depth(const K depth)
     {

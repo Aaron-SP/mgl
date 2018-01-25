@@ -226,10 +226,10 @@ class grid
             // Calculate the scale
             // to be the world cell extent / max object extent
             // Calculate 2^n, (28.284/8.48) == 4, 2^4 = 16
-            _scale = 0x1 << (K)std::ceil(std::log2(d2 / max));
+            _scale = 0x1 << static_cast<K>(std::ceil(std::log2(d2 / max)));
 
             // Optimize the grid scale if there are two many items
-            _scale = std::min(_scale, (K)std::ceil(std::cbrt(size)));
+            _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
 
             // Set the grid cell extent
             _cell_extent = _root.get_extent() / _scale;
@@ -265,27 +265,26 @@ class grid
     }
 
   public:
-    grid(const cell<T, vec> &c) : _root(c), _scale(0), _flag_size(0)
-    {
-        // Check that the grid max >= min
-        const vec<T> &min = _root.get_min();
-        const vec<T> &max = _root.get_max();
-        if (min >= max)
-        {
-            throw std::runtime_error("grid(): invalid grid dimensions");
-        }
-    }
+    grid(const cell<T, vec> &c) : _root(c), _scale(0), _flag_size(0) {}
     inline const grid_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
     {
         // This function computes the grid location code
-        const size_t key = this->get_key(point);
+        const size_t key = get_key(point);
 
         // Return the cell node
         return _cells[key];
     }
-    inline const std::vector<shape<T, vec>> &get_shapes()
+    inline void resize(const cell<T, vec> &c)
     {
-        return _shapes;
+        _root = c;
+    }
+    inline void check_size(const std::vector<shape<T, vec>> &shapes) const
+    {
+        // Check size of the number of objects to insert into grid
+        if (shapes.size() > std::numeric_limits<K>::max() - 1)
+        {
+            throw std::runtime_error("grid: too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
+        }
     }
     inline const std::vector<std::pair<K, K>> &get_collisions() const
     {
@@ -378,14 +377,12 @@ class grid
     {
         return _scale;
     }
+    inline const std::vector<shape<T, vec>> &get_shapes()
+    {
+        return _shapes;
+    }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
-        // Check size of the number of objects to insert into grid
-        if (shapes.size() > std::numeric_limits<K>::max() - 1)
-        {
-            throw std::runtime_error("grid.insert(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
-        }
-
         // Set the grid scale
         set_scale(shapes);
 
@@ -395,14 +392,22 @@ class grid
         // Rebuild the grid after changing the contents
         build();
     }
+    inline void insert(const std::vector<shape<T, vec>> &shapes, const K scale)
+    {
+        // Set the grid scale
+        _scale = scale;
+
+        // Set the grid cell extent
+        _cell_extent = _root.get_extent() / _scale;
+
+        // Sort the shape array and store copy
+        sort(shapes);
+
+        // Rebuild the grid after changing the contents
+        build();
+    }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
-        // Check size of the number of objects to insert into grid
-        if (shapes.size() > std::numeric_limits<K>::max() - 1)
-        {
-            throw std::runtime_error("grid.insert(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
-        }
-
         // Set the grid scale
         set_scale(shapes);
 
@@ -416,7 +421,7 @@ class grid
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
         // Get the keys on the cell node
-        return this->get_node(point).get_keys();
+        return get_node(point).get_keys();
     }
 };
 }

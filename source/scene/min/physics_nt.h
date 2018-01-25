@@ -47,6 +47,16 @@ limitations under the License.
 namespace min
 {
 
+union body_data {
+    size_t index;
+    void *ptr;
+    int32_t sign;
+    body_data() : ptr(nullptr) {}
+    body_data(const size_t i) : index(i) {}
+    body_data(void *const p) : ptr(p) {}
+    body_data(const int32_t i) : sign(i) {}
+};
+
 template <typename T, template <typename> class vec, class angular, template <typename> class rot>
 class body_base
 {
@@ -59,13 +69,14 @@ class body_base
     T _mass;
     T _inv_mass;
     size_t _id;
+    body_data _data;
     bool _dead;
 
   public:
-    body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const size_t id)
+    body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const size_t id, const body_data data)
         : _force(gravity * mass), _position(center), _angular_velocity{},
           _mass(mass), _inv_mass(1.0 / mass),
-          _id(id), _dead(false) {}
+          _id(id), _data(data), _dead(false) {}
 
     inline void add_force(const vec<T> &force)
     {
@@ -91,6 +102,10 @@ class body_base
     inline const angular &get_angular_velocity() const
     {
         return _angular_velocity;
+    }
+    inline body_data get_data() const
+    {
+        return _data;
     }
     inline size_t get_id() const
     {
@@ -132,6 +147,10 @@ class body_base
     inline void set_angular_velocity(const angular w)
     {
         _angular_velocity = w;
+    }
+    inline void set_data(const body_data data)
+    {
+        _data = data;
     }
     inline void set_linear_velocity(const vec<T> &v)
     {
@@ -181,8 +200,8 @@ class body<T, vec2> : public body_base<T, vec2, T, mat2>
     std::function<void(body<T, vec2> &, body<T, vec2> &)> _f;
 
   public:
-    body(const vec2<T> &center, const vec2<T> &gravity, const T mass, const size_t id)
-        : body_base<T, vec2, T, mat2>(center, gravity, mass, id), _f(nullptr) {}
+    body(const vec2<T> &center, const vec2<T> &gravity, const T mass, const size_t id, const body_data data)
+        : body_base<T, vec2, T, mat2>(center, gravity, mass, id, data), _f(nullptr) {}
 
     inline void callback(body<T, vec2> &b2)
     {
@@ -217,8 +236,8 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
     std::function<void(body<T, vec3> &, body<T, vec3> &)> _f;
 
   public:
-    body(const vec3<T> &center, const vec3<T> &gravity, const T mass, const size_t id)
-        : body_base<T, vec3, vec3<T>, quat>(center, gravity, mass, id), _f(nullptr) {}
+    body(const vec3<T> &center, const vec3<T> &gravity, const T mass, const size_t id, const body_data data)
+        : body_base<T, vec3, vec3<T>, quat>(center, gravity, mass, id, data), _f(nullptr) {}
 
     inline void callback(body<T, vec3> &b2)
     {
@@ -268,8 +287,8 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
     std::function<void(body<T, vec4> &, body<T, vec4> &)> _f;
 
   public:
-    body(const vec4<T> &center, const vec4<T> &gravity, const T mass, const size_t id)
-        : body_base<T, vec4, vec4<T>, quat>(center, gravity, mass, id), _f(nullptr) {}
+    body(const vec4<T> &center, const vec4<T> &gravity, const T mass, const size_t id, const body_data data)
+        : body_base<T, vec4, vec4<T>, quat>(center, gravity, mass, id, data), _f(nullptr) {}
 
     inline void callback(body<T, vec4> &b2)
     {
@@ -577,7 +596,7 @@ class physics
           _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
           _gravity(gravity), _elasticity(1.0), _clean(true) {}
 
-    inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t id = 0)
+    inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t id = 0, const body_data data = nullptr)
     {
         // If bodies can be recycled
         if (_dead.size() > 0)
@@ -596,7 +615,7 @@ class physics
             _shapes[index] = s;
 
             // Recycle body
-            _bodies[index] = body<T, vec>(s.get_center(), _gravity, mass, id);
+            _bodies[index] = body<T, vec>(s.get_center(), _gravity, mass, id, data);
 
             // Return recycled index
             return index;
@@ -606,7 +625,7 @@ class physics
         _shapes.push_back(s);
 
         // Create rigid body for this shape
-        _bodies.emplace_back(s.get_center(), _gravity, mass, id);
+        _bodies.emplace_back(s.get_center(), _gravity, mass, id, data);
 
         // return the body id
         return _bodies.size() - 1;
