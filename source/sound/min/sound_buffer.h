@@ -260,7 +260,15 @@ class sound_buffer
     inline bool check_error() const
     {
         const ALCenum error = alcGetError(_device);
-        return error != AL_NO_ERROR;
+
+        // Check for error and print to stdout
+        const bool ret = error != AL_NO_ERROR;
+        if (ret)
+        {
+            std::cout << "OpenAL Error: " << std::to_string(error) << std::endl;
+        }
+
+        return ret;
     }
     inline void check_internal_error() const
     {

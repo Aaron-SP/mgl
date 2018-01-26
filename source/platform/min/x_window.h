@@ -37,7 +37,15 @@ void window_error(const std::string &error)
 bool check_gl_error()
 {
     const GLenum error = glGetError();
-    return error != GL_NO_ERROR;
+
+    // Check for error and print to stdout
+    const bool ret = error != GL_NO_ERROR;
+    if (ret)
+    {
+        std::cout << "OpenGL Error: " << std::to_string(error) << std::endl;
+    }
+
+    return ret;
 }
 
 void check_internal_error()
