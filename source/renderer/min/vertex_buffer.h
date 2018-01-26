@@ -386,10 +386,14 @@ class vertex_buffer
     }
     inline void draw_many(const GLenum mode, const size_t index, const size_t count) const
     {
-        // Draw 'count' times objects at index 'n'
-        const auto &n = _element_index[_index][index];
-        const size_t byte_offset = n.second * sizeof(K);
-        glDrawElementsInstanced(mode, n.first, INT_TYPE, (GLvoid *)byte_offset, count);
+        // Intel drivers don't like zero instanced draw calls!
+        if (count > 0)
+        {
+            // Draw 'count' times objects at index 'n'
+            const auto &n = _element_index[_index][index];
+            const size_t byte_offset = n.second * sizeof(K);
+            glDrawElementsInstanced(mode, n.first, INT_TYPE, (GLvoid *)byte_offset, count);
+        }
     }
     inline void reserve(const size_t vertex, const size_t index, const size_t meshes)
     {
