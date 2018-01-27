@@ -381,6 +381,10 @@ class grid
     {
         return _shapes;
     }
+    bool inside(const vec<T> &point) const
+    {
+        return _root.point_inside(point);
+    }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
         // Set the grid scale
