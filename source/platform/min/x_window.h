@@ -482,6 +482,10 @@ class x_window
             XUndefineCursor(_display, _window);
         }
     }
+    const char *get_context_string(const GLenum str) const
+    {
+        return reinterpret_cast<const char *>(glGetString(str));
+    }
     std::pair<uint16_t, uint16_t> get_cursor() const
     {
         int x, y;
