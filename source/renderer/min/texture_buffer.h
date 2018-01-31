@@ -32,6 +32,16 @@ class texture_buffer
     std::vector<GLuint> _ids;
     size_t _max_size;
 
+    inline void check_extensions() const
+    {
+        const bool fbo = GLEW_ARB_framebuffer_object;
+
+        // Check that we have the extensions we need
+        if (!fbo)
+        {
+            throw std::runtime_error("texture_buffer: minimum extensions not met");
+        }
+    }
     void check_texture_size(const uint32_t width, const uint32_t height)
     {
         // Check the texture size versus the maximum supported by hardware
@@ -75,7 +85,11 @@ class texture_buffer
     }
 
   public:
-    texture_buffer() : _max_size(get_max_texture_size()) {}
+    texture_buffer() : _max_size(get_max_texture_size())
+    {
+        // Check that all needed extensions are present
+        check_extensions();
+    }
     ~texture_buffer()
     {
         auto size = _ids.size();

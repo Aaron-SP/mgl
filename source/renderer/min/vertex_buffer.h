@@ -39,6 +39,28 @@ class vertex_buffer
     std::vector<GLuint> _ibo;
     mutable size_t _index;
 
+    inline void check_extensions() const
+    {
+        const bool vao = GLEW_ARB_vertex_array_object;
+        const bool vbo = GLEW_ARB_vertex_buffer_object;
+        const bool inst = GLEW_ARB_draw_instanced;
+        const bool eal = GLEW_ARB_explicit_attrib_location;
+
+        // Check that we have the extensions we need
+        if (!vao || !vbo || !inst || !eal)
+        {
+            throw std::runtime_error("vertex_buffer: minimum extensions not met");
+        }
+
+#ifdef MGL_VB43
+        // Check extensions
+        const bool ab = GLEW_ARB_vertex_attrib_binding;
+        if (!ab)
+        {
+            throw std::runtime_error("vertex_buffer: minimum extensions not met");
+        }
+#endif
+    }
     void push_back_mesh(const mesh<T, K> &m)
     {
         // Verify vertex attribute size
@@ -254,6 +276,9 @@ class vertex_buffer
         {
             throw std::runtime_error("vertex_buffer: can't allocate zero dimensional vertex_buffer, check constructor");
         }
+
+        // Check that all needed extensions are present
+        check_extensions();
 
         // Generate the VAO for this vertex layout
         glGenVertexArrays(1, &_vao);

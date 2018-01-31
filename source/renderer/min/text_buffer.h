@@ -117,6 +117,17 @@ class text_buffer
         // Do not call this function often as it is unneeded context switching
         glBindVertexArray(_vao);
     }
+    inline void check_extensions() const
+    {
+        const bool vao = GLEW_ARB_vertex_array_object;
+        const bool vbo = GLEW_ARB_vertex_buffer_object;
+
+        // Check that we have the extensions we need
+        if (!vao || !vbo)
+        {
+            throw std::runtime_error("text_buffer: minimum extensions not met");
+        }
+    }
     void create_vertex_buffer()
     {
         // Generate the VAO for text layout
@@ -397,6 +408,9 @@ class text_buffer
   public:
     text_buffer(const std::string &file, const int font_height) : _w(0), _h(0), _char_count(0), _screen_x(0.0), _screen_y(0.0)
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Initialize the FreeType library
         FT_Library lib;
         if (FT_Init_FreeType(&lib))

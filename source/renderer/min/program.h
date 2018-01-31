@@ -28,6 +28,17 @@ class program
   private:
     GLuint _id;
 
+    inline void check_extensions() const
+    {
+        const bool vp = GLEW_ARB_vertex_program;
+        const bool fp = GLEW_ARB_fragment_program;
+
+        // Check that we have the extensions we need
+        if (!vp || !fp)
+        {
+            throw std::runtime_error("program: minimum extensions not met");
+        }
+    }
     inline void create_program()
     {
         // Create program ID
@@ -81,6 +92,9 @@ class program
   public:
     program(const shader &vertex, const shader &fragment)
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Create program id
         create_program();
 
@@ -97,6 +111,9 @@ class program
     }
     program(const std::vector<GLuint> &shaders)
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Create program id
         create_program();
 

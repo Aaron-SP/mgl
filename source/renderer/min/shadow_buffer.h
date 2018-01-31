@@ -39,6 +39,16 @@ class shadow_buffer
     float _v_near;
     float _v_far;
 
+    inline void check_extensions() const
+    {
+        const bool fbo = GLEW_ARB_framebuffer_object;
+
+        // Check that we have the extensions we need
+        if (!fbo)
+        {
+            throw std::runtime_error("shadow_buffer: minimum extensions not met");
+        }
+    }
     inline void set_light_view(const vec3<float> &eye, const vec3<float> &look, const vec3<float> &up)
     {
         // forward: look - eye
@@ -83,6 +93,9 @@ class shadow_buffer
           _v_width(2), _v_height(2), _v_near(0.1), _v_far(200.0)
 
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Generate the shadow frame buffer
         glGenFramebuffers(1, &_id);
 

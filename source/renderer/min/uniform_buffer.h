@@ -58,6 +58,16 @@ class uniform_buffer
     GLint _matrix_offsets[2];
     GLint _vector_offsets[2];
 
+    inline void check_extensions() const
+    {
+        const bool ubo = GLEW_ARB_uniform_buffer_object;
+
+        // Check that we have the extensions we need
+        if (!ubo)
+        {
+            throw std::runtime_error("uniform_buffer: minimum extensions not met");
+        }
+    }
     inline size_t get_light_bytes() const
     {
         return _max_lights * sizeof_light + size_bytes;
@@ -343,7 +353,11 @@ class uniform_buffer
   public:
     uniform_buffer()
         : _max_lights(0), _max_matrix(0), _max_vector(0),
-          _light_offsets{0, 0}, _matrix_offsets{0, 0}, _vector_offsets{0, 0} {}
+          _light_offsets{0, 0}, _matrix_offsets{0, 0}, _vector_offsets{0, 0}
+    {
+        // Check that all needed extensions are present
+        check_extensions();
+    }
 
     uniform_buffer(const uint32_t light_size, const uint32_t matrix_size, const uint32_t vector_size)
         : _max_lights(light_size), _max_matrix(matrix_size), _max_vector(vector_size),
@@ -351,6 +365,9 @@ class uniform_buffer
           _matrix_offsets{0, static_cast<GLint>(get_matrix_bytes() - size_bytes)},
           _vector_offsets{0, static_cast<GLint>(get_vector_bytes() - size_bytes)}
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Load light and matrix buffers
         load_buffers();
     }

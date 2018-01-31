@@ -65,6 +65,17 @@ class emitter_buffer
     std::vector<vec3<T>> _speed;
     std::vector<std::pair<vec3<T>, T>> _attractors;
 
+    inline void check_extensions() const
+    {
+        const bool vao = GLEW_ARB_vertex_array_object;
+        const bool vbo = GLEW_ARB_vertex_buffer_object;
+
+        // Check that we have the extensions we need
+        if (!vao || !vbo)
+        {
+            throw std::runtime_error("emitter_buffer: minimum extensions not met");
+        }
+    }
     inline vec3<T> compute_force(const vec3<T> &position, const vec3<T> &speed)
     {
         vec3<T> attract;
@@ -116,6 +127,9 @@ class emitter_buffer
           _rot_axis(vec3<T>::up()), _grav_force(0.0, -9.8, 0.0), _start_pos(position), _start_speed(0.0, 10.0, 0.0),
           _dist(-_random, _random), _position(emit_count * emit_periods), _speed(_position.size())
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
         // Generate the VAO for this vertex layout
         glGenVertexArrays(1, &_vao);
 

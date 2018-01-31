@@ -29,6 +29,19 @@ class shader
     GLuint _id;
     GLenum _type;
 
+    inline void check_extensions() const
+    {
+        const bool vs = GLEW_ARB_vertex_shader;
+        const bool fs = GLEW_ARB_fragment_shader;
+        const bool gs = GLEW_ARB_geometry_shader4;
+        //const bool ts = GLEW_ARB_tessellation_shader;
+
+        // Check that we have the extensions we need
+        if (!vs || !fs || !gs)
+        {
+            throw std::runtime_error("shader: minimum extensions not met");
+        }
+    }
     inline void load_file(const std::string path, const GLenum type)
     {
         std::ifstream file(path, std::ios::in | std::ios::binary | std::ios::ate);
@@ -115,10 +128,18 @@ class shader
   public:
     shader(const std::string &path, const GLenum type) : _id(0), _type(type)
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
+        // Load shader file
         load_file(path, type);
     }
     shader(const mem_file &mem, const GLenum type) : _id(0), _type(type)
     {
+        // Check that all needed extensions are present
+        check_extensions();
+
+        // Load shader file
         load(mem.to_string(), type);
     }
     ~shader()
