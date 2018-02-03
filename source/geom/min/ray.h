@@ -15,6 +15,8 @@ limitations under the License.
 #ifndef __RAY__
 #define __RAY__
 
+#include <min/utility.h>
+
 namespace min
 {
 
@@ -35,6 +37,24 @@ class ray
 
         // If ray is axis aligned, element will be MAX(T)
         _inv = _dir.inverse_safe();
+    }
+    inline T set(const vec<T> &from, const vec<T> &to)
+    {
+        _origin = from;
+
+        // Calculate the direction vector
+        const min::vec3<float> dir = to - from;
+        const T length = dir.magnitude();
+        const T inv_len = 1.0 / length;
+
+        // Normalize
+        if (length > var<T>::TOL_REL)
+        {
+            _dir = dir * inv_len;
+            _inv = _dir.inverse_safe();
+        }
+
+        return length;
     }
     inline const vec<T> &get_origin() const { return _origin; }
     inline const vec<T> &get_direction() const { return _dir; }

@@ -16,6 +16,7 @@ limitations under the License.
 #define __SETTINGS__
 
 #include <min/window.h>
+#include <stdexcept>
 #include <string>
 
 namespace min
@@ -42,6 +43,17 @@ class settings
         // Enable blending for rendering text
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    static void enable_gamma_correction()
+    {
+        if (GLEW_ARB_framebuffer_sRGB)
+        {
+            glEnable(GL_FRAMEBUFFER_SRGB);
+        }
+        else
+        {
+            throw std::runtime_error("settings: SRGB framebuffer not supported");
+        }
     }
 };
 }

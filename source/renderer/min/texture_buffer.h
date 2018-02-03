@@ -35,9 +35,11 @@ class texture_buffer
     inline void check_extensions() const
     {
         const bool fbo = GLEW_ARB_framebuffer_object;
+        const bool s3tc = GLEW_EXT_texture_compression_s3tc;
+        const bool srgb = GLEW_EXT_texture_sRGB;
 
         // Check that we have the extensions we need
-        if (!fbo)
+        if (!fbo || !s3tc || !srgb)
         {
             throw std::runtime_error("texture_buffer: minimum extensions not met");
         }
@@ -103,7 +105,7 @@ class texture_buffer
         check_internal_error();
     }
     texture_buffer(const texture_buffer &tb) = delete;
-    GLuint add_bmp_texture(const bmp &b)
+    GLuint add_bmp_texture(const bmp &b, const bool srgb = false)
     {
         // Extracted input image data
         const uint32_t width = b.get_width();
@@ -132,13 +134,27 @@ class texture_buffer
                 throw std::runtime_error("texture_buffer: BMP is not 4 byte aligned");
             }
 
-            // bitmap is stored in GL_BGR8 which is the target for this function
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
+            // If gamma correcting texture
+            if (srgb)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
         }
         else if (pixel_size == 4)
         {
-            // bitmap is stored in GL_RGBA8 which is the target for this function
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &pixels[0]);
+            // If gamma correcting texture
+            if (srgb)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &pixels[0]);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &pixels[0]);
+            }
         }
         else
         {
@@ -151,7 +167,7 @@ class texture_buffer
         // Return the id for this texture
         return id[0];
     }
-    GLuint add_dds_texture(const dds &d)
+    GLuint add_dds_texture(const dds &d, const bool srgb = false)
     {
         // Extracted input image data
         const uint32_t width = d.get_width();
@@ -173,10 +189,18 @@ class texture_buffer
         glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
         // Figure out the type of compression based on the DDS format
-        uint32_t type;
+        GLenum type;
         if (format == dds::DXT1)
         {
-            type = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+            // If gamma correcting texture
+            if (srgb)
+            {
+                type = GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
+            }
+            else
+            {
+                type = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+            }
 
             // If image row is not aligned by 4 bytes throw error, this could cause texture distortion
             if (width % 4 != 0)
@@ -186,11 +210,27 @@ class texture_buffer
         }
         else if (format == dds::DXT3)
         {
-            type = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            // If gamma correcting texture
+            if (srgb)
+            {
+                type = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+            }
+            else
+            {
+                type = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+            }
         }
         else if (format == dds::DXT5)
         {
-            type = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            // If gamma correcting texture
+            if (srgb)
+            {
+                type = GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+            }
+            else
+            {
+                type = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+            }
         }
         else
         {
