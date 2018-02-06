@@ -101,7 +101,7 @@ class character
         _texture_buffer.set_texture_uniform(_prog, "in_texture", 1);
 
         // Load texture buffer
-        _bmp_id = _texture_buffer.add_bmp_texture(b);
+        _bmp_id = _texture_buffer.add_bmp_texture(b, true);
     }
     void load_uniforms()
     {
@@ -330,13 +330,13 @@ class physics_test
         const min::bmp box = min::bmp("data/texture/art_cube.bmp");
 
         // Load texture buffer
-        _base_id = _tbuffer.add_bmp_texture(base);
-        _box_id = _tbuffer.add_bmp_texture(box);
+        _base_id = _tbuffer.add_bmp_texture(base, true);
+        _box_id = _tbuffer.add_bmp_texture(box, true);
     }
     void load_physics_entities()
     {
         // Load light into uniform buffer
-        min::vec4<float> light_color(1.0, 0.0, 0.0, 1.0);
+        min::vec4<float> light_color(1.0, 0.75, 0.0, 1.0);
         min::vec4<float> light_position(0.0, 20.0, 0.0, 1.0);
         min::vec4<float> light_power(0.1, 100.0, 1.0, 1.0);
         _ubuffer.add_light(min::light<float>(light_color, light_position, light_power));
@@ -484,6 +484,9 @@ class physics_test
     {
         // Set depth and cull settings
         min::settings::initialize();
+
+        // Enable gamma correction
+        min::settings::enable_gamma_correction();
 
         // Load the keyboard callbacks and settings
         load_keyboard();

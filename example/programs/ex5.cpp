@@ -129,7 +129,7 @@ class md5_render_loop_test
         _texture_buffer.set_texture_uniform(_vert_prog, "in_texture", 0);
 
         // Load texture buffer
-        _bmp_id = _texture_buffer.add_bmp_texture(b);
+        _bmp_id = _texture_buffer.add_bmp_texture(b, true);
 
         // Load text
         // Set the texture channel for this program, we need to do this here because we render text on channel '1'
@@ -192,6 +192,9 @@ class md5_render_loop_test
     {
         // Set depth, cull and blend settings
         min::settings::initialize();
+
+        // Enable gamma correction
+        min::settings::enable_gamma_correction();
 
         // Set the screen size
         _text_buffer.set_screen(_win.get_width(), _win.get_height());
