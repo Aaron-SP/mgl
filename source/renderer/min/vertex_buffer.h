@@ -398,7 +398,11 @@ class vertex_buffer
     inline void draw_all(const GLenum mode) const
     {
         // Draw all objects in the static buffer
-        glDrawElements(mode, _element[_index].size(), INT_TYPE, nullptr);
+        const size_t draw_size = _element[_index].size();
+        if (draw_size > 0)
+        {
+            glDrawElements(mode, draw_size, INT_TYPE, nullptr);
+        }
     }
     inline void draw_all_after(const GLenum mode, const size_t index) const
     {

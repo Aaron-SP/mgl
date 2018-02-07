@@ -211,7 +211,10 @@ class emitter_buffer
     inline void draw() const
     {
         // Draw all objects in the static buffer
-        glDrawArrays(GL_POINTS, 0, _emit_pool_size);
+        if (_emit_pool_size > 0)
+        {
+            glDrawArrays(GL_POINTS, 0, _emit_pool_size);
+        }
     }
     inline vec3<T> random()
     {
