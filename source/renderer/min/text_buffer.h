@@ -631,6 +631,10 @@ class text_buffer
         // Set the text location
         set_text_location(index, x, y);
     }
+    void size() const
+    {
+        return _text.size();
+    }
     void upload() const
     {
         // Get the number of strings to render

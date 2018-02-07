@@ -374,6 +374,7 @@ class physics
 
         // Do the collision callback function
         b1.callback(b2);
+        b2.callback(b1);
 
         // Solve linear and angular momentum conservation equations
         solve_energy_conservation(b1, b2, collision_normal, intersection);
