@@ -631,7 +631,7 @@ class text_buffer
         // Set the text location
         set_text_location(index, x, y);
     }
-    void size() const
+    inline size_t size() const
     {
         return _text.size();
     }
