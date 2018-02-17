@@ -287,6 +287,7 @@ class text_buffer
         // For all characters in string
         float x = 0.0;
         float y = 0.0;
+        float y_out = 0.0;
         float x_out = 0.0;
         for (const auto &ch : t.str())
         {
@@ -296,27 +297,31 @@ class text_buffer
 
             // Advance the cursor to the start of the next character
             x += c.adv_x;
-            y += c.adv_y;
 
-            // Check line wrap settings
-            if (x > lwx)
+            // Get largest character on this line
+            y = std::max(y, c.height);
+
+            // Check line wrap settings and break on space
+            if (x > lwx && ch == ' ')
             {
                 // Get the maximum x dimension
                 x_out = std::max(x, x_out);
 
-                // Reset x coord
-                x = 0.0;
-
                 // Adjust vertical position downward
-                y += lwy;
+                y_out += (y + (y - lwy));
+
+                // Reset x/y coord
+                x = 0.0;
+                y = 0.0;
             }
         }
 
-        // Get the maximum x dimension
+        // Get the maximum x/y dimension
         x_out = std::max(x, x_out);
+        y_out = std::max(y, y_out);
 
         // Return the size of the text in a box
-        return vec2<float>(x_out, y);
+        return vec2<float>(x_out, y_out);
     }
     void process_text(const text &t) const
     {
@@ -354,8 +359,8 @@ class text_buffer
             x0 += c.adv_x * scale_x;
             y0 -= c.adv_y * scale_y;
 
-            // Check line wrap settings
-            if (x0 > lwx)
+            // Check line wrap settings and break on space
+            if (x0 > lwx && ch == ' ')
             {
                 // Reset x coord
                 x0 = 0.0;
@@ -552,6 +557,10 @@ class text_buffer
     inline const vec2<float> get_text_location(const size_t index) const
     {
         return to_pixel_coords(_text[index].location());
+    }
+    inline void reserve(const size_t size)
+    {
+        _text.reserve(size);
     }
     inline void set_texture_uniform(const program &program, const std::string &name, const size_t layer) const
     {
