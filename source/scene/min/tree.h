@@ -103,9 +103,9 @@ class tree
 {
   private:
     std::vector<shape<T, vec>> _shapes;
-    std::vector<size_t> _index_map;
+    std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
-    std::vector<size_t> _sort_copy;
+    std::vector<K> _sort_copy;
     std::vector<uint8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
@@ -358,7 +358,7 @@ class tree
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on tree key
-        uint_sort<size_t>(_index_map, _sort_copy, [this](const size_t a) {
+        uint_sort<K>(_index_map, _sort_copy, [this](const K a) {
             return this->_key_cache[a];
         });
 
@@ -473,7 +473,7 @@ class tree
     {
         return _depth;
     }
-    inline const std::vector<size_t> &get_index_map() const
+    inline const std::vector<K> &get_index_map() const
     {
         return _index_map;
     }

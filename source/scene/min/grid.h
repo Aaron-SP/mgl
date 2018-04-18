@@ -85,9 +85,9 @@ class grid
   private:
     std::vector<shape<T, vec>> _shapes;
     std::vector<grid_node<T, K, L, vec, cell, shape>> _cells;
-    std::vector<size_t> _index_map;
+    std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
-    std::vector<size_t> _sort_copy;
+    std::vector<K> _sort_copy;
     std::vector<size_t> _grid_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
@@ -251,7 +251,7 @@ class grid
 
         // use uint radix sort for sorting keys
         // lambda function to create sorted array indices based on grid key
-        uint_sort<size_t>(_index_map, _sort_copy, [this](const size_t a) {
+        uint_sort<K>(_index_map, _sort_copy, [this](const K a) {
             return this->_key_cache[a];
         });
 
@@ -346,7 +346,7 @@ class grid
         // Get the grid cell of ray origin
         auto grid_index = vec<T>::grid_index(_root.get_min(), _cell_extent, r.get_origin());
 
-        // while we didn't hit anything in the grid
+        // While we didn't hit anything in the grid
         bool bad_flag = false;
         while (_ray_hits.size() == 0 && !bad_flag)
         {
@@ -369,7 +369,7 @@ class grid
         // Return the collision list
         return _ray_hits;
     }
-    inline const std::vector<size_t> &get_index_map() const
+    inline const std::vector<K> &get_index_map() const
     {
         return _index_map;
     }

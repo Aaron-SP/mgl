@@ -343,8 +343,8 @@ class text_buffer
         // For all characters in string
         for (const auto &ch : t.str())
         {
-            // get the character data
-            const unsigned index = ch;
+            // Get the character data
+            const unsigned index = (ch != '_') ? ch : ' ';
             const char_data &c = _chars[index];
 
             // Get glyph dimensions, in screen coordinates
@@ -359,8 +359,8 @@ class text_buffer
             x0 += c.adv_x * scale_x;
             y0 -= c.adv_y * scale_y;
 
-            // Check line wrap settings and break on space
-            if (x0 > lwx && ch == ' ')
+            // Check line wrap settings and break on space or underscore
+            if ((x0 > lwx && ch == ' ') || ch == '_')
             {
                 // Reset x coord
                 x0 = 0.0;

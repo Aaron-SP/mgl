@@ -50,11 +50,11 @@ bool test_md5_mesh()
 
     // Test the mesh count
     out = out && compare(1, mech_md5.get_meshes().size());
-    out = out && compare(1862, mech_md5.get_meshes()[0].vertex.size());
-    out = out && compare(1862, mech_md5.get_meshes()[0].uv.size());
-    out = out && compare(8334, mech_md5.get_meshes()[0].index.size());
-    out = out && compare(1862, mech_md5.get_meshes()[0].bone_index.size());
-    out = out && compare(1862, mech_md5.get_meshes()[0].bone_weight.size());
+    out = out && compare(1516, mech_md5.get_meshes()[0].vertex.size());
+    out = out && compare(1516, mech_md5.get_meshes()[0].uv.size());
+    out = out && compare(5856, mech_md5.get_meshes()[0].index.size());
+    out = out && compare(1516, mech_md5.get_meshes()[0].bone_index.size());
+    out = out && compare(1516, mech_md5.get_meshes()[0].bone_weight.size());
     if (!out)
     {
         throw std::runtime_error("Failed mech_md5 load mesh");

@@ -671,6 +671,14 @@ class physics
     {
         return _bodies;
     }
+    inline const std::vector<std::pair<K, vec<T>>> &get_collisions(const ray<T, vec> &r) const
+    {
+        return _spatial.get_collisions(r);
+    }
+    inline const std::vector<K> &get_index_map() const
+    {
+        return _spatial.get_index_map();
+    }
     inline const shape<T, vec> &get_shape(const size_t index) const
     {
         return _shapes[index];
@@ -725,7 +733,7 @@ class physics
             _spatial.insert(_shapes);
 
             // Get the index map for reordering
-            const std::vector<size_t> &map = _spatial.get_index_map();
+            const std::vector<K> &map = _spatial.get_index_map();
 
             // Determine intersecting shapes for contact resolution
             const std::vector<std::pair<K, K>> &collisions = _spatial.get_collisions();
