@@ -212,8 +212,37 @@ class win32_window
             // Get the window class
             window = reinterpret_cast<win32_window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-            // Send the key down event to the virtual keyboard
-            window->_keyboard.key_down(wParam, 0);
+            const UINT scan_code = (lParam & 0x00ff0000) >> 16;
+            const int ext = (lParam & 0x01000000) != 0;
+
+            switch (wParam)
+            {
+            case VK_SHIFT:
+                window->_keyboard.key_down(MapVirtualKey(scan_code, MAPVK_VSC_TO_VK_EX), 0);
+                break;
+            case VK_CONTROL:
+                if (ext)
+                {
+                    window->_keyboard.key_down(VK_RCONTROL, 0);
+                }
+                else
+                {
+                    window->_keyboard.key_down(VK_LCONTROL, 0);
+                }
+                break;
+            case VK_MENU:
+                if (ext)
+                {
+                    window->_keyboard.key_down(VK_RMENU, 0);
+                }
+                else
+                {
+                    window->_keyboard.key_down(VK_LMENU, 0);
+                }
+                break;
+            default:
+                window->_keyboard.key_down(wParam, 0);
+            }
             break;
         }
         case WM_SYSKEYUP:
@@ -222,8 +251,37 @@ class win32_window
             // Get the window class
             window = reinterpret_cast<win32_window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
-            // Send the key down event to the virtual keyboard
-            window->_keyboard.key_up(wParam, 0);
+            const UINT scan_code = (lParam & 0x00ff0000) >> 16;
+            const int ext = (lParam & 0x01000000) != 0;
+
+            switch (wParam)
+            {
+            case VK_SHIFT:
+                window->_keyboard.key_up(MapVirtualKey(scan_code, MAPVK_VSC_TO_VK_EX), 0);
+                break;
+            case VK_CONTROL:
+                if (ext)
+                {
+                    window->_keyboard.key_up(VK_RCONTROL, 0);
+                }
+                else
+                {
+                    window->_keyboard.key_up(VK_LCONTROL, 0);
+                }
+                break;
+            case VK_MENU:
+                if (ext)
+                {
+                    window->_keyboard.key_up(VK_RMENU, 0);
+                }
+                else
+                {
+                    window->_keyboard.key_up(VK_LMENU, 0);
+                }
+                break;
+            default:
+                window->_keyboard.key_up(wParam, 0);
+            }
             break;
         }
         case WM_LBUTTONDOWN:
