@@ -111,6 +111,8 @@ class tree
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     tree_node<T, K, L, vec, cell, shape> _root;
+    const vec<T> _lower_bound;
+    const vec<T> _upper_bound;
     K _depth;
     K _scale;
     vec<T> _cell_extent;
@@ -197,11 +199,7 @@ class tree
     }
     inline size_t get_sorting_key(const vec<T> &point) const
     {
-        if (!_root.get_cell().point_inside(point))
-        {
-            throw std::runtime_error("tree.get_sorting_key(): point is not inside the world cell");
-        }
-
+        // This must be guaranteed to be safe by callers
         // Use grid to sort all shapes in tree since it is a global identifier
         return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
     }
@@ -338,12 +336,6 @@ class tree
             vec<T>::subdivide_ray(keys, c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
             for (const size_t k : keys)
             {
-                // Check the calculated key value
-                if (k > 7 || k < 0)
-                {
-                    throw std::runtime_error("tree.get_ray_intersect(): invalid key location code calculated");
-                }
-
                 // If we haven't hit anything yet
                 if (_ray_hits.size() == 0)
                 {
@@ -419,7 +411,11 @@ class tree
     }
 
   public:
-    tree(const cell<T, vec> &c) : _root(c), _depth_override(false), _flag_size(0) {}
+    tree(const cell<T, vec> &c)
+        : _root(c),
+          _lower_bound(_root.get_cell().get_min() + var<T>::TOL_PHYS_EDGE),
+          _upper_bound(_root.get_cell().get_max() - var<T>::TOL_PHYS_EDGE),
+          _depth_override(false), _flag_size(0) {}
     inline void resize(const cell<T, vec> &c)
     {
         _root = c;
@@ -432,19 +428,26 @@ class tree
             throw std::runtime_error("tree(): too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
         }
     }
+    inline vec<T> clamp_bounds(const vec<T> &point) const
+    {
+        return vec<T>(point).clamp(_lower_bound, _upper_bound);
+    }
+    inline const vec<T> &get_lower_bound() const
+    {
+        return _lower_bound;
+    }
+    inline const vec<T> &get_upper_bound() const
+    {
+        return _upper_bound;
+    }
     inline const tree_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
     {
         // This function computes the octree key location code
         // for traversing the octree to the leaf nodes without needing to use recursion
 
+        // Calculate ratio between 0.0 and 1.0
         const vec<T> &min = _root.get_cell().get_min();
         const vec<T> &max = _root.get_cell().get_max();
-        if (!_root.get_cell().point_inside(point))
-        {
-            throw std::runtime_error("tree.get_node(): point is not inside the world cell");
-        }
-
-        // Calculate ratio between 0.0 and 1.0
         vec<T> ratio = vec<T>::ratio(min, max, point);
 
         // Start traversing at the root node
@@ -498,8 +501,11 @@ class tree
         _hits.clear();
         _hits.reserve(_shapes.size());
 
+        // Clamp point into world bounds
+        const vec<T> clamped = clamp_bounds(point);
+
         // get the node from the point
-        const tree_node<T, K, L, vec, cell, shape> &node = get_node(point);
+        const tree_node<T, K, L, vec, cell, shape> &node = get_node(clamped);
 
         // Get the intersecting pairs in this cell
         get_pairs(node);
@@ -513,7 +519,7 @@ class tree
         _ray_hits.clear();
         _ray_hits.reserve(_shapes.size());
 
-        // get shapes intersecting ray with early stop
+        // Get shapes intersecting ray with early stop
         get_ray_intersect(_root, r, _depth);
 
         // Return the collision list
@@ -608,8 +614,11 @@ class tree
     }
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
+        // Clamp point into world bounds
+        const vec<T> clamped = clamp_bounds(point);
+
         // Get the keys on the leaf node
-        return get_node(point).get_keys();
+        return get_node(clamped).get_keys();
     }
     inline void set_depth(const K depth)
     {

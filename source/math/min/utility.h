@@ -31,6 +31,7 @@ class var
     static constexpr T INV_SQRT2 = 0.707106781186547;
     static constexpr T SQRT3 = 1.73205080756888;
     static constexpr T INV_SQRT3 = 0.577350269189626;
+    static constexpr T TOL_PHYS_EDGE = 1.0;
     static constexpr T TOL_PONE = 1.0 - 1E-6;
     static constexpr T TOL_NONE = -1.0 + 1E-6;
     static constexpr T TOL_REL = 1E-6;

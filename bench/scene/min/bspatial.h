@@ -60,8 +60,8 @@ template <typename T, template <typename> class vec>
 constexpr const std::vector<min::aabbox<T, vec>> make_aabb_boxes(const size_t N)
 {
     // Local variables
-    const T low = -100000.0;
-    const T high = 100000.0;
+    const T low = -99999.999;
+    const T high = 99999.999;
     std::vector<min::aabbox<T, vec>> items;
     items.reserve(N);
 
@@ -94,8 +94,8 @@ template <typename T, template <typename> class vec>
 constexpr const std::vector<min::oobbox<T, vec>> make_oobb_boxes(const size_t N)
 {
     // Local variables
-    const T low = -100000.0;
-    const T high = 100000.0;
+    const T low = -99999.999;
+    const T high = 99999.999;
     std::vector<min::oobbox<T, vec>> items;
     items.reserve(N);
 
@@ -128,8 +128,8 @@ template <typename T, template <typename> class vec>
 constexpr const std::vector<min::sphere<T, vec>> make_spheres(const size_t N)
 {
     // Local variables
-    const T low = -100000.0;
-    const T high = 100000.0;
+    const T low = -99999.999;
+    const T high = 99999.999;
     const T factor = vec<T>::unit_length();
     std::vector<min::sphere<T, vec>> items;
     items.reserve(N);

@@ -397,8 +397,6 @@ class physics
     std::vector<shape<T, vec>> _shapes;
     std::vector<body<T, vec>> _bodies;
     std::vector<size_t> _dead;
-    vec<T> _lower_bound;
-    vec<T> _upper_bound;
     vec<T> _gravity;
     T _elasticity;
     bool _clean;
@@ -694,7 +692,7 @@ class physics
         const auto v_n1 = v_n + (vk1 + (vk2 * 2.0) + (vk3 * 2.0) + vk4) * dt6;
 
         // Update the body position at this timestep
-        b.update_position(v_n1, dt, _lower_bound, _upper_bound);
+        b.update_position(v_n1, dt, _spatial.get_lower_bound(), _spatial.get_upper_bound());
 
         // Update the body rotation at this timestep
         const auto abs_rotation = b.update_rotation(w_n1, dt);
@@ -723,12 +721,17 @@ class physics
   public:
     physics(const cell<T, vec> &world, const vec<T> &gravity)
         : _spatial(world),
-          _lower_bound(world.get_min() + vec<T>().set_all(1.0)),
-          _upper_bound(world.get_max() - vec<T>().set_all(1.0)),
           _gravity(gravity), _elasticity(1.0), _clean(true) {}
 
     inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t id = 0, const body_data data = nullptr)
     {
+        // Clamp the body to be inside the grid
+        const vec<T> center = clamp_bounds(s.get_center());
+
+        // Create new shape for simulation using clamped position
+        shape<T, vec> in_s(s);
+        in_s.set_position(center);
+
         // If bodies can be recycled
         if (_dead.size() > 0)
         {
@@ -743,23 +746,27 @@ class physics
             }
 
             // Recycle shape
-            _shapes[index] = s;
+            _shapes[index] = in_s;
 
             // Recycle body
-            _bodies[index] = body<T, vec>(s.get_center(), _gravity, mass, get_inertia(s, mass), id, data);
+            _bodies[index] = body<T, vec>(center, _gravity, mass, get_inertia(in_s, mass), id, data);
 
             // Return recycled index
             return index;
         }
 
         // Add shape to shape vector
-        _shapes.push_back(s);
+        _shapes.push_back(in_s);
 
         // Create rigid body for this shape
-        _bodies.emplace_back(s.get_center(), _gravity, mass, get_inertia(s, mass), id, data);
+        _bodies.emplace_back(center, _gravity, mass, get_inertia(in_s, mass), id, data);
 
         // return the body id
         return _bodies.size() - 1;
+    }
+    inline vec<T> clamp_bounds(const vec<T> &point) const
+    {
+        return _spatial.clamp_bounds(point);
     }
     inline void clear_body(const size_t index)
     {
@@ -926,7 +933,7 @@ class physics
             KE2 += m * v.dot(v);
 
             // Calculate the potential energy = -mgh
-            PE += m * _gravity.dot(_lower_bound - b.get_position());
+            PE += m * _gravity.dot(_spatial.get_lower_bound() - b.get_position());
 
             // Calculate the rotational energy
             const auto I = b.get_inertia();

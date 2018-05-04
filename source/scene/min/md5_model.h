@@ -69,20 +69,20 @@ class md5_model : public model<T, K, vec, bound>
 
   public:
     // This will steal data from provider
-    md5_model(md5_mesh<T, K> &&model)
-        : model<T, K, vec, bound>(std::move(model.get_meshes())), _current(0)
+    md5_model(md5_mesh<T, K> &&m)
+        : model<T, K, vec, bound>(std::move(m.get_meshes())), _current(0)
     {
         // Joints are thrown away after this
-        make_bind_pose(model.get_joints());
+        make_bind_pose(m.get_joints());
 
         // Check the mesh bone dimensions
         check_bones();
     }
-    md5_model(const md5_mesh<T, K> &model)
-        : model<T, K, vec, bound>(model.get_meshes()), _current(0)
+    md5_model(const md5_mesh<T, K> &m)
+        : model<T, K, vec, bound>(m.get_meshes()), _current(0)
     {
         // Joints are thrown away after this
-        make_bind_pose(model.get_joints());
+        make_bind_pose(m.get_joints());
 
         // Check the mesh bone dimensions
         check_bones();

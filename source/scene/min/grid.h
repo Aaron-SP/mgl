@@ -93,6 +93,8 @@ class grid
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     cell<T, vec> _root;
+    const vec<T> _lower_bound;
+    const vec<T> _upper_bound;
     K _scale;
     vec<T> _cell_extent;
     size_t _flag_size;
@@ -143,12 +145,7 @@ class grid
     }
     inline size_t get_key(const vec<T> &point) const
     {
-        // This will crash if point is not inside the world cell!
-        if (!_root.point_inside(point))
-        {
-            throw std::runtime_error("grid.get_key(): point is not inside the world cell");
-        }
-
+        // This must be guaranteed to be safe by callers
         return vec<T>::grid_key(_root.get_min(), _cell_extent, _scale, point);
     }
     inline void get_overlap(const size_t key) const
@@ -281,7 +278,24 @@ class grid
     }
 
   public:
-    grid(const cell<T, vec> &c) : _root(c), _scale(0), _flag_size(0) {}
+    grid(const cell<T, vec> &c)
+        : _root(c),
+          _lower_bound(_root.get_min() + var<T>::TOL_PHYS_EDGE),
+          _upper_bound(_root.get_max() - var<T>::TOL_PHYS_EDGE),
+          _scale(0), _flag_size(0) {}
+
+    inline vec<T> clamp_bounds(const vec<T> &point) const
+    {
+        return vec<T>(point).clamp(_lower_bound, _upper_bound);
+    }
+    inline const vec<T> &get_lower_bound() const
+    {
+        return _lower_bound;
+    }
+    inline const vec<T> &get_upper_bound() const
+    {
+        return _upper_bound;
+    }
     inline const grid_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
     {
         // This function computes the grid location code
@@ -325,12 +339,15 @@ class grid
         // Clear out the old collision sets and vectors
         _flags.clear();
 
+        // Clamp point into world bounds
+        const vec<T> clamped = clamp_bounds(point);
+
         // Output vector
         _hits.clear();
         _hits.reserve(_shapes.size());
 
         // get the cell from the point
-        const grid_node<T, K, L, vec, cell, shape> &node = get_node(point);
+        const grid_node<T, K, L, vec, cell, shape> &node = get_node(clamped);
 
         // Get the intersecting pairs in this cell
         get_pairs(node);
@@ -344,7 +361,7 @@ class grid
         _ray_hits.clear();
         _ray_hits.reserve(_shapes.size());
 
-        // get the cell from the ray origin
+        // Get the cell from the ray origin
         // this will check if ray originates within the grid
         const grid_node<T, K, L, vec, cell, shape> &node = get_node(r.get_origin());
 
@@ -417,8 +434,8 @@ class grid
         };
 
         // Clamp overlap min and max to world edges
-        const vec<T> min = vec<T>(overlap.get_min()).clamp(_root.get_min(), _root.get_max()) + var<T>::TOL_REL;
-        const vec<T> max = vec<T>(overlap.get_max()).clamp(_root.get_min(), _root.get_max()) - var<T>::TOL_REL;
+        const vec<T> min = clamp_bounds(overlap.get_min());
+        const vec<T> max = clamp_bounds(overlap.get_max());
 
         // Do callback on range of cells in overlapping region
         vec<T>::grid_range(_root.get_min(), _cell_extent, _scale, min, max, f);
@@ -473,8 +490,11 @@ class grid
     }
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
+        // Clamp point into world bounds
+        const vec<T> clamped = clamp_bounds(point);
+
         // Get the keys on the cell node
-        return get_node(point).get_keys();
+        return get_node(clamped).get_keys();
     }
 };
 }

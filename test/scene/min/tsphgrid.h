@@ -182,7 +182,7 @@ bool test_sphere_grid()
         g.insert(items);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
-        min = min::vec2<double>(0.0, 0.0);
+        min = min::vec2<double>(1E-6, 1E-6);
         max = min::vec2<double>(10.0, 10.0);
         collisions = g.get_overlap(min::sphere<double, min::vec2>(min, max));
         out = out && compare(3, collisions.size());
@@ -363,7 +363,7 @@ bool test_sphere_grid()
         g.insert(items);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
-        min = min::vec3<double>(0.0, 0.0, 0.0);
+        min = min::vec3<double>(1E-6, 1E-6, 1E-6);
         max = min::vec3<double>(10.0, 10.0, 10.0);
         collisions = g.get_overlap(min::sphere<double, min::vec3>(min, max));
         out = out && compare(3, collisions.size());
@@ -544,7 +544,7 @@ bool test_sphere_grid()
         g.insert(items);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
-        min = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
+        min = min::vec4<double>(1E-6, 1E-6, 1E-6, 1.0);
         max = min::vec4<double>(10.0, 10.0, 10.0, 1.0);
         collisions = g.get_overlap(min::sphere<double, min::vec4>(min, max));
         out = out && compare(3, collisions.size());
