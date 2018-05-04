@@ -111,8 +111,8 @@ class tree
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     tree_node<T, K, L, vec, cell, shape> _root;
-    const vec<T> _lower_bound;
-    const vec<T> _upper_bound;
+    vec<T> _lower_bound;
+    vec<T> _upper_bound;
     K _depth;
     K _scale;
     vec<T> _cell_extent;
@@ -419,6 +419,8 @@ class tree
     inline void resize(const cell<T, vec> &c)
     {
         _root = c;
+        _lower_bound = _root.get_cell().get_min() + var<T>::TOL_PHYS_EDGE;
+        _upper_bound = _root.get_cell().get_max() - var<T>::TOL_PHYS_EDGE;
     }
     inline void check_size(const std::vector<shape<T, vec>> &shapes) const
     {

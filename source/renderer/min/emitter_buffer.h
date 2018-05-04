@@ -216,6 +216,10 @@ class emitter_buffer
             glDrawArrays(GL_POINTS, 0, _emit_pool_size);
         }
     }
+    inline const vec3<T> &get_position() const
+    {
+        return _start_pos;
+    }
     inline vec3<T> random()
     {
         // Compute a random speed modifier for dispersion of particles
@@ -335,7 +339,7 @@ class emitter_buffer
             position += speed * dt;
         }
     }
-    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const float inv_mass)> &f)
+    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const T inv_mass)> &f)
     {
         // Expand buffer
         _emit_pool_size = _position.size();
