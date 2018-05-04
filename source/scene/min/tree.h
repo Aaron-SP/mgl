@@ -106,7 +106,7 @@ class tree
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
     std::vector<K> _sort_copy;
-    std::vector<uint8_t> _sub_overlap;
+    mutable std::vector<uint8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
@@ -128,10 +128,16 @@ class tree
         // Calculate sub cell regions in this node, and set the node children cells
         auto &children = node.get_children();
         const auto sub_cell = node.get_cell().subdivide();
+
+        // Reserve space for this node
+        children.reserve(sub_cell.size());
         for (auto &sc : sub_cell)
         {
             children.emplace_back(cell<T, vec>(sc.first, sc.second));
         }
+
+        // Get this node center
+        const vec<T> &center = node.get_cell().get_center();
 
         // Calculate intersections of sub cell with list of shapes
         const std::vector<K> &keys = node.get_keys();
@@ -141,7 +147,6 @@ class tree
             const shape<T, vec> &b = _shapes[key];
             const vec<T> &min = b.get_min();
             const vec<T> &max = b.get_max();
-            const vec<T> &center = node.get_cell().get_center();
 
             // Calculate intersection between shape and the node sub cells, sub_over.size() < 8
             vec<T>::sub_overlap(_sub_overlap, min, max, center);
@@ -199,6 +204,48 @@ class tree
 
         // Use grid to sort all shapes in tree since it is a global identifier
         return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
+    }
+    inline void get_overlap(const tree_node<T, K, L, vec, cell, shape> &node) const
+    {
+        // Get all keys in this cell
+        const std::vector<K> &keys = node.get_keys();
+        const K size = keys.size();
+        for (K i = 0; i < size; i++)
+        {
+            if (!_flags.get_set_on(keys[i], 0))
+            {
+                _hits.emplace_back(keys[i], 0);
+            }
+        }
+    }
+    inline void get_overlap(const tree_node<T, K, L, vec, cell, shape> &node, const vec<T> &min, const vec<T> &max, const K depth) const
+    {
+        // Returns all overlapping keys
+        // We are at a leaf node and we have hit the stopping criteria
+        if (depth == 0)
+        {
+            // Get the overlapping keys in this cell
+            get_overlap(node);
+        }
+
+        // For all child nodes of this node check overlap
+        const vec<T> &center = node.get_cell().get_center();
+
+        // Search for all children
+        const auto &children = node.get_children();
+        for (const auto &child : children)
+        {
+            // Recursively search for overlap in all children
+            if (child.size() > 0)
+            {
+                // Calculate intersection between overlap shape and the node sub cells, sub_over.size() < 8
+                vec<T>::sub_overlap(_sub_overlap, min, max, center);
+                for (const auto &sub : _sub_overlap)
+                {
+                    get_overlap(children[sub], min, max, depth - 1);
+                }
+            }
+        }
     }
     inline void get_pairs(const tree_node<T, K, L, vec, cell, shape> &node) const
     {
@@ -436,6 +483,7 @@ class tree
         // Clear out the old collision sets and vectors
         _flags.clear();
         _hits.clear();
+        _hits.reserve(_shapes.size());
 
         // get all intersecting pairs
         get_pairs(_root, _depth);
@@ -448,6 +496,7 @@ class tree
         // Clear out the old collision sets and vectors
         _flags.clear();
         _hits.clear();
+        _hits.reserve(_shapes.size());
 
         // get the node from the point
         const tree_node<T, K, L, vec, cell, shape> &node = get_node(point);
@@ -462,6 +511,7 @@ class tree
     {
         // Output vector
         _ray_hits.clear();
+        _ray_hits.reserve(_shapes.size());
 
         // get shapes intersecting ray with early stop
         get_ray_intersect(_root, r, _depth);
@@ -476,6 +526,25 @@ class tree
     inline const std::vector<K> &get_index_map() const
     {
         return _index_map;
+    }
+    inline const std::vector<std::pair<K, K>> &get_overlap(const shape<T, vec> &overlap) const
+    {
+        // Check if tree is not built yet
+        if (_root.get_children().size() == 0)
+        {
+            return _hits;
+        }
+
+        // Clear out the old collision sets and vectors
+        _flags.clear();
+        _hits.clear();
+        _hits.reserve(_shapes.size());
+
+        // Get the overlapping shapes in this cell
+        get_overlap(_root, overlap.get_min(), overlap.get_max(), _depth);
+
+        // Return the list
+        return _hits;
     }
     bool inside(const vec<T> &point) const
     {

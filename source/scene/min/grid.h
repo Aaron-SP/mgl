@@ -103,7 +103,7 @@ class grid
         _cells.clear();
 
         // Calculate the grid cells from the root cell
-        auto cells = _root.grid(_scale);
+        const auto cells = _root.grid(_scale);
         _cells.reserve(cells.size());
         for (const auto &c : cells)
         {
@@ -143,7 +143,7 @@ class grid
     }
     inline size_t get_key(const vec<T> &point) const
     {
-        // !This will crash if point is not inside the world cell!
+        // This will crash if point is not inside the world cell!
         if (!_root.point_inside(point))
         {
             throw std::runtime_error("grid.get_key(): point is not inside the world cell");
@@ -151,7 +151,23 @@ class grid
 
         return vec<T>::grid_key(_root.get_min(), _cell_extent, _scale, point);
     }
-    inline void get_pairs(const grid_node<T, K, L, vec, cell, shape> &node, std::vector<std::pair<K, K>> &hits) const
+    inline void get_overlap(const size_t key) const
+    {
+        // Get the cell from the next key
+        const grid_node<T, K, L, vec, cell, shape> &node = _cells[key];
+
+        // Get all keys in this cell
+        const std::vector<K> &keys = node.get_keys();
+        const K size = keys.size();
+        for (K i = 0; i < size; i++)
+        {
+            if (!_flags.get_set_on(keys[i], 0))
+            {
+                _hits.emplace_back(keys[i], 0);
+            }
+        }
+    }
+    inline void get_pairs(const grid_node<T, K, L, vec, cell, shape> &node) const
     {
         // Perform an N^2-N intersection test for all shapes in this cell
         const std::vector<K> &keys = node.get_keys();
@@ -177,13 +193,13 @@ class grid
                     const shape<T, vec> &b_shape = _shapes[b];
                     if (intersect(a_shape, b_shape))
                     {
-                        hits.emplace_back(a, b);
+                        _hits.emplace_back(a, b);
                     }
                 }
             }
         }
     }
-    inline void get_ray_intersect(const grid_node<T, K, L, vec, cell, shape> &node, std::vector<std::pair<K, vec<T>>> &hits, const ray<T, vec> &r) const
+    inline void get_ray_intersect(const grid_node<T, K, L, vec, cell, shape> &node, const ray<T, vec> &r) const
     {
         // Perform an N intersection test for all shapes in this cell against the ray
         const std::vector<K> &keys = node.get_keys();
@@ -195,7 +211,7 @@ class grid
             const shape<T, vec> &s = _shapes[key];
             if (intersect(s, r, point))
             {
-                hits.emplace_back(key, point);
+                _ray_hits.emplace_back(key, point);
             }
         }
     }
@@ -298,7 +314,7 @@ class grid
         // Calculate the intersection pairs for every cell
         for (const auto &node : _cells)
         {
-            get_pairs(node, _hits);
+            get_pairs(node);
         }
 
         // Return the collision list
@@ -317,7 +333,7 @@ class grid
         const grid_node<T, K, L, vec, cell, shape> &node = get_node(point);
 
         // Get the intersecting pairs in this cell
-        get_pairs(node, _hits);
+        get_pairs(node);
 
         // Return the collision list
         return _hits;
@@ -326,13 +342,14 @@ class grid
     {
         // Output vector
         _ray_hits.clear();
+        _ray_hits.reserve(_shapes.size());
 
         // get the cell from the ray origin
         // this will check if ray originates within the grid
         const grid_node<T, K, L, vec, cell, shape> &node = get_node(r.get_origin());
 
         // Get the intersecting pairs in this cell
-        get_ray_intersect(node, _ray_hits, r);
+        get_ray_intersect(node, r);
 
         // If we found shapes return early
         if (_ray_hits.size() > 0)
@@ -359,11 +376,11 @@ class grid
                 return _ray_hits;
             }
 
-            // get the cell from the next key
+            // Get the cell from the next key
             const grid_node<T, K, L, vec, cell, shape> &node = _cells[next];
 
             // Get the intersecting pairs in this cell
-            get_ray_intersect(node, _ray_hits, r);
+            get_ray_intersect(node, r);
         }
 
         // Return the collision list
@@ -376,6 +393,38 @@ class grid
     inline K get_scale() const
     {
         return _scale;
+    }
+    inline const std::vector<std::pair<K, K>> &get_overlap(const shape<T, vec> &overlap) const
+    {
+        // Check if grid is not built yet
+        if (_cells.size() == 0)
+        {
+            return _hits;
+        }
+
+        // Clear out the old collision sets and vectors
+        _flags.clear();
+
+        // Output vector
+        _hits.clear();
+        _hits.reserve(_shapes.size());
+
+        // Callback function
+        const auto f = [this](const size_t key) {
+
+            // Get the intersecting pairs in this cell
+            this->get_overlap(key);
+        };
+
+        // Clamp overlap min and max to world edges
+        const vec<T> min = vec<T>(overlap.get_min()).clamp(_root.get_min(), _root.get_max()) + var<T>::TOL_REL;
+        const vec<T> max = vec<T>(overlap.get_max()).clamp(_root.get_min(), _root.get_max()) - var<T>::TOL_REL;
+
+        // Do callback on range of cells in overlapping region
+        vec<T>::grid_range(_root.get_min(), _cell_extent, _scale, min, max, f);
+
+        // Return the overlap list
+        return _hits;
     }
     inline const std::vector<shape<T, vec>> &get_shapes()
     {
@@ -415,7 +464,7 @@ class grid
         // Set the grid scale
         set_scale(shapes);
 
-        // insert shapes without sorting
+        // Insert shapes without sorting
         _shapes.clear();
         _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
 

@@ -809,6 +809,14 @@ class physics
     {
         return _spatial.get_index_map();
     }
+    inline const std::vector<std::pair<K, K>> &get_overlap(const shape<T, vec> &overlap) const
+    {
+        return _spatial.get_overlap(overlap);
+    }
+    inline const size_t get_scale() const
+    {
+        return _spatial.get_scale();
+    }
     inline const shape<T, vec> &get_shape(const size_t index) const
     {
         return _shapes[index];

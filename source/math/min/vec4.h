@@ -24,6 +24,7 @@ class coord_sys;
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <min/coord_sys.h>
 #include <min/utility.h>
@@ -318,6 +319,150 @@ class vec4
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
     }
+    inline static void grid_overlap(std::vector<size_t> &out, const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &b_min, const vec4<T> &b_max)
+    {
+        // Create the output vector
+        out.clear();
+        out.reserve(27);
+
+        // Calculate the grid dimensions
+        const T dx = extent.x();
+        const T dy = extent.y();
+        const T dz = extent.z();
+
+        // Calculate the center cell
+        const vec4<T> center = (b_min + b_max) * 0.5;
+
+        // Center cell indices
+        const std::tuple<size_t, size_t, size_t> t = vec4<T>::grid_index(min, extent, center);
+        const size_t x = std::get<0>(t);
+        const size_t y = std::get<1>(t);
+        const size_t z = std::get<2>(t);
+        const size_t scale2 = scale * scale;
+
+        // Bounds of the center cell
+        const T minx = min.x() + dx * x;
+        const T miny = min.y() + dy * y;
+        const T minz = min.z() + dz * z;
+        const T maxx = minx + dx;
+        const T maxy = miny + dy;
+        const T maxz = minz + dz;
+
+        // Calculate the neighboring indices
+        const int nx = x - 1;
+        const int px = x + 1;
+        const int ny = y - 1;
+        const int py = y + 1;
+        const int nz = z - 1;
+        const int pz = z + 1;
+
+        // Calculate whether neighbors are outside the main grid
+        const bool nxg = nx >= 0;
+        const bool nyg = ny >= 0;
+        const bool nzg = nz >= 0;
+        const bool pxg = px < (long)scale;
+        const bool pyg = py < (long)scale;
+        const bool pzg = pz < (long)scale;
+        const bool lx = b_min.x() < minx;
+        const bool ly = b_min.y() < miny;
+        const bool lz = b_min.z() < minz;
+        const bool gx = b_max.x() >= maxx;
+        const bool gy = b_max.y() >= maxy;
+        const bool gz = b_max.z() >= maxz;
+        const bool tny = ly && nyg;
+        const bool tgy = gy && pyg;
+        const bool tnz = lz && nzg;
+        const bool tgz = gz && pzg;
+
+        // -X
+        if (lx && nxg)
+        {
+            // -Y
+            if (tny)
+            {
+                if (tnz)
+                    out.push_back(nx * scale2 + ny * scale + nz); // -Z
+                out.push_back(nx * scale2 + ny * scale + z);      // Z
+                if (tgz)
+                    out.push_back(nx * scale2 + ny * scale + pz); // +Z
+            }
+
+            // Y
+            if (tnz)
+                out.push_back(nx * scale2 + y * scale + nz); // -Z
+            out.push_back(nx * scale2 + y * scale + z);      // Z
+            if (tgz)
+                out.push_back(nx * scale2 + y * scale + pz); // +Z
+
+            // +Y
+            if (tgy)
+            {
+                if (tnz)
+                    out.push_back(nx * scale2 + py * scale + nz); // -Z
+                out.push_back(nx * scale2 + py * scale + z);      // Z
+                if (tgz)
+                    out.push_back(nx * scale2 + py * scale + pz); // +Z
+            }
+        }
+
+        // X -Y
+        if (tny)
+        {
+            if (tnz)
+                out.push_back(x * scale2 + ny * scale + nz); // -Z
+            out.push_back(x * scale2 + ny * scale + z);      // Z
+            if (tgz)
+                out.push_back(x * scale2 + ny * scale + pz); // +Z
+        }
+
+        // X Y
+        if (tnz)
+            out.push_back(x * scale2 + y * scale + nz); // -Z
+        out.push_back(x * scale2 + y * scale + z);      // Z
+        if (tgz)
+            out.push_back(x * scale2 + y * scale + pz); // +Z
+
+        // X +Y
+        if (tgy)
+        {
+            if (tnz)
+                out.push_back(x * scale2 + py * scale + nz); // -Z
+            out.push_back(x * scale2 + py * scale + z);      // Z
+            if (tgz)
+                out.push_back(x * scale2 + py * scale + pz); // +Z
+        }
+
+        // +X
+        if (gx && pxg)
+        {
+            // -Y
+            if (tny)
+            {
+                if (tnz)
+                    out.push_back(px * scale2 + ny * scale + nz); // -Z
+                out.push_back(px * scale2 + ny * scale + z);      // Z
+                if (tgz)
+                    out.push_back(px * scale2 + ny * scale + pz); // +Z
+            }
+
+            // Y
+            if (tnz)
+                out.push_back(px * scale2 + y * scale + nz); // -Z
+            out.push_back(px * scale2 + y * scale + z);      // Z
+            if (tgz)
+                out.push_back(px * scale2 + y * scale + pz); // +Z
+
+            // +Y
+            if (tgy)
+            {
+                if (tnz)
+                    out.push_back(px * scale2 + py * scale + nz); // -Z
+                out.push_back(px * scale2 + py * scale + z);      // Z
+                if (tgz)
+                    out.push_back(px * scale2 + py * scale + pz); // +Z
+            }
+        }
+    }
     inline static std::tuple<int, T, T, int, T, T, int, T, T> grid_ray(const vec4<T> &extent, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
     {
         // Get the grid dimensions
@@ -480,146 +625,28 @@ class vec4
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
     }
-    inline static void grid_overlap(std::vector<size_t> &out, const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &b_min, const vec4<T> &b_max)
+    inline static void grid_range(const vec4<T> &min, const vec4<T> &extent, const size_t scale,
+                                  const vec4<T> &over_min, const vec4<T> &over_max,
+                                  const std::function<void(const size_t)> &f)
     {
-        // Create the output vector
-        out.clear();
-        out.reserve(27);
+        // Assumes over_min and over_max are clamped to world edges!!
+        // Get the key of min and max points for overlap
+        const std::tuple<size_t, size_t, size_t> t_min = vec4<T>::grid_index(min, extent, over_min);
+        const std::tuple<size_t, size_t, size_t> t_max = vec4<T>::grid_index(min, extent, over_max);
 
-        // Calculate the grid dimensions
-        const T dx = extent.x();
-        const T dy = extent.y();
-        const T dz = extent.z();
-
-        // Calculate the center cell
-        const vec4<T> center = (b_min + b_max) * 0.5;
-
-        // Center cell indices
-        const size_t x = (center.x() - min.x()) / dx;
-        const size_t y = (center.y() - min.y()) / dy;
-        const size_t z = (center.z() - min.z()) / dz;
-        const size_t scale2 = scale * scale;
-
-        // Bounds of the center cell
-        const T minx = min.x() + dx * x;
-        const T miny = min.y() + dy * y;
-        const T minz = min.z() + dz * z;
-        const T maxx = minx + dx;
-        const T maxy = miny + dy;
-        const T maxz = minz + dz;
-
-        // Calculate the neighboring indices
-        const int nx = x - 1;
-        const int px = x + 1;
-        const int ny = y - 1;
-        const int py = y + 1;
-        const int nz = z - 1;
-        const int pz = z + 1;
-
-        // Calculate whether neighbors are outside the main grid
-        const bool nxg = nx >= 0;
-        const bool nyg = ny >= 0;
-        const bool nzg = nz >= 0;
-        const bool pxg = px < (long)scale;
-        const bool pyg = py < (long)scale;
-        const bool pzg = pz < (long)scale;
-        const bool lx = b_min.x() < minx;
-        const bool ly = b_min.y() < miny;
-        const bool lz = b_min.z() < minz;
-        const bool gx = b_max.x() >= maxx;
-        const bool gy = b_max.y() >= maxy;
-        const bool gz = b_max.z() >= maxz;
-        const bool tny = ly && nyg;
-        const bool tgy = gy && pyg;
-        const bool tnz = lz && nzg;
-        const bool tgz = gz && pzg;
-
-        // -X
-        if (lx && nxg)
+        // Get all cells in between points and get overlapping shapes
+        for (size_t i = std::get<0>(t_min); i <= std::get<0>(t_max); i++)
         {
-            // -Y
-            if (tny)
+            for (size_t j = std::get<1>(t_min); j <= std::get<1>(t_max); j++)
             {
-                if (tnz)
-                    out.push_back(nx * scale2 + ny * scale + nz); // -Z
-                out.push_back(nx * scale2 + ny * scale + z);      // Z
-                if (tgz)
-                    out.push_back(nx * scale2 + ny * scale + pz); // +Z
-            }
+                for (size_t k = std::get<2>(t_min); k <= std::get<2>(t_max); k++)
+                {
+                    // Get the key for this index
+                    const size_t key = vec4<T>::grid_key(std::make_tuple(i, j, k), scale);
 
-            // Y
-            if (tnz)
-                out.push_back(nx * scale2 + y * scale + nz); // -Z
-            out.push_back(nx * scale2 + y * scale + z);      // Z
-            if (tgz)
-                out.push_back(nx * scale2 + y * scale + pz); // +Z
-
-            // +Y
-            if (tgy)
-            {
-                if (tnz)
-                    out.push_back(nx * scale2 + py * scale + nz); // -Z
-                out.push_back(nx * scale2 + py * scale + z);      // Z
-                if (tgz)
-                    out.push_back(nx * scale2 + py * scale + pz); // +Z
-            }
-        }
-
-        // X -Y
-        if (tny)
-        {
-            if (tnz)
-                out.push_back(x * scale2 + ny * scale + nz); // -Z
-            out.push_back(x * scale2 + ny * scale + z);      // Z
-            if (tgz)
-                out.push_back(x * scale2 + ny * scale + pz); // +Z
-        }
-
-        // X Y
-        if (tnz)
-            out.push_back(x * scale2 + y * scale + nz); // -Z
-        out.push_back(x * scale2 + y * scale + z);      // Z
-        if (tgz)
-            out.push_back(x * scale2 + y * scale + pz); // +Z
-
-        // X +Y
-        if (tgy)
-        {
-            if (tnz)
-                out.push_back(x * scale2 + py * scale + nz); // -Z
-            out.push_back(x * scale2 + py * scale + z);      // Z
-            if (tgz)
-                out.push_back(x * scale2 + py * scale + pz); // +Z
-        }
-
-        // +X
-        if (gx && pxg)
-        {
-            // -Y
-            if (tny)
-            {
-                if (tnz)
-                    out.push_back(px * scale2 + ny * scale + nz); // -Z
-                out.push_back(px * scale2 + ny * scale + z);      // Z
-                if (tgz)
-                    out.push_back(px * scale2 + ny * scale + pz); // +Z
-            }
-
-            // Y
-            if (tnz)
-                out.push_back(px * scale2 + y * scale + nz); // -Z
-            out.push_back(px * scale2 + y * scale + z);      // Z
-            if (tgz)
-                out.push_back(px * scale2 + y * scale + pz); // +Z
-
-            // +Y
-            if (tgy)
-            {
-                if (tnz)
-                    out.push_back(px * scale2 + py * scale + nz); // -Z
-                out.push_back(px * scale2 + py * scale + z);      // Z
-                if (tgz)
-                    out.push_back(px * scale2 + py * scale + pz); // +Z
+                    // Callback function on f
+                    f(key);
+                }
             }
         }
     }
@@ -1862,12 +1889,12 @@ class vec4
         out.clear();
         out.reserve(8);
 
-        const bool minx = min.x() < center.x();
-        const bool miny = min.y() < center.y();
-        const bool minz = min.z() < center.z();
-        const bool maxx = max.x() > center.x();
-        const bool maxy = max.y() > center.y();
-        const bool maxz = max.z() > center.z();
+        const bool minx = min.x() <= center.x();
+        const bool miny = min.y() <= center.y();
+        const bool minz = min.z() <= center.z();
+        const bool maxx = max.x() >= center.x();
+        const bool maxy = max.y() >= center.y();
+        const bool maxz = max.z() >= center.z();
 
         // If overlapping 0,1,2,3 cells
         if (minx)

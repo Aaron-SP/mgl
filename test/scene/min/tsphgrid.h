@@ -152,7 +152,7 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec2 get collisions");
+            throw std::runtime_error("Failed sphere grid vec2 get collisions");
         }
 
         // Test get collisions
@@ -162,7 +162,43 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec2 get collision point");
+            throw std::runtime_error("Failed sphere grid vec2 get collision point");
+        }
+
+        // Test overlap entire world
+        collisions = g.get_overlap(world);
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec2 get overlap 1");
+        }
+
+        // Box D
+        min = min::vec2<double>(-7.0, -7.0);
+        max = min::vec2<double>(-4.0, -4.0);
+        items.push_back(min::sphere<double, min::vec2>(min, max));
+
+        // Insert into grid
+        g.insert(items);
+
+        // Test overlap upper right quadrant, center 5.0, 5.0
+        min = min::vec2<double>(0.0, 0.0);
+        max = min::vec2<double>(10.0, 10.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec2>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec2 get overlap 2");
+        }
+
+        // Test overlap box same cell
+        min = min::vec2<double>(5.0, 5.0);
+        max = min::vec2<double>(5.0, 5.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec2>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec2 get overlap 3");
         }
     }
 
@@ -297,7 +333,7 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec3 get collisions");
+            throw std::runtime_error("Failed sphere grid vec3 get collisions");
         }
 
         // Test get collisions
@@ -307,7 +343,43 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec3 get collision point");
+            throw std::runtime_error("Failed sphere grid vec3 get collision point");
+        }
+
+        // Test overlap entire world
+        collisions = g.get_overlap(world);
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec3 get overlap 1");
+        }
+
+        // Box D
+        min = min::vec3<double>(-7.0, -7.0, -7.0);
+        max = min::vec3<double>(-4.0, -4.0, -4.0);
+        items.push_back(min::sphere<double, min::vec3>(min, max));
+
+        // Insert into grid
+        g.insert(items);
+
+        // Test overlap upper right quadrant, center 5.0, 5.0
+        min = min::vec3<double>(0.0, 0.0, 0.0);
+        max = min::vec3<double>(10.0, 10.0, 10.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec3>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec3 get overlap 2");
+        }
+
+        // Test overlap box same cell
+        min = min::vec3<double>(5.0, 5.0, 5.0);
+        max = min::vec3<double>(5.0, 5.0, 5.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec3>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec3 get overlap 3");
         }
     }
 
@@ -442,7 +514,7 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec4 get collisions");
+            throw std::runtime_error("Failed sphere grid vec4 get collisions");
         }
 
         // Test get collisions
@@ -452,7 +524,43 @@ bool test_sphere_grid()
         out = out && compare(3, collisions.size());
         if (!out)
         {
-            throw std::runtime_error("Failed aabb grid vec4 get collision point");
+            throw std::runtime_error("Failed sphere grid vec4 get collision point");
+        }
+
+        // Test overlap entire world
+        collisions = g.get_overlap(world);
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec4 get overlap 1");
+        }
+
+        // Box D
+        min = min::vec4<double>(-7.0, -7.0, -7.0, 1.0);
+        max = min::vec4<double>(-4.0, -4.0, -4.0, 1.0);
+        items.push_back(min::sphere<double, min::vec4>(min, max));
+
+        // Insert into grid
+        g.insert(items);
+
+        // Test overlap upper right quadrant, center 5.0, 5.0
+        min = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
+        max = min::vec4<double>(10.0, 10.0, 10.0, 1.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec4>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec4 get overlap 2");
+        }
+
+        // Test overlap box same cell
+        min = min::vec4<double>(5.0, 5.0, 5.0, 1.0);
+        max = min::vec4<double>(5.0, 5.0, 5.0, 1.0);
+        collisions = g.get_overlap(min::sphere<double, min::vec4>(min, max));
+        out = out && compare(3, collisions.size());
+        if (!out)
+        {
+            throw std::runtime_error("Failed sphere grid vec4 get overlap 3");
         }
     }
     return out;

@@ -23,6 +23,7 @@ class coord_sys;
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <min/coord_sys.h>
 #include <min/utility.h>
@@ -255,6 +256,75 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
+    inline static void grid_overlap(std::vector<size_t> &out, const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
+    {
+        // Reserve space for output
+        out.clear();
+        out.reserve(9);
+
+        // Calculate the grid dimensions
+        const T dx = extent.x();
+        const T dy = extent.y();
+
+        // Calculate the center cell
+        const vec2<T> center = (b_min + b_max) * 0.5;
+
+        // Center cell indices
+        const std::pair<size_t, size_t> p = vec2<T>::grid_index(min, extent, center);
+        const size_t x = p.first;
+        const size_t y = p.second;
+
+        // Bounds of the center cell
+        const T minx = min.x() + dx * x;
+        const T miny = min.y() + dy * y;
+        const T maxx = minx + dx;
+        const T maxy = miny + dy;
+
+        // Calculate the neighboring indices
+        const int nx = x - 1;
+        const int px = x + 1;
+        const int ny = y - 1;
+        const int py = y + 1;
+
+        // Calculate whether neighbors are outside the main grid
+        const bool nxg = nx >= 0;
+        const bool pxg = px < (long)scale;
+        const bool nyg = ny >= 0;
+        const bool pyg = py < (long)scale;
+        const bool lx = b_min.x() < minx;
+        const bool ly = b_min.y() < miny;
+        const bool gx = b_max.x() >= maxx;
+        const bool gy = b_max.y() >= maxy;
+        const bool tny = ly && nyg;
+        const bool tgy = gy && pyg;
+
+        // -X
+        if (lx && nxg)
+        {
+            if (tny)
+                out.push_back(nx * scale + ny); // -Y
+            out.push_back(nx * scale + y);      // Y
+            if (tgy)
+                out.push_back(nx * scale + py); // +Y
+        }
+
+        // X
+        if (tny)
+            out.push_back(x * scale + ny); // -Y
+        out.push_back(x * scale + y);      // Y
+        if (tgy)
+            out.push_back(x * scale + py); // +Y
+
+        // +X
+        if (gx && pxg)
+        {
+            if (tny)
+                out.push_back(px * scale + ny); // -Y
+            out.push_back(px * scale + y);      // Y
+            if (tgy)
+                out.push_back(px * scale + py); // + Y
+        }
+    }
     inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
     {
         // Get the grid dimensions
@@ -369,72 +439,26 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
-    inline static void grid_overlap(std::vector<size_t> &out, const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
+    inline static void grid_range(const vec2<T> &min, const vec2<T> &extent, const size_t scale,
+                                  const vec2<T> &over_min, const vec2<T> &over_max,
+                                  const std::function<void(const size_t)> &f)
     {
-        // Reserve space for output
-        out.clear();
-        out.reserve(9);
+        // Assumes over_min and over_max are clamped to world edges!!
+        // Get the key of min and max points for overlap
+        const std::pair<size_t, size_t> p_min = vec2<T>::grid_index(min, extent, over_min);
+        const std::pair<size_t, size_t> p_max = vec2<T>::grid_index(min, extent, over_max);
 
-        // Calculate the grid dimensions
-        const T dx = extent.x();
-        const T dy = extent.y();
-
-        // Calculate the center cell
-        const vec2<T> center = (b_min + b_max) * 0.5;
-
-        // Center cell indices
-        const size_t x = (center.x() - min.x()) / dx;
-        const size_t y = (center.y() - min.y()) / dy;
-
-        // Bounds of the center cell
-        const T minx = min.x() + dx * x;
-        const T miny = min.y() + dy * y;
-        const T maxx = minx + dx;
-        const T maxy = miny + dy;
-
-        // Calculate the neighboring indices
-        const int nx = x - 1;
-        const int px = x + 1;
-        const int ny = y - 1;
-        const int py = y + 1;
-
-        // Calculate whether neighbors are outside the main grid
-        const bool nxg = nx >= 0;
-        const bool pxg = px < (long)scale;
-        const bool nyg = ny >= 0;
-        const bool pyg = py < (long)scale;
-        const bool lx = b_min.x() < minx;
-        const bool ly = b_min.y() < miny;
-        const bool gx = b_max.x() >= maxx;
-        const bool gy = b_max.y() >= maxy;
-        const bool tny = ly && nyg;
-        const bool tgy = gy && pyg;
-
-        // -X
-        if (lx && nxg)
+        // Get all cells in between points and get overlapping shapes
+        for (size_t i = p_min.first; i <= p_max.first; i++)
         {
-            if (tny)
-                out.push_back(nx * scale + ny); // -Y
-            out.push_back(nx * scale + y);      // Y
-            if (tgy)
-                out.push_back(nx * scale + py); // +Y
-        }
+            for (size_t j = p_min.second; j <= p_max.second; j++)
+            {
+                // Get the key for this index
+                const size_t key = vec2<T>::grid_key(std::make_pair(i, j), scale);
 
-        // X
-        if (tny)
-            out.push_back(x * scale + ny); // -Y
-        out.push_back(x * scale + y);      // Y
-        if (tgy)
-            out.push_back(x * scale + py); // +Y
-
-        // +X
-        if (gx && pxg)
-        {
-            if (tny)
-                out.push_back(px * scale + ny); // -Y
-            out.push_back(px * scale + y);      // Y
-            if (tgy)
-                out.push_back(px * scale + py); // + Y
+                // Callback function on f
+                f(key);
+            }
         }
     }
     inline bool inside(const vec2<T> &min, const vec2<T> &max) const
@@ -1118,10 +1142,10 @@ class vec2
         out.clear();
         out.reserve(4);
 
-        const bool minx = min.x() < center.x();
-        const bool maxx = max.x() > center.x();
-        const bool miny = min.y() < center.y();
-        const bool maxy = max.y() > center.y();
+        const bool minx = min.x() <= center.x();
+        const bool miny = min.y() <= center.y();
+        const bool maxx = max.x() >= center.x();
+        const bool maxy = max.y() >= center.y();
 
         // If overlapping 0-1 cells
         if (minx)
