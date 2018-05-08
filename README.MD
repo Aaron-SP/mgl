@@ -1,13 +1,20 @@
 # MGL
 ## Repository for the Minimal Graphics Library
 
-### Building
-
 Welcome to the Minimal Graphics Library! This is the prerelease alpha version 0.1.
 
 This package is the source code distribution of the Minimal Graphics Library, hence abbreviated MGL. The library builds on linux and win32 platforms. 
 A GNU makefile is available for compilation with GCC/MINGW for win32 platforms or GCC/X11 for linux platforms. 
 The makefile should work for both environments without modification.
+
+### PKGBUILD
+
+If you are running Arch Linux, I have created PKGBUILD's for this project located at https://github.com/Aaron-SP/pkgbuild/blob/master/mgl/PKGBUILD.
+
+### Building
+
+Verify a bin directory exists before compiling with the makefile. 
+- 'mkdir -p bin'
 
 The GNU makefile contains various build targets.
 - 'make' - builds all tests and examples.
