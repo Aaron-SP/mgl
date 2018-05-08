@@ -19,10 +19,13 @@ Verify a bin directory exists before compiling with the makefile.
 The GNU makefile contains various build targets.
 - 'make' - builds all tests and examples.
 - 'make benchmarks' - builds only benchmarks (gl_bench)
-- 'make examples' - builds only examples (ex1-ex9)
-- 'make tests' - builds only tests (gl_test, wl_test)
-- 'make lib' - builds a static library (libmin.a)
 - 'make clean' - cleans up all generated output files
+- 'make examples' - builds only examples (ex1-ex9)
+- 'make lib' - builds a static library (libmin.a)
+- 'make tests' - builds only tests (gl_test, wl_test)
+- 'make install' - installs header files into /usr/include/mgl
+- 'make uninstall' - removes header files from /usr/include/mgl
+
 
 These build targets have been tested for compilation on Arch Linux x64 and Windows 7 (x86,x64) platforms.
 
