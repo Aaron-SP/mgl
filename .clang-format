@@ -6,5 +6,6 @@ BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: false
 ColumnLimit: 0
+FixNamespaceComments: false
 ...
 

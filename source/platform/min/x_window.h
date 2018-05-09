@@ -164,49 +164,68 @@ class x_window
     // Window class string literal
     static constexpr const char *window_class = "minwl:x_window";
 
-    void static init_glew(Display *display, GLint attr[])
+    void init_glew(GLint attr[]) const
     {
         // Create visual that fulfills attributes requested
-        XVisualInfo *visual = glXChooseVisual(display, 0, attr);
+        XVisualInfo *visual = glXChooseVisual(_display, 0, attr);
         if (visual == nullptr)
         {
             throw std::runtime_error("x_window: Could not create X11 visual from requested attributes.");
         }
 
         // Create GL context
-        GLXContext context = glXCreateContext(display, visual, 0, GL_TRUE);
+        GLXContext context = glXCreateContext(_display, visual, 0, GL_TRUE);
         if (context == nullptr)
         {
             throw std::runtime_error("x_window: Failed creating a dummy opengl context.");
         }
 
-        // Get the display's root window for windowless mode
-        Window root = DefaultRootWindow(display);
+        // Create color map for the temp window
+        Colormap color_map = XCreateColormap(_display, _root, visual->visual, AllocNone);
+
+        // Set the temp window attributes, color map only
+        XSetWindowAttributes window_attr;
+        window_attr.colormap = color_map;
+
+        // Connects the color map to the temp window
+        Window temp_window = XCreateWindow(_display, _root, 0, 0, _w, _h, 0, visual->depth, InputOutput,
+                                           visual->visual, CWColormap, &window_attr);
+
+        if (!temp_window)
+        {
+            throw std::runtime_error("x_window: Failed to create an X11 window.");
+        }
 
         // Make the context curent
-        if (!glXMakeCurrent(display, root, context))
+        if (!glXMakeCurrent(_display, temp_window, context))
         {
             throw std::runtime_error("x_window: Could not bind dummy rendering context");
         }
 
         // Load GLEW opengl extensions
-        GLenum error = glewInit();
+        const GLenum error = glewInit();
         if (error != GLEW_OK)
         {
             throw std::runtime_error("x_window: GLEW error on glewInit().");
         }
 
         // Delete the dummy context after GLEW loads
-        if (!glXMakeCurrent(display, 0, 0))
+        if (!glXMakeCurrent(_display, None, NULL))
         {
             throw std::runtime_error("x_window: Could not disable dummy rendering context");
         }
+
+        // Free the color map
+        XFreeColormap(_display, color_map);
+
+        // Free the temp window
+        XDestroyWindow(_display, temp_window);
 
         // Free the visual info
         XFree(visual);
 
         // Destroy the context
-        glXDestroyContext(display, context);
+        glXDestroyContext(_display, context);
     }
 
     void create_opengl_context(const std::string &title, GLint attr[], GLint major, GLint minor)
@@ -300,6 +319,13 @@ class x_window
             throw std::runtime_error("x_window: Could not bind rendering context");
         }
 
+        // Load GLEW opengl extensions
+        const GLenum error = glewInit();
+        if (error != GLEW_OK)
+        {
+            throw std::runtime_error("x_window: GLEW error on glewInit().");
+        }
+
         // Free the visual info
         XFree(visual);
     }
@@ -342,7 +368,7 @@ class x_window
             None};
 
         // Initialize GLEW with a dummy opengl context
-        init_glew(_display, attr);
+        init_glew(attr);
 
         // Create the real opengl context
         create_opengl_context(title, attr, _major, _minor);
@@ -431,7 +457,7 @@ class x_window
         // Disable the current rendering context
         if (_context)
         {
-            if (!glXMakeCurrent(_display, 0, 0))
+            if (!glXMakeCurrent(_display, None, NULL))
             {
                 std::cout << "x_window: Could not disable rendering context" << std::endl;
             }
