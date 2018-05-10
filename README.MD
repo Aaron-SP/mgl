@@ -58,6 +58,9 @@ Additional dependencies that are required and not distributed in this package in
 For Arch Linux users, the following pacman command should install all needed dependencies:
 - pacman -S freetype2 xorg-server xorg-server-devel openal libvorbis
 
+For Ubuntu 14.04.1 Linux users, the following apt-get command should install all needed dependencies:
+- sudo apt-get install build-essential git libvorbis-dev libfreetype6-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev
+
 To verify freetype has been installed properly, query it using the following command:
 - freetype-config --cflags
 
