@@ -498,6 +498,13 @@ class win32_window
             {
                 throw std::runtime_error("win32_window: Could not bind rendering context");
             }
+
+            // Load GLEW opengl extensions
+            GLenum error = glewInit();
+            if (error != GLEW_OK)
+            {
+                throw std::runtime_error("win32_window: GLEW error on glewInit().");
+            }
         }
         else
         {
