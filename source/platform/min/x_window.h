@@ -357,8 +357,11 @@ class x_window
 
         // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
         GLint attr[] = {
-            GLX_RGBA,
-            GLX_DOUBLEBUFFER,
+            GLX_X_RENDERABLE, True,
+            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+            GLX_RENDER_TYPE, GLX_RGBA_BIT,
+            GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+            GLX_DOUBLEBUFFER, True,
             GLX_RED_SIZE, 8,
             GLX_GREEN_SIZE, 8,
             GLX_BLUE_SIZE, 8,
