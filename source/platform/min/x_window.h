@@ -164,8 +164,20 @@ class x_window
     // Window class string literal
     static constexpr const char *window_class = "minwl:x_window";
 
-    void init_glew(GLint attr[]) const
+    void init_glew() const
     {
+        // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
+        GLint attr[] = {
+            GLX_RGBA,
+            GLX_DOUBLEBUFFER,
+            GLX_RED_SIZE, 8,
+            GLX_GREEN_SIZE, 8,
+            GLX_BLUE_SIZE, 8,
+            GLX_ALPHA_SIZE, 8,
+            GLX_DEPTH_SIZE, 24,
+            //GLX_STENCIL_SIZE, 8,
+            None};
+
         // Create visual that fulfills attributes requested
         XVisualInfo *visual = glXChooseVisual(_display, 0, attr);
         if (visual == nullptr)
@@ -228,8 +240,23 @@ class x_window
         glXDestroyContext(_display, context);
     }
 
-    void create_opengl_context(const std::string &title, GLint attr[], GLint major, GLint minor)
+    void create_opengl_context(const std::string &title, GLint major, GLint minor)
     {
+        // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
+        GLint attr[] = {
+            GLX_X_RENDERABLE, True,
+            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+            GLX_RENDER_TYPE, GLX_RGBA_BIT,
+            GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+            GLX_DOUBLEBUFFER, True,
+            GLX_RED_SIZE, 8,
+            GLX_GREEN_SIZE, 8,
+            GLX_BLUE_SIZE, 8,
+            GLX_ALPHA_SIZE, 8,
+            GLX_DEPTH_SIZE, 24,
+            //GLX_STENCIL_SIZE, 8,
+            None};
+
         // Choose the best frame buffer config
         int fbcount;
         GLXFBConfig *fbc = glXChooseFBConfig(_display, DefaultScreen(_display), attr, &fbcount);
@@ -355,26 +382,11 @@ class x_window
             throw std::runtime_error("x_window: Query for GLX version returned " + std::to_string(glx_max) + "." + std::to_string(glx_min) + " expected 1.3+");
         }
 
-        // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
-        GLint attr[] = {
-            GLX_X_RENDERABLE, True,
-            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-            GLX_RENDER_TYPE, GLX_RGBA_BIT,
-            GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
-            GLX_DOUBLEBUFFER, True,
-            GLX_RED_SIZE, 8,
-            GLX_GREEN_SIZE, 8,
-            GLX_BLUE_SIZE, 8,
-            GLX_ALPHA_SIZE, 8,
-            GLX_DEPTH_SIZE, 24,
-            //GLX_STENCIL_SIZE, 8,
-            None};
-
         // Initialize GLEW with a dummy opengl context
-        init_glew(attr);
+        init_glew();
 
         // Create the real opengl context
-        create_opengl_context(title, attr, _major, _minor);
+        create_opengl_context(title, _major, _minor);
 
         // Print out the opengl version
         GLint major, minor;

@@ -65,6 +65,50 @@ class emitter_buffer
     std::vector<vec3<T>> _speed;
     std::vector<std::pair<vec3<T>, T>> _attractors;
 
+    inline void accumulate(const T dt)
+    {
+        _emit_accum += dt;
+
+        // Check if we need to grow pool size
+        if (_emit_accum >= _emit_freq)
+        {
+            // Decrement emit accumulation
+            _emit_accum -= _emit_freq;
+
+            // Emit more particles if the buffer is not full
+            if (_emit_pool_size != _position.size())
+            {
+                // Emit more particles
+                _emit_pool_size += _emit_count;
+            }
+        }
+
+        // If pool is full
+        if (_emit_pool_size == _position.size())
+        {
+            // Accumulate spawn timer
+            _spawn_accum += dt;
+
+            // Check if pool is full and time to respawn
+            if (_spawn_accum >= _spawn_freq)
+            {
+                // Reseed from offset to offset + _emit_count
+                seed(_emit_pool_offset, _emit_count);
+
+                // Increment the offset
+                _emit_pool_offset += _emit_count;
+
+                // If we hit the end of the pool reset offset = 0
+                if (_emit_pool_offset == _emit_pool_size)
+                {
+                    _emit_pool_offset = 0;
+                }
+
+                // Add more life to particles
+                _spawn_accum -= _spawn_freq;
+            }
+        }
+    }
     inline void check_extensions() const
     {
         const bool vao = GLEW_ARB_vertex_array_object;
@@ -216,6 +260,10 @@ class emitter_buffer
             glDrawArrays(GL_POINTS, 0, _emit_pool_size);
         }
     }
+    inline T get_accum() const
+    {
+        return _emit_accum;
+    }
     inline const vec3<T> &get_position() const
     {
         return _start_pos;
@@ -238,6 +286,11 @@ class emitter_buffer
         // Reset the accumulated time
         _emit_pool_size = 0;
         _emit_pool_offset = 0;
+        _emit_accum = 0.0;
+        _spawn_accum = 0.0;
+    }
+    inline void reset_accum()
+    {
         _emit_accum = 0.0;
         _spawn_accum = 0.0;
     }
@@ -277,47 +330,7 @@ class emitter_buffer
     void step(const T dt)
     {
         // Accumulate this time step
-        _emit_accum += dt;
-
-        // Check if we need to grow pool size
-        if (_emit_accum >= _emit_freq)
-        {
-            // Decrement emit accumulation
-            _emit_accum -= _emit_freq;
-
-            // Emit more particles if the buffer is not full
-            if (_emit_pool_size != _position.size())
-            {
-                // Emit more particles
-                _emit_pool_size += _emit_count;
-            }
-        }
-
-        // If pool is full
-        if (_emit_pool_size == _position.size())
-        {
-            // Accumulate spawn timer
-            _spawn_accum += dt;
-
-            // Check if pool is full and time to respawn
-            if (_spawn_accum >= _spawn_freq)
-            {
-                // Reseed from offset to offset + _emit_count
-                seed(_emit_pool_offset, _emit_count);
-
-                // Increment the offset
-                _emit_pool_offset += _emit_count;
-
-                // If we hit the end of the pool reset offset = 0
-                if (_emit_pool_offset == _emit_pool_size)
-                {
-                    _emit_pool_offset = 0;
-                }
-
-                // Add more life to particles
-                _spawn_accum -= _spawn_freq;
-            }
-        }
+        accumulate(dt);
 
         // Update all particles
         for (size_t i = 0; i < _emit_pool_size; i++)
@@ -339,16 +352,16 @@ class emitter_buffer
             position += speed * dt;
         }
     }
-    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const T inv_mass)> &f)
+    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const T accum, const T inv_mass)> &f, const T dt)
     {
-        // Expand buffer
-        _emit_pool_size = _position.size();
+        // Accumulate this time step
+        accumulate(dt);
 
         // Update all particles
         for (size_t i = 0; i < _emit_pool_size; i++)
         {
             // Call custom function
-            f(_position[i], _speed[i], _inv_mass);
+            f(_position[i], _speed[i], _emit_accum, _inv_mass);
         }
     }
     inline void upload() const
