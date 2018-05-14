@@ -363,6 +363,12 @@ class grid
         _ray_hits.clear();
         _ray_hits.reserve(_shapes.size());
 
+        // Check if grid is not built yet
+        if (_cells.size() == 0)
+        {
+            return _ray_hits;
+        }
+
         // Get the cell from the ray origin
         // this will check if ray originates within the grid
         const grid_node<T, K, L, vec, cell, shape> &node = get_node(r.get_origin());
@@ -430,7 +436,6 @@ class grid
 
         // Callback function
         const auto f = [this](const size_t key) {
-
             // Get the intersecting pairs in this cell
             this->get_overlap(key);
         };
