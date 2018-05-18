@@ -151,9 +151,21 @@ class text_buffer
         // Bind the buffer to hold data
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
 
-        // Specify the vertex attributes in location = 0, no offset, tighly packed
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        // Enable vertex attrib
         glEnableVertexAttribArray(0);
+
+        // Specify the vertex attributes in location = 0, no offset
+#ifdef MGL_VB43
+        glVertexAttribFormat(0, 4, GL_FLOAT, GL_FALSE, 0);
+
+        //  Create the buffer binding point
+        glVertexAttribBinding(0, 0);
+
+        // No offset, standard stride, binding point 0
+        glBindVertexBuffer(0, _vbo[0], 0, sizeof(min::vec4<float>));
+#else
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+#endif
     }
 
     void create_texture_buffer(const unsigned width, const unsigned height)
@@ -531,8 +543,13 @@ class text_buffer
         // Bind new buffer
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[buffer_index]);
 
+#ifdef MGL_VB43
+        // No offset, standard stride, binding point 0
+        glBindVertexBuffer(0, _vbo[buffer_index], 0, sizeof(min::vec4<float>));
+#else
         // Redundantly recreate the vertex attributes
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+#endif
     }
     inline void unbind() const
     {
