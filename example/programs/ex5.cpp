@@ -330,10 +330,10 @@ class md5_render_loop_test
     void update_text(const double fps, const double idle)
     {
         // Update the FPS text in buffer
-        _text_buffer.set_text("FPS: " + std::to_string(fps), _fps_id);
+        _text_buffer.set_text(_fps_id, "FPS: " + std::to_string(fps));
 
         // Update the FPS text in buffer
-        _text_buffer.set_text("IDLE(%): " + std::to_string(idle), _idle_id);
+        _text_buffer.set_text(_idle_id, "IDLE(%): " + std::to_string(idle));
 
         // Upload the strings to the GPU
         _text_buffer.upload();

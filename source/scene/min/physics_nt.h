@@ -682,6 +682,10 @@ class physics
     {
         return _spatial.get_collisions(r);
     }
+    inline const vec<T> &get_gravity() const
+    {
+        return _gravity;
+    }
     inline const std::vector<K> &get_index_map() const
     {
         return _spatial.get_index_map();
@@ -796,7 +800,7 @@ class physics
 
         for (auto &b : _bodies)
         {
-            // Calculate the double kinetic energy = mv^2
+            // Calculate double kinetic energy = mv^2
             const vec<T> &v = b.get_linear_velocity();
             const T m = b.get_mass();
             KE2 += m * v.dot(v);

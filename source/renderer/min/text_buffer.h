@@ -39,6 +39,7 @@ class text
     vec2<float> _line_wrap;
     size_t _offset;
     size_t _size;
+    vec2<float> _pixel;
 
   public:
     text(const std::string &text, const vec2<float> &p, const size_t offset)
@@ -64,19 +65,27 @@ class text
     {
         return _offset;
     }
+    const min::vec2<float> &pixel_size() const
+    {
+        return _pixel;
+    }
     void set_offset(const size_t offset)
     {
         _offset = offset;
     }
     size_t size() const
     {
-        // returns the number of triangles to draw for this string
-        // 6 * std::string.size()
+        // returns the number of points to draw for this string
+        // 2 tris = 6 * std::string.size()
         return _size;
     }
     const std::string &str() const
     {
         return _str;
+    }
+    void set_pixel_size(const vec2<float> &pixel)
+    {
+        _pixel = pixel;
     }
     void set_string(const std::string &str)
     {
@@ -104,7 +113,7 @@ class text_buffer
     unsigned _h;
     GLuint _tid;
     GLuint _vao;
-    GLuint _vbo;
+    std::vector<GLuint> _vbo;
     std::vector<text> _text;
     mutable std::vector<vec4<float>> _data;
     size_t _char_count;
@@ -128,7 +137,7 @@ class text_buffer
             throw std::runtime_error("text_buffer: minimum extensions not met");
         }
     }
-    void create_vertex_buffer()
+    void create_vertex_buffer(const size_t size)
     {
         // Generate the VAO for text layout
         glGenVertexArrays(1, &_vao);
@@ -137,10 +146,10 @@ class text_buffer
         bind_vao();
 
         // Generate the vertex buffer id
-        glGenBuffers(1, &_vbo);
+        glGenBuffers(size, _vbo.data());
 
         // Bind the buffer to hold data
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
 
         // Specify the vertex attributes in location = 0, no offset, tighly packed
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -409,9 +418,28 @@ class text_buffer
         // Return the screen coordinates
         return vec2<float>(px, py);
     }
+    inline void upload_data(const size_t buffer_index) const
+    {
+        // Bind the text buffer to hold data
+        glBindBuffer(GL_ARRAY_BUFFER, _vbo[buffer_index]);
+
+        // Upload data to the GPU
+        const size_t text_bytes = _data.size() * sizeof(vec4<float>);
+        glBufferData(GL_ARRAY_BUFFER, text_bytes, &_data[0], GL_DYNAMIC_DRAW);
+
+        // Check that the expected character count did not overflow
+        if (_data.size() > 6 * _char_count)
+        {
+            throw std::runtime_error("text_buffer: invalid character count");
+        }
+
+        // Data is on the GPU, so we throw this away
+        _data.clear();
+    }
 
   public:
-    text_buffer(const std::string &file, const int font_height) : _w(0), _h(0), _char_count(0), _screen_x(0.0), _screen_y(0.0)
+    text_buffer(const std::string &file, const int font_height, const size_t size = 1)
+        : _w(0), _h(0), _vbo(size), _char_count(0), _screen_x(0.0), _screen_y(0.0)
     {
         // Check that all needed extensions are present
         check_extensions();
@@ -434,7 +462,7 @@ class text_buffer
         FT_Set_Pixel_Sizes(face, 0, font_height);
 
         // create the vertex buffer for storing quads
-        create_vertex_buffer();
+        create_vertex_buffer(size);
 
         // Create texture atlas
         create_texture_atlas(face);
@@ -452,7 +480,7 @@ class text_buffer
             // Delete the texture
             glDeleteTextures(1, &_tid);
         }
-        if (_vbo > 0)
+        if (_vbo.size() > 0)
         {
             // Bind the vao
             bind_vao();
@@ -462,7 +490,7 @@ class text_buffer
 
             // unbind the VBO and delete it
             glBindBuffer(GL_ARRAY_BUFFER, 0);
-            glDeleteBuffers(1, &_vbo);
+            glDeleteBuffers(_vbo.size(), _vbo.data());
         }
         if (_vao > 0)
         {
@@ -497,6 +525,14 @@ class text_buffer
 
         // Bind texture to this texture target
         glBindTexture(GL_TEXTURE_2D, _tid);
+    }
+    inline void bind_buffer(const size_t buffer_index) const
+    {
+        // Bind new buffer
+        glBindBuffer(GL_ARRAY_BUFFER, _vbo[buffer_index]);
+
+        // Redundantly recreate the vertex attributes
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
     inline void unbind() const
     {
@@ -537,6 +573,11 @@ class text_buffer
             // Draw all of the text in one pass
             glDrawArrays(GL_TRIANGLES, 0, size);
         }
+    }
+    inline void draw_batch(const size_t size) const
+    {
+        // Draw all of the text in one pass
+        glDrawArrays(GL_TRIANGLES, 0, size);
     }
     inline void draw(const size_t from, const size_t to) const
     {
@@ -584,7 +625,7 @@ class text_buffer
         _screen_x = width;
         _screen_y = height;
     }
-    inline void set_text(const std::string &str, const size_t index)
+    inline void set_text(const size_t index, const std::string &str)
     {
         // Calculate the change in character count
         const long diff = (long)(str.size() - _text[index].str().size());
@@ -611,17 +652,6 @@ class text_buffer
             }
         }
     }
-    inline void set_text_center(const size_t index, const float x, const float y)
-    {
-        // Get the pixel size of the text
-        const vec2<float> size = get_pixel_size(_text[index]);
-
-        // Offset the x and y by half the box size
-        const vec2<float> center = vec2<float>(x, y) - size * 0.5;
-
-        // Update the location
-        _text[index].set_location(to_screen_coords(center.x(), center.y()));
-    }
     inline void set_text_location(const size_t index, const float x, const float y)
     {
         // Update the location
@@ -632,54 +662,92 @@ class text_buffer
         // Update the line wrap setting
         _text[index].set_line_wrap(vec2<float>(x, y));
     }
-    inline void set_text(const std::string &text, const size_t index, const float x, const float y)
+    inline void set_text(const size_t index, const std::string &text, const float x, const float y)
     {
         // Set the text
-        set_text(text, index);
+        set_text(index, text);
 
         // Set the text location
         set_text_location(index, x, y);
+    }
+    inline void set_text_center(const size_t index, const float x, const float y)
+    {
+        // Get the pixel size of the text
+        const vec2<float> &size = _text[index].pixel_size();
+
+        // Offset the x and y by half the box size
+        const vec2<float> center = vec2<float>(x, y) - size * 0.5;
+
+        // Update the location
+        _text[index].set_location(to_screen_coords(center.x(), center.y()));
+    }
+    inline void set_text_center(const size_t index, const std::string &text, const float x, const float y)
+    {
+        // Set the text
+        set_text(index, text);
+
+        // Get the pixel size of the text
+        const vec2<float> size = get_pixel_size(_text[index]);
+
+        // Cache the pixel size
+        _text[index].set_pixel_size(size);
+
+        // Center the text
+        set_text_center(index, x, y);
     }
     inline size_t size() const
     {
         return _text.size();
     }
-    void upload() const
+    void upload(const size_t buffer_index = 0) const
     {
-        // Get the number of strings to render
-        const size_t size = _text.size();
-
-        // Do nothing if no data to upload
-        if (size == 0)
-        {
-            // Fail silently
-            return;
-        }
-
         // Reserve space for the text, 2 triangles for each character
         _data.reserve(6 * _char_count);
 
+        // Get the number of strings to render
+        const size_t size = _text.size();
+        if (size == 0)
+        {
+            // Do nothing if no data to upload
+            return;
+        }
+
+        // Add each string to the text buffer
         for (size_t i = 0; i < size; i++)
         {
-            // Add each string to the text buffer
             process_text(_text[i]);
         }
 
-        // Bind the text buffer to hold data
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+        // Upload the data in the data buffer
+        upload_data(buffer_index);
+    }
+    size_t upload_batch(const size_t buffer_index, const std::vector<size_t> &indices) const
+    {
+        // Reserve space for the text, 2 triangles for each character
+        _data.reserve(6 * _char_count);
 
-        // Upload data to the GPU
-        const size_t text_bytes = _data.size() * sizeof(vec4<float>);
-        glBufferData(GL_ARRAY_BUFFER, text_bytes, &_data[0], GL_DYNAMIC_DRAW);
-
-        // Check that the expected character count did not overflow
-        if (_data.size() > 6 * _char_count)
+        // Get the number of strings to render
+        const size_t size = indices.size();
+        if (size == 0)
         {
-            throw std::runtime_error("text_buffer: invalid character count");
+            // Do nothing if no data to upload
+            return 0;
         }
 
-        // Data is on the GPU, so we throw this away
-        _data.clear();
+        // Add each string to the text buffer
+        for (size_t i = 0; i < size; i++)
+        {
+            process_text(_text[indices[i]]);
+        }
+
+        // Get the data size
+        const size_t data_size = _data.size();
+
+        // Upload the data in the data buffer
+        upload_data(buffer_index);
+
+        // Return the size of the batch for drawing later
+        return data_size;
     }
 };
 }

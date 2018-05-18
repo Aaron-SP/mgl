@@ -355,9 +355,6 @@ class vertex_buffer
         // This function heavily modifies VAO state
         _index = index;
 
-        // Bind the VAO for this buffer
-        glBindVertexArray(_vao);
-
         // Bind the array buffer to hold data
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[_index]);
 
