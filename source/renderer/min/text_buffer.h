@@ -432,21 +432,24 @@ class text_buffer
     }
     inline void upload_data(const size_t buffer_index) const
     {
-        // Bind the text buffer to hold data
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo[buffer_index]);
-
-        // Upload data to the GPU
-        const size_t text_bytes = _data.size() * sizeof(vec4<float>);
-        glBufferData(GL_ARRAY_BUFFER, text_bytes, &_data[0], GL_DYNAMIC_DRAW);
-
-        // Check that the expected character count did not overflow
-        if (_data.size() > 6 * _char_count)
+        if (_data.size() > 0)
         {
-            throw std::runtime_error("text_buffer: invalid character count");
-        }
+            // Bind the text buffer to hold data
+            glBindBuffer(GL_ARRAY_BUFFER, _vbo[buffer_index]);
 
-        // Data is on the GPU, so we throw this away
-        _data.clear();
+            // Upload data to the GPU
+            const size_t text_bytes = _data.size() * sizeof(vec4<float>);
+            glBufferData(GL_ARRAY_BUFFER, text_bytes, &_data[0], GL_DYNAMIC_DRAW);
+
+            // Check that the expected character count did not overflow
+            if (_data.size() > 6 * _char_count)
+            {
+                throw std::runtime_error("text_buffer: invalid character count");
+            }
+
+            // Data is on the GPU, so we throw this away
+            _data.clear();
+        }
     }
 
   public:
