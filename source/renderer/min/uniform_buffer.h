@@ -51,9 +51,9 @@ class uniform_buffer
     GLuint _lbo;
     GLuint _mbo;
     GLuint _vbo;
-    uint32_t _max_lights;
-    uint32_t _max_matrix;
-    uint32_t _max_vector;
+    unsigned _max_lights;
+    unsigned _max_matrix;
+    unsigned _max_vector;
     GLint _light_offsets[2];
     GLint _matrix_offsets[2];
     GLint _vector_offsets[2];
@@ -359,7 +359,7 @@ class uniform_buffer
         check_extensions();
     }
 
-    uniform_buffer(const uint32_t light_size, const uint32_t matrix_size, const uint32_t vector_size)
+    uniform_buffer(const unsigned light_size, const unsigned matrix_size, const unsigned vector_size)
         : _max_lights(light_size), _max_matrix(matrix_size), _max_vector(vector_size),
           _light_offsets{0, static_cast<GLint>(get_light_bytes() - size_bytes)},
           _matrix_offsets{0, static_cast<GLint>(get_matrix_bytes() - size_bytes)},
@@ -371,7 +371,7 @@ class uniform_buffer
         // Load light and matrix buffers
         load_buffers();
     }
-    void defer_construct(const uint32_t light_size, const uint32_t matrix_size, const uint32_t vector_size)
+    void defer_construct(const unsigned light_size, const unsigned matrix_size, const unsigned vector_size)
     {
         _max_lights = light_size;
         _max_matrix = matrix_size;
@@ -508,7 +508,7 @@ class uniform_buffer
 
         return (size_t)size;
     }
-    inline void insert_light(const std::vector<mat4<T>> &v)
+    inline void insert_light(const std::vector<light<T>> &v)
     {
         _lights.insert(_lights.end(), v.begin(), v.end());
     }

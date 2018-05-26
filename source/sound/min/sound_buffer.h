@@ -44,7 +44,7 @@ class sound_buffer
     std::vector<ALuint> _sources;
     min::vec3<float> _listener;
 
-    inline static ALenum al_format(const bool stereo, const uint32_t depth)
+    inline static ALenum al_format(const bool stereo, const unsigned depth)
     {
         // Select the ALenum for this data
         switch (depth)
@@ -226,7 +226,7 @@ class sound_buffer
     {
         // Get the al_format for this data
         const bool stereo = wave.is_stereo();
-        const uint32_t bits = wave.get_bits_per_sample();
+        const unsigned bits = wave.get_bits_per_sample();
         const ALenum format = al_format(stereo, bits);
 
         // Copy WAVE data into buffer
@@ -241,7 +241,7 @@ class sound_buffer
     {
         // Get the al_format for this data
         const bool stereo = ogg.is_stereo();
-        const uint32_t bits = ogg.get_bits_per_sample();
+        const unsigned bits = ogg.get_bits_per_sample();
         const ALenum format = al_format(stereo, bits);
 
         // Copy OGG data into buffer

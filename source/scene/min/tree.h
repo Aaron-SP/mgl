@@ -106,7 +106,7 @@ class tree
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
     std::vector<K> _sort_copy;
-    mutable std::vector<uint8_t> _sub_overlap;
+    mutable std::vector<uint_fast8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
@@ -459,7 +459,7 @@ class tree
         for (K i = 0; i < _depth; i++)
         {
             // Get the key from the point ratio
-            const uint8_t key = ratio.subdivide_key(middle);
+            const uint_fast8_t key = ratio.subdivide_key(middle);
 
             // Check the calculated key value
             if (key > 7 || key < 0)

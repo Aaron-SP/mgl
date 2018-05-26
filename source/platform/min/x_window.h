@@ -140,8 +140,8 @@ class x_window
     };
 
   private:
-    uint16_t _w;
-    uint16_t _h;
+    uint_fast16_t _w;
+    uint_fast16_t _h;
     int _major;
     int _minor;
     bool _shutdown;
@@ -155,11 +155,11 @@ class x_window
 
     // Callback functions
     void *_data;
-    void (*_lclick_down)(void *, const uint16_t width, const uint16_t);
-    void (*_lclick_up)(void *, const uint16_t width, const uint16_t);
-    void (*_rclick_down)(void *, const uint16_t width, const uint16_t);
-    void (*_rclick_up)(void *, const uint16_t width, const uint16_t);
-    void (*_update)(void *, const uint16_t width, const uint16_t);
+    void (*_lclick_down)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_lclick_up)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_rclick_down)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_rclick_up)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_update)(void *, const uint_fast16_t width, const uint_fast16_t);
 
     // Window class string literal
     static constexpr const char *window_class = "minwl:x_window";
@@ -398,7 +398,7 @@ class x_window
         }
         std::cout << "x_window: opening X11 opengl context version " << major << "." << minor << std::endl;
     }
-    void on_lclick_down(const uint16_t x, const uint16_t y) const
+    void on_lclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_down callback
         if (_lclick_down)
@@ -406,7 +406,7 @@ class x_window
             _lclick_down(_data, x, y);
         }
     }
-    void on_lclick_up(const uint16_t x, const uint16_t y) const
+    void on_lclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_up callback
         if (_lclick_up)
@@ -414,7 +414,7 @@ class x_window
             _lclick_up(_data, x, y);
         }
     }
-    void on_rclick_down(const uint16_t x, const uint16_t y) const
+    void on_rclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rlick_down callback
         if (_rclick_down)
@@ -422,7 +422,7 @@ class x_window
             _rclick_down(_data, x, y);
         }
     }
-    void on_rclick_up(const uint16_t x, const uint16_t y) const
+    void on_rclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rclick_up callback
         if (_rclick_up)
@@ -430,7 +430,7 @@ class x_window
             _rclick_up(_data, x, y);
         }
     }
-    void on_resize(const uint16_t width, const uint16_t height)
+    void on_resize(const uint_fast16_t width, const uint_fast16_t height)
     {
         _w = width;
         _h = height;
@@ -441,7 +441,7 @@ class x_window
         // Call the update callback
         on_update(_w, _h);
     }
-    void on_update(const uint16_t width, const uint16_t height) const
+    void on_update(const uint_fast16_t width, const uint_fast16_t height) const
     {
         // Call the update callback
         if (_update)
@@ -451,7 +451,7 @@ class x_window
     }
 
   public:
-    x_window(const std::string &title, const uint16_t width, const uint16_t height, int major, int minor)
+    x_window(const std::string &title, const uint_fast16_t width, const uint_fast16_t height, int major, int minor)
         : _w(width), _h(height), _major(major), _minor(minor), _shutdown(false),
           _lclick_down(nullptr), _lclick_up(nullptr), _rclick_down(nullptr), _rclick_up(nullptr), _update(nullptr)
     {
@@ -527,7 +527,7 @@ class x_window
     {
         return reinterpret_cast<const char *>(glGetString(str));
     }
-    std::pair<uint16_t, uint16_t> get_cursor() const
+    std::pair<uint_fast16_t, uint_fast16_t> get_cursor() const
     {
         int x, y;
         Window window;
@@ -535,9 +535,9 @@ class x_window
 
         // Get the mouse coordinates on the root window
         XQueryPointer(_display, _window, &window, &window, &x, &y, &x, &y, &mask);
-        return std::make_pair<uint16_t, uint16_t>(x, y);
+        return std::make_pair<uint_fast16_t, uint_fast16_t>(x, y);
     }
-    uint16_t get_height() const
+    uint_fast16_t get_height() const
     {
         return _h;
     }
@@ -549,7 +549,7 @@ class x_window
     {
         return _shutdown;
     }
-    uint16_t get_width() const
+    uint_fast16_t get_width() const
     {
         return _w;
     }
@@ -558,22 +558,22 @@ class x_window
         // Maximize the window
         // This functionality is dependent on the window manager
     }
-    void register_lclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse down
         _lclick_down = down;
     }
-    void register_lclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse up
         _lclick_up = up;
     }
-    void register_rclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
+    void register_rclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse down
         _rclick_down = down;
     }
-    void register_rclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
+    void register_rclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse up
         _rclick_up = up;
@@ -583,16 +583,16 @@ class x_window
         // Register callback data pointer
         _data = ptr;
     }
-    void register_update(void (*update)(void *, const uint16_t width, const uint16_t height))
+    void register_update(void (*update)(void *, const uint_fast16_t width, const uint_fast16_t height))
     {
         // Register callback on resize
         _update = update;
     }
-    void resize(const uint16_t width, const uint16_t height) const
+    void resize(const uint_fast16_t width, const uint_fast16_t height) const
     {
         XResizeWindow(_display, _window, width, height);
     }
-    void set_cursor(const uint16_t x, const uint16_t y) const
+    void set_cursor(const uint_fast16_t x, const uint_fast16_t y) const
     {
         XWarpPointer(_display, 0, _window, 0, 0, _w, _h, x, y);
     }

@@ -34,7 +34,7 @@ bool test_ray_tree()
         min::vec2<double> maxW(100000.0, 100000.0);
         min::vec2<double> origin;
         min::sphere<double, min::vec2> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec2, min::sphere, min::sphere> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec2, min::sphere, min::sphere> g(world);
 
         // Number of spheres to make
         const size_t N = 100;
@@ -73,7 +73,7 @@ bool test_ray_tree()
             min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -91,7 +91,7 @@ bool test_ray_tree()
         min::vec2<double> maxW(100000.0, 100000.0);
         min::vec2<double> origin;
         min::aabbox<double, min::vec2> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec2, min::aabbox, min::aabbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec2, min::aabbox, min::aabbox> g(world);
 
         // Number of aabboxs to make
         const size_t N = 100;
@@ -132,7 +132,7 @@ bool test_ray_tree()
             min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -150,7 +150,7 @@ bool test_ray_tree()
         min::vec2<double> maxW(100000.0, 100000.0);
         min::vec2<double> origin;
         min::oobbox<double, min::vec2> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec2, min::oobbox, min::oobbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec2, min::oobbox, min::oobbox> g(world);
 
         // Number of oobboxs to make
         const size_t N = 100;
@@ -191,7 +191,7 @@ bool test_ray_tree()
             min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -209,7 +209,7 @@ bool test_ray_tree()
         min::vec3<double> maxW(100000.0, 100000.0, 100000.0);
         min::vec3<double> origin;
         min::sphere<double, min::vec3> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec3, min::sphere, min::sphere> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec3, min::sphere, min::sphere> g(world);
 
         // Number of spheres to make
         const size_t N = 100;
@@ -248,7 +248,7 @@ bool test_ray_tree()
             min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -266,7 +266,7 @@ bool test_ray_tree()
         min::vec3<double> maxW(100000.0, 100000.0, 100000.0);
         min::vec3<double> origin;
         min::aabbox<double, min::vec3> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec3, min::aabbox, min::aabbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec3, min::aabbox, min::aabbox> g(world);
 
         // Number of aabboxs to make
         const size_t N = 100;
@@ -307,7 +307,7 @@ bool test_ray_tree()
             min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -325,7 +325,7 @@ bool test_ray_tree()
         min::vec3<double> maxW(100000.0, 100000.0, 100000.0);
         min::vec3<double> origin;
         min::oobbox<double, min::vec3> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec3, min::oobbox, min::oobbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec3, min::oobbox, min::oobbox> g(world);
 
         // Number of oobboxs to make
         const size_t N = 100;
@@ -366,7 +366,7 @@ bool test_ray_tree()
             min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -384,7 +384,7 @@ bool test_ray_tree()
         min::vec4<double> maxW(100000.0, 100000.0, 100000.0, 1.0);
         min::vec4<double> origin;
         min::sphere<double, min::vec4> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec4, min::sphere, min::sphere> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec4, min::sphere, min::sphere> g(world);
 
         // Number of spheres to make
         const size_t N = 100;
@@ -423,7 +423,7 @@ bool test_ray_tree()
             min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -441,7 +441,7 @@ bool test_ray_tree()
         min::vec4<double> maxW(100000.0, 100000.0, 100000.0, 1.0);
         min::vec4<double> origin;
         min::aabbox<double, min::vec4> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec4, min::aabbox, min::aabbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec4, min::aabbox, min::aabbox> g(world);
 
         // Number of aabboxs to make
         const size_t N = 100;
@@ -482,7 +482,7 @@ bool test_ray_tree()
             min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);
@@ -500,7 +500,7 @@ bool test_ray_tree()
         min::vec4<double> maxW(100000.0, 100000.0, 100000.0, 1.0);
         min::vec4<double> origin;
         min::oobbox<double, min::vec4> world(minW, maxW);
-        min::tree<double, uint16_t, uint32_t, min::vec4, min::oobbox, min::oobbox> g(world);
+        min::tree<double, uint_fast16_t, uint_fast32_t, min::vec4, min::oobbox, min::oobbox> g(world);
 
         // Number of oobboxs to make
         const size_t N = 100;
@@ -541,7 +541,7 @@ bool test_ray_tree()
             min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
             // Get collisions with ray
-            const std::vector<std::pair<uint16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
 
             // Test if we got a collision with ray
             out = out && (collisions.size() == 1);

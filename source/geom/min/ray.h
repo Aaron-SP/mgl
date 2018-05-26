@@ -43,7 +43,7 @@ class ray
         _origin = from;
 
         // Calculate the direction vector
-        const min::vec3<float> dir = to - from;
+        const vec<T> dir = to - from;
         const T length = dir.magnitude();
         const T inv_len = 1.0 / length;
 

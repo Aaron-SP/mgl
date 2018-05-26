@@ -223,7 +223,7 @@ class physics_test
     // Physics simulation
     min::oobbox<float, min::vec3> _world;
     min::vec3<float> _gravity;
-    min::physics<float, uint16_t, uint32_t, min::vec3, min::oobbox, min::oobbox, min::grid> _simulation;
+    min::physics<float, uint_fast16_t, uint_fast32_t, min::vec3, min::oobbox, min::oobbox, min::grid> _simulation;
     size_t _base_mesh;
     size_t _box_mesh;
     size_t _box_count;
@@ -383,8 +383,8 @@ class physics_test
     void update_cursor()
     {
         // Get the screen dimensions
-        uint16_t h = _win.get_height();
-        uint16_t w = _win.get_width();
+        uint_fast16_t h = _win.get_height();
+        uint_fast16_t w = _win.get_width();
 
         // Center cursor in middle of window
         _win.set_cursor(w / 2, h / 2);

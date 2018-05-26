@@ -1,7 +1,7 @@
 #include <min/aabbox.h>
 #include <min/grid.h>
 #include <min/oobbox.h>
-#include <min/physics.h>
+#include <min/physics_nt.h>
 #include <min/sphere.h>
 #include <min/vec2.h>
 #include <min/vec3.h>

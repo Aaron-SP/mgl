@@ -104,7 +104,7 @@ class screen_draw_test
         // Alert that we received the call back
         std::cout << "screen_draw_test: Shutdown called by user" << std::endl;
     }
-    static void on_click(void *ptr, const uint16_t x, const uint16_t y)
+    static void on_click(void *ptr, const uint_fast16_t x, const uint_fast16_t y)
     {
         // Call back function for closing window
         // 'ptr' is passed in by us in constructor
@@ -115,7 +115,7 @@ class screen_draw_test
             test->add_geometry(x, y);
         }
     }
-    void add_geometry(const uint16_t x, const uint16_t y)
+    void add_geometry(const uint_fast16_t x, const uint_fast16_t y)
     {
         // Convert width and height to coordinates
         const float x_screen = (2.0 / _win.get_width()) * x - 1.0;

@@ -37,7 +37,7 @@ double bench_physics_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world,
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::aabbox, min::aabbox, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::aabbox, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's
@@ -76,7 +76,7 @@ double bench_physics_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world,
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::aabbox, min::oobbox, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::oobbox, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's
@@ -115,7 +115,7 @@ double bench_physics_aabb_sphere(const size_t N, const min::aabbox<T, vec> &worl
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::aabbox, min::sphere, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::sphere, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's
@@ -154,7 +154,7 @@ double bench_physics_sphere_aabb(const size_t N, const min::sphere<T, vec> &worl
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::sphere, min::aabbox, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::aabbox, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's
@@ -193,7 +193,7 @@ double bench_physics_sphere_oobb(const size_t N, const min::sphere<T, vec> &worl
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::sphere, min::oobbox, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::oobbox, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's
@@ -232,7 +232,7 @@ double bench_physics_sphere_sphere(const size_t N, const min::sphere<T, vec> &wo
 
     // Create simulation
     vec<T> gravity = vec<T>::up() * -10.0;
-    min::physics<T, uint16_t, uint32_t, vec, min::sphere, min::sphere, spatial> simulation(world, gravity);
+    min::physics<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::sphere, spatial> simulation(world, gravity);
     simulation.reserve(N);
 
     // Create 'N' random cubic sphere's

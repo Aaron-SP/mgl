@@ -554,7 +554,7 @@ bool test_vec3()
     one = min::vec3<double>(-1.0, -1.0, -1.0);
     two = min::vec3<double>(1.0, 1.0, 1.0);
     three = min::vec3<double>(0.0, 0.0, 0.0);
-    std::vector<uint8_t> sub_over;
+    std::vector<uint_fast8_t> sub_over;
     min::vec3<double>::sub_overlap(sub_over, one, two, three);
     out = out && compare(0, sub_over[0]);
     out = out && compare(1, sub_over[1]);

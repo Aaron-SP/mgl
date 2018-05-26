@@ -26,11 +26,11 @@ class loop_sync
 {
   private:
     // History buffer
-    static constexpr uint8_t _error_count = 16;
+    static constexpr uint_fast8_t _error_count = 16;
     double _error[_error_count];
     double _idle[_error_count];
-    uint8_t _begin;
-    uint8_t _end;
+    uint_fast8_t _begin;
+    uint_fast8_t _end;
     double _ie;
     double _idle_time;
     double _de;
@@ -58,14 +58,14 @@ class loop_sync
 
         // Calculate integral of errors
         _ie = _error[_end] = _set_point - _dt;
-        for (uint8_t i = _begin; i != _end; i = (i + 1) % _error_count)
+        for (uint_fast8_t i = _begin; i != _end; i = (i + 1) % _error_count)
         {
             _ie += _error[i];
         }
 
         // Calculate integral of idle time per frame
         _idle_time = _idle[_end] = idle_time;
-        for (uint8_t i = _begin; i != _end; i = (i + 1) % _error_count)
+        for (uint_fast8_t i = _begin; i != _end; i = (i + 1) % _error_count)
         {
             _idle_time += _idle[i];
         }

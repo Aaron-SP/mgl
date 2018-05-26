@@ -23,7 +23,7 @@ limitations under the License.
 bool test_bit_flag()
 {
     bool out = true;
-    min::bit_flag<uint16_t, uint32_t> flags(256, 256);
+    min::bit_flag<uint_fast16_t, uint_fast32_t> flags(256, 256);
 
     // Make sure 1/2 is off by default
     out = out && flags.get(1, 2) == false;

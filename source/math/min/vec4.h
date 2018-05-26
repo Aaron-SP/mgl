@@ -1290,14 +1290,14 @@ class vec4
 
         return vec4<T>(x, y, z, 1.0);
     }
-    inline uint8_t subdivide_key(const T middle)
+    inline uint_fast8_t subdivide_key(const T middle)
     {
         T x = _x;
         T y = _y;
         T z = _z;
 
         // Get the x portion of key
-        uint8_t key = 0;
+        uint_fast8_t key = 0;
         if (x > middle)
         {
             // Set the least significant bit
@@ -1879,11 +1879,11 @@ class vec4
             vec4<T> ratio = vec4<T>::ratio(min, max, enter);
 
             // Get the key from octant
-            const uint8_t key = ratio.subdivide_key(0.5);
+            const uint_fast8_t key = ratio.subdivide_key(0.5);
             out.push_back(key);
         }
     }
-    inline static void sub_overlap(std::vector<uint8_t> &out, const vec4<T> &min, const vec4<T> &max, const vec4<T> &center)
+    inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec4<T> &min, const vec4<T> &max, const vec4<T> &center)
     {
         // Reserve space for output
         out.clear();

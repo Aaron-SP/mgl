@@ -846,14 +846,17 @@ class physics
         _dead.clear();
 
         // Shorten shape and body buffers
-        const size_t size = index + 1;
-        _shapes.resize(size);
-        _bodies.resize(size);
+        const size_t size = _shapes.size();
+        for (size_t i = index; i < size; i++)
+        {
+            _shapes.pop_back();
+            _bodies.pop_back();
+        }
 
         // Scan for dead bodies in remnants
         for (size_t i = 0; i < size; i++)
         {
-            if (_bodies.is_dead())
+            if (_bodies[i].is_dead())
             {
                 _dead.push_back(i);
             }

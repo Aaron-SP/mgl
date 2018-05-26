@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
 #include <vector>
 
 namespace min
@@ -163,7 +164,7 @@ class bit_flag
     K _col;
     std::vector<uint8_t> _flags;
 
-    inline std::pair<L, uint8_t> get_address(const L row, const L col) const
+    inline std::pair<L, uint_fast8_t> get_address(const L row, const L col) const
     {
         // Divide by 8 to get into bytes
         const L position = (row * _col) + col;
@@ -171,7 +172,7 @@ class bit_flag
 
         // Get the offset
         // 0-7 value
-        const uint8_t offset = position % 8;
+        const uint_fast8_t offset = position % 8;
 
         // Return address
         return std::make_pair(byte, offset);
@@ -188,7 +189,7 @@ class bit_flag
     inline bool get(const K row, const K col) const
     {
         // Get the address
-        const std::pair<L, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint_fast8_t> addr = get_address(row, col);
 
         // Return 1 if on and zero if off
         return (_flags[addr.first] >> addr.second) & 0x1;
@@ -196,7 +197,7 @@ class bit_flag
     inline bool get_set_on(const K row, const K col)
     {
         // Get the address
-        const std::pair<L, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint_fast8_t> addr = get_address(row, col);
 
         // Cache shift for the read/write operation
         const auto shift = (0x1 << addr.second);
@@ -212,13 +213,13 @@ class bit_flag
     inline void set_on(const K row, const K col)
     {
         // Get the address
-        const std::pair<L, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint_fast8_t> addr = get_address(row, col);
         _flags[addr.first] |= (0x1 << addr.second);
     }
     inline void set_off(const K row, const K col)
     {
         // Get the address
-        const std::pair<L, uint8_t> addr = get_address(row, col);
+        const std::pair<L, uint_fast8_t> addr = get_address(row, col);
         _flags[addr.first] &= ~(0x1 << addr.second);
     }
 };
@@ -261,7 +262,7 @@ inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_funct
         for (const auto &ui : *from)
         {
             // Extract the key
-            const uint8_t key = (key_function(ui) >> 8 * i) & (0xFF);
+            const uint_fast8_t key = (key_function(ui) >> 8 * i) & (0xFF);
 
             // Count the frequency of key
             counts[key]++;
@@ -280,7 +281,7 @@ inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_funct
         for (const auto &ui : *from)
         {
             // Extract the key
-            const uint8_t key = (key_function(ui) >> 8 * i) & (0xFF);
+            const uint_fast8_t key = (key_function(ui) >> 8 * i) & (0xFF);
 
             // perform copy sort
             (*to)[counts[key]++] = ui;

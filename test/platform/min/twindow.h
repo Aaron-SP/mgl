@@ -33,7 +33,7 @@ bool test_window()
 
     // Local variables
     min::window win("Test Window", 720, 480, 3, 3);
-    std::pair<uint16_t, uint16_t> cursor;
+    std::pair<uint_fast16_t, uint_fast16_t> cursor;
 
     // Test the window dimensions
     out = out && compare(720, win.get_width());

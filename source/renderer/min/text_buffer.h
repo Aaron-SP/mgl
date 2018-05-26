@@ -117,8 +117,8 @@ class text_buffer
     std::vector<text> _text;
     mutable std::vector<vec4<float>> _data;
     size_t _char_count;
-    uint16_t _screen_x;
-    uint16_t _screen_y;
+    uint_fast16_t _screen_x;
+    uint_fast16_t _screen_y;
 
     inline void bind_vao() const
     {
@@ -611,7 +611,7 @@ class text_buffer
         // Draw all of the text from 'start' to index 'stop'
         glDrawArrays(GL_TRIANGLES, start.offset(), size);
     }
-    inline std::pair<uint16_t, uint16_t> get_screen_size() const
+    inline std::pair<uint_fast16_t, uint_fast16_t> get_screen_size() const
     {
         return std::make_pair(_screen_x, _screen_y);
     }
@@ -640,7 +640,7 @@ class text_buffer
         // Check for opengl errors
         check_internal_error();
     }
-    inline void set_screen(const uint16_t width, const uint16_t height)
+    inline void set_screen(const uint_fast16_t width, const uint_fast16_t height)
     {
         _screen_x = width;
         _screen_y = height;

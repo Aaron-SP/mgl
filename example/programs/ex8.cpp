@@ -54,7 +54,7 @@ class physics_test
     // Physics simulation
     min::oobbox<float, min::vec3> _world;
     min::vec3<float> _gravity;
-    min::physics<float, uint16_t, uint32_t, min::vec3, min::oobbox, min::oobbox, min::grid> _simulation;
+    min::physics<float, uint_fast16_t, uint_fast32_t, min::vec3, min::oobbox, min::oobbox, min::grid> _simulation;
     float _body_radius;
 
     void load_camera()

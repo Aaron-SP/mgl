@@ -149,8 +149,8 @@ class win32_window
     };
 
   private:
-    uint16_t _w;
-    uint16_t _h;
+    uint_fast16_t _w;
+    uint_fast16_t _h;
     int _major;
     int _minor;
     bool _shutdown;
@@ -162,11 +162,11 @@ class win32_window
 
     // Callback functions
     void *_data;
-    void (*_lclick_down)(void *, const uint16_t width, const uint16_t);
-    void (*_lclick_up)(void *, const uint16_t width, const uint16_t);
-    void (*_rclick_down)(void *, const uint16_t width, const uint16_t);
-    void (*_rclick_up)(void *, const uint16_t width, const uint16_t);
-    void (*_update)(void *, const uint16_t width, const uint16_t);
+    void (*_lclick_down)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_lclick_up)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_rclick_down)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_rclick_up)(void *, const uint_fast16_t width, const uint_fast16_t);
+    void (*_update)(void *, const uint_fast16_t width, const uint_fast16_t);
 
     // Window class string literal
     static constexpr const char *window_class = "minwl:win32_window";
@@ -296,7 +296,7 @@ class win32_window
                 const int y = GET_Y_LPARAM(lParam);
 
                 // Call the drag callback
-                const uint16_t h = window->get_height();
+                const uint_fast16_t h = window->get_height();
                 window->on_lclick_down(x, h - y);
             }
             break;
@@ -311,7 +311,7 @@ class win32_window
             const int y = GET_Y_LPARAM(lParam);
 
             // Call the click callback
-            const uint16_t h = window->get_height();
+            const uint_fast16_t h = window->get_height();
             window->on_lclick_up(x, h - y);
             break;
         }
@@ -325,7 +325,7 @@ class win32_window
             const int y = GET_Y_LPARAM(lParam);
 
             // Call the click callback
-            const uint16_t h = window->get_height();
+            const uint_fast16_t h = window->get_height();
             window->on_rclick_down(x, h - y);
             break;
         }
@@ -339,7 +339,7 @@ class win32_window
             const int y = GET_Y_LPARAM(lParam);
 
             // Call the click callback
-            const uint16_t h = window->get_height();
+            const uint_fast16_t h = window->get_height();
             window->on_rclick_up(x, h - y);
             break;
         }
@@ -363,8 +363,8 @@ class win32_window
             window = reinterpret_cast<win32_window *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
             // Get the screen properties
-            const uint16_t w = LOWORD(lParam);
-            const uint16_t h = HIWORD(lParam);
+            const uint_fast16_t w = LOWORD(lParam);
+            const uint_fast16_t h = HIWORD(lParam);
 
             // Call the resize callback
             window->on_resize(w, h);
@@ -393,13 +393,13 @@ class win32_window
         return 0;
     }
 
-    inline static std::pair<uint16_t, uint16_t> calculate_window_size(const uint16_t width, const uint16_t height)
+    inline static std::pair<uint_fast16_t, uint_fast16_t> calculate_window_size(const uint_fast16_t width, const uint_fast16_t height)
     {
         // Calculate the size of window to get desired client area
         RECT wr = {0, 0, width, height};
         AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
-        return std::make_pair<uint16_t, uint16_t>(wr.right - wr.left, wr.bottom - wr.top);
+        return std::make_pair<uint_fast16_t, uint_fast16_t>(wr.right - wr.left, wr.bottom - wr.top);
     }
     void init_glew(PIXELFORMATDESCRIPTOR &pfd)
     {
@@ -584,7 +584,7 @@ class win32_window
         }
         std::cout << "win32_window: opening win32 opengl context version " << major << "." << minor << std::endl;
     }
-    void on_lclick_down(const uint16_t x, const uint16_t y) const
+    void on_lclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_down callback
         if (_lclick_down)
@@ -592,7 +592,7 @@ class win32_window
             _lclick_down(_data, x, y);
         }
     }
-    void on_lclick_up(const uint16_t x, const uint16_t y) const
+    void on_lclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_up callback
         if (_lclick_up)
@@ -600,7 +600,7 @@ class win32_window
             _lclick_up(_data, x, y);
         }
     }
-    void on_rclick_down(const uint16_t x, const uint16_t y) const
+    void on_rclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rlick_down callback
         if (_rclick_down)
@@ -608,7 +608,7 @@ class win32_window
             _rclick_down(_data, x, y);
         }
     }
-    void on_rclick_up(const uint16_t x, const uint16_t y) const
+    void on_rclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rclick_up callback
         if (_rclick_up)
@@ -616,7 +616,7 @@ class win32_window
             _rclick_up(_data, x, y);
         }
     }
-    void on_resize(const uint16_t width, const uint16_t height)
+    void on_resize(const uint_fast16_t width, const uint_fast16_t height)
     {
         _w = width;
         _h = height;
@@ -627,7 +627,7 @@ class win32_window
         // Call the update callback
         on_update(_w, _h);
     }
-    void on_update(const uint16_t width, const uint16_t height) const
+    void on_update(const uint_fast16_t width, const uint_fast16_t height) const
     {
         // Call the update callback
         if (_update)
@@ -637,7 +637,7 @@ class win32_window
     }
 
   public:
-    win32_window(const std::string &title, const uint16_t width, const uint16_t height, int major, int minor)
+    win32_window(const std::string &title, const uint_fast16_t width, const uint_fast16_t height, int major, int minor)
         : _w(width), _h(height), _major(major), _minor(minor),
           _shutdown(false),
           _lclick_down(nullptr), _lclick_up(nullptr), _rclick_down(nullptr), _rclick_up(nullptr), _update(nullptr)
@@ -706,7 +706,7 @@ class win32_window
     {
         return reinterpret_cast<const char *>(glGetString(str));
     }
-    std::pair<uint16_t, uint16_t> get_cursor() const
+    std::pair<uint_fast16_t, uint_fast16_t> get_cursor() const
     {
         POINT p;
         if (!GetCursorPos(&p))
@@ -729,13 +729,13 @@ class win32_window
             }
         }
 
-        return std::make_pair<uint16_t, uint16_t>(p.x, p.y);
+        return std::make_pair<uint_fast16_t, uint_fast16_t>(p.x, p.y);
     }
     keyboard<WPARAM, double> &get_keyboard()
     {
         return _keyboard;
     }
-    uint16_t get_height() const
+    uint_fast16_t get_height() const
     {
         return _h;
     }
@@ -743,7 +743,7 @@ class win32_window
     {
         return _shutdown;
     }
-    uint16_t get_width() const
+    uint_fast16_t get_width() const
     {
         return _w;
     }
@@ -756,22 +756,22 @@ class win32_window
         // If window was previously hidden zero
         // If window was previously visible nonzero
     }
-    void register_lclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse down
         _lclick_down = down;
     }
-    void register_lclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
+    void register_lclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse up
         _lclick_up = up;
     }
-    void register_rclick_down(void (*down)(void *, const uint16_t x, const uint16_t y))
+    void register_rclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse down
         _rclick_down = down;
     }
-    void register_rclick_up(void (*up)(void *, const uint16_t x, const uint16_t y))
+    void register_rclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse up
         _rclick_up = up;
@@ -781,12 +781,12 @@ class win32_window
         // Register callback data pointer
         _data = ptr;
     }
-    void register_update(void (*update)(void *, const uint16_t width, const uint16_t height))
+    void register_update(void (*update)(void *, const uint_fast16_t width, const uint_fast16_t height))
     {
         // Register callback on resize
         _update = update;
     }
-    void resize(const uint16_t width, const uint16_t height) const
+    void resize(const uint_fast16_t width, const uint_fast16_t height) const
     {
         // Calculate the window size to get desired area
         auto size = calculate_window_size(width, height);
@@ -794,7 +794,7 @@ class win32_window
         // Resize the window
         SetWindowPos(_hwnd, 0, 0, 0, size.first, size.second, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
     }
-    void set_cursor(const uint16_t x, const uint16_t y) const
+    void set_cursor(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Set the cursor on this window
         POINT p;

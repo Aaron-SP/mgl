@@ -34,11 +34,11 @@ bool test_sphere_grid()
         min::vec2<double> max;
         min::vec2<double> p;
         double r;
-        std::vector<uint16_t> hits;
-        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        std::vector<uint_fast16_t> hits;
+        std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions;
         min::sphere<double, min::vec2> world(minW, maxW);
         std::vector<min::sphere<double, min::vec2>> items;
-        min::grid<double, uint16_t, uint32_t, min::vec2, min::sphere, min::sphere> g(world);
+        min::grid<double, uint_fast16_t, uint_fast32_t, min::vec2, min::sphere, min::sphere> g(world);
 
         // Create three boxes and insert into vector
 
@@ -210,12 +210,12 @@ bool test_sphere_grid()
         min::vec3<double> min;
         min::vec3<double> max;
         min::vec3<double> p;
-        std::vector<uint16_t> hits;
-        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        std::vector<uint_fast16_t> hits;
+        std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions;
         double r;
         min::sphere<double, min::vec3> world(minW, maxW);
         std::vector<min::sphere<double, min::vec3>> items;
-        min::grid<double, uint16_t, uint32_t, min::vec3, min::sphere, min::sphere> g(world);
+        min::grid<double, uint_fast16_t, uint_fast32_t, min::vec3, min::sphere, min::sphere> g(world);
 
         // Create three boxes and insert into vector
 
@@ -391,12 +391,12 @@ bool test_sphere_grid()
         min::vec4<double> min;
         min::vec4<double> max;
         min::vec4<double> p;
-        std::vector<uint16_t> hits;
-        std::vector<std::pair<uint16_t, uint16_t>> collisions;
+        std::vector<uint_fast16_t> hits;
+        std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions;
         double r;
         min::sphere<double, min::vec4> world(minW, maxW);
         std::vector<min::sphere<double, min::vec4>> items;
-        min::grid<double, uint16_t, uint32_t, min::vec4, min::sphere, min::sphere> g(world);
+        min::grid<double, uint_fast16_t, uint_fast32_t, min::vec4, min::sphere, min::sphere> g(world);
 
         // Create three boxes and insert into vector
 

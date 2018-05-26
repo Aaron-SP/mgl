@@ -300,8 +300,8 @@ class render_loop_test
     void update_cursor()
     {
         // Get the screen dimensions
-        const uint16_t h = _win.get_height();
-        const uint16_t w = _win.get_width();
+        const uint_fast16_t h = _win.get_height();
+        const uint_fast16_t w = _win.get_width();
 
         // Center cursor in middle of window
         _win.set_cursor(w / 2, h / 2);

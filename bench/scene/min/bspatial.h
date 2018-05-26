@@ -168,13 +168,13 @@ double bench_aabb_aabb(const size_t N, const min::aabbox<T, vec> &world, const s
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::aabbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::aabbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -206,13 +206,13 @@ double bench_aabb_oobb(const size_t N, const min::aabbox<T, vec> &world, const s
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::oobbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::oobbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -244,13 +244,13 @@ double bench_aabb_sphere(const size_t N, const min::aabbox<T, vec> &world, const
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::aabbox, min::sphere> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::aabbox, min::sphere> g(world);
 
     // Insert into grid
     g.insert(spheres);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -282,13 +282,13 @@ double bench_sphere_aabb(const size_t N, const min::sphere<T, vec> &world, const
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::sphere, min::aabbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::aabbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -320,13 +320,13 @@ double bench_sphere_oobb(const size_t N, const min::sphere<T, vec> &world, const
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::sphere, min::oobbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::oobbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -358,13 +358,13 @@ double bench_sphere_sphere(const size_t N, const min::sphere<T, vec> &world, con
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::sphere, min::sphere> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::sphere, min::sphere> g(world);
 
     // Insert into grid
     g.insert(spheres);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -396,13 +396,13 @@ double bench_oobb_aabb(const size_t N, const min::oobbox<T, vec> &world, const s
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::aabbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::oobbox, min::aabbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -434,13 +434,13 @@ double bench_oobb_oobb(const size_t N, const min::oobbox<T, vec> &world, const s
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::oobbox> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::oobbox, min::oobbox> g(world);
 
     // Insert into grid
     g.insert(boxes);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;
@@ -472,13 +472,13 @@ double bench_oobb_sphere(const size_t N, const min::oobbox<T, vec> &world, const
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Create the spatial data structure
-    spatial<T, uint16_t, uint32_t, vec, min::oobbox, min::sphere> g(world);
+    spatial<T, uint_fast16_t, uint_fast32_t, vec, min::oobbox, min::sphere> g(world);
 
     // Insert into grid
     g.insert(spheres);
 
     // Get all colliding objects
-    std::vector<std::pair<uint16_t, uint16_t>> collisions = g.get_collisions();
+    std::vector<std::pair<uint_fast16_t, uint_fast16_t>> collisions = g.get_collisions();
 
     // Calculate the difference between start and end
     const auto dtime = std::chrono::high_resolution_clock::now() - start;

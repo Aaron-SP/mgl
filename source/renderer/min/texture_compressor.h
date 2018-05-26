@@ -37,7 +37,7 @@ class texture_compressor
     bool _dxt3_support;
     bool _dxt5_support;
 
-    static std::vector<uint8_t> flip_bgr_image(const uint32_t width, const uint32_t height, const uint32_t pixel_size, const std::vector<uint8_t> &pixel)
+    static std::vector<uint8_t> flip_bgr_image(const unsigned width, const unsigned height, const unsigned pixel_size, const std::vector<uint8_t> &pixel)
     {
         // Check our pixel dimensions
         size_t pixel_width = pixel_size * width;
@@ -50,7 +50,7 @@ class texture_compressor
         std::vector<uint8_t> out(pixel.size(), 0);
 
         // OpenGL starts at (0, 0) = bottom right corner so we must vertical flip all input
-        for (uint32_t i = 0; i < height; i++)
+        for (unsigned i = 0; i < height; i++)
         {
             // Going bottom to top
             size_t in_col_start = pixel_width * i;
@@ -58,7 +58,7 @@ class texture_compressor
             // Going top to bottom
             size_t out_col_start = pixel_width * ((height - 1) - i);
 
-            for (uint32_t j = 0; j < pixel_width; j++)
+            for (unsigned j = 0; j < pixel_width; j++)
             {
                 // Starts at bottom left corner
                 size_t in_index = in_col_start + j;
@@ -74,7 +74,7 @@ class texture_compressor
         return out;
     }
 
-    dds compress_bmp_dds(const uint32_t width, const uint32_t height, const int dxt_format, uint32_t header_format, const uint32_t pixel_size, const std::vector<uint8_t> &pixel) const
+    dds compress_bmp_dds(const unsigned width, const unsigned height, const int dxt_format, unsigned header_format, const unsigned pixel_size, const std::vector<uint8_t> &pixel) const
     {
         // We must flip input image because opengl origin is (0, 0) == bottom left corner
         std::vector<uint8_t> flip_pixel = flip_bgr_image(width, height, pixel_size, pixel);
@@ -129,22 +129,22 @@ class texture_compressor
         GLint h = 0;
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
 
-        uint32_t mips = 1;
+        unsigned mips = 1;
 
         // If we have mips enabled, calculate the number of mip maps
         if (_mips)
         {
             // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
             // Calculate mip map levels, valid for power of two and non-power of two textures
-            uint32_t max_dim = std::max(w, h);
+            unsigned max_dim = std::max(w, h);
             mips += (int)std::floor(std::log2(max_dim));
         }
 
         // Query size information of each mip map
-        uint32_t size = 0;
+        unsigned size = 0;
         std::vector<GLint> level_size(mips, 0);
-        std::vector<uint32_t> offset(mips + 1, 0);
-        for (uint32_t i = 0; i < mips; i++)
+        std::vector<unsigned> offset(mips + 1, 0);
+        for (unsigned i = 0; i < mips; i++)
         {
             // Get size of this mip level
             glGetTexLevelParameteriv(GL_TEXTURE_2D, i, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &level_size[i]);
@@ -163,7 +163,7 @@ class texture_compressor
 
         // Get the compressed pixel data for each mip map
         std::vector<uint8_t> compressed_pixel(size, 0);
-        for (uint32_t i = 0; i < mips; i++)
+        for (unsigned i = 0; i < mips; i++)
         {
             // Verify the offset is valid
             if (offset[i] > size)

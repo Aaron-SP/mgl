@@ -32,7 +32,7 @@ bool test_physics_aabb_grid()
         const min::vec2<double> maxW(10.0, 10.0);
         const min::aabbox<double, min::vec2> world(minW, maxW);
         const min::vec2<double> gravity(0.0, -10.0);
-        min::physics<double, uint16_t, uint32_t, min::vec2, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
+        min::physics<double, uint_fast16_t, uint_fast32_t, min::vec2, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
         const min::aabbox<double, min::vec2> box1(min::vec2<double>(1.0, 1.0), min::vec2<double>(2.0, 2.0));
@@ -119,7 +119,7 @@ bool test_physics_aabb_grid()
         const min::vec3<double> maxW(10.0, 10.0, 10.0);
         const min::aabbox<double, min::vec3> world(minW, maxW);
         const min::vec3<double> gravity(0.0, -10.0, 0.0);
-        min::physics<double, uint16_t, uint32_t, min::vec3, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
+        min::physics<double, uint_fast16_t, uint_fast32_t, min::vec3, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
         const min::aabbox<double, min::vec3> box1(min::vec3<double>(1.0, 1.0, 1.0), min::vec3<double>(2.0, 2.0, 2.0));
@@ -213,7 +213,7 @@ bool test_physics_aabb_grid()
         const min::vec4<double> maxW(10.0, 10.0, 10.0, 1.0);
         const min::aabbox<double, min::vec4> world(minW, maxW);
         const min::vec4<double> gravity(0.0, -10.0, 0.0, 1.0);
-        min::physics<double, uint16_t, uint32_t, min::vec4, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
+        min::physics<double, uint_fast16_t, uint_fast32_t, min::vec4, min::aabbox, min::aabbox, min::grid> simulation(world, gravity);
 
         // Add rigid bodies to the simulation
         const min::aabbox<double, min::vec4> box1(min::vec4<double>(1.0, 1.0, 1.0, 1.0), min::vec4<double>(2.0, 2.0, 2.0, 1.0));

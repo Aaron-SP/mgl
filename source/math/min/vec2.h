@@ -844,13 +844,13 @@ class vec2
 
         return vec2<T>(x, y);
     }
-    inline uint8_t subdivide_key(const T middle)
+    inline uint_fast8_t subdivide_key(const T middle)
     {
         T x = _x;
         T y = _y;
 
         // Get the x portion of key
-        uint8_t key = 0;
+        uint_fast8_t key = 0;
         if (x > middle)
         {
             // Set the least significant bit
@@ -1132,11 +1132,11 @@ class vec2
             vec2<T> ratio = vec2<T>::ratio(min, max, enter);
 
             // Get the key from quadrant
-            const uint8_t key = ratio.subdivide_key(0.5);
+            const uint_fast8_t key = ratio.subdivide_key(0.5);
             out.push_back(key);
         }
     }
-    inline static void sub_overlap(std::vector<uint8_t> &out, const vec2<T> &min, const vec2<T> &max, const vec2<T> &center)
+    inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec2<T> &min, const vec2<T> &max, const vec2<T> &center)
     {
         // Reserve space for output
         out.clear();
