@@ -45,10 +45,11 @@ inline std::string &trim(std::string &s)
 }
 
 // Split string on 'space' characters, 'space' is an abstract space separator define by ptr_fun
-inline std::vector<std::string> split(const std::string &s, const std::pointer_to_unary_function<int, int> &f)
+inline std::vector<std::string> split(const std::string &s, const std::pointer_to_unary_function<int, int> &f, const size_t hint)
 {
     // Output string buffer
     std::vector<std::string> out;
+    out.reserve(hint);
     size_t start = 0;
 
     // Find all 'spaces' and split up string
@@ -100,21 +101,22 @@ inline int isslash(int ch)
 }
 
 // This is effectively regex split on, "\\s+"
-inline std::vector<std::string> split_space(const std::string &s)
+inline std::vector<std::string> split_space(const std::string &s, const size_t hint = 0)
 {
-    return split(s, std::ptr_fun<int, int>(std::isspace));
+    return split(s, std::ptr_fun<int, int>(std::isspace), hint);
 }
 
 // This is effectively regex split on, "\\/+"
-inline std::vector<std::string> split_slash(const std::string &s)
+inline std::vector<std::string> split_slash(const std::string &s, const size_t hint = 0)
 {
-    return split(s, std::ptr_fun<int, int>(isslash));
+    return split(s, std::ptr_fun<int, int>(isslash), hint);
 }
 
-inline std::vector<std::pair<size_t, size_t>> read_lines(const std::string &data)
+inline std::vector<std::pair<size_t, size_t>> read_lines(const std::string &data, const size_t hint = 0)
 {
     // Create output vector
     std::vector<std::pair<size_t, size_t>> out;
+    out.reserve(hint);
 
     // Start locations within the data buffer for each line
     size_t start = 0;
