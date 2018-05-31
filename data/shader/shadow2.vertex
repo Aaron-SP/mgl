@@ -8,8 +8,8 @@ layout (location = 2) in vec3 normal;
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 out vec4 _vertex;
 out vec2 _uv;
@@ -20,10 +20,10 @@ out vec4 _shadow;
 void main(void)
 {
     // Get the model matrix from the uniform buffer
-    mat4 pv = matrix_buffer.matrix[0];
-    mat4 view = matrix_buffer.matrix[1];
-    mat4 shadow = matrix_buffer.matrix[2];
-    mat4 model = matrix_buffer.matrix[4];
+    mat4 pv = matrix[0];
+    mat4 view = matrix[1];
+    mat4 shadow = matrix[2];
+    mat4 model = matrix[4];
 
 	// Calculate the vertex world coordinates
     vec4 vertex_world = model * vertex;

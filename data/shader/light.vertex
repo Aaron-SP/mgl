@@ -17,15 +17,15 @@ struct light
 layout(std140) uniform light_block
 {
     light lights[MAX_NUM_TOTAL_LIGHTS];
-    int size;
-} light_buffer;
+    int light_size;
+};
 
 #define MAX_NUM_TOTAL_MATRIX 100
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 out vec2 out_uv;
 out vec4 out_color;
@@ -33,9 +33,9 @@ out vec4 out_color;
 void main(void)
 {
     // Get the model matrix from the uniform buffer
-    mat4 pv = matrix_buffer.matrix[0];
-    mat4 view = matrix_buffer.matrix[1];
-    mat4 model = matrix_buffer.matrix[2];
+    mat4 pv = matrix[0];
+    mat4 view = matrix[1];
+    mat4 model = matrix[2];
 
 	// Calculate transformed position
 	gl_Position =  pv * model * vertex;
@@ -53,10 +53,10 @@ void main(void)
     vec4 color = vec4(0, 0, 0, 1.0);
 
     // For all lights in the scene
-    for(int i = 0; i < light_buffer.size; i++)
+    for(int i = 0; i < light_size; i++)
     {
         // Calculate the light world coordinates
-        vec3 light_direction = (light_buffer.lights[i].position - vertex_world).xyz;
+        vec3 light_direction = (lights[i].position - vertex_world).xyz;
         float inv_d2 = 1.0 / dot(light_direction, light_direction);
         light_direction = normalize(light_direction);
 
@@ -66,12 +66,12 @@ void main(void)
         float cos_alpha = max(dot(eye_camera, reflection), 0);
 
         // Calculate ambient, diffuse and specular
-        float ambient = light_buffer.lights[i].power.x;
-        float diffuse = light_buffer.lights[i].power.y * cos_theta * inv_d2;
-        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5) * inv_d2;
+        float ambient = lights[i].power.x;
+        float diffuse = lights[i].power.y * cos_theta * inv_d2;
+        float specular = lights[i].power.z * pow(cos_alpha, 5) * inv_d2;
 
         // Calculate the output color
-        color += light_buffer.lights[i].color * (ambient + diffuse + specular);
+        color += lights[i].color * (ambient + diffuse + specular);
     }
 
 	// Pass texture coordinates to fragment shader

@@ -25,8 +25,8 @@ struct light
 layout(std140) uniform light_block
 {
     light lights[MAX_NUM_TOTAL_LIGHTS];
-    int size;
-} light_buffer;
+    int light_size;
+};
 
 void main(void)
 {
@@ -39,10 +39,10 @@ void main(void)
     vec4 color = vec4(0, 0, 0, 1.0);
 
     // For all lights in the scene
-    for(int i = 0; i < light_buffer.size; i++)
+    for(int i = 0; i < light_size; i++)
     {
         // Calculate the light camera coordinates
-        vec3 light_direction = light_buffer.lights[i].position.xyz - out_vertex.xyz;
+        vec3 light_direction = lights[i].position.xyz - out_vertex.xyz;
         float inv_d = 1.0 / length(light_direction);
         light_direction = normalize(light_direction);
 
@@ -52,12 +52,12 @@ void main(void)
         float cos_alpha = max(dot(eye_camera, reflection), 0);
 
         // Calculate ambient, diffuse and specular
-        float ambient = light_buffer.lights[i].power.x;
-        float diffuse = light_buffer.lights[i].power.y * cos_theta * inv_d;
-        float specular = light_buffer.lights[i].power.z * pow(cos_alpha, 5) * inv_d;
+        float ambient = lights[i].power.x;
+        float diffuse = lights[i].power.y * cos_theta * inv_d;
+        float specular = lights[i].power.z * pow(cos_alpha, 5) * inv_d;
 
         // Calculate the output color
-        color += light_buffer.lights[i].color * (ambient + diffuse + specular);
+        color += lights[i].color * (ambient + diffuse + specular);
     }
 
 	out_color = vec4(texture(in_texture, out_uv).rgb * color.rgb, 1.0);

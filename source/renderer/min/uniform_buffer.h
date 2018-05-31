@@ -86,8 +86,8 @@ class uniform_buffer
         {
             // Calculate the light block indices, 4-N byte alignment
             const GLchar *names[2] = {
-                "light_block.lights[0].color",
-                "light_block.size"};
+                "lights[0].color",
+                "light_size"};
 
             // Array to store the indices
             GLuint indices[2];
@@ -129,8 +129,8 @@ class uniform_buffer
         {
             // Calculate the matrix block indices, 4-N byte alignment
             const GLchar *names[2] = {
-                "matrix_block.matrix[0]",
-                "matrix_block.size"};
+                "matrix[0]",
+                "matrix_size"};
 
             // Array to store the indices
             GLuint indices[2];
@@ -192,8 +192,8 @@ class uniform_buffer
         {
             // Calculate the vector block indices, 4-N byte alignment
             const GLchar *names[2] = {
-                "vector_block.vector[0]",
-                "vector_block.size"};
+                "vector[0]",
+                "vector_size"};
 
             // Array to store the indices
             GLuint indices[2];

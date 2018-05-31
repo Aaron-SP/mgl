@@ -16,12 +16,12 @@ out control_out
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 void main(void)
 {
-    mat4 mvp = matrix_buffer.matrix[0];
+    mat4 mvp = matrix[0];
 
     if (gl_InvocationID == 0)
     {

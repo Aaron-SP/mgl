@@ -6,15 +6,15 @@ layout (location = 0) in vec4 position;
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 out vec4 vcolor;
 
 void main(void)
 {
 	// Get the proj_view matrix from the uniform buffer
-	mat4 pv = matrix_buffer.matrix[0];
+	mat4 pv = matrix[0];
 
 	// Set particle size by distance from camera
 	gl_PointSize = max(30.0 - 0.50 * length(vec4(-1.0, 40.0, 0.0, 1.0) - position), 1.0);

@@ -8,14 +8,14 @@ layout (location = 2) in vec3 normal;
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 void main(void)
 {
     // Get the model matrix from the uniform buffer
-    mat4 shadow = matrix_buffer.matrix[3];
-    mat4 model = matrix_buffer.matrix[4];
+    mat4 shadow = matrix[3];
+    mat4 model = matrix[4];
 
 	// Calculate transformed position
 	gl_Position =  shadow * model * vertex;

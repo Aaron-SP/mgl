@@ -13,15 +13,15 @@ flat out mat4 out_view;
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
-    int size;
-} matrix_buffer;
+    int matrix_size;
+};
 
 void main(void)
 {
     // Get the model matrix from the uniform buffer
-    mat4 pv = matrix_buffer.matrix[0];
-    mat4 view = matrix_buffer.matrix[1];
-    mat4 model = matrix_buffer.matrix[2 + gl_InstanceID];
+    mat4 pv = matrix[0];
+    mat4 view = matrix[1];
+    mat4 model = matrix[2 + gl_InstanceID];
 
 	// Calculate transformed position
 	gl_Position =  pv * model * vertex;
