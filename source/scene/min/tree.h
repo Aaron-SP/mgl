@@ -458,18 +458,26 @@ class tree
         T middle = 0.5;
         for (K i = 0; i < _depth; i++)
         {
-            // Get the key from the point ratio
-            const uint_fast8_t key = ratio.subdivide_key(middle);
-
-            // Check the calculated key value
-            if (key > 7 || key < 0)
+            // Further recursion if we have children
+            const auto &children = child->get_children();
+            if (children.size() > 0)
             {
-                throw std::runtime_error("tree.get_node(): invalid key location code calculated");
+                // Get the key from the point ratio
+                const uint_fast8_t key = ratio.subdivide_key(middle);
+
+                // Check the calculated key value
+                if (key > 7 || key < 0)
+                {
+                    throw std::runtime_error("tree.get_node(): invalid key location code calculated");
+                }
+
+                // Go to the next level in the octree
+                child = &children[key];
+                middle *= 0.5;
             }
 
-            // Go to the next level in the octree
-            child = &child->get_children()[key];
-            middle *= 0.5;
+            // Return early
+            break;
         }
 
         // Return the cell node
