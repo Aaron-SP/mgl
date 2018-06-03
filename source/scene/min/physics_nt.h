@@ -730,7 +730,7 @@ class physics
         }
 
         // Scan for dead bodies in remnants
-        for (size_t i = 0; i < size; i++)
+        for (size_t i = 0; i < index; i++)
         {
             if (_bodies[i].is_dead())
             {
