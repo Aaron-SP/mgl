@@ -656,6 +656,12 @@ class physics
 
         // Clear out the bodies
         _bodies.clear();
+
+        // Clear out the dead bodies
+        _dead.clear();
+
+        // Clean the simulation
+        _clean = true;
     }
     inline bool collide(const size_t index, const shape<T, vec> &s)
     {
