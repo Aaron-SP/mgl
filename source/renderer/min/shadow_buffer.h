@@ -150,7 +150,7 @@ class shadow_buffer
         glDeleteFramebuffers(1, &_id);
 
         // Check for opengl errors
-        check_internal_error();
+        throw_gl_error();
     }
     shadow_buffer(const shadow_buffer &sb) = delete;
     inline void bind() const
@@ -227,7 +227,7 @@ class shadow_buffer
         glUniform1i(sampler_location, layer);
 
         // Check for opengl errors
-        check_internal_error();
+        throw_gl_error();
     }
 };
 }

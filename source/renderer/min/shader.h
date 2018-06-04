@@ -95,7 +95,6 @@ class shader
         if (status == GL_FALSE)
         {
             print_errors();
-            throw std::runtime_error("shader: Failed to compile opengl shader.");
         }
     }
     void print_errors() const
@@ -116,13 +115,16 @@ class shader
                 glGetShaderInfoLog(_id, log_length, nullptr, &log[0]);
 
                 // Handle the error
-                window_error(log);
+                throw std::runtime_error("shader: Failed to compile opengl shader. " + log);
             }
         }
         else
         {
             throw std::runtime_error("shader: shader id is invalid!");
         }
+
+        // Default operation
+        throw std::runtime_error("shader: Failed to compile opengl shader.");
     }
 
   public:
@@ -150,7 +152,7 @@ class shader
         }
 
         // check for errors
-        check_internal_error();
+        throw_gl_error();
     }
     shader(const shader &s) = delete;
     inline GLuint id() const

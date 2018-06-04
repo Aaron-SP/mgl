@@ -38,11 +38,6 @@ limitations under the License.
 namespace min
 {
 
-void window_error(const std::string &error)
-{
-    std::cout << error << std::endl;
-}
-
 bool check_gl_error()
 {
     const GLenum error = glGetError();
@@ -57,12 +52,12 @@ bool check_gl_error()
     return ret;
 }
 
-void check_internal_error()
+void throw_gl_error()
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
     {
-        throw std::runtime_error("GL ERROR! ABORTING ERROR CODE: " + std::to_string(error));
+        throw std::runtime_error("GL ERROR! glGetError(): " + std::to_string(error));
     }
 }
 
@@ -701,6 +696,10 @@ class win32_window
                 count = ShowCursor(false);
             }
         }
+    }
+    void error_message(const std::string &error) const
+    {
+        MessageBox(_hwnd, error.c_str(), "Window Error", MB_OK);
     }
     const char *get_context_string(const GLenum str) const
     {

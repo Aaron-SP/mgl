@@ -221,7 +221,7 @@ class emitter_buffer
         }
 
         // Check for opengl errors
-        check_internal_error();
+        throw_gl_error();
     }
     emitter_buffer(const emitter_buffer &sb) = delete;
     inline size_t attractor_add(const vec3<T> &center, const T power)

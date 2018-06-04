@@ -441,7 +441,7 @@ class uniform_buffer
         }
 
         // Check for opengl errors
-        check_internal_error();
+        throw_gl_error();
     }
     uniform_buffer(const uniform_buffer &sb) = delete;
     inline size_t add_light(const light<T> &light)

@@ -35,6 +35,15 @@ bool check_al_error()
     return error != AL_NO_ERROR;
 }
 
+void throw_al_error()
+{
+    const ALCenum error = alGetError();
+    if (error != AL_NO_ERROR)
+    {
+        throw std::runtime_error("AL ERROR! alGetError(): " + std::to_string(error));
+    }
+}
+
 class sound_buffer
 {
   private:
@@ -128,13 +137,13 @@ class sound_buffer
         clear_error();
 
         // Check for any errors
-        check_internal_error();
+        throw_internal_error();
     }
 
     inline void shutdown()
     {
         // Check for any errors
-        check_internal_error();
+        throw_internal_error();
 
         // Delete sources
         for (auto s : _sources)
@@ -270,7 +279,7 @@ class sound_buffer
 
         return ret;
     }
-    inline void check_internal_error() const
+    inline void throw_internal_error() const
     {
         const ALCenum error = alcGetError(_device);
         if (error != AL_NO_ERROR)

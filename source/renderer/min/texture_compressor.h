@@ -189,7 +189,7 @@ class texture_compressor
         glDeleteTextures(1, &id);
 
         // Check for opengl errors
-        check_internal_error();
+        throw_gl_error();
     }
     GLuint generate_texture() const
     {

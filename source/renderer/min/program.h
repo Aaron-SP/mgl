@@ -59,7 +59,6 @@ class program
         if (!status)
         {
             print_errors();
-            throw std::runtime_error("program: Failed to link shader program.");
         }
     }
     void print_errors() const
@@ -80,13 +79,16 @@ class program
                 glGetProgramInfoLog(_id, log_length, nullptr, &log[0]);
 
                 // Handle the error
-                window_error(log);
+                throw std::runtime_error("program: Failed to link shader program. " + log);
             }
         }
         else
         {
             throw std::runtime_error("program: program id is invalid!");
         }
+
+        // Default operation
+        throw std::runtime_error("program: Failed to link shader program.");
     }
 
   public:
@@ -145,7 +147,7 @@ class program
         }
 
         // check for errors
-        check_internal_error();
+        throw_gl_error();
     }
     program(const program &p) = delete;
     inline void use() const
