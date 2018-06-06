@@ -90,9 +90,9 @@ class vec2
 
         return false;
     }
-    inline constexpr static coord_sys<T, vec2> axes()
+    inline constexpr static coord_sys<T, min::vec2> axes()
     {
-        return coord_sys<T, vec2>(vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0));
+        return coord_sys<T, min::vec2>(vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0));
     }
     inline vec2<T> &clamp(const vec2<T> &min, const vec2<T> &max)
     {
@@ -590,7 +590,7 @@ class vec2
         // Compute the orthogonal vector to A
         return vec2<T>(_y, -_x);
     }
-    inline vec2<T> project_point(const coord_sys<T, vec2> &axis, const vec2<T> &extent)
+    inline vec2<T> project_point(const coord_sys<T, min::vec2> &axis, const vec2<T> &extent)
     {
         // Project this onto local x axis
         T x = this->dot(axis.x());
@@ -607,7 +607,7 @@ class vec2
         // Compute the point along this axis
         return (axis.x() * x) + (axis.y() * y);
     }
-    inline T project_length(const coord_sys<T, vec2> &axis, const vec2<T> &extent)
+    inline T project_length(const coord_sys<T, min::vec2> &axis, const vec2<T> &extent)
     {
         // Project this onto local x axis
         const T x = this->dot(axis.x());
@@ -624,7 +624,7 @@ class vec2
         // Compute the square distance from this point
         return (dx * dx) + (dy * dy);
     }
-    static inline bool project_sat(const coord_sys<T, vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1, const coord_sys<T, vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2)
+    static inline bool project_sat(const coord_sys<T, min::vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1, const coord_sys<T, min::vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersections
         // For every axis test (C2-C1).dot(L) > (a.get_extent() + b.get_extent()).dot(L)
@@ -676,8 +676,8 @@ class vec2
     }
 
     static inline std::pair<vec2<T>, T> project_sat_penetration(
-        const coord_sys<T, vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1,
-        const coord_sys<T, vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2, const T tolerance)
+        const coord_sys<T, min::vec2> &axis1, const vec2<T> &center1, const vec2<T> &extent1,
+        const coord_sys<T, min::vec2> &axis2, const vec2<T> &center2, const vec2<T> &extent2, const T tolerance)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersection penetration
         // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L)

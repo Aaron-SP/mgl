@@ -108,9 +108,9 @@ class vec3
 
         return false;
     }
-    inline constexpr static coord_sys<T, vec3> axes()
+    inline constexpr static coord_sys<T, min::vec3> axes()
     {
-        return coord_sys<T, vec3>(vec3<T>(1.0, 0.0, 0.0), vec3<T>(0.0, 1.0, 0.0), vec3<T>(0.0, 0.0, 1.0));
+        return coord_sys<T, min::vec3>(vec3<T>(1.0, 0.0, 0.0), vec3<T>(0.0, 1.0, 0.0), vec3<T>(0.0, 0.0, 1.0));
     }
     inline vec3<T> &clamp(const vec3<T> &min, const vec3<T> &max)
     {
@@ -821,7 +821,7 @@ class vec3
         // Compute cross product around x axis
         return cross_x();
     }
-    inline vec3<T> project_point(const coord_sys<T, vec3> &axis, const vec3<T> &extent)
+    inline vec3<T> project_point(const coord_sys<T, min::vec3> &axis, const vec3<T> &extent)
     {
         // Project v onto local x axis
         T x = this->dot(axis.x());
@@ -844,7 +844,7 @@ class vec3
         // Compute the point along this axis
         return (axis.x() * x) + (axis.y() * y) + (axis.z() * z);
     }
-    inline T project_length(const coord_sys<T, vec3> &axis, const vec3<T> &extent)
+    inline T project_length(const coord_sys<T, min::vec3> &axis, const vec3<T> &extent)
     {
         // Project this onto local x axis
         const T x = this->dot(axis.x());
@@ -867,7 +867,7 @@ class vec3
         // Compute the square distance from this point
         return (dx * dx) + (dy * dy) + (dz * dz);
     }
-    static inline bool project_sat(const coord_sys<T, vec3> &axis1, const vec3<T> &center1, const vec3<T> &extent1, const coord_sys<T, vec3> &axis2, const vec3<T> &center2, const vec3<T> &extent2)
+    static inline bool project_sat(const coord_sys<T, min::vec3> &axis1, const vec3<T> &center1, const vec3<T> &extent1, const coord_sys<T, min::vec3> &axis2, const vec3<T> &center2, const vec3<T> &extent2)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersections
         // For every axis test (C2-C1).dot(L) > (a.get_extent() + b.get_extent()).dot(L)
@@ -994,8 +994,8 @@ class vec3
         return true;
     }
     static inline std::pair<vec3<T>, T> project_sat_penetration(
-        const coord_sys<T, vec3> &axis1, const vec3<T> &center1, const vec3<T> &extent1,
-        const coord_sys<T, vec3> &axis2, const vec3<T> &center2, const vec3<T> &extent2, const T tolerance)
+        const coord_sys<T, min::vec3> &axis1, const vec3<T> &center1, const vec3<T> &extent1,
+        const coord_sys<T, min::vec3> &axis2, const vec3<T> &center2, const vec3<T> &extent2, const T tolerance)
     {
         // This performs the separating axis theorem for checking oobb-oobb intersection penetration
         // For every axis, penetration = (a.get_extent() + b.get_extent()).dot(L) - (C2-C1).dot(L)
