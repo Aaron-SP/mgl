@@ -31,9 +31,6 @@ void main(void)
 	bone_transform += matrix[int(bone_index.z) + 3] * bone_weight.z;
 	bone_transform += matrix[int(bone_index.w) + 3] * bone_weight.w;
 
-    // Extract the rotation matrix from bone transform; use inverse-transpose here if object is scaled
-    mat3 normal_matrix = mat3(bone_transform);
-
     // Calculate the vertex in world coordinates
     out_vertex = model * bone_transform * vertex;
 

@@ -43,6 +43,18 @@ class light
     {
         return _power;
     }
+    void set_color(const vec4<T> &color)
+    {
+        _color = color;
+    }
+    void set_position(const vec4<T> &p)
+    {
+        _position = p;
+    }
+    void set_power(const vec4<T> &power)
+    {
+        _power = power;
+    }
 };
 }
 
