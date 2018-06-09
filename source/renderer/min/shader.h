@@ -31,16 +31,30 @@ class shader
 
     inline void check_extensions() const
     {
+        // Check that we have vertex shader support
         const bool vs = GLEW_ARB_vertex_shader;
-        const bool fs = GLEW_ARB_fragment_shader;
-        const bool gs = GLEW_ARB_geometry_shader4;
-        //const bool ts = GLEW_ARB_tessellation_shader;
-
-        // Check that we have the extensions we need
-        if (!vs || !fs || !gs)
+        if (!vs)
         {
-            throw std::runtime_error("shader: minimum extensions not met");
+            throw std::runtime_error("shader: vertex shader not supported!");
         }
+
+        // Check that we have fragment shader support
+        const bool fs = GLEW_ARB_fragment_shader;
+        if (!fs)
+        {
+            throw std::runtime_error("shader: fragment shader not supported!");
+        }
+
+        // Check that we have geometry shader support
+#ifdef MGL_GS_RENDER
+        const bool gs = GLEW_ARB_geometry_shader4;
+        if (!gs)
+        {
+            throw std::runtime_error("shader: geometry shader not supported!");
+        }
+#endif
+
+        //const bool ts = GLEW_ARB_tessellation_shader;
     }
     inline void load_file(const std::string path, const GLenum type)
     {
