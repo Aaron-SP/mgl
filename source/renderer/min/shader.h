@@ -46,6 +46,13 @@ class shader
         }
 
         // No need to check for GLEW_ARB_geometry_shader4, it is not the core geometry shader extension
+        // Check that we have geometry shader support core in OpenGL 3.2
+#ifdef MGL_GS_RENDER
+        if (!GLEW_VERSION_3_2)
+        {
+            throw std::runtime_error("shader: geometry shader not supported!");
+        }
+#endif
         // Might need to test for GLEW_ARB_tessellation_shader if running < 4.0 context
     }
     inline void load_file(const std::string path, const GLenum type)
