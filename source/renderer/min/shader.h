@@ -45,16 +45,8 @@ class shader
             throw std::runtime_error("shader: fragment shader not supported!");
         }
 
-        // Check that we have geometry shader support
-#ifdef MGL_GS_RENDER
-        const bool gs = GLEW_ARB_geometry_shader4;
-        if (!gs)
-        {
-            throw std::runtime_error("shader: geometry shader not supported!");
-        }
-#endif
-
-        //const bool ts = GLEW_ARB_tessellation_shader;
+        // No need to check for GLEW_ARB_geometry_shader4, it is not the core geometry shader extension
+        // Might need to test for GLEW_ARB_tessellation_shader if running < 4.0 context
     }
     inline void load_file(const std::string path, const GLenum type)
     {
