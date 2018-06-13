@@ -76,24 +76,25 @@ class quat
     }
     quat(const vec3<T> &vector, const T degAngle)
     {
-        const T angle = deg_to_rad(degAngle);
-        const T sina_2 = sin(angle / 2.0);
-        _w = cos(angle / 2.0);
-        _x = vector.x() * sina_2;
-        _y = vector.y() * sina_2;
-        _z = vector.z() * sina_2;
+        const T angle_2 = deg_to_rad(degAngle) * 0.5;
+        const T cos_2 = cos(angle_2);
+        const T sin_2 = sin(angle_2);
+        _w = cos_2;
+        _x = vector.x() * sin_2;
+        _y = vector.y() * sin_2;
+        _z = vector.z() * sin_2;
 
         // Normalize
         normalize();
     }
-    // must be normalized vectors
+    // Must be normalized vectors
     quat(const vec3<T> &v1, const vec3<T> &v2)
     {
         const T cos_theta = v1.dot(v2);
         if (cos_theta < var<T>::TOL_NONE)
         {
             vec3<T> c = v1.cross_y();
-            if (c.magnitude() < var<T>::TOL_REL)
+            if (std::abs(v1.y()) > std::abs(v1.x()))
             {
                 c = v1.cross_x();
             }
@@ -112,45 +113,50 @@ class quat
         }
         else
         {
-            const T s = std::sqrt((1 + cos_theta) * 2);
+            const T s = std::sqrt((1.0 + cos_theta) * 2.0);
             const T inv_s = 1.0 / s;
             const vec3<T> c = v1.cross(v2);
-            _w = s / 2.0;
+            _w = s * 0.5;
             _x = c.x() * inv_s;
             _y = c.y() * inv_s;
             _z = c.z() * inv_s;
             normalize();
         }
     }
-    // must be normalized vectors
-    quat(const vec3<T> &v1, const vec3<T> &v2, const vec3<T> &v3)
+    // Special case quaternion between X-axis and vector
+    inline static quat<T> from_x_axis(const T x, const vec3<T> &v1)
     {
-        const T cos_theta = v1.dot(v2);
+        quat<T> q;
+
+        const T cos_theta = x * v1.dot_x();
         if (cos_theta < var<T>::TOL_NONE)
         {
-            _w = 0.0;
-            _x = v3.x();
-            _y = v3.y();
-            _z = v3.z();
+            vec3<T> c = v1.cross_x().normalize();
+            q._w = 0.0;
+            q._x = 0.0;
+            q._y = c.y() * x;
+            q._z = c.z() * x;
         }
         else if (cos_theta > var<T>::TOL_PONE)
         {
-            _w = 1.0;
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
+            q._w = 1.0;
+            q._x = 0.0;
+            q._y = 0.0;
+            q._z = 0.0;
         }
         else
         {
-            const T s = std::sqrt((1 + cos_theta) * 2);
+            const T s = std::sqrt((1.0 + cos_theta) * 2.0);
             const T inv_s = 1.0 / s;
-            const vec3<T> c = v1.cross(v2);
-            _w = s / 2.0;
-            _x = c.x() * inv_s;
-            _y = c.y() * inv_s;
-            _z = c.z() * inv_s;
-            normalize();
+            const vec3<T> c = v1.cross_x();
+            q._w = s * 0.5;
+            q._x = 0.0;
+            q._y = c.y() * inv_s;
+            q._z = c.z() * inv_s;
+            q.normalize();
         }
+
+        return q;
     }
     inline void calculate_w()
     {

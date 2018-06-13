@@ -16,7 +16,6 @@ limitations under the License.
 #define __EMITTERBUFFER__
 
 #include <cmath>
-#include <functional>
 #include <min/vec3.h>
 #include <min/window.h>
 #include <random>
@@ -352,7 +351,8 @@ class emitter_buffer
             position += speed * dt;
         }
     }
-    inline void set(const std::function<void(vec3<T> &p, vec3<T> &s, const T accum, const T inv_mass)> &f, const T dt)
+    template <typename F>
+    inline void set(const F &f, const T dt)
     {
         // Accumulate this time step
         accumulate(dt);

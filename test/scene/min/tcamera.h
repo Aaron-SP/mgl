@@ -76,7 +76,7 @@ bool test_camera()
 
     // Check the right vector
     p = cf.get_right();
-    out = out && compare(-1.0, p.x(), 1E-4);
+    out = out && compare(1.0, p.x(), 1E-4);
     out = out && compare(0.0, p.y(), 1E-4);
     out = out && compare(0.0, p.z(), 1E-4);
     if (!out)
@@ -178,9 +178,8 @@ bool test_camera()
     mat = c.get_pv_matrix();
     p = c.get_look_at();
     out = out && compare(-0.0349, p.x(), 1E-4);
-    out = out && compare(1.9651, p.y(), 1E-4);
+    out = out && compare(2.0349, p.y(), 1E-4);
     out = out && compare(-1.9993, p.z(), 1E-4);
-
     if (!out)
     {
         throw std::runtime_error("Failed camera move look at");

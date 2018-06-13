@@ -23,7 +23,6 @@ class coord_sys;
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <limits>
 #include <min/coord_sys.h>
 #include <min/utility.h>
@@ -439,9 +438,10 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
+    template <typename F>
     inline static void grid_range(const vec2<T> &min, const vec2<T> &extent, const size_t scale,
                                   const vec2<T> &over_min, const vec2<T> &over_max,
-                                  const std::function<void(const size_t)> &f)
+                                  const F &f)
     {
         // Assumes over_min and over_max are clamped to world edges!!
         // Get the key of min and max points for overlap

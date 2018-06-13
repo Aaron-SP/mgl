@@ -30,6 +30,8 @@ class camera
   private:
     vec3<T> _p;
     vec3<T> _look;
+    vec3<T> _forward;
+    vec3<T> _up;
     frustum<T> _f;
     mat4<T> _pv;
     mat4<T> _v;
@@ -47,7 +49,7 @@ class camera
                 proj = &_f.perspective();
 
             // Update the view matrix
-            _v = _f.look_at(_p, _look, vec3<T>::up());
+            _v = _f.look_at(_p, _forward, _up);
 
             // Update the projection-view matrix
             // (A*B)^T = (B^T*A^T)
@@ -60,7 +62,7 @@ class camera
     }
 
   public:
-    camera() : _look(0.0, 0.0, 1.0), _dirty(true), _proj_ortho(true) {}
+    camera() : _look(0.0, 0.0, 1.0), _forward(0.0, 0.0, 1.0), _up(0.0, 1.0, 0.0), _dirty(true), _proj_ortho(true) {}
     inline void force_update()
     {
         // If the camera needs to be updated
@@ -68,7 +70,7 @@ class camera
     }
     inline const vec3<T> &get_forward() const
     {
-        return _f.get_forward();
+        return _forward;
     }
     inline const vec3<T> &get_right() const
     {
@@ -76,7 +78,7 @@ class camera
     }
     inline const vec3<T> &get_up() const
     {
-        return _f.get_up();
+        return _up;
     }
     inline frustum<T> &get_frustum()
     {
@@ -131,20 +133,41 @@ class camera
         // Transform the direction
         direction = rotation.transform(direction);
 
-        // Convert to world space and look at point
-        set_look_at(_p + direction);
+        // Update look in world space
+        _look = _p + direction;
+
+        // Update the forward vector
+        _forward = (direction).normalize();
+
+        // Transform up vector
+        _up = rotation.transform(_up);
+
+        // Camera has moved
+        _dirty = true;
 
         // return quaternion that rotated camera
         return rotation;
     }
     vec3<T> project_point(const T s) const
     {
-        return _p + _f.get_forward() * s;
+        return _p + _forward * s;
     }
     inline void set_look_at(const vec3<T> &look)
     {
-        // Update look
+        // Compute new forward vector
+        const vec3<T> forward = (look - _p).normalize();
+
+        // Find the quaternion between two vectors
+        const quat<T> q(_forward, forward);
+
+        // Update look vector
         _look = look;
+
+        // Update the forward vector
+        _forward = forward;
+
+        // Update up vector
+        _up = q.transform(_up);
 
         // Camera has moved
         _dirty = true;
@@ -172,7 +195,7 @@ class camera
     inline void set_position(const vec3<T> &p)
     {
         // Change lookat based on updated position
-        _look += p - _p;
+        _look += (p - _p);
 
         // Update position
         _p = p;
@@ -182,11 +205,23 @@ class camera
     }
     inline void set(const vec3<T> &p, const vec3<T> &look)
     {
+        // Compute new forward vector
+        const vec3<T> forward = (look - p).normalize();
+
+        // Find the quaternion between two vectors
+        const quat<T> q(_forward, forward);
+
         // Update position
         _p = p;
 
-        // Update look
+        // Update look vector
         _look = look;
+
+        // Update the forward vector
+        _forward = forward;
+
+        // Update up vector
+        _up = q.transform(_up);
 
         // Camera has moved
         _dirty = true;

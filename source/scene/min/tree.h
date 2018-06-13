@@ -475,9 +475,11 @@ class tree
                 child = &children[key];
                 middle *= 0.5;
             }
-
-            // Return early
-            break;
+            else
+            {
+                // Return early
+                break;
+            }
         }
 
         // Return the cell node
@@ -589,7 +591,7 @@ class tree
         _depth = depth;
 
         // Set the tree cell extent 2^depth
-        _scale = 0x1 << _depth;
+        _scale = static_cast<K>(0x1 << _depth);
         _cell_extent = _root.get_cell().get_extent() / _scale;
 
         // Sort shapes by grid key id

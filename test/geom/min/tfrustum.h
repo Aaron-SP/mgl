@@ -29,6 +29,7 @@ bool test_frustum()
     min::vec3<double> p;
     min::vec3<double> eye;
     min::vec3<double> look;
+    min::vec3<double> forward;
     min::vec3<double> up = min::vec3<double>::up();
     min::mat4<double> proj;
     min::mat4<double> view;
@@ -38,8 +39,9 @@ bool test_frustum()
     p = min::vec3<double>(0.0, 0.0, 1.0);
     eye = min::vec3<double>(0.0, 0.0, 0.0);
     look = min::vec3<double>(0.0, 0.0, 5.0);
+    forward = (look - eye).normalize();
     proj = f.orthographic();
-    view = f.look_at(eye, look, up);
+    view = f.look_at(eye, forward, up);
     out = out && f.point_inside(p);
     if (!out)
     {
@@ -122,7 +124,8 @@ bool test_frustum()
     p = min::vec3<double>(1.0, 0.0, 0.0);
     eye = min::vec3<double>(0.0, 0.0, 0.0);
     look = min::vec3<double>(5.0, 0.0, 0.0);
-    view = f.look_at(eye, look, up);
+    forward = (look - eye).normalize();
+    view = f.look_at(eye, forward, up);
     out = out && f.point_inside(p);
     if (!out)
     {

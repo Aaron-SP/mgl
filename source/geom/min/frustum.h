@@ -33,9 +33,7 @@ class frustum
     vec3<T> _near; // Z planes
     vec3<T> _far;
     vec3<T> _center; // Orientation
-    vec3<T> _forward;
     vec3<T> _right;
-    vec3<T> _up;
     mat4<T> _proj; // Matricies
     mat4<T> _view;
     plane<T, vec3> _plane[6]; // Planes
@@ -201,17 +199,9 @@ class frustum
     {
         return _center;
     }
-    inline const vec3<T> &get_forward() const
-    {
-        return _forward;
-    }
     inline const vec3<T> &get_right() const
     {
         return _right;
-    }
-    inline const vec3<T> &get_up() const
-    {
-        return _up;
     }
     const mat4<T> &orthographic()
     {
@@ -249,40 +239,30 @@ class frustum
         // Return the view matrix
         return _proj;
     }
-    const mat4<T> &look_at(const vec3<T> &eye, const vec3<T> &look, const vec3<T> &up)
+    const mat4<T> &look_at(const vec3<T> &eye, const vec3<T> &forward, vec3<T> &up)
     {
-        // forward: look - eye
-        _forward = (look - eye).normalize();
-
-        // Check for forward vector parallel to up vector
-        if (std::abs(_forward.dot(up)) > var<T>::TOL_PONE)
-        {
-            // Construct the view matrix with special axis, right == x
-            _right = vec3<T>(1.0, 0.0, 0.0);
-        }
-        else
-        {
-            // right: _up x forward - left handed coordinates
-            _right = up.cross(_forward).normalize();
-        }
+        // right: up x forward - left handed coordinates
+        _right = up.cross(forward);
+        _right.y(0.0);
+        _right.normalize();
 
         // up: = forward x right - left handed coordinates
         // up is recalculated for stabilization
-        _up = _forward.cross(_right);
+        up = forward.cross(_right);
 
         // near corners: top left, top right, bottom left, bottom right
-        const vec3<T> near = eye + _forward * _near.z();
-        vec3<T> tl = near + _up * _near.y() - _right * _near.x();
-        vec3<T> tr = near + _up * _near.y() + _right * _near.x();
-        vec3<T> bl = near - _up * _near.y() - _right * _near.x();
-        vec3<T> br = near - _up * _near.y() + _right * _near.x();
+        const vec3<T> near = eye + forward * _near.z();
+        vec3<T> tl = near + up * _near.y() - _right * _near.x();
+        vec3<T> tr = near + up * _near.y() + _right * _near.x();
+        vec3<T> bl = near - up * _near.y() - _right * _near.x();
+        vec3<T> br = near - up * _near.y() + _right * _near.x();
 
         // far corners: top left, top right, bottom left, bottom right
-        const vec3<T> far = eye + _forward * _far.z();
-        vec3<T> ftl = far + _up * _far.y() - _right * _far.x();
-        vec3<T> ftr = far + _up * _far.y() + _right * _far.x();
-        vec3<T> fbl = far - _up * _far.y() - _right * _far.x();
-        vec3<T> fbr = far - _up * _far.y() + _right * _far.x();
+        const vec3<T> far = eye + forward * _far.z();
+        vec3<T> ftl = far + up * _far.y() - _right * _far.x();
+        vec3<T> ftr = far + up * _far.y() + _right * _far.x();
+        vec3<T> fbl = far - up * _far.y() - _right * _far.x();
+        vec3<T> fbr = far - up * _far.y() + _right * _far.x();
 
         // planes: top, bottom, left: all normals point inside
         _plane[0] = plane<T, vec3>(tr, tl, ftl);
@@ -295,7 +275,7 @@ class frustum
         _plane[5] = plane<T, vec3>(ftr, ftl, fbl);
 
         // construct the lookat matrix
-        _view = mat4<T>(_right, _up, _forward, eye);
+        _view = mat4<T>(_right, up, forward, eye);
 
         // Update the frustum center
         _center = (far + near) * 0.5;
