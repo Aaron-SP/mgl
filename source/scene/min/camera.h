@@ -226,6 +226,23 @@ class camera
         // Camera has moved
         _dirty = true;
     }
+    inline void set(const vec3<T> &p, const vec3<T> &look, const vec3<T> &up)
+    {
+        // Update position
+        _p = p;
+
+        // Update look vector
+        _look = look;
+
+        // Update the forward vector
+        _forward = (_look - _p).normalize();
+
+        // Update up vector
+        _up = up;
+
+        // Camera has moved
+        _dirty = true;
+    }
 };
 }
 
