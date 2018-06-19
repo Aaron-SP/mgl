@@ -70,7 +70,8 @@ class win32_window
 {
   public:
     // Virtual key codes for WIN32 platform
-    enum key_code : WPARAM
+    using key_type = WPARAM;
+    enum key_code : key_type
     {
         F1 = VK_F1,
         F2 = VK_F2,
@@ -153,7 +154,7 @@ class win32_window
     HDC _hdc;
     HGLRC _hrc;
     HINSTANCE _hinst;
-    keyboard<WPARAM, double> _keyboard;
+    keyboard<key_type, double> _keyboard;
 
     // Callback functions
     void *_data;
@@ -730,7 +731,7 @@ class win32_window
 
         return std::make_pair<uint_fast16_t, uint_fast16_t>(p.x, p.y);
     }
-    keyboard<WPARAM, double> &get_keyboard()
+    keyboard<key_type, double> &get_keyboard()
     {
         return _keyboard;
     }

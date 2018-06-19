@@ -61,7 +61,8 @@ class x_window
 {
   public:
     // Virtual key codes for X11 platform
-    enum key_code : unsigned int
+    using key_type = unsigned int;
+    enum key_code : key_type
     {
         F1 = XK_F1,
         F2 = XK_F2,
@@ -146,7 +147,7 @@ class x_window
     Colormap _color_map;
     GLXContext _context;
     Atom _shutdown_message;
-    keyboard<unsigned int, double> _keyboard;
+    keyboard<key_type, double> _keyboard;
 
     // Callback functions
     void *_data;
@@ -540,7 +541,7 @@ class x_window
     {
         return _h;
     }
-    keyboard<unsigned int, double> &get_keyboard()
+    keyboard<key_type, double> &get_keyboard()
     {
         return _keyboard;
     }
