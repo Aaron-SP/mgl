@@ -550,6 +550,10 @@ class x_window
     {
         return _keyboard;
     }
+    const keyboard<key_type, double> &get_keyboard() const
+    {
+        return _keyboard;
+    }
     bool get_shutdown() const
     {
         return _shutdown;

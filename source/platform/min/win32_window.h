@@ -740,6 +740,10 @@ class win32_window
     {
         return _keyboard;
     }
+    const keyboard<key_type, double> &get_keyboard() const
+    {
+        return _keyboard;
+    }
     uint_fast16_t get_height() const
     {
         return _h;

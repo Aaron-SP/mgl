@@ -149,7 +149,7 @@ class md5_mesh
     inline void load(const std::string &data)
     {
         // Get locations of all lines in string buffer
-        const auto lines = tools::read_lines(data);
+        const auto lines = min::read_lines(data);
 
         // Read line by line
         unsigned joints, meshes, mesh_counter;
@@ -160,7 +160,7 @@ class md5_mesh
             // read line and trim the line whitespace
             const auto &position = lines[i];
             std::string line = data.substr(position.first, position.second);
-            tools::trim(line);
+            min::trim(line);
 
             // skip empty line size in bytes
             if (line.size() == 0)
@@ -174,7 +174,7 @@ class md5_mesh
             s >> field;
 
             // Execute action based on property
-            if (tools::to_lower(field).compare("md5version") == 0)
+            if (min::to_lower(field).compare("md5version") == 0)
             {
                 // Parse the version number and check against target
                 int version;
@@ -186,12 +186,12 @@ class md5_mesh
                     throw std::runtime_error("md5_mesh: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
                 }
             }
-            else if (tools::to_lower(field).compare("commandline") == 0)
+            else if (min::to_lower(field).compare("commandline") == 0)
             {
                 // Skip these command parameters, as they are unused
                 continue;
             }
-            else if (tools::to_lower(field).compare("numjoints") == 0)
+            else if (min::to_lower(field).compare("numjoints") == 0)
             {
                 // Reserve space for the joints and bones
                 s >> joints;
@@ -204,20 +204,20 @@ class md5_mesh
                     throw std::runtime_error("md5_mesh: no joints specified in file");
                 }
             }
-            else if (tools::to_lower(field).compare("nummeshes") == 0)
+            else if (min::to_lower(field).compare("nummeshes") == 0)
             {
                 // Get number of meshes in file
                 s >> meshes;
             }
-            else if (tools::to_lower(field).compare("joints") == 0)
+            else if (min::to_lower(field).compare("joints") == 0)
             {
                 // Parse the next 'joints' lines in the file
-                const std::vector<std::string> j_lines = tools::get_lines(data, lines, joints, i);
+                const std::vector<std::string> j_lines = min::get_lines(data, lines, joints, i);
 
                 // process the hierarchy data
                 process_joints(j_lines);
             }
-            else if (tools::to_lower(field).compare("mesh") == 0)
+            else if (min::to_lower(field).compare("mesh") == 0)
             {
                 // Create a new mesh
                 _mesh.emplace_back(std::to_string(++mesh_counter));
@@ -225,9 +225,9 @@ class md5_mesh
 
                 {
                     // Scan lines looking for 'numverts'
-                    while (tools::to_lower(field).compare("numverts") != 0)
+                    while (min::to_lower(field).compare("numverts") != 0)
                     {
-                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        std::string line = min::get_lines(data, lines, 1, i)[0];
                         ss.str(line);
                         ss.clear();
 
@@ -252,7 +252,7 @@ class md5_mesh
                     }
 
                     // Parse the next 'verts' lines in the file
-                    const std::vector<std::string> v_lines = tools::get_lines(data, lines, verts, i);
+                    const std::vector<std::string> v_lines = min::get_lines(data, lines, verts, i);
 
                     // process the hierarchy data
                     process_vertices(v_lines);
@@ -260,9 +260,9 @@ class md5_mesh
 
                 {
                     // Scan lines looking for 'numtris'
-                    while (tools::to_lower(field).compare("numtris") != 0)
+                    while (min::to_lower(field).compare("numtris") != 0)
                     {
-                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        std::string line = min::get_lines(data, lines, 1, i)[0];
                         ss.str(line);
                         ss.clear();
 
@@ -287,7 +287,7 @@ class md5_mesh
                     }
 
                     // Parse the next 'triangles' lines in the file
-                    const std::vector<std::string> t_lines = tools::get_lines(data, lines, triangles, i);
+                    const std::vector<std::string> t_lines = min::get_lines(data, lines, triangles, i);
 
                     // process the hierarchy data
                     process_triangles(t_lines);
@@ -295,9 +295,9 @@ class md5_mesh
 
                 {
                     // Scan lines looking for 'numweights'
-                    while (tools::to_lower(field).compare("numweights") != 0)
+                    while (min::to_lower(field).compare("numweights") != 0)
                     {
-                        std::string line = tools::get_lines(data, lines, 1, i)[0];
+                        std::string line = min::get_lines(data, lines, 1, i)[0];
                         ss.str(line);
                         ss.clear();
 
@@ -322,7 +322,7 @@ class md5_mesh
                     }
 
                     // Parse the next 'weights' lines in the file
-                    const std::vector<std::string> w_lines = tools::get_lines(data, lines, weights, i);
+                    const std::vector<std::string> w_lines = min::get_lines(data, lines, weights, i);
 
                     // process the hierarchy data
                     process_weights(w_lines);

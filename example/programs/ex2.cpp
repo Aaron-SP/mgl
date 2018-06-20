@@ -128,11 +128,11 @@ int main(int argc, char *argv[])
             else if (flag.compare("-t") == 0)
             {
                 // Convert to lowercase for string comparison
-                format = std::string(tools::to_lower(argv[i]));
+                format = std::string(min::to_lower(argv[i]));
             }
             else if (flag.compare("-m") == 0)
             {
-                mip_flag = std::string(tools::to_lower(argv[i]));
+                mip_flag = std::string(min::to_lower(argv[i]));
             }
             else
             {

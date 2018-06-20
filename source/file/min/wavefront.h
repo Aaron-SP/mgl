@@ -89,14 +89,14 @@ class wavefront
     inline void load(const std::string &data)
     {
         // Get locations of all lines in string buffer
-        auto lines = tools::read_lines(data);
+        auto lines = min::read_lines(data);
 
         // Read line by line
         for (auto &position : lines)
         {
             // read line and trim the line whitespace
             std::string line = data.substr(position.first, position.second);
-            tools::trim(line);
+            min::trim(line);
 
             // skip empty line size in bytes
             if (line.size() == 0)
@@ -202,7 +202,7 @@ class wavefront
     {
         // Trim the mesh name
         std::string name = line.substr(2);
-        tools::trim(name);
+        min::trim(name);
 
         // Consume data in buffers
         flush();
@@ -266,10 +266,10 @@ class wavefront
     {
         // Trim the substring
         std::string sub = line.substr(2);
-        tools::trim(sub);
+        min::trim(sub);
 
         // Split on space, verify three columns, "\\s+"
-        auto columns = tools::split_space(sub);
+        auto columns = min::split_space(sub);
         if (columns.size() != 3)
         {
             throw std::runtime_error("wavefront: Faces must be triangulated, invalid format '" + sub + "'");
@@ -279,7 +279,7 @@ class wavefront
         for (const auto &c : columns)
         {
             // Split on forward slash, verify 3 rows, "\\/+"
-            auto rows = tools::split_slash(c);
+            auto rows = min::split_slash(c);
             if (rows.size() != 3)
             {
                 throw std::runtime_error("wavefront: Faces must be fully defined vertex/uv/normal, invalid format '" + c + "'");

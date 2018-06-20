@@ -217,7 +217,7 @@ class md5_anim
     inline void load(const std::string &data)
     {
         // Get locations of all lines in string buffer
-        const auto lines = tools::read_lines(data);
+        const auto lines = min::read_lines(data);
 
         // Read line by line
         unsigned frames, nodes, components;
@@ -228,7 +228,7 @@ class md5_anim
             // read line and trim the line whitespace
             const auto &position = lines[i];
             std::string line = data.substr(position.first, position.second);
-            tools::trim(line);
+            min::trim(line);
 
             // skip empty line size in bytes
             if (line.size() == 0)
@@ -242,7 +242,7 @@ class md5_anim
             s >> field;
 
             // Execute action based on property
-            if (tools::to_lower(field).compare("md5version") == 0)
+            if (min::to_lower(field).compare("md5version") == 0)
             {
                 // Parse the version number and check against target
                 int version;
@@ -254,59 +254,59 @@ class md5_anim
                     throw std::runtime_error("md5_anim: Version number unsupported, got '" + std::to_string(version) + "' expected '10'");
                 }
             }
-            else if (tools::to_lower(field).compare("commandline") == 0)
+            else if (min::to_lower(field).compare("commandline") == 0)
             {
                 // Skip these command parameters, as they are unused
                 continue;
             }
-            else if (tools::to_lower(field).compare("numframes") == 0)
+            else if (min::to_lower(field).compare("numframes") == 0)
             {
                 s >> frames;
             }
-            else if (tools::to_lower(field).compare("numjoints") == 0)
+            else if (min::to_lower(field).compare("numjoints") == 0)
             {
                 s >> nodes;
             }
-            else if (tools::to_lower(field).compare("framerate") == 0)
+            else if (min::to_lower(field).compare("framerate") == 0)
             {
                 s >> _frame_rate;
             }
-            else if (tools::to_lower(field).compare("numanimatedcomponents") == 0)
+            else if (min::to_lower(field).compare("numanimatedcomponents") == 0)
             {
                 s >> components;
             }
-            else if (tools::to_lower(field).compare("hierarchy") == 0)
+            else if (min::to_lower(field).compare("hierarchy") == 0)
             {
                 // Parse the next 'nodes' lines in the file
-                const std::vector<std::string> h_lines = tools::get_lines(data, lines, nodes, i);
+                const std::vector<std::string> h_lines = min::get_lines(data, lines, nodes, i);
 
                 // process the hierarchy data
                 process_hierarchy(h_lines);
             }
-            else if (tools::to_lower(field).compare("bounds") == 0)
+            else if (min::to_lower(field).compare("bounds") == 0)
             {
                 // Parse the next 'frames' lines in the file
-                const std::vector<std::string> b_lines = tools::get_lines(data, lines, frames, i);
+                const std::vector<std::string> b_lines = min::get_lines(data, lines, frames, i);
 
                 // process the bounds data
                 process_bounds(b_lines);
             }
-            else if (tools::to_lower(field).compare("baseframe") == 0)
+            else if (min::to_lower(field).compare("baseframe") == 0)
             {
                 // Parse the next 'nodes' lines in the file
-                const std::vector<std::string> bf_lines = tools::get_lines(data, lines, nodes, i);
+                const std::vector<std::string> bf_lines = min::get_lines(data, lines, nodes, i);
 
                 // process the baseframe data
                 process_baseframe(bf_lines);
             }
-            else if (tools::to_lower(field).compare("frame") == 0)
+            else if (min::to_lower(field).compare("frame") == 0)
             {
                 // Get the frame ID
                 unsigned id;
                 s >> id;
 
                 // Parse the next 'nodes' lines in the file
-                const std::vector<std::string> f_lines = tools::get_lines(data, lines, nodes, i);
+                const std::vector<std::string> f_lines = min::get_lines(data, lines, nodes, i);
 
                 // process the frame data
                 process_frame_data(f_lines, id, components);

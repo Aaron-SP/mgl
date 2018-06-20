@@ -21,7 +21,7 @@ limitations under the License.
 #include <locale>
 #include <vector>
 
-namespace tools
+namespace min
 {
 
 // trim from start
@@ -88,6 +88,18 @@ inline std::vector<std::string> split(const std::string &s, const std::pointer_t
     return out;
 }
 
+inline int isequal(int ch)
+{
+    if (ch == '=')
+    {
+        // Positive test
+        return 1;
+    }
+
+    // Negative test
+    return 0;
+}
+
 inline int isslash(int ch)
 {
     if (ch == '/')
@@ -107,6 +119,12 @@ inline std::vector<std::string> split_space(const std::string &s, const size_t h
 }
 
 // This is effectively regex split on, "\\/+"
+inline std::vector<std::string> split_equal(const std::string &s, const size_t hint = 0)
+{
+    return split(s, std::ptr_fun<int, int>(isequal), hint);
+}
+
+// This is effectively regex split on, "=+"
 inline std::vector<std::string> split_slash(const std::string &s, const size_t hint = 0)
 {
     return split(s, std::ptr_fun<int, int>(isslash), hint);
@@ -156,7 +174,7 @@ inline std::vector<std::string> get_lines(const std::string &data, const std::ve
         // read line and trim the line whitespace
         const auto &position = lines[i];
         std::string line = data.substr(position.first, position.second);
-        tools::trim(line);
+        min::trim(line);
 
         // skip empty line size in bytes
         if (line.size() == 0)
