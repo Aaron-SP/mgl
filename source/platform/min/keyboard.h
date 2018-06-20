@@ -227,21 +227,30 @@ class keyboard
         _override_data = data;
         _override = on_override;
     }
-    void swap(const T one, const T two)
+    bool swap(const T one, const T two)
     {
-        const auto &i = _keys.find(one);
-        if (i != _keys.end())
+        const bool in_set = _keys.find(two) != _keys.end();
+        if (one != two && !in_set)
         {
-            // Register callbacks under new key
-            _keys.insert(std::make_pair(two, i->second));
+            const auto &i = _keys.find(one);
+            if (i != _keys.end())
+            {
+                // Register callbacks under new key
+                _keys.insert(std::make_pair(two, i->second));
 
-            // Remove old key code from the map
-            _keys.erase(i);
+                // Remove old key code from the map
+                _keys.erase(i);
+
+                // A swap happened
+                return true;
+            }
+            else
+            {
+                throw std::runtime_error("keyboard: keycode " + std::to_string(one) + " is not in the key map");
+            }
         }
-        else
-        {
-            throw std::runtime_error("keyboard: keycode " + std::to_string(one) + " is not in the key map");
-        }
+
+        return false;
     }
     void update(const K step)
     {
