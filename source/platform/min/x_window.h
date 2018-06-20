@@ -132,7 +132,12 @@ class x_window
         SPACE = XK_space,
         LALT = XK_Alt_L,
         RALT = XK_Alt_R,
-        ESCAPE = XK_Escape
+        ESCAPE = XK_Escape,
+        APOSTROPHE = XK_apostrophe,
+        QUOTE = XK_quotedbl,
+        COMMA = XK_comma,
+        PERIOD = XK_period,
+        SEMICOLON = XK_semicolon
     };
 
   private:

@@ -141,7 +141,12 @@ class win32_window
         SPACE = VK_SPACE,
         LALT = VK_LMENU,
         RALT = VK_RMENU,
-        ESCAPE = VK_ESCAPE
+        ESCAPE = VK_ESCAPE,
+        APOSTROPHE = VK_OEM_3,
+        QUOTE = VK_OEM_7,
+        COMMA = VK_OEM_COMMA,
+        PERIOD = VK_OEM_PERIOD,
+        SEMICOLON = VK_OEM_1
     };
 
   private:

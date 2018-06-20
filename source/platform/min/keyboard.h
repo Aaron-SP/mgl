@@ -15,9 +15,11 @@ limitations under the License.
 #ifndef __KEYBOARD__
 #define __KEYBOARD__
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace min
 {
@@ -103,6 +105,7 @@ class keyboard
 {
   private:
     std::unordered_map<T, key<K>> _keys;
+    std::vector<T> _key_order;
     void *_override_data;
     void (*_override)(void *, T);
     bool _disable;
@@ -113,10 +116,12 @@ class keyboard
     {
         // Add key to the key map
         _keys.insert(std::make_pair(code, key<K>()));
+        _key_order.push_back(code);
     }
     void clear()
     {
         _keys.clear();
+        _key_order.clear();
     }
     void disable()
     {
@@ -126,9 +131,21 @@ class keyboard
     {
         _disable = false;
     }
-    const std::unordered_map<T, key<K>> &get_active_keys() const
+    const std::vector<T> &get_active_keys() const
     {
-        return _keys;
+        return _key_order;
+    }
+    const std::pair<T, key<K>> &get_key(const T code) const
+    {
+        const auto &i = _keys.find(code);
+        if (i != _keys.end())
+        {
+            return i->second;
+        }
+        else
+        {
+            throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
+        }
     }
     bool is_down(const T code) const
     {
@@ -240,6 +257,17 @@ class keyboard
 
                 // Remove old key code from the map
                 _keys.erase(i);
+
+                // Swap the vector key order
+                const typename std::vector<T>::iterator j = std::find(_key_order.begin(), _key_order.end(), one);
+                if (j != _key_order.end())
+                {
+                    *j = two;
+                }
+                else
+                {
+                    throw std::runtime_error("keyboard: keycode " + std::to_string(one) + " is not in the key order list");
+                }
 
                 // A swap happened
                 return true;
