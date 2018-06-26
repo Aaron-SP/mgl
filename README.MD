@@ -62,7 +62,7 @@ For Ubuntu 14.04.1 Linux users, the following apt-get command should install all
 - sudo apt-get install build-essential git libvorbis-dev libfreetype6-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev
 
 To verify freetype has been installed properly, query it using the following command:
-- freetype-config --cflags
+- pkg-config freetype2 --cflags
 
 #### Code Formatting
 
