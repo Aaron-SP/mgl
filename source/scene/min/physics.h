@@ -544,8 +544,8 @@ class physics
         const auto w2_world = transform<T>(w2_local, b2.get_rotation());
 
         // Calculate the vector from the intersection point and object center in object coordinates
-        const vec<T> r1 = (intersect - b1.get_position()).normalize_safe(vec<T>());
-        const vec<T> r2 = (intersect - b2.get_position()).normalize_safe(vec<T>());
+        const vec<T> r1 = (intersect - b1.get_position()).normalize();
+        const vec<T> r2 = (intersect - b2.get_position()).normalize();
 
         // Calculate the relative velocity between b1 and b2 in world space
         const vec<T> v12 = (v1 + cross<T>(w1_world, r1)) - (v2 + cross<T>(w2_world, r2));

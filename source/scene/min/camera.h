@@ -137,7 +137,7 @@ class camera
         _look = _p + direction;
 
         // Update the forward vector
-        _forward = (direction).normalize();
+        _forward = (direction).normalize_unsafe();
 
         // Transform up vector
         _up = rotation.transform(_up);
@@ -155,7 +155,7 @@ class camera
     inline void set_look_at(const vec3<T> &look)
     {
         // Compute new forward vector
-        const vec3<T> forward = (look - _p).normalize();
+        const vec3<T> forward = (look - _p).normalize_unsafe();
 
         // Find the quaternion between two vectors
         const quat<T> q(_forward, forward);
@@ -206,7 +206,7 @@ class camera
     inline void set(const vec3<T> &p, const vec3<T> &look)
     {
         // Compute new forward vector
-        const vec3<T> forward = (look - p).normalize();
+        const vec3<T> forward = (look - p).normalize_unsafe();
 
         // Find the quaternion between two vectors
         const quat<T> q(_forward, forward);
@@ -235,7 +235,7 @@ class camera
         _look = look;
 
         // Update the forward vector
-        _forward = (_look - _p).normalize();
+        _forward = (_look - _p).normalize_unsafe();
 
         // Update up vector
         _up = up;

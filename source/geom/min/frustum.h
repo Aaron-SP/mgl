@@ -244,7 +244,7 @@ class frustum
         // right: up x forward - left handed coordinates
         _right = up.cross(forward);
         _right.y(0.0);
-        _right.normalize();
+        _right.normalize_unsafe();
 
         // up: = forward x right - left handed coordinates
         // up is recalculated for stabilization

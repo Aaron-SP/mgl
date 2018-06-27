@@ -103,14 +103,14 @@ class aabbox
     {
         // Return the distance to this aabb
         // Return 0 if inside it
-        vec<T> closest = closest_point(p);
-        vec<T> d = (p - closest);
+        const vec<T> closest = closest_point(p);
+        const vec<T> d = (p - closest);
         return d.dot(d);
     }
     inline T square_size() const
     {
         // Calculates the squared distance across the aabb extent
-        vec<T> extent = get_extent();
+        const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
     inline std::vector<std::pair<vec<T>, vec<T>>> subdivide() const

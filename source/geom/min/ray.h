@@ -33,7 +33,7 @@ class ray
     ray(const vec<T> &from, const vec<T> &to) : _origin(from)
     {
         // Calculate a ray in direction to - from
-        _dir = (to - from).normalize();
+        _dir = (to - from).normalize_unsafe();
 
         // If ray is axis aligned, element will be MAX(T)
         _inv = _dir.inverse_safe();

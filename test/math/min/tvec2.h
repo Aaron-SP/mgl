@@ -109,6 +109,16 @@ bool test_vec2()
         throw std::runtime_error("Failed vec2 normalize operation");
     }
 
+    // Test normalize_unsafe
+    one = min::vec2<double>(1.0, 2.0);
+    one.normalize_unsafe();
+    out = out && compare(0.4472, one.x(), 1E-4);
+    out = out && compare(0.8944, one.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normalize_unsafe operation");
+    }
+
     // Test normalize_safe
     one = min::vec2<double>(0.0, 0.0);
     one.normalize_safe(min::vec2<double>::up());
@@ -117,6 +127,16 @@ bool test_vec2()
     if (!out)
     {
         throw std::runtime_error("Failed vec2 normalize_safe operation");
+    }
+
+    // Test normalize fallback
+    one = min::vec2<double>(0.0, 0.0);
+    one.normalize();
+    out = out && compare(0.0, one.x(), 1E-4);
+    out = out && compare(0.0, one.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed vec2 normalize fallback operation");
     }
 
     // Test clamp

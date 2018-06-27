@@ -550,6 +550,23 @@ class vec2
     }
     inline vec2<T> &normalize()
     {
+        const T mag = magnitude();
+        if (std::abs(mag) > var<T>::TOL_ZERO)
+        {
+            T inv_mag = 1.0 / mag;
+            _x *= inv_mag;
+            _y *= inv_mag;
+        }
+        else
+        {
+            _x = 0.0;
+            _y = 0.0;
+        }
+
+        return *this;
+    }
+    inline vec2<T> &normalize_unsafe()
+    {
         const T inv_mag = 1.0 / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;

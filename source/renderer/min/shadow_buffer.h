@@ -52,7 +52,7 @@ class shadow_buffer
     inline void set_light_view(const vec3<float> &eye, const vec3<float> &look, const vec3<float> &up)
     {
         // forward: look - eye
-        const vec3<float> forward = (look - eye).normalize();
+        const vec3<float> forward = (look - eye).normalize_unsafe();
 
         // Check for forward vector parallel to up vector
         vec3<float> right;
@@ -64,7 +64,7 @@ class shadow_buffer
         else
         {
             // right: _up x forward - left handed coordinates
-            right = up.cross(forward).normalize();
+            right = up.cross(forward).normalize_unsafe();
         }
 
         // up: = forward x right - left handed coordinates

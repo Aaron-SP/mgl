@@ -65,7 +65,7 @@ class sphere
         _center = (min + max) * 0.5;
 
         // Calculate maximum distance from space center
-        vec<T> half_extent = (max - _center);
+        const vec<T> half_extent = (max - _center);
 
         // Calculate the square distance between center and extent
         _radius2 = half_extent.dot(half_extent);
@@ -103,7 +103,7 @@ class sphere
     }
     inline vec<T> closest_point(const vec<T> &p) const
     {
-        vec<T> direction = (p - _center).normalize();
+        const vec<T> direction = (p - _center).normalize();
         return (_center + direction * _radius);
     }
     inline const vec<T> &get_center() const
@@ -113,17 +113,17 @@ class sphere
     inline vec<T> get_extent() const
     {
         // Calculate the circumference of the sphere
-        T factor = vec<T>::inverse_unit_length();
+        const T factor = vec<T>::inverse_unit_length();
         return vec<T>().set_all(2.0 * _radius * factor);
     }
     inline vec<T> get_min() const
     {
-        T factor = vec<T>::inverse_unit_length();
+        const T factor = vec<T>::inverse_unit_length();
         return _center - vec<T>().set_all(_radius * factor);
     }
     inline vec<T> get_max() const
     {
-        T factor = vec<T>::inverse_unit_length();
+        const T factor = vec<T>::inverse_unit_length();
         return _center + vec<T>().set_all(_radius * factor);
     }
     inline T get_radius() const
@@ -137,7 +137,7 @@ class sphere
     inline std::vector<std::pair<vec<T>, T>> grid(size_t scale) const
     {
         // Calculate radius for this scale
-        T radius = _radius / scale;
+        const T radius = _radius / scale;
 
         // Create the grid cells
         return vec<T>::grid_center(get_min(), get_max(), scale, radius);
@@ -145,7 +145,7 @@ class sphere
     inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
     {
         // Calculate normal direction vector
-        vec<T> normal = p - _center;
+        const vec<T> normal = p - _center;
 
         // Length is initially zero
         length = 0.0;
@@ -162,13 +162,11 @@ class sphere
         length = std::sqrt(mag2);
 
         // Normalize the collision normal vector
-        normal /= length;
-
-        return normal;
+        return normal / length;
     }
     inline bool point_inside(const vec<T> &p) const
     {
-        vec<T> d = p - _center;
+        const vec<T> d = p - _center;
         return (d.dot(d) <= _radius2);
     }
     inline void set_position(const vec<T> &pos)
@@ -178,8 +176,8 @@ class sphere
     inline T square_distance(const vec<T> &p) const
     {
         // Calculate the distance between p and closest point
-        vec<T> closest = closest_point(p);
-        vec<T> d = (p - closest);
+        const vec<T> closest = closest_point(p);
+        const vec<T> d = (p - closest);
         return d.dot(d);
     }
     inline T square_size() const
@@ -190,7 +188,7 @@ class sphere
     inline std::vector<std::pair<vec<T>, T>> subdivide() const
     {
         // Calculate radius for next level
-        T radius = _radius * 0.5;
+        const T radius = _radius * 0.5;
 
         // Create the subdivided space
         return vec<T>::subdivide_center(get_min(), get_max(), radius);

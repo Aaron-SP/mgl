@@ -157,7 +157,7 @@ class oobbox_base
     {
         // This assumes a non rotated box (aabb)!
         // Calculates the squared distance across the box extent
-        vec<T> extent = get_extent();
+        const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
     inline std::vector<std::pair<vec<T>, vec<T>>> subdivide() const
