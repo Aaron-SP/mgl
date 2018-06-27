@@ -237,16 +237,6 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 inverse operation");
     }
 
-    // Test inverse_safe
-    one = min::vec4<double>(0.0, 0.0, 0.0, 1.0).inverse_safe();
-    out = out && compare(std::numeric_limits<double>::max(), one.x(), 1E-4);
-    out = out && compare(std::numeric_limits<double>::max(), one.y(), 1E-4);
-    out = out && compare(std::numeric_limits<double>::max(), one.z(), 1E-4);
-    if (!out)
-    {
-        throw std::runtime_error("Failed vec4 inverse_safe operation");
-    }
-
     // Test max
     one = min::vec4<double>(-2.0, 2.0, 5.0, 0.0);
     double max = one.max();
@@ -568,7 +558,7 @@ bool test_vec4()
     // Test subdivide_ray 5
     origin = min::vec4<double>(-99999.0, 99999.0, -99999.0, 1.0);
     direction = min::vec4<double>(0.0, -1.0, 0.0, 1.0).normalize();
-    inverse = direction.inverse_safe();
+    inverse = direction.inverse();
     min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(2, keys.size());
     out = out && compare(2, keys[0]);

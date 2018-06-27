@@ -684,10 +684,6 @@ class vec4
     }
     inline vec4<T> inverse() const
     {
-        return vec4<T>(1.0 / _x, 1.0 / _y, 1.0 / _z, 1.0);
-    }
-    inline vec4<T> inverse_safe() const
-    {
         const T x = safe_inverse<T>(_x);
         const T y = safe_inverse<T>(_y);
         const T z = safe_inverse<T>(_z);
@@ -1495,7 +1491,7 @@ class vec4
         const vec4<T> t = (c - origin) * inv_dir;
         const vec4<T> t_abs = vec4<T>(t).abs();
 
-        const auto x_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+        const auto x_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
             // Clear the flag
             flag = false;
 
@@ -1581,7 +1577,7 @@ class vec4
             }
         };
 
-        const auto y_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+        const auto y_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
             // Clear the flag
             flag = false;
 
@@ -1667,7 +1663,7 @@ class vec4
             }
         };
 
-        const auto z_lamda = [&out, &origin, &dir, &t, &c, &h, &f, &s, &flag]() {
+        const auto z_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
             // Clear the flag
             flag = false;
 

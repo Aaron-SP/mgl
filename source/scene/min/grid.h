@@ -21,6 +21,7 @@ limitations under the License.
 #include <min/utility.h>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 // The shape class must fulfill the following interface to be inserted into the spatial structure

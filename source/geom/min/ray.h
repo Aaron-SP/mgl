@@ -36,7 +36,7 @@ class ray
         _dir = (to - from).normalize_unsafe();
 
         // If ray is axis aligned, element will be MAX(T)
-        _inv = _dir.inverse_safe();
+        _inv = _dir.inverse();
     }
     inline T set(const vec<T> &from, const vec<T> &to)
     {
@@ -51,7 +51,7 @@ class ray
         if (length > var<T>::TOL_REL)
         {
             _dir = dir * inv_len;
-            _inv = _dir.inverse_safe();
+            _inv = _dir.inverse();
         }
 
         return length;

@@ -57,7 +57,7 @@ constexpr min::oobbox<T, vec> make_oobbox()
 }
 
 template <typename T, template <typename> class vec>
-constexpr const std::vector<min::aabbox<T, vec>> make_aabb_boxes(const size_t N)
+const std::vector<min::aabbox<T, vec>> make_aabb_boxes(const size_t N)
 {
     // Local variables
     const T low = -99999.999;
@@ -91,7 +91,7 @@ constexpr const std::vector<min::aabbox<T, vec>> make_aabb_boxes(const size_t N)
 }
 
 template <typename T, template <typename> class vec>
-constexpr const std::vector<min::oobbox<T, vec>> make_oobb_boxes(const size_t N)
+const std::vector<min::oobbox<T, vec>> make_oobb_boxes(const size_t N)
 {
     // Local variables
     const T low = -99999.999;
@@ -125,7 +125,7 @@ constexpr const std::vector<min::oobbox<T, vec>> make_oobb_boxes(const size_t N)
 }
 
 template <typename T, template <typename> class vec>
-constexpr const std::vector<min::sphere<T, vec>> make_spheres(const size_t N)
+const std::vector<min::sphere<T, vec>> make_spheres(const size_t N)
 {
     // Local variables
     const T low = -99999.999;

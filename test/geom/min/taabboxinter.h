@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 #ifndef __TESTAABBOXINTERSECT__
-#define __TESTAABOXINTERSECT__
+#define __TESTAABBOXINTERSECT__
 
 #include <min/intersect.h>
 #include <min/test.h>

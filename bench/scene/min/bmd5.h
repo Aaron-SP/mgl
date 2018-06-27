@@ -30,7 +30,7 @@ double bench_md5()
     const auto start = std::chrono::high_resolution_clock::now();
 
     // Load md5 model
-    min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")));
+    min::md5_model<float, uint32_t, min::vec4, min::aabbox> md5_model(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"));
 
     // Load animation
     md5_model.load_animation("data/models/mech_warrior_stand.md5anim");

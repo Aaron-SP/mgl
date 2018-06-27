@@ -110,16 +110,28 @@ class mesh
         const vec2<T> duv1 = uv1 - uv0;
         const vec2<T> duv2 = uv2 - uv0;
 
-        // Calculate the determinant
-        const T det = 1.0 / (duv1.x() * duv2.y() - duv1.y() * duv2.x());
+        // If no solution than duplicates exist, (triangle is a line)
+        const T denom = (duv1.x() * duv2.y() - duv1.y() * duv2.x());
+        if (std::abs(denom) <= var<T>::TOL_REL)
+        {
+            const vec3<T> zero;
+            add_tangents(std::make_pair(zero, zero), ia);
+            add_tangents(std::make_pair(zero, zero), ib);
+            add_tangents(std::make_pair(zero, zero), ic);
+        }
+        else
+        {
+            // Calculate the determinant
+            const T det = 1.0 / denom;
 
-        // Solve inverse matrix equations and calculate tangents
-        const vec3<T> tan = (dv1 * duv2.y() - dv2 * duv1.y()) * det;
-        const vec3<T> bit = (dv2 * duv1.x() - dv1 * duv2.x()) * det;
+            // Solve inverse matrix equations and calculate tangents
+            const vec3<T> tan = (dv1 * duv2.y() - dv2 * duv1.y()) * det;
+            const vec3<T> bit = (dv2 * duv1.x() - dv1 * duv2.x()) * det;
 
-        add_tangents(std::make_pair(tan, bit), ia);
-        add_tangents(std::make_pair(tan, bit), ib);
-        add_tangents(std::make_pair(tan, bit), ic);
+            add_tangents(std::make_pair(tan, bit), ia);
+            add_tangents(std::make_pair(tan, bit), ib);
+            add_tangents(std::make_pair(tan, bit), ic);
+        }
     }
 
     inline void add_tangents(const std::pair<vec3<T>, vec3<T>> &tan, const size_t in)
