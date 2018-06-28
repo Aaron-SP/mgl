@@ -303,11 +303,11 @@ class wavefront
     {
         load(mem.to_string());
     }
-    const std::vector<mesh<T, K>> &get_meshes() const
+    inline const std::vector<mesh<T, K>> &get_meshes() const
     {
         return _mesh;
     }
-    std::vector<mesh<T, K>> &get_meshes()
+    inline std::vector<mesh<T, K>> &get_meshes()
     {
         return _mesh;
     }

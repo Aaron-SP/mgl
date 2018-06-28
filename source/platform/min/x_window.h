@@ -29,7 +29,7 @@ limitations under the License.
 namespace min
 {
 
-bool check_gl_error()
+inline bool check_gl_error()
 {
     const GLenum error = glGetError();
 
@@ -43,7 +43,7 @@ bool check_gl_error()
     return ret;
 }
 
-void throw_gl_error()
+inline void throw_gl_error()
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
@@ -52,7 +52,7 @@ void throw_gl_error()
     }
 }
 
-GLboolean is_supported(const char *string)
+inline GLboolean is_supported(const char *string)
 {
     return glxewIsSupported(string);
 }
@@ -165,7 +165,7 @@ class x_window
     // Window class string literal
     static constexpr const char *window_class = "minwl:x_window";
 
-    void init_glew() const
+    inline void init_glew() const
     {
         // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
         GLint attr[] = {
@@ -240,8 +240,7 @@ class x_window
         // Destroy the context
         glXDestroyContext(_display, context);
     }
-
-    void create_opengl_context(const std::string &title, GLint major, GLint minor)
+    inline void create_opengl_context(const std::string &title, GLint major, GLint minor)
     {
         // Create opengl attributes, 32 bit color, 24 bit depth, 8 bit stencil, double buffering
         GLint attr[] = {
@@ -357,8 +356,7 @@ class x_window
         // Free the visual info
         XFree(visual);
     }
-
-    void create_window(const std::string &title)
+    inline void create_window(const std::string &title)
     {
         // Create display and send all output to 'this' PC
         _display = XOpenDisplay(0);
@@ -399,7 +397,7 @@ class x_window
         }
         std::cout << "x_window: opening X11 opengl context version " << major << "." << minor << std::endl;
     }
-    void on_lclick_down(const uint_fast16_t x, const uint_fast16_t y) const
+    inline void on_lclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_down callback
         if (_lclick_down)
@@ -407,7 +405,7 @@ class x_window
             _lclick_down(_data, x, y);
         }
     }
-    void on_lclick_up(const uint_fast16_t x, const uint_fast16_t y) const
+    inline void on_lclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the lclick_up callback
         if (_lclick_up)
@@ -415,7 +413,7 @@ class x_window
             _lclick_up(_data, x, y);
         }
     }
-    void on_rclick_down(const uint_fast16_t x, const uint_fast16_t y) const
+    inline void on_rclick_down(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rlick_down callback
         if (_rclick_down)
@@ -423,7 +421,7 @@ class x_window
             _rclick_down(_data, x, y);
         }
     }
-    void on_rclick_up(const uint_fast16_t x, const uint_fast16_t y) const
+    inline void on_rclick_up(const uint_fast16_t x, const uint_fast16_t y) const
     {
         // Call the rclick_up callback
         if (_rclick_up)
@@ -431,7 +429,7 @@ class x_window
             _rclick_up(_data, x, y);
         }
     }
-    void on_resize(const uint_fast16_t width, const uint_fast16_t height)
+    inline void on_resize(const uint_fast16_t width, const uint_fast16_t height)
     {
         _w = width;
         _h = height;
@@ -442,7 +440,7 @@ class x_window
         // Call the update callback
         on_update(_w, _h);
     }
-    void on_update(const uint_fast16_t width, const uint_fast16_t height) const
+    inline void on_update(const uint_fast16_t width, const uint_fast16_t height) const
     {
         // Call the update callback
         if (_update)
@@ -497,7 +495,7 @@ class x_window
             XCloseDisplay(_display);
         }
     }
-    void display_cursor(const bool set) const
+    inline void display_cursor(const bool set) const
     {
         // Set if cursor is visible
         if (!set)
@@ -524,15 +522,15 @@ class x_window
             XUndefineCursor(_display, _window);
         }
     }
-    void error_message(const std::string &error) const
+    inline void error_message(const std::string &error) const
     {
         std::cout << error << std::endl;
     }
-    const char *get_context_string(const GLenum str) const
+    inline const char *get_context_string(const GLenum str) const
     {
         return reinterpret_cast<const char *>(glGetString(str));
     }
-    std::pair<uint_fast16_t, uint_fast16_t> get_cursor() const
+    inline std::pair<uint_fast16_t, uint_fast16_t> get_cursor() const
     {
         int x, y;
         Window window;
@@ -542,84 +540,84 @@ class x_window
         XQueryPointer(_display, _window, &window, &window, &x, &y, &x, &y, &mask);
         return std::make_pair<uint_fast16_t, uint_fast16_t>(x, y);
     }
-    uint_fast16_t get_height() const
+    inline uint_fast16_t get_height() const
     {
         return _h;
     }
-    keyboard<key_type, double> &get_keyboard()
+    inline keyboard<key_type, double> &get_keyboard()
     {
         return _keyboard;
     }
-    const keyboard<key_type, double> &get_keyboard() const
+    inline const keyboard<key_type, double> &get_keyboard() const
     {
         return _keyboard;
     }
-    bool get_shutdown() const
+    inline bool get_shutdown() const
     {
         return _shutdown;
     }
-    uint_fast16_t get_width() const
+    inline uint_fast16_t get_width() const
     {
         return _w;
     }
-    void maximize() const
+    inline void maximize() const
     {
         // Maximize the window
         // This functionality is dependent on the window manager
     }
-    void register_lclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
+    inline void register_lclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse down
         _lclick_down = down;
     }
-    void register_lclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
+    inline void register_lclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on lmouse up
         _lclick_up = up;
     }
-    void register_rclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
+    inline void register_rclick_down(void (*down)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse down
         _rclick_down = down;
     }
-    void register_rclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
+    inline void register_rclick_up(void (*up)(void *, const uint_fast16_t x, const uint_fast16_t y))
     {
         // Register callback on rmouse up
         _rclick_up = up;
     }
-    void register_data(void *ptr)
+    inline void register_data(void *ptr)
     {
         // Register callback data pointer
         _data = ptr;
     }
-    void register_update(void (*update)(void *, const uint_fast16_t width, const uint_fast16_t height))
+    inline void register_update(void (*update)(void *, const uint_fast16_t width, const uint_fast16_t height))
     {
         // Register callback on resize
         _update = update;
     }
-    void resize(const uint_fast16_t width, const uint_fast16_t height) const
+    inline void resize(const uint_fast16_t width, const uint_fast16_t height) const
     {
         XResizeWindow(_display, _window, width, height);
     }
-    void set_cursor(const uint_fast16_t x, const uint_fast16_t y) const
+    inline void set_cursor(const uint_fast16_t x, const uint_fast16_t y) const
     {
         XWarpPointer(_display, 0, _window, 0, 0, _w, _h, x, y);
     }
-    void set_shutdown()
+    inline void set_shutdown()
     {
         _shutdown = true;
     }
-    void set_title(const std::string &title)
+    inline void set_title(const std::string &title)
     {
         // Set the window title
         XStoreName(_display, _window, title.c_str());
     }
-    void swap_buffers() const
+    inline void swap_buffers() const
     {
         // Swaps the double buffer
         glXSwapBuffers(_display, _window);
     }
-    void update()
+    inline void update()
     {
         int events = XEventsQueued(_display, QueuedAfterReading);
         for (int i = 0; i < events; i++)

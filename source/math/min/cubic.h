@@ -33,7 +33,7 @@ class bezier
         : _p0(p0), _p1(p1), _p2(p2), _p3(p3) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -51,11 +51,11 @@ class bezier
         // return interpolated point on bezier curve
         return (_p0 * b0) + (_p1 * b1) + (_p2 * b2) + (_p3 * b3);
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p0;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p3;
     }
@@ -76,7 +76,7 @@ class bezier_deriv
         : _p0(p0), _p1(p1), _p2(p2), _p3(p3) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -92,11 +92,11 @@ class bezier_deriv
         // return interpolated point on bezier_deriv curve
         return (_p0 * b0) + (_p1 * b1) + (_p2 * b2) + (_p3 * b3);
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p0;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p3;
     }
@@ -118,7 +118,7 @@ class bspline
         : _p0(p0), _p1(p1), _p2(p2), _p3(p3) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -135,11 +135,11 @@ class bspline
         // return interpolated point on bspline curve
         return ((_p0 * b0) + (_p1 * b1) + (_p2 * b2) + (_p3 * b3)) * 0.166667;
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p1;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p2;
     }
@@ -161,7 +161,7 @@ class bspline_deriv
         : _p0(p0), _p1(p1), _p2(p2), _p3(p3) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -177,11 +177,11 @@ class bspline_deriv
         // return interpolated point on bspline_deriv curve
         return ((_p0 * b0) + (_p1 * b1) + (_p2 * b2) + (_p3 * b3));
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p1;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p2;
     }
@@ -203,7 +203,7 @@ class hermite
         : _p0(p0), _p1(p1), _t0(t0), _t1(t1) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -220,11 +220,11 @@ class hermite
         // return interpolated point on hermite curve
         return (_p0 * b0) + (_p1 * b1) + (_t0 * b2) + (_t1 * b3);
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p0;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p1;
     }
@@ -246,7 +246,7 @@ class hermite_deriv
         : _p0(p0), _p1(p1), _t0(t0), _t1(t1) {}
 
     // Assumes t is between domain [0.0, 1.0]
-    vec<T> interpolate(const T t) const
+    inline vec<T> interpolate(const T t) const
     {
         // Precalculate time constants
         const T t2 = t * t;
@@ -261,11 +261,11 @@ class hermite_deriv
         // return interpolated point on hermite_deriv curve
         return (_p0 * b0) + (_p1 * b1) + (_t0 * b2) + (_t1 * b3);
     }
-    const min::vec3<float> &begin() const
+    inline const min::vec3<float> &begin() const
     {
         return _p0;
     }
-    const min::vec3<float> &end() const
+    inline const min::vec3<float> &end() const
     {
         return _p1;
     }

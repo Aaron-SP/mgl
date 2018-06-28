@@ -455,7 +455,7 @@ class grid
     {
         return _shapes;
     }
-    bool inside(const vec<T> &point) const
+    inline bool inside(const vec<T> &point) const
     {
         return _root.point_inside(point);
     }

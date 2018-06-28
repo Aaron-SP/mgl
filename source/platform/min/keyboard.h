@@ -45,7 +45,7 @@ class key
             _key_down(nullptr), _key_down_pf(nullptr),
             _key_up(nullptr), _key_up_pf(nullptr) {}
 
-    void down(K step)
+    inline void down(K step)
     {
         // Call the callback function, if not down previously and not per frame
         if (_key_down && !_is_down)
@@ -53,7 +53,7 @@ class key
 
         _is_down = true;
     }
-    void up(K step)
+    inline void up(K step)
     {
         // Call the callback function, if not up previously and not per frame
         if (_key_up && _is_down)
@@ -61,31 +61,31 @@ class key
 
         _is_down = false;
     }
-    bool is_down() const
+    inline bool is_down() const
     {
         return _is_down;
     }
-    void set_down(void (*on_down)(void *, K), void *data)
+    inline void set_down(void (*on_down)(void *, K), void *data)
     {
         _down_data = data;
         _key_down = on_down;
     }
-    void set_up(void (*on_up)(void *, K), void *data)
+    inline void set_up(void (*on_up)(void *, K), void *data)
     {
         _up_data = data;
         _key_up = on_up;
     }
-    void set_down_per_frame(void (*on_down)(void *, K), void *data)
+    inline void set_down_per_frame(void (*on_down)(void *, K), void *data)
     {
         _down_data_pf = data;
         _key_down_pf = on_down;
     }
-    void set_up_per_frame(void (*on_up)(void *, K), void *data)
+    inline void set_up_per_frame(void (*on_up)(void *, K), void *data)
     {
         _up_data_pf = data;
         _key_up_pf = on_up;
     }
-    void update(const K step) const
+    inline void update(const K step) const
     {
         if (_key_down_pf && _is_down)
         {
@@ -112,30 +112,30 @@ class keyboard
 
   public:
     keyboard() : _override_data(nullptr), _override(nullptr), _disable(false) {}
-    void add(const T code)
+    inline void add(const T code)
     {
         // Add key to the key map
         _keys.insert(std::make_pair(code, key<K>()));
         _key_order.push_back(code);
     }
-    void clear()
+    inline void clear()
     {
         _keys.clear();
         _key_order.clear();
     }
-    void disable()
+    inline void disable()
     {
         _disable = true;
     }
-    void enable()
+    inline void enable()
     {
         _disable = false;
     }
-    const std::vector<T> &get_active_keys() const
+    inline const std::vector<T> &get_active_keys() const
     {
         return _key_order;
     }
-    const std::pair<T, key<K>> &get_key(const T code) const
+    inline const std::pair<T, key<K>> &get_key(const T code) const
     {
         const auto &i = _keys.find(code);
         if (i != _keys.end())
@@ -147,7 +147,7 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    bool is_down(const T code) const
+    inline bool is_down(const T code) const
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -159,7 +159,7 @@ class keyboard
         // No key in the map
         return false;
     }
-    void key_down(const T code, const K step)
+    inline void key_down(const T code, const K step)
     {
         if (!_disable)
         {
@@ -171,7 +171,7 @@ class keyboard
             }
         }
     }
-    void key_up(const T code, const K step)
+    inline void key_up(const T code, const K step)
     {
         if (_override)
         {
@@ -187,7 +187,7 @@ class keyboard
             }
         }
     }
-    void register_keydown(const T code, void (*on_down)(void *, K), void *data)
+    inline void register_keydown(const T code, void (*on_down)(void *, K), void *data)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -200,7 +200,7 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void register_keyup(const T code, void (*on_up)(void *, K), void *data)
+    inline void register_keyup(const T code, void (*on_up)(void *, K), void *data)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -213,7 +213,7 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void register_keydown_per_frame(const T code, void (*on_down)(void *, K), void *data)
+    inline void register_keydown_per_frame(const T code, void (*on_down)(void *, K), void *data)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -226,7 +226,7 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void register_keyup_per_frame(const T code, void (*on_up)(void *, K), void *data)
+    inline void register_keyup_per_frame(const T code, void (*on_up)(void *, K), void *data)
     {
         // Lookup key in the map
         const auto &i = _keys.find(code);
@@ -239,12 +239,12 @@ class keyboard
             throw std::runtime_error("keyboard: keycode " + std::to_string(code) + " is not in the key map");
         }
     }
-    void register_override_keyup(void (*on_override)(void *, T), void *data)
+    inline void register_override_keyup(void (*on_override)(void *, T), void *data)
     {
         _override_data = data;
         _override = on_override;
     }
-    bool swap(const T one, const T two)
+    inline bool swap(const T one, const T two)
     {
         const bool in_set = _keys.find(two) != _keys.end();
         if (one != two && !in_set)
@@ -280,7 +280,7 @@ class keyboard
 
         return false;
     }
-    void update(const K step)
+    inline void update(const K step)
     {
         if (!_disable)
         {

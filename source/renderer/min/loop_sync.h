@@ -119,7 +119,7 @@ class loop_sync
     {
         _start = std::chrono::high_resolution_clock::now();
     }
-    double sync()
+    inline double sync()
     {
         // Calculate time spent rendering
         _dt = diff();

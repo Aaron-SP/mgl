@@ -36,7 +36,7 @@ struct fake_file
         : _head(head), _start(start), _size(size), _end(start + size) {}
 };
 
-size_t fake_read_ogg(void *const dest, const size_t byte_size, const size_t size_to_read, void *const fake)
+inline size_t fake_read_ogg(void *const dest, const size_t byte_size, const size_t size_to_read, void *const fake)
 {
     // Get the fake_file handle
     fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
@@ -60,7 +60,7 @@ size_t fake_read_ogg(void *const dest, const size_t byte_size, const size_t size
     return length;
 }
 
-int fake_seek_ogg(void *const fake, const ogg_int64_t to, const int type)
+inline int fake_seek_ogg(void *const fake, const ogg_int64_t to, const int type)
 {
     // Get the fake_file handle
     fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
@@ -96,13 +96,13 @@ int fake_seek_ogg(void *const fake, const ogg_int64_t to, const int type)
     return 0;
 }
 
-int fake_close_ogg(void *const fake)
+inline int fake_close_ogg(void *const fake)
 {
     // THE FILE IS FAKE!
     return 0;
 }
 
-long fake_tell_ogg(void *const fake)
+inline long fake_tell_ogg(void *const fake)
 {
     // Get the fake_file handle
     fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
@@ -224,7 +224,7 @@ class ogg
     {
         load_little_endian_16<mem_file>(mem);
     }
-    void clear()
+    inline void clear()
     {
         // Delete WAV data and reset WAV
         _data.clear();
@@ -234,28 +234,28 @@ class ogg
         _sample_rate = 0;
         _bits_per_sample = 0;
     }
-    bool is_mono() const
+    inline bool is_mono() const
     {
         return _num_channels == 1;
     }
-    bool is_stereo() const
+    inline bool is_stereo() const
     {
         return _num_channels > 1;
     }
-    const std::vector<uint8_t> &data() const
+    inline const std::vector<uint8_t> &data() const
     {
         return _data;
     }
-    uint32_t get_bits_per_sample() const
+    inline uint32_t get_bits_per_sample() const
     {
         return _bits_per_sample;
     }
-    size_t get_data_samples() const
+    inline size_t get_data_samples() const
     {
         // Calculate number of samples in data buffer
         return (_data.size() * 8) / _bits_per_sample;
     }
-    uint32_t get_sample_rate() const
+    inline uint32_t get_sample_rate() const
     {
         return _sample_rate;
     }

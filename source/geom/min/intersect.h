@@ -38,7 +38,7 @@ namespace min
 // b = d·dir
 // c = d·d - r2
 template <typename T, template <typename> class vec>
-bool intersect(const sphere<T, vec> &s, const ray<T, vec> &ray, vec<T> &p)
+inline bool intersect(const sphere<T, vec> &s, const ray<T, vec> &ray, vec<T> &p)
 {
     // If the ray origin is inside the sphere it intersects
     const vec<T> &o = ray.get_origin();
@@ -85,7 +85,7 @@ bool intersect(const sphere<T, vec> &s, const ray<T, vec> &ray, vec<T> &p)
 // <tx, ty, tz> = (d - o) / dir
 
 template <typename T, template <typename> class vec>
-bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
+inline bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
 {
     const vec<T> &o = r.get_origin();
     const vec<T> &dir = r.get_direction();
@@ -124,7 +124,7 @@ bool intersect(const aabbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
 }
 
 template <typename T, template <typename> class vec>
-bool intersect(const oobbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
+inline bool intersect(const oobbox<T, vec> &box, const ray<T, vec> &r, vec<T> &p)
 {
     const vec<T> &origin = r.get_origin();
     const vec<T> &dir = r.get_direction();

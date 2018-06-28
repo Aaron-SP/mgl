@@ -197,7 +197,7 @@ inline std::vector<std::string> get_lines(const std::string &data, const std::ve
 }
 
 // Convert string to lowercase
-std::string to_lower(const std::string &s)
+inline std::string to_lower(const std::string &s)
 {
     // Transform string to lower case and make copy
     std::string out(s);

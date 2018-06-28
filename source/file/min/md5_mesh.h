@@ -48,15 +48,15 @@ class md5_joint
     md5_joint(const std::string &name, const int id, const vec3<T> &p, const quat<T> &r)
         : _name(name), _id(id), _position(p), _rotation(r) {}
 
-    int get_id() const
+    inline int get_id() const
     {
         return _id;
     }
-    const vec3<T> &get_position() const
+    inline const vec3<T> &get_position() const
     {
         return _position;
     }
-    const quat<T> &get_rotation() const
+    inline const quat<T> &get_rotation() const
     {
         return _rotation;
     }
@@ -74,15 +74,15 @@ class weight
     weight(const unsigned id, const T bias, const vec3<T> &p)
         : _id(id), _bias(bias), _position(p) {}
 
-    unsigned get_id() const
+    inline unsigned get_id() const
     {
         return _id;
     }
-    T get_bias() const
+    inline T get_bias() const
     {
         return _bias;
     }
-    const vec3<T> &get_position() const
+    inline const vec3<T> &get_position() const
     {
         return _position;
     }
@@ -99,11 +99,11 @@ class vertex_weight
     vertex_weight(const unsigned start, const unsigned count)
         : _start(start), _count(count) {}
 
-    unsigned get_start() const
+    inline unsigned get_start() const
     {
         return _start;
     }
-    unsigned get_count() const
+    inline unsigned get_count() const
     {
         return _count;
     }
@@ -612,15 +612,15 @@ class md5_mesh
     {
         load(mem.to_string());
     }
-    const std::vector<md5_joint<T>> &get_joints() const
+    inline const std::vector<md5_joint<T>> &get_joints() const
     {
         return _joints;
     }
-    const std::vector<mesh<T, K>> &get_meshes() const
+    inline const std::vector<mesh<T, K>> &get_meshes() const
     {
         return _mesh;
     }
-    std::vector<mesh<T, K>> &get_meshes()
+    inline std::vector<mesh<T, K>> &get_meshes()
     {
         return _mesh;
     }

@@ -29,13 +29,13 @@ limitations under the License.
 namespace min
 {
 
-bool check_al_error()
+inline bool check_al_error()
 {
     const ALCenum error = alGetError();
     return error != AL_NO_ERROR;
 }
 
-void throw_al_error()
+inline void throw_al_error()
 {
     const ALCenum error = alGetError();
     if (error != AL_NO_ERROR)

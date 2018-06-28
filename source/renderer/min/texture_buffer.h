@@ -44,7 +44,7 @@ class texture_buffer
             throw std::runtime_error("texture_buffer: minimum extensions not met");
         }
     }
-    void check_texture_size(const uint32_t width, const uint32_t height)
+    inline void check_texture_size(const uint32_t width, const uint32_t height)
     {
         // Check the texture size versus the maximum supported by hardware
         if (width > _max_size || height > _max_size)
@@ -53,7 +53,7 @@ class texture_buffer
             throw std::runtime_error("texture_buffer: input texture is too large, your hardware maximum is " + max_string + "x" + max_string);
         }
     }
-    std::vector<GLuint> generate_texture(const size_t n, const size_t mips)
+    inline std::vector<GLuint> generate_texture(const size_t n, const size_t mips)
     {
         // Generating N textures
         std::vector<GLuint> out(n, 0);
@@ -105,7 +105,7 @@ class texture_buffer
         throw_gl_error();
     }
     texture_buffer(const texture_buffer &tb) = delete;
-    GLuint add_bmp_texture(const bmp &b, const bool srgb = false)
+    inline GLuint add_bmp_texture(const bmp &b, const bool srgb = false)
     {
         // Extracted input image data
         const uint32_t width = b.get_width();
@@ -167,7 +167,7 @@ class texture_buffer
         // Return the id for this texture
         return id[0];
     }
-    GLuint add_dds_texture(const dds &d, const bool srgb = false)
+    inline GLuint add_dds_texture(const dds &d, const bool srgb = false)
     {
         // Extracted input image data
         const uint32_t width = d.get_width();

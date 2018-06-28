@@ -33,7 +33,7 @@ class sphere
 
     // Calculate an aabbox using the most separating axis
     // Center the sphere at this location
-    void fit(const std::vector<vec<T>> &verts)
+    inline void fit(const std::vector<vec<T>> &verts)
     {
         const auto size = verts.size();
         if (size >= 2)
@@ -81,7 +81,7 @@ class sphere
         // Extend sphere if points outside
         add(verts);
     }
-    void add(const std::vector<vec<T>> &verts)
+    inline void add(const std::vector<vec<T>> &verts)
     {
         for (const auto &v : verts)
         {

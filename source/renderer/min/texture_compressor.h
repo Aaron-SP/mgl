@@ -37,7 +37,7 @@ class texture_compressor
     bool _dxt3_support;
     bool _dxt5_support;
 
-    static std::vector<uint8_t> flip_bgr_image(const unsigned width, const unsigned height, const unsigned pixel_size, const std::vector<uint8_t> &pixel)
+    inline static std::vector<uint8_t> flip_bgr_image(const unsigned width, const unsigned height, const unsigned pixel_size, const std::vector<uint8_t> &pixel)
     {
         // Check our pixel dimensions
         size_t pixel_width = pixel_size * width;
@@ -73,8 +73,7 @@ class texture_compressor
 
         return out;
     }
-
-    dds compress_bmp_dds(const unsigned width, const unsigned height, const int dxt_format, unsigned header_format, const unsigned pixel_size, const std::vector<uint8_t> &pixel) const
+    inline dds compress_bmp_dds(const unsigned width, const unsigned height, const int dxt_format, unsigned header_format, const unsigned pixel_size, const std::vector<uint8_t> &pixel) const
     {
         // We must flip input image because opengl origin is (0, 0) == bottom left corner
         std::vector<uint8_t> flip_pixel = flip_bgr_image(width, height, pixel_size, pixel);
@@ -183,7 +182,7 @@ class texture_compressor
         // Return the dds
         return dds(w, h, mips, header_format, compressed_pixel);
     }
-    void delete_texture(GLuint id) const
+    inline void delete_texture(GLuint id) const
     {
         // Delete all textures in the buffer
         glDeleteTextures(1, &id);
@@ -191,7 +190,7 @@ class texture_compressor
         // Check for opengl errors
         throw_gl_error();
     }
-    GLuint generate_texture() const
+    inline GLuint generate_texture() const
     {
         // Generating N textures
         GLuint id;
@@ -210,7 +209,7 @@ class texture_compressor
 
         return id;
     }
-    void get_supported_formats()
+    inline void get_supported_formats()
     {
         // Get the total number of supported "normal" compressed" formats
         GLint size;
@@ -244,7 +243,7 @@ class texture_compressor
         // Create a list of supported "normal=cross-platform" formats
         get_supported_formats();
     }
-    dds compress_bmp_dds_dxt1(const bmp &b) const
+    inline dds compress_bmp_dds_dxt1(const bmp &b) const
     {
         // Check if we have dxt1 support
         if (!_dxt1_support)
@@ -255,7 +254,7 @@ class texture_compressor
         int format = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
         return compress_bmp_dds(b.get_width(), b.get_height(), format, dds::DXT1, b.get_pixel_size(), b.get_pixels());
     }
-    dds compress_bmp_dds_dxt3(const bmp &b) const
+    inline dds compress_bmp_dds_dxt3(const bmp &b) const
     {
         // Check if we have dxt3 support
         if (!_dxt3_support)
@@ -266,7 +265,7 @@ class texture_compressor
         int format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
         return compress_bmp_dds(b.get_width(), b.get_height(), format, dds::DXT3, b.get_pixel_size(), b.get_pixels());
     }
-    dds compress_bmp_dds_dxt5(const bmp &b) const
+    inline dds compress_bmp_dds_dxt5(const bmp &b) const
     {
         // Check if we have dxt5 support
         if (!_dxt5_support)
@@ -277,7 +276,7 @@ class texture_compressor
         int format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
         return compress_bmp_dds(b.get_width(), b.get_height(), format, dds::DXT5, b.get_pixel_size(), b.get_pixels());
     }
-    void disable_mip_maps()
+    inline void disable_mip_maps()
     {
         _mips = false;
     }

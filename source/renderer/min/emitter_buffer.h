@@ -326,7 +326,7 @@ class emitter_buffer
     {
         _wind_force = wind;
     }
-    void step(const T dt)
+    inline void step(const T dt)
     {
         // Accumulate this time step
         accumulate(dt);

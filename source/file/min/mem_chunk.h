@@ -220,7 +220,7 @@ class mem_chunk
         // Load the file list from a file
         load_memory_file(file);
     }
-    void add_file(const std::string &file)
+    inline void add_file(const std::string &file)
     {
         const auto &i = _files.find(file);
         if (i == _files.end())
@@ -236,13 +236,13 @@ class mem_chunk
             throw std::runtime_error("mem_chunk: duplicate file " + file + " insert request");
         }
     }
-    void clear()
+    inline void clear()
     {
         // This function should deallocate all held memory
         std::vector<uint8_t>().swap(_file_data);
         std::unordered_map<std::string, mem_file>().swap(_files);
     }
-    const mem_file &get_file(const std::string &key) const
+    inline const mem_file &get_file(const std::string &key) const
     {
         // Lookup key in the map
         const auto &i = _files.find(key);
@@ -255,7 +255,7 @@ class mem_chunk
             throw std::runtime_error("mem_chunk: file " + key + " is not in the file list");
         }
     }
-    mem_file &get_file(const std::string &key)
+    inline mem_file &get_file(const std::string &key)
     {
         // Lookup key in the map
         const auto &i = _files.find(key);
@@ -268,11 +268,11 @@ class mem_chunk
             throw std::runtime_error("mem_chunk: file " + key + " is not in the file list");
         }
     }
-    size_t size() const
+    inline size_t size() const
     {
         return _files.size();
     }
-    void write_memory_file(const std::string &file)
+    inline void write_memory_file(const std::string &file)
     {
         // Save the file list to a file
         save_memory_file(file);

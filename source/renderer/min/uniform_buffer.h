@@ -80,7 +80,7 @@ class uniform_buffer
     {
         return _max_vector * sizeof_vector + size_bytes;
     }
-    void set_lights(const program &p) const
+    inline void set_lights(const program &p) const
     {
         if (_max_lights > 0)
         {
@@ -123,7 +123,7 @@ class uniform_buffer
             glUniformBlockBinding(p.id(), light_index, 0);
         }
     }
-    void set_matrix(const program &p) const
+    inline void set_matrix(const program &p) const
     {
         if (_max_matrix > 0)
         {
@@ -186,7 +186,7 @@ class uniform_buffer
             glUniformBlockBinding(p.id(), matrix_index, 1);
         }
     }
-    void set_vector(const program &p) const
+    inline void set_vector(const program &p) const
     {
         if (_max_vector > 0)
         {
@@ -229,7 +229,7 @@ class uniform_buffer
             glUniformBlockBinding(p.id(), vector_index, 2);
         }
     }
-    void update_light_buffer() const
+    inline void update_light_buffer() const
     {
         // Check for empty matrix array and return
         if (_lights.size() == 0)
@@ -269,7 +269,7 @@ class uniform_buffer
         // Send the data to the GPU with light_bytes calculated
         glBufferData(GL_UNIFORM_BUFFER, light_bytes, &data[0], GL_DYNAMIC_DRAW);
     }
-    void update_matrix_buffer() const
+    inline void update_matrix_buffer() const
     {
         // Check for empty matrix array and return
         if (_matrix.size() == 0)
@@ -309,7 +309,7 @@ class uniform_buffer
         // Send the data to the GPU with matrix_bytes calculated
         glBufferData(GL_UNIFORM_BUFFER, matrix_bytes, &data[0], GL_DYNAMIC_DRAW);
     }
-    void update_vector_buffer() const
+    inline void update_vector_buffer() const
     {
         // Check for empty vector array and return
         if (_vector.size() == 0)
@@ -371,7 +371,7 @@ class uniform_buffer
         // Load light and matrix buffers
         load_buffers();
     }
-    void defer_construct(const unsigned light_size, const unsigned matrix_size, const unsigned vector_size)
+    inline void defer_construct(const unsigned light_size, const unsigned matrix_size, const unsigned vector_size)
     {
         _max_lights = light_size;
         _max_matrix = matrix_size;
@@ -388,7 +388,7 @@ class uniform_buffer
         // Load light and matrix buffers
         load_buffers();
     }
-    void load_buffers()
+    inline void load_buffers()
     {
         const size_t max_size = get_max_buffer_size();
         if (max_size < get_light_bytes() || max_size < get_matrix_bytes() || max_size < get_vector_bytes())

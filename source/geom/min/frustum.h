@@ -203,7 +203,7 @@ class frustum
     {
         return _right;
     }
-    const mat4<T> &orthographic()
+    inline const mat4<T> &orthographic()
     {
         // Update the frustum dimensions if dirty
         if (_dirty)
@@ -221,7 +221,7 @@ class frustum
         // Return the view matrix
         return _proj;
     }
-    const mat4<T> &perspective()
+    inline const mat4<T> &perspective()
     {
         // Update the frustum dimensions if dirty
         if (_dirty)
@@ -239,7 +239,7 @@ class frustum
         // Return the view matrix
         return _proj;
     }
-    const mat4<T> &look_at(const vec3<T> &eye, const vec3<T> &forward, vec3<T> &up)
+    inline const mat4<T> &look_at(const vec3<T> &eye, const vec3<T> &forward, vec3<T> &up)
     {
         // right: up x forward - left handed coordinates
         _right = up.cross(forward);

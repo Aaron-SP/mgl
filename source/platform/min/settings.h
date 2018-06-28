@@ -25,7 +25,7 @@ namespace min
 class settings
 {
   public:
-    static void initialize()
+    inline static void initialize()
     {
         // Depth settings
         glEnable(GL_DEPTH_TEST);
@@ -44,7 +44,7 @@ class settings
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-    static void enable_gamma_correction()
+    inline static void enable_gamma_correction()
     {
         if (GLEW_ARB_framebuffer_sRGB)
         {

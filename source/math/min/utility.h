@@ -16,8 +16,8 @@ limitations under the License.
 #define __UTILITY__
 
 #include <algorithm>
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <vector>
 
 namespace min
@@ -63,7 +63,7 @@ constexpr inline T deg_to_rad2(const T degrees)
 }
 
 template <typename T>
-bool between(const T val, const T min, const T max)
+inline bool between(const T val, const T min, const T max)
 {
     return (val > min) && (val < max);
 }

@@ -56,7 +56,7 @@ class array_buffer
         }
 #endif
     }
-    void push_back_mesh(const mesh<T, K> &m)
+    inline void push_back_mesh(const mesh<T, K> &m)
     {
         // Verify vertex attribute size
         const size_t attr_size = m.vertex.size();
@@ -93,7 +93,7 @@ class array_buffer
             throw std::runtime_error("array_buffer.push_back_mesh(): vertex or index are of invalid length");
         }
     }
-    void upload_all() const
+    inline void upload_all() const
     {
         if (_data[_index].size() == 0)
         {
@@ -165,7 +165,7 @@ class array_buffer
         throw_gl_error();
     }
     array_buffer(const array_buffer &sb) = delete;
-    size_t add_mesh(const mesh<T, K> &m)
+    inline size_t add_mesh(const mesh<T, K> &m)
     {
         // Add mesh to the end of the data buffer
         push_back_mesh(m);
@@ -265,7 +265,7 @@ class array_buffer
         // Set the active buffer
         _index = index;
     }
-    void upload() const
+    inline void upload() const
     {
         // Upload all the data in the buffer
         // Buffer will tightly fit the data, no extra allocation

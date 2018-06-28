@@ -210,31 +210,31 @@ class dds
         // Verify dds has correct size
         check_size();
     }
-    uint32_t get_format() const
+    inline uint32_t get_format() const
     {
         return _format;
     }
-    uint32_t get_mips() const
+    inline uint32_t get_mips() const
     {
         return _mips;
     }
-    uint32_t get_width() const
+    inline uint32_t get_width() const
     {
         return _w;
     }
-    uint32_t get_height() const
+    inline uint32_t get_height() const
     {
         return _h;
     }
-    uint32_t get_size() const
+    inline uint32_t get_size() const
     {
         return _size;
     }
-    const std::vector<uint8_t> &get_pixels() const
+    inline const std::vector<uint8_t> &get_pixels() const
     {
         return _pixel;
     }
-    std::vector<uint8_t> to_file() const
+    inline std::vector<uint8_t> to_file() const
     {
         // Write out the dds file to a byte buffer for writing to file
         size_t size = DDS_HEADER_SIZE + _size;

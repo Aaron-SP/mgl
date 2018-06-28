@@ -61,7 +61,7 @@ class vertex_buffer
         }
 #endif
     }
-    void push_back_mesh(const mesh<T, K> &m)
+    inline void push_back_mesh(const mesh<T, K> &m)
     {
         // Verify vertex attribute size
         const auto attr_size = m.vertex.size();
@@ -107,7 +107,7 @@ class vertex_buffer
             throw std::runtime_error("vertex_buffer.push_back_mesh(): vertex or index are of invalid length");
         }
     }
-    void swap_mesh(const mesh<T, K> &m, const size_t key)
+    inline void swap_mesh(const mesh<T, K> &m, const size_t key)
     {
         // Verify vertex attribute size
         const auto attr_size = m.vertex.size();
@@ -152,7 +152,7 @@ class vertex_buffer
             throw std::runtime_error("vertex_buffer.swap_mesh(): vertex or index are of invalid length");
         }
     }
-    bool reallocate_buffer() const
+    inline bool reallocate_buffer() const
     {
         bool out = false;
 
@@ -197,7 +197,7 @@ class vertex_buffer
 
         return out;
     }
-    void upload_all() const
+    inline void upload_all() const
     {
         if (_data[_index].size() == 0 && _element[_index].size() == 0)
         {
@@ -219,7 +219,7 @@ class vertex_buffer
         _element_bytes[_index] = _element[_index].size() * sizeof(K);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, _element_bytes[_index], &_element[_index][0], vertex_type<T, K, FLOAT_TYPE>::buffer_type());
     }
-    void upload(const size_t key) const
+    inline void upload(const size_t key) const
     {
         // Check if we have added a mesh
         if (_data_index[_index].size() == 0 && _element_index[_index].size() == 0)
@@ -254,7 +254,7 @@ class vertex_buffer
         const size_t element_offset_bytes = element.second * sizeof(K);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, element_offset_bytes, element_size_bytes, &_element[_index][element.second]);
     }
-    void upload_last() const
+    inline void upload_last() const
     {
         if (_data_index[_index].size() > 0)
         {
@@ -332,7 +332,7 @@ class vertex_buffer
         throw_gl_error();
     }
     vertex_buffer(const vertex_buffer &sb) = delete;
-    size_t add_mesh(const mesh<T, K> &m)
+    inline size_t add_mesh(const mesh<T, K> &m)
     {
         // Add mesh to the end of the data buffer
         push_back_mesh(m);
@@ -441,13 +441,13 @@ class vertex_buffer
         // Set the active buffer
         _index = index;
     }
-    void upload() const
+    inline void upload() const
     {
         // Upload all the data in the buffer
         // Buffer will tightly fit the data, no extra allocation
         upload_all();
     }
-    void upload_mesh(const mesh<T, K> &m)
+    inline void upload_mesh(const mesh<T, K> &m)
     {
         // This function allows dynamic resizing of the VBO
         // Buffer will resize to twice the needed amount
@@ -458,7 +458,7 @@ class vertex_buffer
         // Upload the last mesh in the buffer
         upload_last();
     }
-    void upload_mesh(const mesh<T, K> &m, const size_t index)
+    inline void upload_mesh(const mesh<T, K> &m, const size_t index)
     {
         // Update the mesh in 'index' slot
         swap_mesh(m, index);

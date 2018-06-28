@@ -72,7 +72,7 @@ class model
         // calculate tangents
         calculate_tangents();
     }
-    const vec<T> &center_model()
+    inline const vec<T> &center_model()
     {
         // Center all vertices in the model
         for (auto &m : _mesh)
@@ -92,14 +92,14 @@ class model
 
         return _center;
     }
-    void calculate_normals()
+    inline void calculate_normals()
     {
         for (auto &m : _mesh)
         {
             m.calculate_normals();
         }
     }
-    void calculate_tangents()
+    inline void calculate_tangents()
     {
         for (auto &m : _mesh)
         {

@@ -37,7 +37,7 @@ class camera
     mat4<T> _v;
     bool _dirty;
     bool _proj_ortho;
-    void update()
+    inline void update()
     {
         if (_dirty)
         {
@@ -148,7 +148,7 @@ class camera
         // return quaternion that rotated camera
         return rotation;
     }
-    vec3<T> project_point(const T s) const
+    inline vec3<T> project_point(const T s) const
     {
         return _p + _forward * s;
     }

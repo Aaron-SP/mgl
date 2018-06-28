@@ -564,7 +564,7 @@ class tree
         // Return the list
         return _hits;
     }
-    bool inside(const vec<T> &point) const
+    inline bool inside(const vec<T> &point) const
     {
         return _root.get_cell().point_inside(point);
     }

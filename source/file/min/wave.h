@@ -205,7 +205,7 @@ class wave
     {
         load<mem_file>(mem);
     }
-    void clear()
+    inline void clear()
     {
         // Delete WAV data and reset WAV
         _data.clear();
@@ -215,28 +215,28 @@ class wave
         _sample_rate = 0;
         _bits_per_sample = 0;
     }
-    bool is_mono() const
+    inline bool is_mono() const
     {
         return _num_channels == 1;
     }
-    bool is_stereo() const
+    inline bool is_stereo() const
     {
         return _num_channels > 1;
     }
-    const std::vector<uint8_t> &data() const
+    inline const std::vector<uint8_t> &data() const
     {
         return _data;
     }
-    uint32_t get_bits_per_sample() const
+    inline uint32_t get_bits_per_sample() const
     {
         return _bits_per_sample;
     }
-    size_t get_data_samples() const
+    inline size_t get_data_samples() const
     {
         // Calculate number of samples in data buffer
         return (_data.size() * 8) / _bits_per_sample;
     }
-    uint32_t get_sample_rate() const
+    inline uint32_t get_sample_rate() const
     {
         return _sample_rate;
     }

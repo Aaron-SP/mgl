@@ -46,19 +46,19 @@ class md5_node
 
   public:
     md5_node(const std::string name, int parent, int flag, unsigned start) : _name(name), _parent(parent), _flag(flag), _start(start) {}
-    const std::string &get_name() const
+    inline const std::string &get_name() const
     {
         return _name;
     }
-    int get_parent() const
+    inline int get_parent() const
     {
         return _parent;
     }
-    int get_flag() const
+    inline int get_flag() const
     {
         return _flag;
     }
-    unsigned get_start() const
+    inline unsigned get_start() const
     {
         return _start;
     }
@@ -76,11 +76,11 @@ class md5_transform
     {
         _rotation.calculate_w();
     }
-    const vec3<T> &get_position() const
+    inline const vec3<T> &get_position() const
     {
         return _position;
     }
-    const quat<T> &get_rotation() const
+    inline const quat<T> &get_rotation() const
     {
         return _rotation;
     }
@@ -98,23 +98,23 @@ class md5_animated_node
     md5_animated_node(const md5_transform<T> &copy, int parent)
         : _parent(parent), _position(copy.get_position()), _rotation(copy.get_rotation()) {}
 
-    int get_parent() const
+    inline int get_parent() const
     {
         return _parent;
     }
-    vec3<T> &get_position()
+    inline vec3<T> &get_position()
     {
         return _position;
     }
-    const vec3<T> &get_position() const
+    inline const vec3<T> &get_position() const
     {
         return _position;
     }
-    quat<T> &get_rotation()
+    inline quat<T> &get_rotation()
     {
         return _rotation;
     }
-    const quat<T> &get_rotation() const
+    inline const quat<T> &get_rotation() const
     {
         return _rotation;
     }
@@ -129,15 +129,15 @@ class md5_frame_data
 
   public:
     md5_frame_data(unsigned id) : _id(id) {}
-    void add(const T data)
+    inline void add(const T data)
     {
         _data.push_back(data);
     }
-    const std::vector<T> &get_data() const
+    inline const std::vector<T> &get_data() const
     {
         return _data;
     }
-    void reserve(size_t n)
+    inline void reserve(size_t n)
     {
         _data.reserve(n);
     }
@@ -151,20 +151,20 @@ class md5_frame
     std::vector<md5_animated_node<T>> _nodes;
 
   public:
-    void add_node(const md5_animated_node<T> &node, const mat4<T> &bone)
+    inline void add_node(const md5_animated_node<T> &node, const mat4<T> &bone)
     {
         _nodes.push_back(node);
         _bones.push_back(bone);
     }
-    const md5_animated_node<T> &get_node(const int parent_id) const
+    inline const md5_animated_node<T> &get_node(const int parent_id) const
     {
         return _nodes[parent_id];
     }
-    const std::vector<mat4<T>> &get_bones() const
+    inline const std::vector<mat4<T>> &get_bones() const
     {
         return _bones;
     }
-    void reserve(size_t n)
+    inline void reserve(size_t n)
     {
         _bones.reserve(n);
         _nodes.reserve(n);

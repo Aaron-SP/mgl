@@ -45,49 +45,49 @@ class text
     text(const std::string &text, const vec2<float> &p, const size_t offset)
         : _str(text), _location(p), _line_wrap(1000.0, 50.0), _offset(offset), _size(text.size() * 6) {}
 
-    const vec2<float> &line_wrap() const
+    inline const vec2<float> &line_wrap() const
     {
         return _line_wrap;
     }
-    void set_line_wrap(const vec2<float> &line_wrap)
+    inline void set_line_wrap(const vec2<float> &line_wrap)
     {
         _line_wrap = line_wrap;
     }
-    const vec2<float> &location() const
+    inline const vec2<float> &location() const
     {
         return _location;
     }
-    void set_location(const vec2<float> &location)
+    inline void set_location(const vec2<float> &location)
     {
         _location = location;
     }
-    size_t offset() const
+    inline size_t offset() const
     {
         return _offset;
     }
-    const min::vec2<float> &pixel_size() const
+    inline const min::vec2<float> &pixel_size() const
     {
         return _pixel;
     }
-    void set_offset(const size_t offset)
+    inline void set_offset(const size_t offset)
     {
         _offset = offset;
     }
-    size_t size() const
+    inline size_t size() const
     {
         // returns the number of points to draw for this string
         // 2 tris = 6 * std::string.size()
         return _size;
     }
-    const std::string &str() const
+    inline const std::string &str() const
     {
         return _str;
     }
-    void set_pixel_size(const vec2<float> &pixel)
+    inline void set_pixel_size(const vec2<float> &pixel)
     {
         _pixel = pixel;
     }
-    void set_string(const std::string &str)
+    inline void set_string(const std::string &str)
     {
         _str = str;
         _size = str.size() * 6;
@@ -137,7 +137,7 @@ class text_buffer
             throw std::runtime_error("text_buffer: minimum extensions not met");
         }
     }
-    void create_vertex_buffer(const size_t size)
+    inline void create_vertex_buffer(const size_t size)
     {
         // Generate the VAO for text layout
         glGenVertexArrays(1, &_vao);
@@ -168,7 +168,7 @@ class text_buffer
 #endif
     }
 
-    void create_texture_buffer(const unsigned width, const unsigned height)
+    inline void create_texture_buffer(const unsigned width, const unsigned height)
     {
         // Generate texture buffer
         glGenTextures(1, &_tid);
@@ -193,7 +193,7 @@ class text_buffer
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     }
 
-    void calculate_texture_dimensions(const FT_Face &face)
+    inline void calculate_texture_dimensions(const FT_Face &face)
     {
         // Get a reference to the current face glyph
         FT_GlyphSlot glyph_slot = face->glyph;
@@ -246,7 +246,7 @@ class text_buffer
         _h += maxh;
     }
 
-    void upload_character_glyphs(const FT_Face &face)
+    inline void upload_character_glyphs(const FT_Face &face)
     {
         // Get a reference to the current face glyph
         FT_GlyphSlot glyph_slot = face->glyph;
@@ -288,7 +288,7 @@ class text_buffer
             maxh = std::max(maxh, (unsigned)c.height);
         }
     }
-    void create_texture_atlas(const FT_Face &face)
+    inline void create_texture_atlas(const FT_Face &face)
     {
         // Calculate dimensions of the texture atlas
         calculate_texture_dimensions(face);
@@ -299,7 +299,7 @@ class text_buffer
         // Upload all glyphs into the texture buffer
         upload_character_glyphs(face);
     }
-    vec2<float> get_pixel_size(const text &t) const
+    inline vec2<float> get_pixel_size(const text &t) const
     {
         // Get the line wrap settings in pixels
         const float lwx = t.line_wrap().x();
@@ -344,7 +344,7 @@ class text_buffer
         // Return the size of the text in a box
         return vec2<float>(x_out, y_out);
     }
-    void process_text(const text &t) const
+    inline void process_text(const text &t) const
     {
         // Create conversion to screen coordinates using screen size
         const float scale_x = 2.0 / _screen_x;
@@ -719,7 +719,7 @@ class text_buffer
     {
         return _text.size();
     }
-    void upload(const size_t buffer_index = 0) const
+    inline void upload(const size_t buffer_index = 0) const
     {
         // Reserve space for the text, 2 triangles for each character
         _data.reserve(6 * _char_count);
@@ -741,7 +741,7 @@ class text_buffer
         // Upload the data in the data buffer
         upload_data(buffer_index);
     }
-    size_t upload_batch(const size_t buffer_index, const std::vector<size_t> &indices) const
+    inline size_t upload_batch(const size_t buffer_index, const std::vector<size_t> &indices) const
     {
         // Reserve space for the text, 2 triangles for each character
         _data.reserve(6 * _char_count);

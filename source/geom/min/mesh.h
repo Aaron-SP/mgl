@@ -171,7 +171,7 @@ class mesh
     std::vector<vec4<T>> bone_index;
     std::vector<vec4<T>> bone_weight;
 
-    void calculate_normals()
+    inline void calculate_normals()
     {
         // Get the vertex dimension and verify not zero
         const size_t size = index.size();
@@ -216,7 +216,7 @@ class mesh
             }
         }
     }
-    void calculate_tangents()
+    inline void calculate_tangents()
     {
         // Get the vertex dimension and verify normals and uvs are the same length
         const size_t size = index.size();
@@ -269,7 +269,7 @@ class mesh
             }
         }
     }
-    void clear()
+    inline void clear()
     {
         // Clear all members
         vertex.clear();
@@ -281,25 +281,25 @@ class mesh
         bone_index.clear();
         bone_weight.clear();
     }
-    void flip_uv_x_axis()
+    inline void flip_uv_x_axis()
     {
         for (auto &a : uv)
         {
             a.x(1.0 - a.x());
         }
     }
-    void flip_uv_y_axis()
+    inline void flip_uv_y_axis()
     {
         for (auto &a : uv)
         {
             a.y(1.0 - a.y());
         }
     }
-    const std::string &get_name() const
+    inline const std::string &get_name() const
     {
         return _name;
     }
-    void merge(const min::mesh<T, K> &m)
+    inline void merge(const min::mesh<T, K> &m)
     {
         // Find the index shift amount
         const size_t index_shift = vertex.size();
@@ -329,7 +329,7 @@ class mesh
             index.push_back(index_shift + i);
         }
     }
-    void scale_uv(const T factor)
+    inline void scale_uv(const T factor)
     {
         for (auto &a : uv)
         {
@@ -337,7 +337,7 @@ class mesh
         }
     }
     template <class M>
-    void deserialize(const M &stream)
+    inline void deserialize(const M &stream)
     {
         size_t next = 0;
 
@@ -365,7 +365,7 @@ class mesh
         // Read in bone index
         bone_weight = read_le_vector_vec4<T>(stream, next);
     }
-    void serialize(std::vector<uint8_t> &stream) const
+    inline void serialize(std::vector<uint8_t> &stream) const
     {
         // Write out vector data to byte stream
         write_le_vector_vec4<T>(stream, vertex);
@@ -377,7 +377,7 @@ class mesh
         write_le_vector_vec4<T>(stream, bone_index);
         write_le_vector_vec4<T>(stream, bone_weight);
     }
-    void to_file(const std::string &file_name) const
+    inline void to_file(const std::string &file_name) const
     {
         std::vector<uint8_t> stream;
 
@@ -396,7 +396,7 @@ class mesh
             throw std::runtime_error("mesh: could not open file '" + file_name + "'");
         }
     }
-    void from_file(const std::string &file_name)
+    inline void from_file(const std::string &file_name)
     {
         // Load file in memory
         std::vector<uint8_t> stream;
@@ -426,7 +426,7 @@ class mesh
         // Deserialize the stream of bytes into object
         deserialize<std::vector<uint8_t>>(stream);
     }
-    void from_file(const mem_file &mem)
+    inline void from_file(const mem_file &mem)
     {
         // Deserialize the stream of bytes into object
         deserialize<mem_file>(mem);

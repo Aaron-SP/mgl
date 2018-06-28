@@ -61,7 +61,7 @@ class program
             print_errors();
         }
     }
-    void print_errors() const
+    inline void print_errors() const
     {
         GLint log_length = 0;
         if (glIsProgram(_id))

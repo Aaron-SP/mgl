@@ -30,23 +30,23 @@ class mem_file
   public:
     mem_file(std::vector<uint8_t> *const data, const size_t offset, const size_t size)
         : _data(data), _offset(offset), _size(size) {}
-    const uint8_t &operator[](const size_t index) const
+    inline const uint8_t &operator[](const size_t index) const
     {
         return (*_data)[_offset + index];
     }
-    uint8_t &operator[](const size_t index)
+    inline uint8_t &operator[](const size_t index)
     {
         return (*_data)[_offset + index];
     }
-    size_t offset() const
+    inline size_t offset() const
     {
         return _offset;
     }
-    size_t size() const
+    inline size_t size() const
     {
         return _size;
     }
-    std::string to_string() const
+    inline std::string to_string() const
     {
         // Allocate space for the bytes
         std::string out(_size, 0);
