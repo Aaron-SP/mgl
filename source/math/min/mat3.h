@@ -296,8 +296,6 @@ class mat3
 
         return *this;
     }
-
-  private:
 };
 }
 

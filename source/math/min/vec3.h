@@ -2151,8 +2151,6 @@ class vec3
     {
         return _x <= A._x && _y <= A._y && _z <= A._z;
     }
-
-  private:
 };
 }
 

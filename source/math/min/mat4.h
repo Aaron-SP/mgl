@@ -388,8 +388,6 @@ class mat4
 
         return out;
     }
-
-  private:
 };
 }
 

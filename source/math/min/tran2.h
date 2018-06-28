@@ -93,8 +93,6 @@ class tran2
     {
         return _m;
     }
-
-  private:
 };
 }
 

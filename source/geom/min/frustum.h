@@ -65,7 +65,6 @@ class frustum
 
         return false;
     }
-
     inline bool outside_plane(const vec3<T> &p, const int i, const T d) const
     {
         // distances are positive because planes point outward
