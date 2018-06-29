@@ -16,8 +16,10 @@ limitations under the License.
 #define __GRID__
 
 #include <cmath>
+#include <min/bit_flag.h>
 #include <min/intersect.h>
 #include <min/ray.h>
+#include <min/sort.h>
 #include <min/utility.h>
 #include <numeric>
 #include <stdexcept>

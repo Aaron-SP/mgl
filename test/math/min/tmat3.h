@@ -25,6 +25,8 @@ bool test_mat3()
 
     // Local variables
     min::mat3<double> mat;
+    min::vec2<double> v;
+    min::vec2<double> v1;
     min::vec2<double> v2;
     min::vec3<double> v3;
     min::vec3<double> x;
@@ -306,6 +308,147 @@ bool test_mat3()
     if (!out)
     {
         throw std::runtime_error("Failed mat3 negative z-axis quat rotation");
+    }
+
+    // Test identity translate matrix
+    v = min::vec2<double>(1.0, 2.0);
+    v3 = min::mat3<double>().transform(v);
+    out = out && compare(1.0, v3.x(), 1E-4);
+    out = out && compare(2.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 identity translation");
+    }
+
+    // Test identity rotate (1.0, 1.0) -> (-1.0, 1.0)
+    v = min::vec2<double>(1.0, 1.0);
+    v3 = min::mat3<double>().rotate(min::mat2<double>(90.0)).transform(v);
+    out = out && compare(-1.0, v3.x(), 1E-4);
+    out = out && compare(1.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 identity-rotation");
+    }
+
+    // Test translation (1.0, 2.0) -> (2.0, 4.0)
+    v = min::vec2<double>(1.0, 2.0);
+    v3 = min::mat3<double>(v).transform(v);
+    out = out && compare(2.0, v3.x(), 1E-4);
+    out = out && compare(4.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 translate");
+    }
+
+    // Test multi translation (1.0, 1.0) -> (0.0, 0.0)
+    v = min::vec2<double>(1.0, 1.0);
+    v2 = min::vec2<double>(-1.0, -1.0);
+    v3 = min::mat3<double>(v).translate(v2).translate(v2).transform(v);
+    out = out && compare(0.0, v3.x(), 1E-4);
+    out = out && compare(0.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 translation-translation");
+    }
+
+    // Test rotation (1.0, 0.0) -> (0.0, 1.0)
+    v = min::vec2<double>(1.0, 0.0);
+    v3 = min::mat3<double>(90.0).transform(v);
+    out = out && compare(0.0, v3.x(), 1E-4);
+    out = out && compare(1.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 rotate");
+    }
+
+    // Test multi rotation (1.0, 0.0) -> (-1.0, 0.0)
+    v = min::vec2<double>(1.0, 0.0);
+    v3 = min::mat3<double>(90.0).rotate(90.0).transform(v);
+    out = out && compare(-1.0, v3.x(), 1E-4);
+    out = out && compare(0.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 rotate-rotate");
+    }
+
+    // Test rotate to translate (1.0, 1.0) -> (-1.0, 1.0) -> (0.0, 2.0)
+    v = min::vec2<double>(1.0, 1.0);
+    v3 = min::mat3<double>(90.0).translate(v).transform(v);
+    out = out && compare(0.0, v3.x(), 1E-4);
+    out = out && compare(2.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 rotation-translation");
+    }
+
+    // Test translate to rotate (1.0, 1.0) -> (2.0, 2.0) -> (-2.0, 2.0)
+    v = min::vec2<double>(1.0, 1.0);
+    v3 = min::mat3<double>(v).rotate(90.0).transform(v);
+    out = out && compare(-2.0, v3.x(), 1E-4);
+    out = out && compare(2.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 translation-rotation");
+    }
+
+    // Test orthogonal decomposition
+    // (-2.0, 2.0)-> (2.0, 2.0) -> (1.0, 1.0)
+    v = min::vec2<double>(-1.0, -1.0);
+    mat = min::mat3<double>(90.0).transpose().translate(v);
+    v = min::vec2<double>(-2.0, 2.0);
+    v3 = mat.transform(v);
+    out = out && compare(1.0, v3.x(), 1E-4);
+    out = out && compare(1.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 orthogonal decomposition");
+    }
+
+    // Test scale (2.0, 1.0) -> (4.0, 2.0)
+    v = min::vec2<double>(2.0, 1.0);
+    v3 = min::mat3<double>().scale(2.0, 2.0).transform(v);
+    out = out && compare(4.0, v3.x(), 1E-4);
+    out = out && compare(2.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 scale");
+    }
+
+    // Test scale rotate translate (2.0, 1.0) -> (4.0, 2.0) -> (2.0, -4.0) -> (0.0, 0.0)
+    v = min::vec2<double>(2.0, 1.0);
+    v2 = min::vec2<double>(-2.0, 4.0);
+    v3 = min::mat3<double>().scale(2.0, 2.0).rotate(-90.0).translate(v2).transform(v);
+    out = out && compare(0.0, v3.x(), 1E-4);
+    out = out && compare(0.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 scale-rotate-translate");
+    }
+
+    // Test rotate translate scale (2.0, 1.0) -> (1.0, -2.0) -> (-1.0, 2.0) -> (-2.0, 4.0)
+    v = min::vec2<double>(2.0, 1.0);
+    v1 = min::vec2<double>(-2.0, 4.0);
+    v2 = min::vec2<double>(2.0, 2.0);
+    v3 = min::mat3<double>(v1, -90.0, v2).transform(v);
+    out = out && compare(-2.0, v3.x(), 1E-4);
+    out = out && compare(4.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 scale-rotate-translate constructor");
+    }
+
+    // Test non-orthogonal inverse
+    // Test scale rotate translate (0.0, 0.0) -> (2.0, -4.0) -> (4.0, 2.0) -> (2.0, 1.0)
+    v = min::vec2<double>(0.0, 0.0);
+    v2 = min::vec2<double>(-2.0, 4.0);
+    mat = min::mat3<double>().scale(2.0, 2.0).rotate(-90.0).translate(v2);
+    mat.invert();
+    v3 = mat.transform(v);
+    out = out && compare(2.0, v3.x(), 1E-4);
+    out = out && compare(1.0, v3.y(), 1E-4);
+    if (!out)
+    {
+        throw std::runtime_error("Failed mat3 non-orthogonal inverse");
     }
 
     return out;

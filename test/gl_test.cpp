@@ -49,8 +49,6 @@ limitations under the License.
 #include <min/tsphinter.h>
 #include <min/tsphresolve.h>
 #include <min/tsphtree.h>
-#include <min/ttran2.h>
-#include <min/ttran3.h>
 #include <min/tuint_sort.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
@@ -69,8 +67,6 @@ int main()
         out = out && test_mat2();
         out = out && test_mat3();
         out = out && test_mat4();
-        out = out && test_tran2();
-        out = out && test_tran3();
         out = out && test_bezier_cubic();
         out = out && test_bspline_cubic();
         out = out && test_hermite_cubic();

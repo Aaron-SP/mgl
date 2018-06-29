@@ -16,7 +16,9 @@ limitations under the License.
 #define __TREE__
 
 #include <cmath>
+#include <min/bit_flag.h>
 #include <min/intersect.h>
+#include <min/sort.h>
 #include <min/utility.h>
 #include <numeric>
 #include <stdexcept>

@@ -64,7 +64,7 @@ TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/render
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
 # Compile parameters
-CPPFLAGS = -s -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
+CXXFLAGS = -s -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
 CPP_O = -DGLEW_STATIC $(LIB_SOURCES)
 GLEW = -DGLEW_STATIC source/platform/min/glew.cpp
 TEST_AL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/al_test.cpp
@@ -85,12 +85,12 @@ EX10 = $(EXFLAGS) example/programs/ex10.cpp
 
 # Enable GS rendering
 ifdef MGL_GS_RENDER
-	CPPFLAGS += -DMGL_GS_RENDER
+	CXXFLAGS += -DMGL_GS_RENDER
 endif
 
 # Enable opengl43 features
 ifdef MGL_VB43
-	CPPFLAGS += -DMGL_VB43
+	CXXFLAGS += -DMGL_VB43
 endif
 
 # Default run target
@@ -116,37 +116,37 @@ tests: $(BIN_AL_TEST) $(BIN_GL_TEST) $(BIN_WL_TEST)
 uninstall:
 	rm -rI $(MGL_PATH)
 $(BIN_AL_TEST):
-	g++ $(CPPFLAGS) $(TEST_AL) -o $@ $(DYNAMIC) 2> "al_test.txt"
+	$(CXX) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC) 2> "al_test.txt"
 $(BIN_BENCH):
-	g++ $(CPPFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC) 2> "gcc_bench.txt"
+	$(CXX) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC) 2> "gcc_bench.txt"
 $(BIN_GL_TEST):
-	g++ $(CPPFLAGS) $(TEST_GL) -o $@ $(DYNAMIC) 2> "gl_test.txt"
+	$(CXX) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC) 2> "gl_test.txt"
 $(BIN_WL_TEST):
-	g++ $(CPPFLAGS) $(TEST_WL) -o $@ $(DYNAMIC) 2> "wl_test.txt"
+	$(CXX) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC) 2> "wl_test.txt"
 $(BIN_EX1):
-	g++ $(CPPFLAGS) $(EX1) -o $@ $(DYNAMIC) 2> "min_ex1.txt"
+	$(CXX) $(CXXFLAGS) $(EX1) -o $@ $(DYNAMIC) 2> "min_ex1.txt"
 $(BIN_EX2):
-	g++ $(CPPFLAGS) $(EX2) -o $@ $(DYNAMIC) 2> "min_ex2.txt"
+	$(CXX) $(CXXFLAGS) $(EX2) -o $@ $(DYNAMIC) 2> "min_ex2.txt"
 $(BIN_EX3):
-	g++ $(CPPFLAGS) $(EX3) -o $@ $(DYNAMIC) 2> "min_ex3.txt"
+	$(CXX) $(CXXFLAGS) $(EX3) -o $@ $(DYNAMIC) 2> "min_ex3.txt"
 $(BIN_EX4):
-	g++ $(CPPFLAGS) $(EX4) -o $@ $(DYNAMIC) 2> "min_ex4.txt"
+	$(CXX) $(CXXFLAGS) $(EX4) -o $@ $(DYNAMIC) 2> "min_ex4.txt"
 $(BIN_EX5):
-	g++ $(CPPFLAGS) $(EX5) -o $@ $(DYNAMIC) 2> "min_ex5.txt"
+	$(CXX) $(CXXFLAGS) $(EX5) -o $@ $(DYNAMIC) 2> "min_ex5.txt"
 $(BIN_EX6):
-	g++ $(CPPFLAGS) $(EX6) -o $@ $(DYNAMIC) 2> "min_ex6.txt"
+	$(CXX) $(CXXFLAGS) $(EX6) -o $@ $(DYNAMIC) 2> "min_ex6.txt"
 $(BIN_EX7):
-	g++ $(CPPFLAGS) $(EX7) -o $@ $(DYNAMIC) 2> "min_ex7.txt"
+	$(CXX) $(CXXFLAGS) $(EX7) -o $@ $(DYNAMIC) 2> "min_ex7.txt"
 $(BIN_EX8):
-	g++ $(CPPFLAGS) $(EX8) -o $@ $(DYNAMIC) 2> "min_ex8.txt"
+	$(CXX) $(CXXFLAGS) $(EX8) -o $@ $(DYNAMIC) 2> "min_ex8.txt"
 $(BIN_EX9):
-	g++ $(CPPFLAGS) $(EX9) -o $@ $(DYNAMIC) 2> "min_ex9.txt"
+	$(CXX) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC) 2> "min_ex9.txt"
 $(BIN_EX10):
-	g++ $(CPPFLAGS) $(EX10) -o $@ $(DYNAMIC) 2> "min_ex10.txt"
+	$(CXX) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC) 2> "min_ex10.txt"
 
 # pattern matching .cpp
 %.o: %.cpp
-	g++ $(CPPFLAGS) $(CPP_O) -c $< -o $@ 2> "gcc.txt"
+	$(CXX) $(CXXFLAGS) $(CPP_O) -c $< -o $@ 2> "gcc.txt"
 
 # clean targets
 clean:

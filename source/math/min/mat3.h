@@ -88,6 +88,10 @@ class mat3
     mat3(const vec2<T> &t, const mat2<T> &r)
         : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) {}
 
+    // constructs a matrix that first rotates then translates in 2D, then scales the result
+    mat3(const vec2<T> &t, const mat2<T> &r, const vec2<T> &s)
+        : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) { scale(s); }
+
     inline void one(vec3<T> &v)
     {
         _a = v.x();
@@ -224,24 +228,6 @@ class mat3
     {
         return mat2<T>(_a, _c, _g, _i);
     }
-    inline mat3<T> &set_rotation_y(const mat2<T> &rot)
-    {
-        _a = rot._xc;
-        _c = rot._xs;
-        _g = rot._ys;
-        _i = rot._yc;
-        return *this;
-    }
-    inline vec2<T> get_scale() const
-    {
-        return vec2<T>(_a, _e);
-    }
-    inline mat3<T> &set_scale(const vec2<T> &s)
-    {
-        _a = s.x();
-        _e = s.y();
-        return *this;
-    }
     inline bool invert()
     {
         T a, b, c, d, e, f, g, h, i, det;
@@ -274,6 +260,50 @@ class mat3
         _i = i * det;
 
         return true;
+    }
+    inline mat3<T> &rotate(const mat2<T> &r)
+    {
+        const mat3<T> rotation = mat3<T>(r);
+        this->operator*=(rotation);
+        return *this;
+    }
+    inline mat3<T> &set_rotation_y(const mat2<T> &rot)
+    {
+        _a = rot._xc;
+        _c = rot._xs;
+        _g = rot._ys;
+        _i = rot._yc;
+        return *this;
+    }
+    inline vec2<T> get_scale() const
+    {
+        return vec2<T>(_a, _e);
+    }
+    inline mat3<T> &scale(const T x, const T y)
+    {
+        return scale(vec2<T>(x, y));
+    }
+    inline mat3<T> &scale(const vec2<T> &s)
+    {
+        const mat3<T> scale = mat3<T>().set_scale(s);
+        this->operator*=(scale);
+        return *this;
+    }
+    inline mat3<T> &set_scale(const vec2<T> &s)
+    {
+        _a = s.x();
+        _e = s.y();
+        return *this;
+    }
+    inline mat3<T> &translate(const T x, const T y)
+    {
+        return translate(vec2<T>(x, y));
+    }
+    inline mat3<T> &translate(const vec2<T> &t)
+    {
+        const mat3<T> translation = mat3<T>(t);
+        this->operator*=(translation);
+        return *this;
     }
     inline vec3<T> transform(const vec3<T> &v) const
     {

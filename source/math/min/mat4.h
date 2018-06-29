@@ -86,6 +86,10 @@ class mat4
     mat4(const vec3<T> &t, const mat3<T> &r)
         : _a(r._a), _b(r._b), _c(r._c), _d(0.0), _e(r._d), _f(r._e), _g(r._f), _h(0.0), _i(r._g), _j(r._h), _k(r._i), _l(0.0), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0) {}
 
+    // constructs a matrix that first rotates then translates in 3D, then scales the result
+    mat4(const vec3<T> &t, const mat3<T> &r, const vec3<T> &s)
+        : _a(r._a), _b(r._b), _c(r._c), _d(0.0), _e(r._d), _f(r._e), _g(r._f), _h(0.0), _i(r._g), _j(r._h), _k(r._i), _l(0.0), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0) { scale(s); }
+
     // constructs a lookat matrix from 4 vectors: right(x), up(y), forward(z), and eye
     mat4(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z, const vec3<T> &e)
         : _a(x.x()), _b(x.y()), _c(x.z()), _d(-x.dot(e)), _e(y.x()), _f(y.y()), _g(y.z()), _h(-y.dot(e)), _i(z.x()), _j(z.y()), _k(z.z()), _l(-z.dot(e)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
@@ -277,14 +281,6 @@ class mat4
 
         return vec3<T>(x, y, z);
     }
-    inline mat4<T> &set_scale(const vec3<T> &s)
-    {
-        _a = s.x();
-        _f = s.y();
-        _k = s.z();
-
-        return *this;
-    }
     inline bool invert()
     {
         T a = _f * _k * _p - _f * _l * _o - _j * _g * _p + _j * _h * _o + _n * _g * _l - _n * _h * _k;
@@ -330,6 +326,59 @@ class mat4
         _p = p * det;
 
         return true;
+    }
+    inline mat4<T> &rotate_x(const mat2<T> &r)
+    {
+        const mat4<T> rotation = mat4<T>(mat3<T>().set_rotation_x(r));
+        this->operator*=(rotation);
+        return *this;
+    }
+    inline mat4<T> &rotate_y(const mat2<T> &r)
+    {
+        const mat4<T> rotation = mat4<T>(mat3<T>().set_rotation_y(r));
+        this->operator*=(rotation);
+        return *this;
+    }
+    // Default rotation is about the Z axis
+    inline mat4<T> &rotate_z(const mat2<T> &r)
+    {
+        const mat4<T> rotation = mat4<T>(mat3<T>(r));
+        this->operator*=(rotation);
+        return *this;
+    }
+    inline mat4<T> &scale(const T x, const T y, const T z)
+    {
+        return scale(vec3<T>(x, y, z));
+    }
+    inline mat4<T> &scale(const vec3<T> &s)
+    {
+        const mat4<T> scale = mat4<T>().set_scale(s);
+        this->operator*=(scale);
+        return *this;
+    }
+    inline mat4<T> &set_scale(const vec3<T> &s)
+    {
+        _a = s.x();
+        _f = s.y();
+        _k = s.z();
+
+        return *this;
+    }
+    inline mat4<T> &translate(const T x, const T y, const T z)
+    {
+        return translate(vec3<T>(x, y, z));
+    }
+    inline mat4<T> &translate(const vec3<T> &t)
+    {
+        const mat4<T> translation = mat4<T>(t);
+        this->operator*=(translation);
+        return *this;
+    }
+    inline mat4<T> &rotate(const quat<T> &r)
+    {
+        const mat4<T> rotation = mat4<T>(r);
+        this->operator*=(rotation);
+        return *this;
     }
     inline vec4<T> transform(const vec4<T> &v) const
     {
