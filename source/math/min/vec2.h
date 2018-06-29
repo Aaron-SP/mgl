@@ -747,7 +747,7 @@ class vec2
         T overlap = 0.0;
 
         // Find the minimum, non-zero penetration index
-        T min = 1E15;
+        T min = std::numeric_limits<T>::max();
         int index = -1;
         for (int i = 0; i < 4; i++)
         {
@@ -798,7 +798,7 @@ class vec2
         vec2<T> normal = vec2<T>::up();
         T overlap = 0.0;
 
-        T min = 1E15;
+        T min = std::numeric_limits<T>::max();
         int index = -1;
         if (penetration[0] > tolerance)
         {

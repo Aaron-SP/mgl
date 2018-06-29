@@ -1143,7 +1143,7 @@ class vec3
         T overlap = 0.0;
 
         // Find the minimum, non-zero penetration index
-        T min = 1E15;
+        T min = std::numeric_limits<T>::max();
         int index = -1;
         for (int i = 0; i < 15; i++)
         {
@@ -1232,7 +1232,7 @@ class vec3
         T overlap = 0.0;
 
         // Find the minimum, non-zero penetration index
-        T min = 1E15;
+        T min = std::numeric_limits<T>::max();
         int index = -1;
         for (int i = 0; i < 6; i++)
         {
