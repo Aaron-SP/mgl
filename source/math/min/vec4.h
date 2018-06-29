@@ -42,11 +42,16 @@ class vec4
     T _z;
     T _w;
 
+    void float_assert()
+    {
+        static_assert(std::is_floating_point<T>::value, "vec4<T> must be a floating point type");
+    }
+
   public:
-    vec4() : _x(0.0), _y(0.0), _z(0.0), _w(1.0) {}
-    vec4(const vec3<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()), _w(1.0) {}
-    vec4(const vec3<T> &v, T w) : _x(v.x()), _y(v.y()), _z(v.z()), _w(w) {}
-    vec4(const T x, const T y, const T z, const T w) : _x(x), _y(y), _z(z), _w(w) {}
+    vec4() : _x(0.0), _y(0.0), _z(0.0), _w(1.0) { float_assert(); }
+    vec4(const vec3<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()), _w(1.0) { float_assert(); }
+    vec4(const vec3<T> &v, T w) : _x(v.x()), _y(v.y()), _z(v.z()), _w(w) { float_assert(); }
+    vec4(const T x, const T y, const T z, const T w) : _x(x), _y(y), _z(z), _w(w) { float_assert(); }
     inline T x() const
     {
         return _x;

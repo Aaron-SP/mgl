@@ -27,6 +27,7 @@ class coord_sys;
 #include <min/coord_sys.h>
 #include <min/utility.h>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -40,9 +41,14 @@ class vec2
     T _x;
     T _y;
 
+    void float_assert()
+    {
+        static_assert(std::is_floating_point<T>::value, "vec2<T> must be a floating point type");
+    }
+
   public:
-    vec2() : _x(0.0), _y(0.0) {}
-    vec2(const T x, const T y) : _x(x), _y(y) {}
+    vec2() : _x(0.0), _y(0.0) { float_assert(); }
+    vec2(const T x, const T y) : _x(x), _y(y) { float_assert(); }
     inline T x() const
     {
         return _x;

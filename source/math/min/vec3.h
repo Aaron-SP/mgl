@@ -27,6 +27,7 @@ class coord_sys;
 #include <min/coord_sys.h>
 #include <min/utility.h>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -41,11 +42,16 @@ class vec3
     T _y;
     T _z;
 
+    void float_assert()
+    {
+        static_assert(std::is_floating_point<T>::value, "vec3<T> must be a floating point type");
+    }
+
   public:
-    vec3() : _x(0.0), _y(0.0), _z(0.0) {}
-    vec3(const T x, const T y, const T z) : _x(x), _y(y), _z(z) {}
-    vec3(const vec2<T> &v) : _x(v.x()), _y(v.y()), _z(1.0) {}
-    vec3(const vec4<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()) {}
+    vec3() : _x(0.0), _y(0.0), _z(0.0) { float_assert(); }
+    vec3(const T x, const T y, const T z) : _x(x), _y(y), _z(z) { float_assert(); }
+    vec3(const vec2<T> &v) : _x(v.x()), _y(v.y()), _z(1.0) { float_assert(); }
+    vec3(const vec4<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()) { float_assert(); }
     T x() const
     {
         return _x;
