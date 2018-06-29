@@ -16,8 +16,8 @@ limitations under the License.
 #define __TESTBITFLAG__
 
 #include <cstdint>
+#include <min/bit_flag.h>
 #include <min/test.h>
-#include <min/utility.h>
 #include <stdexcept>
 
 bool test_bit_flag()

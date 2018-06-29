@@ -183,7 +183,7 @@ class md5_render_loop_test
           _text_fragment("data/shader/text.fragment", GL_FRAGMENT_SHADER),
           _vert_prog(_vert_vertex, _vert_fragment),
           _text_prog(_text_vertex, _text_fragment),
-          _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
+          _md5_model(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")),
           _text_buffer("data/fonts/open_sans.ttf", 14),
           _ubuffer(1, 100, 0),
           _light_color(1.0, 1.0, 1.0, 1.0),

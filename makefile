@@ -63,8 +63,30 @@ LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isour
 TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/renderer -Itest/scene -Itest/sound
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
-# Compile parameters
-CXXFLAGS = -s -std=c++14 -Wall -O3 -march=native -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
+# Compile flags
+DEBUGFLAGS = -std=c++14 -Wall -O1
+RELEASEFLAGS = -std=c++14 -Wall -O3 -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
+
+# Set architecture
+ifeq ($(BUILD),debug)
+	CXXFLAGS += $(DEBUGFLAGS)
+	SYMBOLS = -g
+else
+ifeq ($(BUILD),arch32)
+	CXXFLAGS += $(RELEASEFLAGS) -m32
+	SYMBOLS = -s
+else
+ifeq ($(BUILD),arch64)
+	CXXFLAGS += $(RELEASEFLAGS) -m64
+	SYMBOLS = -s
+else
+	CXXFLAGS += $(RELEASEFLAGS) -march=native
+	SYMBOLS = -s
+endif
+endif
+endif
+
+# Build targets
 CPP_O = -DGLEW_STATIC $(LIB_SOURCES)
 GLEW = -DGLEW_STATIC source/platform/min/glew.cpp
 TEST_AL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/al_test.cpp
@@ -116,33 +138,33 @@ tests: $(BIN_AL_TEST) $(BIN_GL_TEST) $(BIN_WL_TEST)
 uninstall:
 	rm -rI $(MGL_PATH)
 $(BIN_AL_TEST):
-	$(CXX) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC) 2> "al_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC) 2> "al_test.txt"
 $(BIN_BENCH):
-	$(CXX) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC) 2> "gcc_bench.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC) 2> "gcc_bench.txt"
 $(BIN_GL_TEST):
-	$(CXX) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC) 2> "gl_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC) 2> "gl_test.txt"
 $(BIN_WL_TEST):
-	$(CXX) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC) 2> "wl_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC) 2> "wl_test.txt"
 $(BIN_EX1):
-	$(CXX) $(CXXFLAGS) $(EX1) -o $@ $(DYNAMIC) 2> "min_ex1.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX1) -o $@ $(DYNAMIC) 2> "ex1.txt"
 $(BIN_EX2):
-	$(CXX) $(CXXFLAGS) $(EX2) -o $@ $(DYNAMIC) 2> "min_ex2.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX2) -o $@ $(DYNAMIC) 2> "ex2.txt"
 $(BIN_EX3):
-	$(CXX) $(CXXFLAGS) $(EX3) -o $@ $(DYNAMIC) 2> "min_ex3.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX3) -o $@ $(DYNAMIC) 2> "ex3.txt"
 $(BIN_EX4):
-	$(CXX) $(CXXFLAGS) $(EX4) -o $@ $(DYNAMIC) 2> "min_ex4.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX4) -o $@ $(DYNAMIC) 2> "ex4.txt"
 $(BIN_EX5):
-	$(CXX) $(CXXFLAGS) $(EX5) -o $@ $(DYNAMIC) 2> "min_ex5.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX5) -o $@ $(DYNAMIC) 2> "ex5.txt"
 $(BIN_EX6):
-	$(CXX) $(CXXFLAGS) $(EX6) -o $@ $(DYNAMIC) 2> "min_ex6.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX6) -o $@ $(DYNAMIC) 2> "ex6.txt"
 $(BIN_EX7):
-	$(CXX) $(CXXFLAGS) $(EX7) -o $@ $(DYNAMIC) 2> "min_ex7.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX7) -o $@ $(DYNAMIC) 2> "ex7.txt"
 $(BIN_EX8):
-	$(CXX) $(CXXFLAGS) $(EX8) -o $@ $(DYNAMIC) 2> "min_ex8.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX8) -o $@ $(DYNAMIC) 2> "ex8.txt"
 $(BIN_EX9):
-	$(CXX) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC) 2> "min_ex9.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC) 2> "ex9.txt"
 $(BIN_EX10):
-	$(CXX) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC) 2> "min_ex10.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC) 2> "ex10.txt"
 
 # pattern matching .cpp
 %.o: %.cpp

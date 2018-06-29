@@ -18,7 +18,7 @@ limitations under the License.
 #include <min/taabboxinter.h>
 #include <min/taabbresolve.h>
 #include <min/taabbtree.h>
-#include <min/tbitflag.h>
+#include <min/tbit_flag.h>
 #include <min/tbmp.h>
 #include <min/tcamera.h>
 #include <min/tcubic.h>
@@ -44,12 +44,12 @@ limitations under the License.
 #include <min/traytree.h>
 #include <min/tsample.h>
 #include <min/tserial.h>
+#include <min/tsort.h>
 #include <min/tsphere.h>
 #include <min/tsphgrid.h>
 #include <min/tsphinter.h>
 #include <min/tsphresolve.h>
 #include <min/tsphtree.h>
-#include <min/tuint_sort.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
 #include <min/tvec4.h>

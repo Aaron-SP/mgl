@@ -12,12 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTUINTSORT__
-#define __TESTUINTSORT__
+#ifndef __TESTSORT__
+#define __TESTSORT__
 
 #include <cstdint>
+#include <min/sort.h>
 #include <min/test.h>
-#include <min/utility.h>
 #include <stdexcept>
 
 bool test_uint_sort()

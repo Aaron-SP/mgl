@@ -41,7 +41,7 @@ class vec2
     T _x;
     T _y;
 
-    void float_assert()
+    inline void float_assert()
     {
         static_assert(std::is_floating_point<T>::value, "vec2<T> must be a floating point type");
     }

@@ -131,7 +131,7 @@ class character
     character() : _vertex("data/shader/md5.vertex", GL_VERTEX_SHADER),
                   _fragment("data/shader/md5.fragment", GL_FRAGMENT_SHADER),
                   _prog(_vertex, _fragment),
-                  _md5_model(std::move(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh"))),
+                  _md5_model(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")),
                   _ubuffer(1, 100, 0),
                   _light_color(1.0, 1.0, 1.0, 1.0),
                   _light_position(0.0, 40.0, 0.0, 1.0),

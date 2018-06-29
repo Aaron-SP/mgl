@@ -42,7 +42,7 @@ class vec4
     T _z;
     T _w;
 
-    void float_assert()
+    inline void float_assert()
     {
         static_assert(std::is_floating_point<T>::value, "vec4<T> must be a floating point type");
     }
