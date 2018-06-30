@@ -29,7 +29,11 @@ class tri
   public:
     tri() : _x(0.0), _y(0.0), _z(0.0) {}
     tri(const T x, const T y, const T z) : _x(x), _y(y), _z(z) {}
-    T x() const
+    inline T x() const
+    {
+        return _x;
+    }
+    inline T &x_ref()
     {
         return _x;
     }
@@ -37,7 +41,15 @@ class tri
     {
         return _y;
     }
+    inline T &y_ref()
+    {
+        return _y;
+    }
     inline T z() const
+    {
+        return _z;
+    }
+    inline T &z_ref()
     {
         return _z;
     }

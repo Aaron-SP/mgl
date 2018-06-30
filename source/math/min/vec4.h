@@ -26,6 +26,7 @@ class coord_sys;
 #include <cmath>
 #include <limits>
 #include <min/coord_sys.h>
+#include <min/tri.h>
 #include <min/utility.h>
 #include <utility>
 #include <vector>
@@ -272,7 +273,7 @@ class vec4
         // return the compute grid
         return out;
     }
-    inline static std::tuple<size_t, size_t, size_t> grid_index(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
+    inline static min::tri<size_t> grid_index(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
     {
         // Calculate the grid dimensions
         const T ex = extent.x();
@@ -284,9 +285,9 @@ class vec4
         const size_t zin = (point.z() - min.z()) / ez;
 
         // Return the row / col of cell
-        return std::make_tuple(col, row, zin);
+        return min::tri<size_t>(col, row, zin);
     }
-    inline static std::tuple<size_t, size_t, size_t> grid_index(const size_t index, const size_t scale)
+    inline static min::tri<size_t> grid_index(const size_t index, const size_t scale)
     {
         // Precalculate the square scale
         const size_t scale2 = scale * scale;
@@ -298,27 +299,27 @@ class vec4
         const size_t zin = offset - (row * scale);
 
         // return tuple
-        return std::make_tuple(col, row, zin);
+        return min::tri<size_t>(col, row, zin);
     }
     inline static size_t grid_key(const vec4<T> &min, const vec4<T> &extent, const size_t scale, const vec4<T> &point)
     {
         // Calculate the cell location
-        const std::tuple<size_t, size_t, size_t> index = grid_index(min, extent, point);
+        const min::tri<size_t> index = grid_index(min, extent, point);
 
         // Get the row / col of cell
-        const size_t col = std::get<0>(index);
-        const size_t row = std::get<1>(index);
-        const size_t zin = std::get<2>(index);
+        const size_t col = index.x();
+        const size_t row = index.y();
+        const size_t zin = index.z();
 
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
     }
-    inline static size_t grid_key(const std::tuple<size_t, size_t, size_t> &index, const size_t scale)
+    inline static size_t grid_key(const min::tri<size_t> &index, const size_t scale)
     {
         // Get the row / col of cell
-        const size_t col = std::get<0>(index);
-        const size_t row = std::get<1>(index);
-        const size_t zin = std::get<2>(index);
+        const size_t col = index.x();
+        const size_t row = index.y();
+        const size_t zin = index.z();
 
         // Return the grid index key for accessing cell
         return col * scale * scale + row * scale + zin;
@@ -338,10 +339,10 @@ class vec4
         const vec4<T> center = (b_min + b_max) * 0.5;
 
         // Center cell indices
-        const std::tuple<size_t, size_t, size_t> t = vec4<T>::grid_index(min, extent, center);
-        const size_t x = std::get<0>(t);
-        const size_t y = std::get<1>(t);
-        const size_t z = std::get<2>(t);
+        const min::tri<size_t> index = vec4<T>::grid_index(min, extent, center);
+        const size_t x = index.x();
+        const size_t y = index.y();
+        const size_t z = index.z();
         const size_t scale2 = scale * scale;
 
         // Bounds of the center cell
@@ -563,12 +564,12 @@ class vec4
         // return the ray tuple
         return std::make_tuple(drx, tx, dtx, dry, ty, dty, drz, tz, dtz);
     }
-    inline static size_t grid_ray_next(std::tuple<size_t, size_t, size_t> &index, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
+    inline static size_t grid_ray_next(min::tri<size_t> &index, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
     {
         // Get the cell row / col
-        size_t &col = std::get<0>(index);
-        size_t &row = std::get<1>(index);
-        size_t &zin = std::get<2>(index);
+        size_t &col = index.x_ref();
+        size_t &row = index.y_ref();
+        size_t &zin = index.z_ref();
 
         // X
         const int &drx = std::get<0>(grid_ray);
@@ -636,18 +637,18 @@ class vec4
     {
         // Assumes over_min and over_max are clamped to world edges!!
         // Get the key of min and max points for overlap
-        const std::tuple<size_t, size_t, size_t> t_min = vec4<T>::grid_index(min, extent, over_min);
-        const std::tuple<size_t, size_t, size_t> t_max = vec4<T>::grid_index(min, extent, over_max);
+        const min::tri<size_t> i_min = vec4<T>::grid_index(min, extent, over_min);
+        const min::tri<size_t> i_max = vec4<T>::grid_index(min, extent, over_max);
 
         // Get all cells in between points and get overlapping shapes
-        for (size_t i = std::get<0>(t_min); i <= std::get<0>(t_max); i++)
+        for (size_t i = i_min.x(); i <= i_max.x(); i++)
         {
-            for (size_t j = std::get<1>(t_min); j <= std::get<1>(t_max); j++)
+            for (size_t j = i_min.y(); j <= i_max.y(); j++)
             {
-                for (size_t k = std::get<2>(t_min); k <= std::get<2>(t_max); k++)
+                for (size_t k = i_min.z(); k <= i_max.z(); k++)
                 {
                     // Get the key for this index
-                    const size_t key = vec4<T>::grid_key(std::make_tuple(i, j, k), scale);
+                    const size_t key = vec4<T>::grid_key(min::tri<size_t>(i, j, k), scale);
 
                     // Callback function on f
                     f(key);

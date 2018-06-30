@@ -32,7 +32,15 @@ class bi
     {
         return _x;
     }
+    inline T &x_ref()
+    {
+        return _x;
+    }
     inline T y() const
+    {
+        return _y;
+    }
+    inline T &y_ref()
     {
         return _y;
     }

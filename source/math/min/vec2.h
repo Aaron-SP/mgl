@@ -24,6 +24,7 @@ class coord_sys;
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <min/bi.h>
 #include <min/coord_sys.h>
 #include <min/utility.h>
 #include <tuple>
@@ -219,7 +220,7 @@ class vec2
         // return the compute grid
         return out;
     }
-    inline static std::pair<size_t, size_t> grid_index(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
+    inline static min::bi<size_t> grid_index(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
     {
         // Calculate the grid dimensions
         const T ex = extent.x();
@@ -230,33 +231,33 @@ class vec2
         const size_t row = (point.y() - min.y()) / ey;
 
         // Return the row / col of cell
-        return std::make_pair(col, row);
+        return min::bi<size_t>(col, row);
     }
-    inline static std::pair<size_t, size_t> grid_index(const size_t index, const size_t scale)
+    inline static min::bi<size_t> grid_index(const size_t index, const size_t scale)
     {
         const size_t col = index / scale;
         const size_t row = index - (col * scale);
 
         // return tuple
-        return std::make_pair(col, row);
+        return min::bi<size_t>(col, row);
     }
     inline static size_t grid_key(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &point)
     {
         // Calculate the cell location
-        const std::pair<size_t, size_t> index = grid_index(min, extent, point);
+        const min::bi<size_t> index = grid_index(min, extent, point);
 
         // Get the row / col of cell
-        const size_t col = index.first;
-        const size_t row = index.second;
+        const size_t col = index.x();
+        const size_t row = index.y();
 
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
-    inline static size_t grid_key(const std::pair<size_t, size_t> &index, const size_t scale)
+    inline static size_t grid_key(const min::bi<size_t> &index, const size_t scale)
     {
         // Get the row / col of cell
-        const size_t col = index.first;
-        const size_t row = index.second;
+        const size_t col = index.x();
+        const size_t row = index.y();
 
         // Return the grid index key for accessing cell
         return col * scale + row;
@@ -275,9 +276,9 @@ class vec2
         const vec2<T> center = (b_min + b_max) * 0.5;
 
         // Center cell indices
-        const std::pair<size_t, size_t> p = vec2<T>::grid_index(min, extent, center);
-        const size_t x = p.first;
-        const size_t y = p.second;
+        const min::bi<size_t> index = vec2<T>::grid_index(min, extent, center);
+        const size_t x = index.x();
+        const size_t y = index.y();
 
         // Bounds of the center cell
         const T minx = min.x() + dx * x;
@@ -397,11 +398,11 @@ class vec2
         // return the ray tuple
         return std::make_tuple(drx, tx, dtx, dry, ty, dty);
     }
-    inline static size_t grid_ray_next(std::pair<size_t, size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
+    inline static size_t grid_ray_next(min::bi<size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
     {
         // Get the cell row / col
-        size_t &col = index.first;
-        size_t &row = index.second;
+        size_t &col = index.x_ref();
+        size_t &row = index.y_ref();
 
         // X
         const int &drx = std::get<0>(grid_ray);
@@ -451,16 +452,16 @@ class vec2
     {
         // Assumes over_min and over_max are clamped to world edges!!
         // Get the key of min and max points for overlap
-        const std::pair<size_t, size_t> p_min = vec2<T>::grid_index(min, extent, over_min);
-        const std::pair<size_t, size_t> p_max = vec2<T>::grid_index(min, extent, over_max);
+        const min::bi<size_t> i_min = vec2<T>::grid_index(min, extent, over_min);
+        const min::bi<size_t> i_max = vec2<T>::grid_index(min, extent, over_max);
 
         // Get all cells in between points and get overlapping shapes
-        for (size_t i = p_min.first; i <= p_max.first; i++)
+        for (size_t i = i_min.x(); i <= i_max.x(); i++)
         {
-            for (size_t j = p_min.second; j <= p_max.second; j++)
+            for (size_t j = i_min.y(); j <= i_max.y(); j++)
             {
                 // Get the key for this index
-                const size_t key = vec2<T>::grid_key(std::make_pair(i, j), scale);
+                const size_t key = vec2<T>::grid_key(min::bi<size_t>(i, j), scale);
 
                 // Callback function on f
                 f(key);
