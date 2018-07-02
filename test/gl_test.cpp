@@ -25,6 +25,7 @@ limitations under the License.
 #include <min/tdds.h>
 #include <min/tfrustinter.h>
 #include <min/tfrustum.h>
+#include <min/theight_map.h>
 #include <min/tmat2.h>
 #include <min/tmat3.h>
 #include <min/tmat4.h>
@@ -50,6 +51,7 @@ limitations under the License.
 #include <min/tsphinter.h>
 #include <min/tsphresolve.h>
 #include <min/tsphtree.h>
+#include <min/tthread_pool.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
 #include <min/tvec4.h>
@@ -103,6 +105,8 @@ int main()
         out = out && test_physics_aabb_grid();
         out = out && test_serial();
         out = out && test_mem_chunk();
+        out = out && test_thread_pool();
+        out = out && test_height_map();
         if (out)
         {
             std::cout << "Graphics tests passed!" << std::endl;
