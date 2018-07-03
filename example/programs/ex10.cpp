@@ -117,8 +117,9 @@ class render_loop_test
     void load_camera()
     {
         // Create camera, set location and look at, and perspective projection
-        _cam.set_position(min::vec3<float>(-5.0, 2.0, 0.0));
-        _cam.set_look_at(min::vec3<float>(0.0, 0.0, 0.0));
+        const min::vec3<float> pos = min::vec3<float>(-5.0, 2.0, 0.0);
+        const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
+        _cam.set(pos, look, min::vec3<float>::up());
         _cam.set_perspective();
     }
     void load_keyboard()

@@ -101,8 +101,7 @@ class tessellation_test
 
         // Test perspective projection
         // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
+        _cam.set(pos, look, min::vec3<float>::up());
         _cam.set_perspective();
 
         // Load the uniform buffer with program we will use

@@ -240,8 +240,7 @@ class physics_test
         const min::vec3<float> look = min::vec3<float>(0.0, 0.0, 0.0);
 
         // Create camera, set location and look at
-        _cam.set_position(pos);
-        _cam.set_look_at(look);
+        _cam.set(pos, look, min::vec3<float>::up());
         auto &f = _cam.get_frustum();
         f.set_far(1000.0);
         f.set_fov(90.0);
