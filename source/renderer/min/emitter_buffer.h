@@ -59,12 +59,11 @@ class emitter_buffer
     vec3<T> _start_speed;
     vec3<T> _wind_force;
     std::uniform_real_distribution<T> _dist;
-    std::mt19937 _rand;
     std::vector<vec3<T>> _position;
     std::vector<vec3<T>> _speed;
     std::vector<std::pair<vec3<T>, T>> _attractors;
 
-    inline void accumulate(const T dt)
+    inline void accumulate(std::mt19937 &rand, const T dt)
     {
         _emit_accum += dt;
 
@@ -92,7 +91,7 @@ class emitter_buffer
             if (_spawn_accum >= _spawn_freq)
             {
                 // Reseed from offset to offset + _emit_count
-                seed(_emit_pool_offset, _emit_count);
+                seed(rand, _emit_pool_offset, _emit_count);
 
                 // Increment the offset
                 _emit_pool_offset += _emit_count;
@@ -136,7 +135,7 @@ class emitter_buffer
         // Compute the force from Newton's 2nd Law
         return attract + _grav_force + _wind_force;
     }
-    inline void seed(const size_t start, const size_t len)
+    inline void seed(std::mt19937 &rand, const size_t start, const size_t len)
     {
         // Reset all particles to the start position
         const size_t size = start + len;
@@ -146,7 +145,7 @@ class emitter_buffer
             _position[i] = _start_pos;
 
             // Set speed
-            _speed[i] = _start_speed + random();
+            _speed[i] = _start_speed + random(rand);
         }
 
         const size_t attrs = _attractors.size();
@@ -155,7 +154,7 @@ class emitter_buffer
             for (size_t i = start; i < size; i++)
             {
                 const size_t group = i % attrs;
-                const T rand_interp = _dist(_rand) / _random;
+                const T rand_interp = _dist(rand) / _random;
                 _position[i] = _start_pos + (_attractors[group].first - _start_pos) * rand_interp;
             }
         }
@@ -188,12 +187,6 @@ class emitter_buffer
         // Specify the vertex attributes in location = 0, tightly packed
         glVertexAttribPointer(0, 3, FLOAT_TYPE, GL_FALSE, 0, nullptr);
         glEnableVertexAttribArray(0);
-
-        // Seed the generator
-        _rand.seed(453178);
-
-        // Initialize the simulation
-        seed(0, _position.size());
     }
     ~emitter_buffer()
     {
@@ -267,20 +260,25 @@ class emitter_buffer
     {
         return _start_pos;
     }
-    inline vec3<T> random()
+    inline void initialize(std::mt19937 &rand)
+    {
+        // Initialize the simulation
+        seed(rand, 0, _position.size());
+    }
+    inline vec3<T> random(std::mt19937 &rand)
     {
         // Compute a random speed modifier for dispersion of particles
-        const T randx = _dist(_rand);
-        const T randy = _dist(_rand);
-        const T randz = _dist(_rand);
+        const T randx = _dist(rand);
+        const T randy = _dist(rand);
+        const T randz = _dist(rand);
 
         // Calculate random speed
         return vec3<T>(randx, randy, randz);
     }
-    inline void reset()
+    inline void reset(std::mt19937 &rand)
     {
         // Initialize the simulation
-        seed(0, _position.size());
+        initialize(rand);
 
         // Reset the accumulated time
         _emit_pool_size = 0;
@@ -326,10 +324,10 @@ class emitter_buffer
     {
         _wind_force = wind;
     }
-    inline void step(const T dt)
+    inline void step(std::mt19937 &rand, const T dt)
     {
         // Accumulate this time step
-        accumulate(dt);
+        accumulate(rand, dt);
 
         // Update all particles
         for (size_t i = 0; i < _emit_pool_size; i++)
@@ -352,10 +350,10 @@ class emitter_buffer
         }
     }
     template <typename F>
-    inline void set(const F &f, const T dt)
+    inline void set(std::mt19937 &rand, const F &f, const T dt)
     {
         // Accumulate this time step
-        accumulate(dt);
+        accumulate(rand, dt);
 
         // Update all particles
         for (size_t i = 0; i < _emit_pool_size; i++)

@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+#include <chrono>
 #include <iostream>
 #include <min/bmp.h>
 #include <min/camera.h>
@@ -37,6 +38,7 @@ class particle_test
 
     // Buffers for particle data and textures
     min::emitter_buffer<float, GL_FLOAT> _ebuffer;
+    std::mt19937 _gen;
     min::texture_buffer _tbuffer;
     GLuint _bmp_id;
 
@@ -71,6 +73,7 @@ class particle_test
         _ebuffer.set_speed(min::vec3<float>(0.0, 1.0, 0.0));
 
         // Load buffer with data
+        _ebuffer.initialize(_gen);
         _ebuffer.upload();
     }
     void load_keyboard()
@@ -114,6 +117,7 @@ class particle_test
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
           _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 10.0),
+          _gen(std::chrono::high_resolution_clock::now().time_since_epoch().count()),
           _ubuffer(0, 1, 0),
           _force_type(0)
     {
@@ -222,7 +226,7 @@ class particle_test
     void step(const float dt)
     {
         // Update the particle positions
-        _ebuffer.step(dt);
+        _ebuffer.step(_gen, dt);
 
         // Upload data to GPU
         _ebuffer.upload();
