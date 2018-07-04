@@ -131,11 +131,10 @@ class quat
         const T cos_theta = x * v1.dot_x();
         if (cos_theta < var<T>::TOL_NONE)
         {
-            vec3<T> c = v1.cross_x().normalize();
             q._w = 0.0;
             q._x = 0.0;
-            q._y = c.y() * x;
-            q._z = c.z() * x;
+            q._y = 1.0;
+            q._z = 0.0;
         }
         else if (cos_theta > var<T>::TOL_PONE)
         {
