@@ -320,9 +320,6 @@ class x_window
             throw std::runtime_error("x_window: Failed to create an X11 window.");
         }
 
-        // Show the window
-        XMapWindow(_display, _window);
-
         // Set the window title
         XStoreName(_display, _window, title.c_str());
 
@@ -560,6 +557,12 @@ class x_window
     {
         return _w;
     }
+    inline void hide() const
+    {
+        // Show the window
+        XUnmapWindow(_display, _window);
+        XFlush(_display);
+    }
     inline void maximize() const
     {
         // Maximize the window
@@ -611,6 +614,12 @@ class x_window
     {
         // Set the window title
         XStoreName(_display, _window, title.c_str());
+    }
+    inline void show() const
+    {
+        // Show the window
+        XMapRaised(_display, _window);
+        XFlush(_display);
     }
     inline void swap_buffers() const
     {

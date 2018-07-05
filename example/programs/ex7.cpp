@@ -185,6 +185,9 @@ class physics_test
 
         // Load uniform buffers with light and model matrix
         load_uniforms();
+
+        // Show the window
+        _win.show();
     }
     void clear_background()
     {

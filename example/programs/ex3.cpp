@@ -89,6 +89,9 @@ class screen_draw_test
 
         // Load static buffer for drawing points
         load_vertex_buffer();
+
+        // Show the window
+        _win.show();
     }
     static void close_window(void *ptr, double step)
     {

@@ -548,9 +548,6 @@ class win32_window
             throw std::runtime_error("win32_window: Could not create window.");
         }
 
-        // Show the window, returns bool whether window was visible, disregard return value
-        ShowWindow(_hwnd, SW_SHOW);
-
         // Update the window
         if (!UpdateWindow(_hwnd))
         {
@@ -755,6 +752,11 @@ class win32_window
     {
         return _w;
     }
+    inline void hide() const
+    {
+        // Hide the window, returns bool whether window was visible, disregard return value
+        ShowWindow(_hwnd, SW_HIDE);
+    }
     inline void maximize() const
     {
         // Maximize the window
@@ -822,6 +824,11 @@ class win32_window
         {
             throw std::runtime_error("win32_window: failed setting window title");
         }
+    }
+    inline void show() const
+    {
+        // Show the window, returns bool whether window was visible, disregard return value
+        ShowWindow(_hwnd, SW_SHOW);
     }
     inline void swap_buffers() const
     {

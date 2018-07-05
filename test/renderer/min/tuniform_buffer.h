@@ -62,6 +62,9 @@ class uniform_test
         // Set depth and cull settings
         min::settings::initialize();
 
+        // Show the window
+        _win.show();
+
         // Use the shader program to draw models
         _prog.use();
     }

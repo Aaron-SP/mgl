@@ -501,6 +501,9 @@ class physics_test
 
         // Load light and rigid body data
         load_physics_entities();
+
+        // Show the window
+        _win.show();
     }
     void clear_background()
     {
@@ -568,12 +571,16 @@ class physics_test
     void update_camera()
     {
         // Get the cursor coordinates
-        auto c = _win.get_cursor();
+        const auto c = _win.get_cursor();
 
         // Get the offset from screen center
-        float sensitivity = 0.1;
-        float x = sensitivity * (c.first - (_win.get_width() / 2));
-        float y = sensitivity * (c.second - (_win.get_height() / 2));
+        const uint_fast16_t w2 = _win.get_width() / 2;
+        const uint_fast16_t h2 = _win.get_height() / 2;
+        const int_fast16_t dx = c.first - w2;
+        const int_fast16_t dy = c.second - h2;
+        constexpr float sensitivity = 0.25;
+        float x = dx * sensitivity;
+        float y = dy * sensitivity;
 
         // If the mouse coordinates moved at all
         if (std::abs(x) > 1E-3 || std::abs(y) > 1E-3)
