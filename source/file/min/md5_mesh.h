@@ -348,7 +348,10 @@ class md5_mesh
     {
         if (lines.size() > 0)
         {
+            // Reserve memory
             _joints.reserve(lines.size());
+
+            // For all lines
             for (const auto &line : lines)
             {
                 std::string name, junk;
@@ -406,10 +409,15 @@ class md5_mesh
     {
         if (lines.size() > 0)
         {
-            // Get the last mesh for processing and reserve space
+            // Get a reference to the last mesh
             mesh<T, K> &m = _mesh.back();
-            _vertex_weights.reserve(lines.size());
 
+            // Reserve memory
+            const size_t vw_size = lines.size();
+            m.uv.reserve(vw_size);
+            _vertex_weights.reserve(vw_size);
+
+            // For all lines
             for (const auto &line : lines)
             {
                 std::string junk;
@@ -457,10 +465,13 @@ class md5_mesh
     {
         if (lines.size() > 0)
         {
-            // Get the last mesh for processing and reserve space
+            // Get a reference to the last mesh
             mesh<T, K> &m = _mesh.back();
+
+            // Reserve memory
             m.index.reserve(lines.size());
 
+            // For all lines
             for (const auto &line : lines)
             {
                 std::string junk;
@@ -499,9 +510,10 @@ class md5_mesh
     {
         if (lines.size() > 0)
         {
-            // Get the last mesh for processing
+            // Reserve memory
             _weights.reserve(lines.size());
 
+            // For all lines
             for (const auto &line : lines)
             {
                 std::string junk;
@@ -544,6 +556,12 @@ class md5_mesh
     {
         // Get a reference to the last mesh
         mesh<T, K> &m = _mesh.back();
+
+        // Reserve mesh memory
+        const size_t vw_size = _vertex_weights.size();
+        m.vertex.reserve(vw_size);
+        m.bone_index.reserve(vw_size);
+        m.bone_weight.reserve(vw_size);
 
         // For all vertex weights
         for (const auto &vw : _vertex_weights)

@@ -114,6 +114,7 @@ inline long fake_tell_ogg(void *const fake)
 class ogg
 {
   private:
+    static constexpr size_t _copy_size = 65536;
     uint16_t _num_channels;
     uint32_t _sample_rate;
     uint32_t _bits_per_sample;
@@ -157,9 +158,13 @@ class ogg
         static_assert(std::is_same<std::uint8_t, unsigned char>::value,
                       "std::uint8_t must be implemented as unsigned char");
 
+        // Reserve size of the input data, assume uncompressed data is larger
+        const size_t input_size = data.size();
+        _data.reserve(input_size);
+
         // Tell OggVorbis that our file is in memory
         char *head = const_cast<char *>(reinterpret_cast<const char *>(&data[0]));
-        fake_file ff(head, head, data.size());
+        fake_file ff(head, head, input_size);
 
         // Load an OggVorbis file
         OggVorbis_File ov_file;
@@ -189,7 +194,7 @@ class ogg
         _sample_rate = info->rate;
 
         // Local static buffer for copying data
-        char copy[4096];
+        char copy[_copy_size];
         uint8_t *from = reinterpret_cast<uint8_t *>(copy);
 
         // Assuming 16 bits per sample depth
@@ -205,7 +210,7 @@ class ogg
         {
             // Read up to a buffer's worth of decoded sound data
             // Sound samples must be 16 bit depth!
-            bytes = ov_read(&ov_file, copy, 4096, endian, depth, sgned, &bit_stream);
+            bytes = ov_read(&ov_file, copy, _copy_size, endian, depth, sgned, &bit_stream);
 
             // Insert bytes into data buffer
             _data.insert(_data.end(), from, from + bytes);
