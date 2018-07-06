@@ -386,7 +386,7 @@ class grid
         }
 
         // This function computes the ray lengths along the grid cell
-        auto grid_ray = vec<T>::grid_ray(_cell_extent, r.get_origin(), r.get_direction(), r.get_inverse());
+        auto grid_ray = vec<T>::grid_ray(_root.get_min(), _cell_extent, r.get_origin(), r.get_direction(), r.get_inverse());
 
         // Get the grid cell of ray origin
         auto grid_index = vec<T>::grid_index(_root.get_min(), _cell_extent, r.get_origin());

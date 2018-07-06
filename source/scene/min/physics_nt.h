@@ -258,7 +258,7 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
-        if (angle > var<T>::TOL_REL)
+        if (angle > var<T>::TOL_ZERO)
         {
             // Normalize rotation axis
             const T inv_angle = 1.0 / angle;
@@ -309,7 +309,7 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();
-        if (angle > var<T>::TOL_REL)
+        if (angle > var<T>::TOL_ZERO)
         {
             // Normalize rotation axis
             const T inv_angle = 1.0 / angle;

@@ -110,17 +110,17 @@ class vec4
     inline bool any_zero_outside(const vec4<T> &p, const vec4<T> &min, const vec4<T> &max) const
     {
         // If p is zero and this is outside min and max return true else false
-        if (std::abs(p.x()) <= var<T>::TOL_REL)
+        if (std::abs(p.x()) <= var<T>::TOL_ZERO)
         {
             if (_x < min.x() || _x > max.x())
                 return true;
         }
-        else if (std::abs(p.y()) <= var<T>::TOL_REL)
+        else if (std::abs(p.y()) <= var<T>::TOL_ZERO)
         {
             if (_y < min.y() || _y > max.y())
                 return true;
         }
-        else if (std::abs(p.z()) <= var<T>::TOL_REL)
+        else if (std::abs(p.z()) <= var<T>::TOL_ZERO)
         {
             if (_z < min.z() || _z > max.z())
                 return true;
@@ -468,7 +468,7 @@ class vec4
             }
         }
     }
-    inline static std::tuple<int, T, T, int, T, T, int, T, T> grid_ray(const vec4<T> &extent, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
+    inline static std::tuple<int, T, T, int, T, T, int, T, T> grid_ray(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
     {
         // Get the grid dimensions
         const T ex = extent.x();
@@ -481,7 +481,7 @@ class vec4
         const T z = origin.z();
 
         // Calculate distance to left of ray origin
-        const T minx = ex * std::floor(x / ex);
+        const T minx = ex * std::floor((x + min.x()) / ex) - min.x();
 
         // Calculate distance to right of ray origin
         const T maxx = minx + ex;
@@ -508,7 +508,7 @@ class vec4
         }
 
         // Calculate distance to below ray origin
-        const T miny = ey * std::floor(y / ey);
+        const T miny = ey * std::floor((y + min.y()) / ey) - min.y();
 
         // Calculate distance to above ray origin
         const T maxy = miny + ey;
@@ -535,7 +535,7 @@ class vec4
         }
 
         // Calculate distance to below ray origin
-        const T minz = ez * std::floor(z / ez);
+        const T minz = ez * std::floor((z + min.z()) / ez) - min.z();
 
         // Calculate distance to above ray origin
         const T maxz = minz + ez;

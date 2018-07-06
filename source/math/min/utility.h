@@ -128,7 +128,7 @@ inline T safe_inverse(const T v)
     T out;
 
     // Test for division by zero
-    if (std::abs(v) < var<T>::TOL_REL)
+    if (std::abs(v) < var<T>::TOL_ZERO)
     {
         out = std::numeric_limits<T>::max();
     }

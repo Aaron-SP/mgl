@@ -83,12 +83,12 @@ class vec2
     inline bool any_zero_outside(const vec2<T> &p, const vec2<T> &min, const vec2<T> &max) const
     {
         // If p is zero and this is outside min and max return true else false
-        if (std::abs(p.x()) <= var<T>::TOL_REL)
+        if (std::abs(p.x()) <= var<T>::TOL_ZERO)
         {
             if (_x < min.x() || _x > max.x())
                 return true;
         }
-        else if (std::abs(p.y()) <= var<T>::TOL_REL)
+        else if (std::abs(p.y()) <= var<T>::TOL_ZERO)
         {
             if (_y < min.y() || _y > max.y())
                 return true;
@@ -331,7 +331,7 @@ class vec2
                 out.push_back(px * scale + py); // + Y
         }
     }
-    inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
+    inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
     {
         // Get the grid dimensions
         const T ex = extent.x();
@@ -342,7 +342,7 @@ class vec2
         const T y = origin.y();
 
         // Calculate distance to left of ray origin
-        const T minx = ex * std::floor(x / ex);
+        const T minx = ex * std::floor((x + min.x()) / ex) - min.x();
 
         // Calculate distance to right of ray origin
         const T maxx = minx + ex;
@@ -369,7 +369,7 @@ class vec2
         }
 
         // Calculate distance to below ray origin
-        const T miny = ey * std::floor(y / ey);
+        const T miny = ey * std::floor((y + min.y()) / ey) - min.y();
 
         // Calculate distance to above ray origin
         const T maxy = miny + ey;

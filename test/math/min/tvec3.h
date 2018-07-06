@@ -801,7 +801,7 @@ bool test_vec3()
     }
 
     // Test grid_ray
-    auto t = min::vec3<double>::grid_ray(cell_extent, origin, direction, inverse);
+    auto t = min::vec3<double>::grid_ray(vmin, cell_extent, origin, direction, inverse);
     out = out && compare(1, std::get<0>(t));
     out = out && compare(std::numeric_limits<double>::max(), std::get<1>(t), 1E-4);
     out = out && compare(std::numeric_limits<double>::max(), std::get<2>(t), 1E-4);
@@ -830,7 +830,7 @@ bool test_vec3()
     direction = min::vec3<double>(1.0, 1.0, 1.0);
     inverse = direction.inverse();
     index = min::vec3<double>::grid_index(vmin, cell_extent, origin);
-    t = min::vec3<double>::grid_ray(cell_extent, origin, direction, inverse);
+    t = min::vec3<double>::grid_ray(vmin, cell_extent, origin, direction, inverse);
     out = out && compare(1, std::get<0>(t));
     out = out && compare(1.0, std::get<1>(t), 1E-4);
     out = out && compare(1.0, std::get<2>(t), 1E-4);

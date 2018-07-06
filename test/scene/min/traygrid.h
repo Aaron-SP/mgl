@@ -67,19 +67,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec2<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed sphere grid vec2 ray failed");
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec2 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec2 ray neg-y failed");
+                }
             }
         }
     }
@@ -126,19 +146,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec2<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed aabbox grid vec2 ray failed");
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec2 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec2 ray neg-y failed");
+                }
             }
         }
     }
@@ -185,19 +225,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec2<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed oobbox grid vec2 ray failed");
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec2 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec2<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec2 ray neg-y failed");
+                }
             }
         }
     }
@@ -242,19 +302,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec3<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed sphere grid vec3 ray failed");
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec3 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec3 ray neg-y failed");
+                }
             }
         }
     }
@@ -301,19 +381,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec3<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed aabbox grid vec3 ray failed");
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec3 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec3 ray neg-y failed");
+                }
             }
         }
     }
@@ -360,19 +460,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec3<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed oobbox grid vec3 ray failed");
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec3 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec3<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec3 ray neg-y failed");
+                }
             }
         }
     }
@@ -417,19 +537,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec4<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed sphere grid vec4 ray failed");
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec4 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed sphere grid vec4 ray neg-y failed");
+                }
             }
         }
     }
@@ -476,19 +616,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec4<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed aabbox grid vec4 ray failed");
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec4 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed aabbox grid vec4 ray neg-y failed");
+                }
             }
         }
     }
@@ -535,19 +695,39 @@ bool test_ray_grid()
         // Shoot a bunch of rays
         for (size_t i = 0; i < N; i++)
         {
-            // Create ray from origin to shape
-            min::vec4<double> shoot_from = items[i].get_center();
-            shoot_from.y(high - 1.0);
-            min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
-
-            // Get collisions with ray
-            const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
-
-            // Test if we got a collision with ray
-            out = out && (collisions.size() == 1);
-            if (!out)
+            // Shoot from positive Y
             {
-                throw std::runtime_error("Failed oobbox grid vec4 ray failed");
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(high - 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec4 ray pos-y failed");
+                }
+            }
+            // Shoot from negative Y
+            {
+                // Create ray from origin to shape
+                min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.y(low + 1.0);
+                min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
+
+                // Get collisions with ray
+                const std::vector<std::pair<uint_fast16_t, min::vec4<double>>> &collisions = g.get_collisions(r);
+
+                // Test if we got a collision with ray
+                out = out && (collisions.size() == 1);
+                if (!out)
+                {
+                    throw std::runtime_error("Failed oobbox grid vec4 ray neg-y failed");
+                }
             }
         }
     }
