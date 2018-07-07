@@ -32,6 +32,7 @@ class var
     static constexpr T INV_SQRT2 = 0.707106781186547;
     static constexpr T SQRT3 = 1.73205080756888;
     static constexpr T INV_SQRT3 = 0.577350269189626;
+    static constexpr T TOL_RAY = 1E-6;
     static constexpr T TOL_PHYS_EDGE = 1.0;
     static constexpr T TOL_PONE = 1.0 - 1E-6;
     static constexpr T TOL_NONE = -1.0 + 1E-6;
@@ -128,7 +129,7 @@ inline T safe_inverse(const T v)
     T out;
 
     // Test for division by zero
-    if (std::abs(v) < var<T>::TOL_ZERO)
+    if (std::abs(v) < var<T>::TOL_RAY)
     {
         out = std::numeric_limits<T>::max();
     }

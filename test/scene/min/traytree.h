@@ -71,6 +71,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -88,6 +89,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -150,6 +152,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -167,6 +170,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -229,6 +233,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -246,6 +251,7 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec2<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
                 min::ray<double, min::vec2> r(shoot_from, items[i].get_center());
 
@@ -306,7 +312,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -323,7 +331,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -385,7 +395,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -402,7 +414,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -464,7 +478,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -481,7 +497,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec3<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec3> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -541,7 +559,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -558,7 +578,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -620,7 +642,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -637,7 +661,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -699,7 +725,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(low + 1.0);
                 shoot_from.y(high - 1.0);
+                shoot_from.z(high - 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray
@@ -716,7 +744,9 @@ bool test_ray_tree()
             {
                 // Create ray from origin to shape
                 min::vec4<double> shoot_from = items[i].get_center();
+                shoot_from.x(high - 1.0);
                 shoot_from.y(low + 1.0);
+                shoot_from.z(low + 1.0);
                 min::ray<double, min::vec4> r(shoot_from, items[i].get_center());
 
                 // Get collisions with ray

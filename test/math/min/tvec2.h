@@ -386,23 +386,26 @@ bool test_vec2()
     direction = min::vec2<double>(-1.0, -1.0).normalize();
     inverse = direction.inverse();
     min::vec2<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
-    out = out && compare(1, keys.size());
-    out = out && compare(0, keys[0]);
+    out = out && compare(4, keys.size());
+    out = out && compare(3, keys[0]);
+    out = out && compare(2, keys[1]);
+    out = out && compare(1, keys[2]);
+    out = out && compare(0, keys[3]);
     if (!out)
     {
         throw std::runtime_error("Failed vec2 subdivide_ray 3");
     }
 
     // Test subdivide_ray 4
-    origin = min::vec2<double>(-1E-6, 1E-6);
+    origin = min::vec2<double>(-1E-7, 1E-7);
     direction = min::vec2<double>(1.0, -1.0).normalize();
     inverse = direction.inverse();
     min::vec2<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
-    out = out && compare(0, keys[0]);
-    out = out && compare(1, keys[1]);
-    out = out && compare(2, keys[2]);
-    out = out && compare(3, keys[3]);
+    out = out && compare(1, keys[0]);
+    out = out && compare(3, keys[1]);
+    out = out && compare(0, keys[2]);
+    out = out && compare(2, keys[3]);
     if (!out)
     {
         throw std::runtime_error("Failed vec2 subdivide_ray 4");

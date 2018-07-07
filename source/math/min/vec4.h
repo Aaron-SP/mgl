@@ -110,17 +110,17 @@ class vec4
     inline bool any_zero_outside(const vec4<T> &p, const vec4<T> &min, const vec4<T> &max) const
     {
         // If p is zero and this is outside min and max return true else false
-        if (std::abs(p.x()) <= var<T>::TOL_ZERO)
+        if (std::abs(p.x()) <= var<T>::TOL_RAY)
         {
             if (_x < min.x() || _x > max.x())
                 return true;
         }
-        else if (std::abs(p.y()) <= var<T>::TOL_ZERO)
+        else if (std::abs(p.y()) <= var<T>::TOL_RAY)
         {
             if (_y < min.y() || _y > max.y())
                 return true;
         }
-        else if (std::abs(p.z()) <= var<T>::TOL_ZERO)
+        else if (std::abs(p.z()) <= var<T>::TOL_RAY)
         {
             if (_z < min.z() || _z > max.z())
                 return true;
@@ -490,7 +490,7 @@ class vec4
         T tx = std::numeric_limits<T>::max();
         T dtx = std::numeric_limits<T>::max();
         int drx = 1;
-        if (std::abs(dir.x()) >= var<T>::TOL_ZERO)
+        if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
             if (dir.x() < 0.0)
@@ -517,7 +517,7 @@ class vec4
         T ty = std::numeric_limits<T>::max();
         T dty = std::numeric_limits<T>::max();
         int dry = 1;
-        if (std::abs(dir.y()) >= var<T>::TOL_ZERO)
+        if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
             if (dir.y() < 0.0)
@@ -544,7 +544,7 @@ class vec4
         T tz = std::numeric_limits<T>::max();
         T dtz = std::numeric_limits<T>::max();
         int drz = 1;
-        if (std::abs(dir.z()) >= var<T>::TOL_ZERO)
+        if (std::abs(dir.z()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
             if (dir.z() < 0.0)
@@ -1354,52 +1354,40 @@ class vec4
         std::vector<std::pair<vec4<T>, vec4<T>>> out;
         out.reserve(8);
 
-        // Half extent of vector space
-        const vec4<T> h = (max - min) * 0.5;
-
         // Center of the vector space
         const vec4<T> c = (max + min) * 0.5;
 
-        // Positions
-        const T cx_hx = c.x() - h.x();
-        const T cy_hy = c.y() - h.y();
-        const T cz_hz = c.z() - h.z();
-
-        const T cxhx = c.x() + h.x();
-        const T cyhy = c.y() + h.y();
-        const T czhz = c.z() + h.z();
-
         // Octant 0
-        const vec4<T> min0 = vec4<T>(cx_hx, cy_hy, cz_hz, 1.0);
+        const vec4<T> min0 = vec4<T>(min.x(), min.y(), min.z(), 1.0);
         const vec4<T> max0 = vec4<T>(c.x(), c.y(), c.z(), 1.0);
 
         // Octant 1
-        const vec4<T> min1 = vec4<T>(cx_hx, cy_hy, c.z(), 1.0);
-        const vec4<T> max1 = vec4<T>(c.x(), c.y(), czhz, 1.0);
+        const vec4<T> min1 = vec4<T>(min.x(), min.y(), c.z(), 1.0);
+        const vec4<T> max1 = vec4<T>(c.x(), c.y(), max.z(), 1.0);
 
         // Octant 2
-        const vec4<T> min2 = vec4<T>(cx_hx, c.y(), cz_hz, 1.0);
-        const vec4<T> max2 = vec4<T>(c.x(), cyhy, c.z(), 1.0);
+        const vec4<T> min2 = vec4<T>(min.x(), c.y(), min.z(), 1.0);
+        const vec4<T> max2 = vec4<T>(c.x(), max.y(), c.z(), 1.0);
 
         // Octant 3
-        const vec4<T> min3 = vec4<T>(cx_hx, c.y(), c.z(), 1.0);
-        const vec4<T> max3 = vec4<T>(c.x(), cyhy, czhz, 1.0);
+        const vec4<T> min3 = vec4<T>(min.x(), c.y(), c.z(), 1.0);
+        const vec4<T> max3 = vec4<T>(c.x(), max.y(), max.z(), 1.0);
 
         // Octant 4
-        const vec4<T> min4 = vec4<T>(c.x(), cy_hy, cz_hz, 1.0);
-        const vec4<T> max4 = vec4<T>(cxhx, c.y(), c.z(), 1.0);
+        const vec4<T> min4 = vec4<T>(c.x(), min.y(), min.z(), 1.0);
+        const vec4<T> max4 = vec4<T>(max.x(), c.y(), c.z(), 1.0);
 
         // Octant 5
-        const vec4<T> min5 = vec4<T>(c.x(), cy_hy, c.z(), 1.0);
-        const vec4<T> max5 = vec4<T>(cxhx, c.y(), czhz, 1.0);
+        const vec4<T> min5 = vec4<T>(c.x(), min.y(), c.z(), 1.0);
+        const vec4<T> max5 = vec4<T>(max.x(), c.y(), max.z(), 1.0);
 
         // Octant 6
-        const vec4<T> min6 = vec4<T>(c.x(), c.y(), cz_hz, 1.0);
-        const vec4<T> max6 = vec4<T>(cxhx, cyhy, c.z(), 1.0);
+        const vec4<T> min6 = vec4<T>(c.x(), c.y(), min.z(), 1.0);
+        const vec4<T> max6 = vec4<T>(max.x(), max.y(), c.z(), 1.0);
 
         // Octant 7
         const vec4<T> min7 = vec4<T>(c.x(), c.y(), c.z(), 1.0);
-        const vec4<T> max7 = vec4<T>(cxhx, cyhy, czhz, 1.0);
+        const vec4<T> max7 = vec4<T>(max.x(), max.y(), max.z(), 1.0);
 
         // Add sub spaces to out vector
         out.push_back(std::make_pair(min0, max0));
@@ -1475,20 +1463,14 @@ class vec4
     // n · P + n · td - c = 0
     // t = (c - n · P) / (n · d)
     // Each axis is axis aligned so we can simplify to, where nx = ny = 1
-    // tx = (cx - nx · Px) / (nx · dx)
-    // ty = (cy - ny · Py) / (ny · dy)
+    // tx(yz-plane) = (cx - nx · Px) / (nx · dx)
+    // ty(xz-plane) = (cy - ny · Py) / (ny · dy)
+    // tz(xy-plane) = (cz - nz · Pz) / (nz · dz)
     inline static void subdivide_ray(std::vector<size_t> &out, const vec4<T> &min, const vec4<T> &max, const vec4<T> &origin, const vec4<T> &dir, const vec4<T> &inv_dir)
     {
         // Reserve space for output
         out.clear();
-        out.reserve(4);
-
-        // Temporaries for holding the quadrants across intersecting plane, flag signals if we need to push_back
-        size_t f, s;
-        bool flag = false;
-
-        // half extent of vector space
-        const vec4<T> h = (max - min) * 0.5;
+        out.reserve(8);
 
         // Center of the vector space
         const vec4<T> c = (max + min) * 0.5;
@@ -1497,263 +1479,44 @@ class vec4
         const vec4<T> t = (c - origin) * inv_dir;
         const vec4<T> t_abs = vec4<T>(t).abs();
 
-        const auto x_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
-            // Clear the flag
-            flag = false;
+        // YZ intersection types
+        const T pyz_y = origin.y() + t.x() * dir.y();
+        const T pyz_z = origin.z() + t.x() * dir.z();
+        const bool yz_front = t.x() > 0.0;
+        const bool ymin_zmin_out = yz_front && (pyz_y < c.y()) && (pyz_z < c.z());
+        const bool ymin_zmin = (pyz_y >= min.y()) && (pyz_z >= min.z());
+        const bool ymax_zmin_out = yz_front && (pyz_y >= c.y()) && (pyz_z < c.z());
+        const bool ymax_zmin = (pyz_y <= max.y()) && (pyz_z >= min.z());
+        const bool ymin_zmax_out = yz_front && (pyz_y < c.y()) && (pyz_z >= c.z());
+        const bool ymin_zmax = (pyz_y >= min.y()) && (pyz_z <= max.z());
+        const bool ymax_zmax_out = yz_front && (pyz_y >= c.y()) && (pyz_z >= c.z());
+        const bool ymax_zmax = (pyz_y <= max.y()) && (pyz_z <= max.z());
 
-            // Check that we are not parallel to y-axis
-            if (t.x() >= 0.0 && std::abs(dir.x()) >= var<T>::TOL_ZERO)
-            {
-                // Calculate octant ranges
-                const T cy_hy = c.y() - h.y();
-                const T cyhy = c.y() + h.y();
-                const T cz_hz = c.z() - h.z();
-                const T czhz = c.z() + h.z();
+        // XZ intersection types
+        const T pxz_x = origin.x() + t.y() * dir.x();
+        const T pxz_z = origin.z() + t.y() * dir.z();
+        const bool xz_front = t.y() > 0.0;
+        const bool xmin_zmin_out = xz_front && (pxz_x < c.x()) && (pxz_z < c.z());
+        const bool xmin_zmin = (pxz_x >= min.x()) && (pxz_z >= min.z());
+        const bool xmax_zmin_out = xz_front && (pxz_x >= c.x()) && (pxz_z < c.z());
+        const bool xmax_zmin = (pxz_x <= max.x()) && (pxz_z >= min.z());
+        const bool xmin_zmax_out = xz_front && (pxz_x < c.x()) && (pxz_z >= c.z());
+        const bool xmin_zmax = (pxz_x >= min.x()) && (pxz_z <= max.z());
+        const bool xmax_zmax_out = xz_front && (pxz_x >= c.x()) && (pxz_z >= c.z());
+        const bool xmax_zmax = (pxz_x <= max.x()) && (pxz_z <= max.z());
 
-                // Find y value at c.x() of intersection
-                const T py = origin.y() + t.x() * dir.y();
-
-                // Find z value at c.x() of intersection
-                const T pz = origin.z() + t.x() * dir.z();
-
-                // Check if we are crossing between 0-4 along y-axis
-                if ((py > cy_hy && py < c.y()) && (pz > cz_hz && pz < c.z()))
-                {
-                    if (dir.x() < 0.0)
-                    {
-                        f = 4;
-                        s = 0;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 0;
-                        s = 4;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 1-5 along y-axis
-                else if ((py >= c.y() && py < cyhy) && (pz > cz_hz && pz < c.z()))
-                {
-                    if (dir.x() < 0.0)
-                    {
-                        f = 5;
-                        s = 1;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 1;
-                        s = 5;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 2-6 along y-axis
-                else if ((py > cy_hy && py < c.y()) && (pz >= c.z() && pz < czhz))
-                {
-                    if (dir.x() < 0.0)
-                    {
-                        f = 6;
-                        s = 2;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 2;
-                        s = 6;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 3-7 along y-axis
-                else if ((py >= c.y() && py < cyhy) && (pz >= c.z() && pz < czhz))
-                {
-                    if (dir.x() < 0.0)
-                    {
-                        f = 7;
-                        s = 3;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 3;
-                        s = 7;
-                        flag = true;
-                    }
-                }
-            }
-        };
-
-        const auto y_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
-            // Clear the flag
-            flag = false;
-
-            // Check that we are not parallel to x-axis
-            if (t.y() >= 0.0 && std::abs(dir.y()) >= var<T>::TOL_ZERO)
-            {
-                // Calculate octant ranges
-                const T cx_hx = c.x() - h.x();
-                const T cxhx = c.x() + h.x();
-                const T cz_hz = c.z() - h.z();
-                const T czhz = c.z() + h.z();
-
-                // Find x value at c.y() of intersection
-                const T px = origin.x() + t.y() * dir.x();
-
-                // Find z value at c.y() of intersection
-                const T pz = origin.z() + t.y() * dir.z();
-
-                // Check if we are crossing between 0-1 along x-axis
-                if ((px > cx_hx && px < c.x()) && (pz > cz_hz && pz < c.z()))
-                {
-                    if (dir.y() < 0.0)
-                    {
-                        f = 2;
-                        s = 0;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 0;
-                        s = 2;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 2-3 along x-axis
-                else if ((px >= c.x() && px < cxhx) && (pz > cz_hz && pz < c.z()))
-                {
-                    if (dir.y() < 0.0)
-                    {
-                        f = 6;
-                        s = 4;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 4;
-                        s = 6;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 0-1 along x-axis
-                else if ((px > cx_hx && px < c.x()) && (pz >= c.z() && pz < czhz))
-                {
-                    if (dir.y() < 0.0)
-                    {
-                        f = 3;
-                        s = 1;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 1;
-                        s = 3;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 2-3 along x-axis
-                else if ((px >= c.x() && px < cxhx) && (pz >= c.z() && pz < czhz))
-                {
-                    if (dir.y() < 0.0)
-                    {
-                        f = 7;
-                        s = 5;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 5;
-                        s = 7;
-                        flag = true;
-                    }
-                }
-            }
-        };
-
-        const auto z_lamda = [&origin, &dir, &t, &c, &h, &f, &s, &flag]() {
-            // Clear the flag
-            flag = false;
-
-            // Check that we are not parallel to x-axis
-            if (t.z() >= 0.0 && std::abs(dir.z()) >= var<T>::TOL_ZERO)
-            {
-                // Calculate octant ranges
-                const T cx_hx = c.x() - h.x();
-                const T cxhx = c.x() + h.x();
-                const T cy_hy = c.y() - h.y();
-                const T cyhy = c.y() + h.y();
-
-                // Find x value at c.z() of intersection
-                const T px = origin.x() + t.z() * dir.x();
-
-                // Find y value at c.z() of intersection
-                const T py = origin.y() + t.z() * dir.y();
-
-                // Check if we are crossing between 0-1 along x-axis
-                if ((px > cx_hx && px < c.x()) && (py > cy_hy && py < c.y()))
-                {
-                    if (dir.z() < 0.0)
-                    {
-                        f = 1;
-                        s = 0;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 0;
-                        s = 1;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 2-3 along x-axis
-                else if ((px >= c.x() && px < cxhx) && (py > cy_hy && py < c.y()))
-                {
-                    if (dir.z() < 0.0)
-                    {
-                        f = 5;
-                        s = 4;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 4;
-                        s = 5;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 0-1 along x-axis
-                else if ((px > cx_hx && px < c.x()) && (py >= c.y() && py < cyhy))
-                {
-                    if (dir.z() < 0.0)
-                    {
-                        f = 3;
-                        s = 2;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 2;
-                        s = 3;
-                        flag = true;
-                    }
-                }
-                // Check if we are crossing between 2-3 along x-axis
-                else if ((px >= c.x() && px < cxhx) && (py >= c.y() && py < cyhy))
-                {
-                    if (dir.z() < 0.0)
-                    {
-                        f = 7;
-                        s = 6;
-                        flag = true;
-                    }
-                    else
-                    {
-                        f = 6;
-                        s = 7;
-                        flag = true;
-                    }
-                }
-            }
-        };
+        // XY intersection types
+        const T pxy_x = origin.x() + t.z() * dir.x();
+        const T pxy_y = origin.y() + t.z() * dir.y();
+        const bool xy_front = t.z() > 0.0;
+        const bool xmin_ymin_out = xy_front && (pxy_x < c.x()) && (pxy_y < c.y());
+        const bool xmin_ymin = (pxy_x >= min.x()) && (pxy_y >= min.y());
+        const bool xmax_ymin_out = xy_front && (pxy_x >= c.x()) && (pxy_y < c.y());
+        const bool xmax_ymin = (pxy_x <= max.x()) && (pxy_y >= min.y());
+        const bool xmin_ymax_out = xy_front && (pxy_x < c.x()) && (pxy_y >= c.y());
+        const bool xmin_ymax = (pxy_x >= min.x()) && (pxy_y <= max.y());
+        const bool xmax_ymax_out = xy_front && (pxy_x >= c.x()) && (pxy_y >= c.y());
+        const bool xmax_ymax = (pxy_x <= max.x()) && (pxy_y <= max.y());
 
         // Less than
         const bool xly = t_abs.x() < t_abs.y();
@@ -1763,145 +1526,695 @@ class vec4
         const bool zlx = t_abs.z() < t_abs.x();
         const bool zly = t_abs.z() < t_abs.y();
 
-        // Greater than
-        const bool xgy = t_abs.x() > t_abs.y();
-        const bool xgz = t_abs.x() > t_abs.z();
-        const bool ygx = t_abs.y() > t_abs.x();
-        const bool ygz = t_abs.y() > t_abs.z();
-        const bool zgy = t_abs.z() > t_abs.y();
-        const bool zgx = t_abs.z() > t_abs.x();
+        // Calculate first axis intersection
+        const bool yz_ = xly && xlz;
+        const bool yz_xz = ylz;
+        const bool yz_xy = zly;
+        const bool xz_ = ylx && ylz;
+        const bool xz_yz = xlz;
+        const bool xz_xy = zlx;
+        const bool xy_ = zlx && zly;
+        const bool xy_xz = ylx;
+        const bool xy_yz = xly;
+        if (yz_)
+        {
+            if (ymin_zmin_out)
+            {
+                if (dir.x() < 0.0)
+                {
+                    if (ymin_zmin)
+                    {
+                        out.push_back(4);
+                    }
+                    out.push_back(0);
 
-        //x is valid and x is first
-        if (xly && xlz)
-        {
-            x_lamda();
-            if (flag)
-            {
-                out.push_back(f);
-                out.push_back(s);
-            }
-        }
-        // y is first
-        else if (ylx && ylz)
-        {
-            y_lamda();
-            if (flag)
-            {
-                out.push_back(f);
-                out.push_back(s);
-            }
-        }
-        // z is first
-        else if (zlx && zly)
-        {
-            z_lamda();
-            if (flag)
-            {
-                out.push_back(f);
-                out.push_back(s);
-            }
-        }
+                    if (yz_xz && xmin_zmin)
+                    {
+                        out.push_back(2);
+                        if (xmin_ymax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                    else if (yz_xy && xmin_ymin)
+                    {
+                        out.push_back(1);
+                        if (xmin_zmax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                }
+                else
+                {
+                    if (ymin_zmin)
+                    {
+                        out.push_back(0);
+                    }
+                    out.push_back(4);
 
-        // x is middle, zxy
-        if (xlz && xgy)
-        {
-            x_lamda();
-            if (flag)
-            {
-                out.push_back(s);
+                    if (yz_xz && xmax_zmin)
+                    {
+                        out.push_back(6);
+                        if (xmax_ymax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                    else if (yz_xy && xmax_ymin)
+                    {
+                        out.push_back(5);
+                        if (xmax_zmax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                }
             }
-        }
-        // x is middle, yxz
-        else if (xly && xgz)
-        {
-            x_lamda();
-            if (flag)
+            else if (ymax_zmin_out)
             {
-                out.push_back(s);
-            }
-        }
-        // y is middle, zyx
-        else if (ylz && ygx)
-        {
-            y_lamda();
-            if (flag)
-            {
-                out.push_back(s);
-            }
-        }
-        // y is middle, xyz
-        else if (ylx && ygz)
-        {
-            y_lamda();
-            if (flag)
-            {
-                out.push_back(s);
-            }
-        }
-        // z is middle, yzx
-        else if (zly && zgx)
-        {
-            z_lamda();
-            if (flag)
-            {
-                out.push_back(s);
-            }
-        }
-        // z is middle, xzy
-        else if (zlx && zgy)
-        {
-            z_lamda();
-            if (flag)
-            {
-                out.push_back(s);
-            }
-        }
+                if (dir.x() < 0.0)
+                {
+                    if (ymax_zmin)
+                    {
+                        out.push_back(6);
+                    }
+                    out.push_back(2);
 
-        // x is valid and x is last
-        if (t_abs.x() > t_abs.y() && t_abs.x() > t_abs.z())
-        {
-            x_lamda();
-            if (flag)
+                    if (yz_xz && xmin_zmin)
+                    {
+                        out.push_back(0);
+                        if (xmin_ymin)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                    else if (yz_xy && xmin_ymax)
+                    {
+                        out.push_back(3);
+                        if (xmin_zmax)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                }
+                else
+                {
+                    if (ymax_zmin)
+                    {
+                        out.push_back(2);
+                    }
+                    out.push_back(6);
+
+                    if (yz_xz && xmax_zmin)
+                    {
+                        out.push_back(4);
+                        if (xmax_ymin)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                    else if (yz_xy && xmax_ymax)
+                    {
+                        out.push_back(7);
+                        if (xmax_zmax)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                }
+            }
+            else if (ymin_zmax_out)
             {
-                out.push_back(s);
+                if (dir.x() < 0.0)
+                {
+                    if (ymin_zmax)
+                    {
+                        out.push_back(5);
+                    }
+                    out.push_back(1);
+
+                    if (yz_xz && xmin_zmax)
+                    {
+                        out.push_back(3);
+                        if (xmin_ymax)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                    else if (yz_xy && xmin_ymin)
+                    {
+                        out.push_back(0);
+                        if (xmin_zmin)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                }
+                else
+                {
+                    if (ymin_zmax)
+                    {
+                        out.push_back(1);
+                    }
+                    out.push_back(5);
+
+                    if (yz_xz && xmax_zmax)
+                    {
+                        out.push_back(7);
+                        if (xmax_ymax)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                    else if (yz_xy && xmax_ymin)
+                    {
+                        out.push_back(4);
+                        if (xmax_zmin)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                }
+            }
+            else if (ymax_zmax_out)
+            {
+                if (dir.x() < 0.0)
+                {
+                    if (ymax_zmax)
+                    {
+                        out.push_back(7);
+                    }
+                    out.push_back(3);
+
+                    if (yz_xz && xmin_zmax)
+                    {
+                        out.push_back(1);
+                        if (xmin_ymin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                    else if (yz_xy && xmin_ymax)
+                    {
+                        out.push_back(2);
+                        if (xmin_zmin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                }
+                else
+                {
+                    if (ymax_zmax)
+                    {
+                        out.push_back(3);
+                    }
+                    out.push_back(7);
+
+                    if (yz_xz && xmax_zmax)
+                    {
+                        out.push_back(5);
+                        if (xmax_ymin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                    else if (yz_xy && xmax_ymax)
+                    {
+                        out.push_back(6);
+                        if (xmax_zmin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                }
             }
         }
-        // y is valid and y is last
-        else if (t_abs.y() > t_abs.x() && t_abs.y() > t_abs.z())
+        else if (xz_)
         {
-            y_lamda();
-            if (flag)
+            if (xmin_zmin_out)
             {
-                out.push_back(s);
+                if (dir.y() < 0.0)
+                {
+                    if (xmin_zmin)
+                    {
+                        out.push_back(2);
+                    }
+                    out.push_back(0);
+
+                    if (xz_yz && ymin_zmin)
+                    {
+                        out.push_back(4);
+                        if (xmax_ymin)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                    else if (xz_xy && xmin_ymin)
+                    {
+                        out.push_back(1);
+                        if (ymin_zmax)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmin_zmin)
+                    {
+                        out.push_back(0);
+                    }
+                    out.push_back(2);
+
+                    if (xz_yz && ymax_zmin)
+                    {
+                        out.push_back(6);
+                        if (xmax_ymax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                    else if (xz_xy && xmin_ymax)
+                    {
+                        out.push_back(3);
+                        if (ymax_zmax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                }
+            }
+            else if (xmax_zmin_out)
+            {
+                if (dir.y() < 0.0)
+                {
+                    if (xmax_zmin)
+                    {
+                        out.push_back(6);
+                    }
+                    out.push_back(4);
+
+                    if (xz_yz && ymin_zmin)
+                    {
+                        out.push_back(0);
+                        if (xmin_ymin)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                    else if (xz_xy && xmax_ymin)
+                    {
+                        out.push_back(5);
+                        if (ymin_zmax)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmax_zmin)
+                    {
+                        out.push_back(4);
+                    }
+                    out.push_back(6);
+
+                    if (xz_yz && ymax_zmin)
+                    {
+                        out.push_back(2);
+                        if (xmin_ymax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                    else if (xz_xy && xmax_ymax)
+                    {
+                        out.push_back(7);
+                        if (ymax_zmax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                }
+            }
+            else if (xmin_zmax_out)
+            {
+                if (dir.y() < 0.0)
+                {
+                    if (xmin_zmax)
+                    {
+                        out.push_back(3);
+                    }
+                    out.push_back(1);
+
+                    if (xz_yz && ymin_zmax)
+                    {
+                        out.push_back(5);
+                        if (xmax_ymin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                    else if (xz_xy && xmin_ymin)
+                    {
+                        out.push_back(0);
+                        if (ymin_zmin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmin_zmax)
+                    {
+                        out.push_back(1);
+                    }
+                    out.push_back(3);
+
+                    if (xz_yz && ymax_zmax)
+                    {
+                        out.push_back(7);
+                        if (xmax_ymax)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                    else if (xz_xy && xmin_ymax)
+                    {
+                        out.push_back(2);
+                        if (ymax_zmin)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                }
+            }
+            else if (xmax_zmax_out)
+            {
+                if (dir.y() < 0.0)
+                {
+                    if (xmax_zmax)
+                    {
+                        out.push_back(7);
+                    }
+                    out.push_back(5);
+
+                    if (xz_yz && ymin_zmax)
+                    {
+                        out.push_back(1);
+                        if (xmin_ymin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                    else if (xz_xy && xmax_ymin)
+                    {
+                        out.push_back(4);
+                        if (ymin_zmin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmax_zmax)
+                    {
+                        out.push_back(5);
+                    }
+                    out.push_back(7);
+
+                    if (xz_yz && ymax_zmax)
+                    {
+                        out.push_back(3);
+                        if (xmin_ymax)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                    else if (xz_xy && xmax_ymax)
+                    {
+                        out.push_back(6);
+                        if (ymax_zmin)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                }
             }
         }
-        // z is valid and z is last
-        else if (t_abs.z() > t_abs.x() && t_abs.z() > t_abs.y())
+        else if (xy_)
         {
-            z_lamda();
-            if (flag)
+            if (xmin_ymin_out)
             {
-                out.push_back(s);
+                if (dir.z() < 0.0)
+                {
+                    if (xmin_ymin)
+                    {
+                        out.push_back(1);
+                    }
+                    out.push_back(0);
+
+                    if (xy_xz && xmin_zmin)
+                    {
+                        out.push_back(2);
+                        if (ymax_zmin)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                    else if (xy_yz && ymin_zmin)
+                    {
+                        out.push_back(4);
+                        if (xmax_zmin)
+                        {
+                            out.push_back(6);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmin_ymin)
+                    {
+                        out.push_back(0);
+                    }
+                    out.push_back(1);
+
+                    if (xy_xz && xmin_zmax)
+                    {
+                        out.push_back(3);
+                        if (ymax_zmax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                    else if (xy_yz && ymin_zmax)
+                    {
+                        out.push_back(5);
+                        if (xmax_zmax)
+                        {
+                            out.push_back(7);
+                        }
+                    }
+                }
+            }
+            else if (xmax_ymin_out)
+            {
+                if (dir.z() < 0.0)
+                {
+                    if (xmax_ymin)
+                    {
+                        out.push_back(5);
+                    }
+                    out.push_back(4);
+
+                    if (xy_xz && xmax_zmin)
+                    {
+                        out.push_back(6);
+                        if (ymax_zmin)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                    else if (xy_yz && ymin_zmin)
+                    {
+                        out.push_back(0);
+                        if (xmin_zmin)
+                        {
+                            out.push_back(2);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmax_ymin)
+                    {
+                        out.push_back(4);
+                    }
+                    out.push_back(5);
+
+                    if (xy_xz && xmax_zmax)
+                    {
+                        out.push_back(7);
+                        if (ymax_zmax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                    else if (xy_yz && ymin_zmax)
+                    {
+                        out.push_back(1);
+                        if (xmin_zmax)
+                        {
+                            out.push_back(3);
+                        }
+                    }
+                }
+            }
+            else if (xmin_ymax_out)
+            {
+                if (dir.z() < 0.0)
+                {
+                    if (xmin_ymax)
+                    {
+                        out.push_back(3);
+                    }
+                    out.push_back(2);
+
+                    if (xy_xz && xmin_zmin)
+                    {
+                        out.push_back(0);
+                        if (ymin_zmin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                    else if (xy_yz && ymax_zmin)
+                    {
+                        out.push_back(6);
+                        if (xmax_zmin)
+                        {
+                            out.push_back(4);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmin_ymax)
+                    {
+                        out.push_back(2);
+                    }
+                    out.push_back(3);
+
+                    if (xy_xz && xmin_zmax)
+                    {
+                        out.push_back(1);
+                        if (ymin_zmax)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                    else if (xy_yz && ymax_zmax)
+                    {
+                        out.push_back(7);
+                        if (xmax_zmax)
+                        {
+                            out.push_back(5);
+                        }
+                    }
+                }
+            }
+            else if (xmax_ymax_out)
+            {
+                if (dir.z() < 0.0)
+                {
+                    if (xmax_ymax)
+                    {
+                        out.push_back(7);
+                    }
+                    out.push_back(6);
+
+                    if (xy_xz && xmax_zmin)
+                    {
+                        out.push_back(4);
+                        if (ymin_zmin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                    else if (xy_yz && ymax_zmin)
+                    {
+                        out.push_back(2);
+                        if (xmin_zmin)
+                        {
+                            out.push_back(0);
+                        }
+                    }
+                }
+                else
+                {
+                    if (xmax_ymax)
+                    {
+                        out.push_back(6);
+                    }
+                    out.push_back(7);
+
+                    if (xy_xz && xmax_zmax)
+                    {
+                        out.push_back(5);
+                        if (ymin_zmax)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                    else if (xy_yz && ymax_zmax)
+                    {
+                        out.push_back(3);
+                        if (xmin_zmax)
+                        {
+                            out.push_back(1);
+                        }
+                    }
+                }
             }
         }
-        // t.x() == t.y() == t.z() == 0.0
-        else if (t_abs.x() < var<T>::TOL_ZERO && t_abs.y() < var<T>::TOL_ZERO && t_abs.z() < var<T>::TOL_ZERO)
+        else
         {
-            out = {0, 1, 2, 3, 4, 5, 6, 7};
-        }
-
-        // If we didn't hit any planes, test if ray origin is within the cell
-        if (out.size() == 0 && origin.within(min, max))
-        {
-            // Find the octant the the origin is in
-            vec4<T> enter = vec4<T>(origin).clamp(min, max);
-
-            // Calculate ratio between 0.0 and 1.0
-            vec4<T> ratio = vec4<T>::ratio(min, max, enter);
-
-            // Get the key from octant
-            const uint_fast8_t key = ratio.subdivide_key(0.5);
-            out.push_back(key);
+            if (dir.x() < 0.0 && dir.y() < 0.0 && dir.z() < 0.0)
+            {
+                out = {7, 6, 3, 2, 5, 4, 1, 0};
+            }
+            else if (dir.x() < 0.0 && dir.y() < 0.0 && dir.z() > 0.0)
+            {
+                out = {6, 2, 7, 3, 4, 0, 5, 1};
+            }
+            else if (dir.x() < 0.0 && dir.y() > 0.0 && dir.z() < 0.0)
+            {
+                out = {5, 4, 1, 0, 7, 6, 3, 2};
+            }
+            else if (dir.x() < 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            {
+                out = {4, 0, 5, 1, 6, 2, 7, 3};
+            }
+            else if (dir.x() > 0.0 && dir.y() < 0.0 && dir.z() < 0.0)
+            {
+                out = {3, 7, 2, 6, 1, 5, 0, 4};
+            }
+            else if (dir.x() > 0.0 && dir.y() < 0.0 && dir.z() > 0.0)
+            {
+                out = {2, 3, 6, 7, 0, 1, 4, 5};
+            }
+            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() < 0.0)
+            {
+                out = {1, 5, 0, 4, 3, 7, 2, 6};
+            }
+            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            {
+                out = {0, 1, 4, 5, 2, 3, 6, 7};
+            }
         }
     }
     inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec4<T> &min, const vec4<T> &max, const vec4<T> &center)

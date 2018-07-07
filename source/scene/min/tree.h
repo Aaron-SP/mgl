@@ -467,12 +467,6 @@ class tree
                 // Get the key from the point ratio
                 const uint_fast8_t key = ratio.subdivide_key(middle);
 
-                // Check the calculated key value
-                if (key > 7 || key < 0)
-                {
-                    throw std::runtime_error("tree.get_node(): invalid key location code calculated");
-                }
-
                 // Go to the next level in the octree
                 child = &children[key];
                 middle *= 0.5;

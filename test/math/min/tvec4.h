@@ -529,27 +529,34 @@ bool test_vec4()
     direction = min::vec4<double>(-1.0, -1.0, -1.0, 1.0).normalize();
     inverse = direction.inverse();
     min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
-    out = out && compare(1, keys.size());
-    out = out && compare(0, keys[0]);
+    out = out && compare(8, keys.size());
+    out = out && compare(7, keys[0]);
+    out = out && compare(6, keys[1]);
+    out = out && compare(3, keys[2]);
+    out = out && compare(2, keys[3]);
+    out = out && compare(5, keys[4]);
+    out = out && compare(4, keys[5]);
+    out = out && compare(1, keys[6]);
+    out = out && compare(0, keys[7]);
     if (!out)
     {
         throw std::runtime_error("Failed vec4 subdivide_ray 3");
     }
 
     // Test subdivide_ray 4
-    origin = min::vec4<double>(-1E-6, 1E-6, 1E-6, 1.0);
+    origin = min::vec4<double>(-1E-7, 1E-7, 1E-7, 1.0);
     direction = min::vec4<double>(1.0, -1.0, -1.0, 1.0).normalize();
     inverse = direction.inverse();
     min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(8, keys.size());
-    out = out && compare(0, keys[0]);
-    out = out && compare(1, keys[1]);
+    out = out && compare(3, keys[0]);
+    out = out && compare(7, keys[1]);
     out = out && compare(2, keys[2]);
-    out = out && compare(3, keys[3]);
-    out = out && compare(4, keys[4]);
+    out = out && compare(6, keys[3]);
+    out = out && compare(1, keys[4]);
     out = out && compare(5, keys[5]);
-    out = out && compare(6, keys[6]);
-    out = out && compare(7, keys[7]);
+    out = out && compare(0, keys[6]);
+    out = out && compare(4, keys[7]);
     if (!out)
     {
         throw std::runtime_error("Failed vec4 subdivide_ray 4");
