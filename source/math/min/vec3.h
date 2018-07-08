@@ -25,6 +25,7 @@ class coord_sys;
 #include <cmath>
 #include <limits>
 #include <min/coord_sys.h>
+#include <min/stack_vector.h>
 #include <min/tri.h>
 #include <min/utility.h>
 #include <tuple>
@@ -1333,10 +1334,14 @@ class vec3
 
         return key;
     }
+    inline static constexpr size_t sub_size()
+    {
+        return 8;
+    }
     inline static std::vector<std::pair<vec3<T>, vec3<T>>> subdivide(const vec3<T> &min, const vec3<T> &max)
     {
         std::vector<std::pair<vec3<T>, vec3<T>>> out;
-        out.reserve(8);
+        out.reserve(vec3<T>::sub_size());
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -1388,7 +1393,7 @@ class vec3
     inline static std::vector<std::pair<vec3<T>, T>> subdivide_center(const vec3<T> &min, const vec3<T> &max, const T size)
     {
         std::vector<std::pair<vec3<T>, T>> out;
-        out.reserve(8);
+        out.reserve(vec3<T>::sub_size());
 
         // Quarter extent of vector space
         const vec3<T> h = (max - min) * 0.25;
@@ -1450,11 +1455,10 @@ class vec3
     // tx(yz-plane) = (cx - nx · Px) / (nx · dx)
     // ty(xz-plane) = (cy - ny · Py) / (ny · dy)
     // tz(xy-plane) = (cz - nz · Pz) / (nz · dz)
-    inline static void subdivide_ray(std::vector<size_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
+    inline static void subdivide_ray(min::stack_vector<size_t, vec3<T>::sub_size()> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
     {
-        // Reserve space for output
+        // Clear the vector
         out.clear();
-        out.reserve(8);
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -2215,11 +2219,11 @@ class vec3
             out.push_back(key);
         }
     }
-    inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
+    inline static void subdivide_overlap(std::vector<uint_fast8_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
     {
         // Reserve space for output
         out.clear();
-        out.reserve(8);
+        out.reserve(vec3<T>::sub_size());
 
         const bool minx = min.x() <= center.x();
         const bool miny = min.y() <= center.y();

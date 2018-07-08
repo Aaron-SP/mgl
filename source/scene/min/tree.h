@@ -50,7 +50,6 @@ class tree_node
     std::vector<tree_node<T, K, L, vec, cell, shape>> _child;
     std::vector<K> _keys;
     cell<T, vec> _cell;
-    mutable std::vector<size_t> _sub_ray_cache;
 
     inline void add_key(K key)
     {
@@ -84,10 +83,6 @@ class tree_node
     inline const cell<T, vec> &get_cell() const
     {
         return _cell;
-    }
-    inline std::vector<size_t> &get_sub_ray_cache() const
-    {
-        return _sub_ray_cache;
     }
     inline bool point_inside(const vec<T> &point) const
     {
@@ -153,7 +148,7 @@ class tree
             const vec<T> &max = b.get_max();
 
             // Calculate intersection between shape and the node sub cells, sub_over.size() < 8
-            vec<T>::sub_overlap(_sub_overlap, min, max, center);
+            vec<T>::subdivide_overlap(_sub_overlap, min, max, center);
             for (const auto &sub : _sub_overlap)
             {
                 // Set key for all overlapping sub cells
@@ -239,7 +234,7 @@ class tree
             if (child.size() > 0)
             {
                 // Calculate intersection between overlap shape and the node sub cells, sub_over.size() < 8
-                vec<T>::sub_overlap(_sub_overlap, min, max, center);
+                vec<T>::subdivide_overlap(_sub_overlap, min, max, center);
                 for (const auto &sub : _sub_overlap)
                 {
                     get_overlap(children[sub], min, max, depth - 1);
@@ -334,7 +329,7 @@ class tree
             const cell<T, vec> &c = node.get_cell();
 
             // For all child nodes intersecting ray
-            std::vector<size_t> &keys = node.get_sub_ray_cache();
+            min::stack_vector<size_t, vec<T>::sub_size()> keys;
             vec<T>::subdivide_ray(keys, c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
             for (const size_t k : keys)
             {

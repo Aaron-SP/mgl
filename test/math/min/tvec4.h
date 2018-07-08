@@ -497,7 +497,7 @@ bool test_vec4()
     min::vec4<double> inverse = direction.inverse();
     vmin = min::vec4<double>(-100000.0, -100000.0, -100000.0, 1.0);
     vmax = min::vec4<double>(100000.0, 100000.0, 100000.0, 1.0);
-    std::vector<size_t> keys;
+    min::stack_vector<size_t, min::vec4<double>::sub_size()> keys;
     min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
     out = out && compare(7, keys[0]);
@@ -575,12 +575,12 @@ bool test_vec4()
         throw std::runtime_error("Failed vec4 subdivide_ray 5");
     }
 
-    // Test sub_overlap
+    // Test subdivide_overlap
     one = min::vec4<double>(-1.0, -1.0, -1.0, 1.0);
     two = min::vec4<double>(1.0, 1.0, 1.0, 1.0);
     three = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
     std::vector<uint_fast8_t> sub_over;
-    min::vec4<double>::sub_overlap(sub_over, one, two, three);
+    min::vec4<double>::subdivide_overlap(sub_over, one, two, three);
     out = out && compare(0, sub_over[0]);
     out = out && compare(1, sub_over[1]);
     out = out && compare(2, sub_over[2]);
@@ -591,7 +591,7 @@ bool test_vec4()
     out = out && compare(7, sub_over[7]);
     if (!out)
     {
-        throw std::runtime_error("Failed vec4 sub_overlap");
+        throw std::runtime_error("Failed vec4 subdivide_overlap");
     }
 
     // Test grid and grid center
