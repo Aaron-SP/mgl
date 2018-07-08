@@ -367,7 +367,7 @@ double ray3D(const size_t V)
 
     // Run benchmarks in single precision
     std::cout << std::endl
-              << "Running in 2D ray tree tests single precision mode" << std::endl
+              << "Running in 3D ray tree tests single precision mode" << std::endl
               << std::endl;
 
     R += bench_ray_aabb<float, min::vec3, min::tree>(V, fabw3);
@@ -376,7 +376,7 @@ double ray3D(const size_t V)
 
     // Run benchmarks in single precision
     std::cout << std::endl
-              << "Running in 2D ray tree tests double precision mode" << std::endl
+              << "Running in 3D ray tree tests double precision mode" << std::endl
               << std::endl;
 
     R += bench_ray_aabb<double, min::vec3, min::tree>(V, dabw3);
@@ -385,7 +385,7 @@ double ray3D(const size_t V)
 
     // Run benchmarks in single precision
     std::cout << std::endl
-              << "Running in 2D ray grid tests single precision mode" << std::endl
+              << "Running in 3D ray grid tests single precision mode" << std::endl
               << std::endl;
 
     R += bench_ray_aabb<float, min::vec3, min::grid>(V, fabw3);
@@ -394,7 +394,7 @@ double ray3D(const size_t V)
 
     // Run benchmarks in double precision
     std::cout << std::endl
-              << "Running in 2D ray grid tests double precision mode" << std::endl
+              << "Running in 3D ray grid tests double precision mode" << std::endl
               << std::endl;
 
     R += bench_ray_aabb<double, min::vec3, min::grid>(V, dabw3);
@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
         }
 
         const size_t V_COL = N;
-        const size_t V_RAY = 4000;
+        const size_t V_RAY = 16000;
         double V = 400000.0;
 
         // Test tree
