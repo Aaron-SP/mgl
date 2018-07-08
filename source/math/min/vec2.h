@@ -963,7 +963,7 @@ class vec2
     }
     // Plane n·x - c = 0
     // Ray x = P + td
-    // If intersecting n · (P + td) - c = 0; x > 0.0
+    // If intersecting n · (P + td) - c = 0; x >= 0.0
     // n · P + n · td - c = 0
     // t = (c - n · P) / (n · d)
     // Each axis is axis aligned so we can simplify to, where nx = ny = 1
@@ -983,7 +983,7 @@ class vec2
         const vec2<T> t_abs = vec2<T>(t).abs();
 
         // X intersection types
-        const bool x_front = t.y() > 0.0;
+        const bool x_front = t.y() >= 0.0;
         const T px = origin.x() + t.y() * dir.x();
         const bool xmin_out = x_front && (px < center.x());
         const bool xmin = px >= min.x();
@@ -991,7 +991,7 @@ class vec2
         const bool xmax = px <= max.x();
 
         // Y intersection types
-        const bool y_front = t.x() > 0.0;
+        const bool y_front = t.x() >= 0.0;
         const T py = origin.y() + t.x() * dir.y();
         const bool ymin_out = y_front && (py < center.y());
         const bool ymin = py >= min.y();
@@ -1117,15 +1117,15 @@ class vec2
         }
         else
         {
-            if (dir.x() < 0.0 && dir.y() < 0.0)
+            if (dir.x() <= 0.0 && dir.y() <= 0.0)
             {
                 out = {3, 2, 1, 0};
             }
-            else if (dir.x() > 0.0 && dir.y() < 0.0)
+            else if (dir.x() > 0.0 && dir.y() <= 0.0)
             {
                 out = {1, 3, 0, 2};
             }
-            else if (dir.x() < 0.0 && dir.y() > 0.0)
+            else if (dir.x() <= 0.0 && dir.y() > 0.0)
             {
                 out = {2, 0, 3, 1};
             }
@@ -1133,6 +1133,20 @@ class vec2
             {
                 out = {0, 1, 2, 3};
             }
+        }
+
+        // If we didn't hit any planes, test if ray origin is within the cell
+        if (out.size() == 0 && origin.within(min, max))
+        {
+            // Find the quadrant the origin is in
+            vec2<T> enter = vec2<T>(origin).clamp(min, max);
+
+            // Calculate ratio between 0.0 and 1.0
+            vec2<T> ratio = vec2<T>::ratio(min, max, enter);
+
+            // Get the key from quadrant
+            const uint_fast8_t key = ratio.subdivide_key(0.5);
+            out.push_back(key);
         }
     }
     inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec2<T> &min, const vec2<T> &max, const vec2<T> &center)

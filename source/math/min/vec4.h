@@ -1459,7 +1459,7 @@ class vec4
     }
     // Plane n·x - c = 0
     // Ray x = P + td
-    // If intersecting n · (P + td) - c = 0; x > 0.0
+    // If intersecting n · (P + td) - c = 0; x >= 0.0
     // n · P + n · td - c = 0
     // t = (c - n · P) / (n · d)
     // Each axis is axis aligned so we can simplify to, where nx = ny = 1
@@ -1482,7 +1482,7 @@ class vec4
         // YZ intersection types
         const T pyz_y = origin.y() + t.x() * dir.y();
         const T pyz_z = origin.z() + t.x() * dir.z();
-        const bool yz_front = t.x() > 0.0;
+        const bool yz_front = t.x() >= 0.0;
         const bool ymin_zmin_out = yz_front && (pyz_y < c.y()) && (pyz_z < c.z());
         const bool ymin_zmin = (pyz_y >= min.y()) && (pyz_z >= min.z());
         const bool ymax_zmin_out = yz_front && (pyz_y >= c.y()) && (pyz_z < c.z());
@@ -1495,7 +1495,7 @@ class vec4
         // XZ intersection types
         const T pxz_x = origin.x() + t.y() * dir.x();
         const T pxz_z = origin.z() + t.y() * dir.z();
-        const bool xz_front = t.y() > 0.0;
+        const bool xz_front = t.y() >= 0.0;
         const bool xmin_zmin_out = xz_front && (pxz_x < c.x()) && (pxz_z < c.z());
         const bool xmin_zmin = (pxz_x >= min.x()) && (pxz_z >= min.z());
         const bool xmax_zmin_out = xz_front && (pxz_x >= c.x()) && (pxz_z < c.z());
@@ -1508,7 +1508,7 @@ class vec4
         // XY intersection types
         const T pxy_x = origin.x() + t.z() * dir.x();
         const T pxy_y = origin.y() + t.z() * dir.y();
-        const bool xy_front = t.z() > 0.0;
+        const bool xy_front = t.z() >= 0.0;
         const bool xmin_ymin_out = xy_front && (pxy_x < c.x()) && (pxy_y < c.y());
         const bool xmin_ymin = (pxy_x >= min.x()) && (pxy_y >= min.y());
         const bool xmax_ymin_out = xy_front && (pxy_x >= c.x()) && (pxy_y < c.y());
@@ -2183,31 +2183,31 @@ class vec4
         }
         else
         {
-            if (dir.x() < 0.0 && dir.y() < 0.0 && dir.z() < 0.0)
+            if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
                 out = {7, 6, 3, 2, 5, 4, 1, 0};
             }
-            else if (dir.x() < 0.0 && dir.y() < 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
                 out = {6, 2, 7, 3, 4, 0, 5, 1};
             }
-            else if (dir.x() < 0.0 && dir.y() > 0.0 && dir.z() < 0.0)
+            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
                 out = {5, 4, 1, 0, 7, 6, 3, 2};
             }
-            else if (dir.x() < 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
             {
                 out = {4, 0, 5, 1, 6, 2, 7, 3};
             }
-            else if (dir.x() > 0.0 && dir.y() < 0.0 && dir.z() < 0.0)
+            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
                 out = {3, 7, 2, 6, 1, 5, 0, 4};
             }
-            else if (dir.x() > 0.0 && dir.y() < 0.0 && dir.z() > 0.0)
+            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
                 out = {2, 3, 6, 7, 0, 1, 4, 5};
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() < 0.0)
+            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
                 out = {1, 5, 0, 4, 3, 7, 2, 6};
             }
@@ -2215,6 +2215,20 @@ class vec4
             {
                 out = {0, 1, 4, 5, 2, 3, 6, 7};
             }
+        }
+
+        // If we didn't hit any planes, test if ray origin is within the cell
+        if (out.size() == 0 && origin.within(min, max))
+        {
+            // Find the octant the the origin is in
+            vec4<T> enter = vec4<T>(origin).clamp(min, max);
+
+            // Calculate ratio between 0.0 and 1.0
+            vec4<T> ratio = vec4<T>::ratio(min, max, enter);
+
+            // Get the key from octant
+            const uint_fast8_t key = ratio.subdivide_key(0.5);
+            out.push_back(key);
         }
     }
     inline static void sub_overlap(std::vector<uint_fast8_t> &out, const vec4<T> &min, const vec4<T> &max, const vec4<T> &center)
