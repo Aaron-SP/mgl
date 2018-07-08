@@ -16,20 +16,19 @@ limitations under the License.
 #include <min/bmd5.h>
 #include <min/bmesh.h>
 #include <min/bphysics.h>
+#include <min/bray.h>
 #include <min/bspatial.h>
 #include <min/bwavefront.h>
 #include <min/grid.h>
 #include <min/tree.h>
 #include <string>
 
-/* Calculate the current flowing through the circuit
-      /---=---\
-     /----=----\
- Vin.-----=-----.Vout
-     \----=----/
-      \---=---/
-I = V/R; 1/R = 1/R1 ... 1/Rn
-I = V * 1/R 
+/* Calculate the current flowing through the series circuit
+      -=-=-=-=-
+     |         |
+ Vin.           .Vout
+
+I = V/R; R = R1 + Rn + ... 
 */
 
 constexpr size_t N = 40000;
@@ -77,246 +76,332 @@ std::vector<min::oobbox<double, min::vec3>> dob3 = make_oobb_boxes<double, min::
 
 double tree(const size_t V)
 {
-    double iR = 0.0;
+    double R = 0.0;
 
     // Run 2D benchmarks in single precision
     std::cout << std::endl
               << "Running in 2D tree tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<float, float_bb, min::vec2, min::tree>(V, fabw2, fab2);
-    iR += 1.0 / bench_aabb_oobb<float, float_bb, min::vec2, min::tree>(V, fabw2, fob2);
-    iR += 1.0 / bench_aabb_sphere<float, float_sphere, min::vec2, min::tree>(V, fabw2, fs2);
-    iR += 1.0 / bench_oobb_aabb<float, float_bb, min::vec2, min::tree>(V, fobw2, fab2);
-    iR += 1.0 / bench_oobb_oobb<float, float_bb, min::vec2, min::tree>(V, fobw2, fob2);
-    iR += 1.0 / bench_oobb_sphere<float, float_sphere, min::vec2, min::tree>(V, fobw2, fs2);
-    iR += 1.0 / bench_sphere_aabb<float, float_bb, min::vec2, min::tree>(V, fsw2, fab2);
-    iR += 1.0 / bench_sphere_oobb<float, float_bb, min::vec2, min::tree>(V, fsw2, fob2);
-    iR += 1.0 / bench_sphere_sphere<float, float_sphere, min::vec2, min::tree>(V, fsw2, fs2);
+    R += bench_aabb_aabb<float, float_bb, min::vec2, min::tree>(V, fabw2, fab2);
+    R += bench_aabb_oobb<float, float_bb, min::vec2, min::tree>(V, fabw2, fob2);
+    R += bench_aabb_sphere<float, float_sphere, min::vec2, min::tree>(V, fabw2, fs2);
+    R += bench_oobb_aabb<float, float_bb, min::vec2, min::tree>(V, fobw2, fab2);
+    R += bench_oobb_oobb<float, float_bb, min::vec2, min::tree>(V, fobw2, fob2);
+    R += bench_oobb_sphere<float, float_sphere, min::vec2, min::tree>(V, fobw2, fs2);
+    R += bench_sphere_aabb<float, float_bb, min::vec2, min::tree>(V, fsw2, fab2);
+    R += bench_sphere_oobb<float, float_bb, min::vec2, min::tree>(V, fsw2, fob2);
+    R += bench_sphere_sphere<float, float_sphere, min::vec2, min::tree>(V, fsw2, fs2);
 
     // Run 2D benchmarks in double precision
     std::cout << std::endl
               << "Running in 2D tree tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec2, min::tree>(V, dabw2, dab2);
-    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec2, min::tree>(V, dabw2, dob2);
-    iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec2, min::tree>(V, dabw2, ds2);
-    iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec2, min::tree>(V, dobw2, dab2);
-    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec2, min::tree>(V, dobw2, dob2);
-    iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec2, min::tree>(V, dobw2, ds2);
-    iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec2, min::tree>(V, dsw2, dab2);
-    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec2, min::tree>(V, dsw2, dob2);
-    iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec2, min::tree>(V, dsw2, ds2);
+    R += bench_aabb_aabb<double, double_both, min::vec2, min::tree>(V, dabw2, dab2);
+    R += bench_aabb_oobb<double, double_oobb, min::vec2, min::tree>(V, dabw2, dob2);
+    R += bench_aabb_sphere<double, double_both, min::vec2, min::tree>(V, dabw2, ds2);
+    R += bench_oobb_aabb<double, double_both, min::vec2, min::tree>(V, dobw2, dab2);
+    R += bench_oobb_oobb<double, double_oobb, min::vec2, min::tree>(V, dobw2, dob2);
+    R += bench_oobb_sphere<double, double_both, min::vec2, min::tree>(V, dobw2, ds2);
+    R += bench_sphere_aabb<double, double_both, min::vec2, min::tree>(V, dsw2, dab2);
+    R += bench_sphere_oobb<double, double_oobb, min::vec2, min::tree>(V, dsw2, dob2);
+    R += bench_sphere_sphere<double, double_both, min::vec2, min::tree>(V, dsw2, ds2);
 
     // Run 3D benchmarks in single precision
     std::cout << std::endl
               << "Running in 3D tree tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<float, float_bb, min::vec3, min::tree>(V, fabw3, fab3);
-    iR += 1.0 / bench_aabb_oobb<float, float_bb, min::vec3, min::tree>(V, fabw3, fob3);
-    iR += 1.0 / bench_aabb_sphere<float, float_sphere, min::vec3, min::tree>(V, fabw3, fs3);
-    iR += 1.0 / bench_oobb_aabb<float, float_bb, min::vec3, min::tree>(V, fobw3, fab3);
-    iR += 1.0 / bench_oobb_oobb<float, float_bb, min::vec3, min::tree>(V, fobw3, fob3);
-    iR += 1.0 / bench_oobb_sphere<float, float_sphere, min::vec3, min::tree>(V, fobw3, fs3);
-    iR += 1.0 / bench_sphere_aabb<float, float_bb, min::vec3, min::tree>(V, fsw3, fab3);
-    iR += 1.0 / bench_sphere_oobb<float, float_bb, min::vec3, min::tree>(V, fsw3, fob3);
-    iR += 1.0 / bench_sphere_sphere<float, float_sphere, min::vec3, min::tree>(V, fsw3, fs3);
+    R += bench_aabb_aabb<float, float_bb, min::vec3, min::tree>(V, fabw3, fab3);
+    R += bench_aabb_oobb<float, float_bb, min::vec3, min::tree>(V, fabw3, fob3);
+    R += bench_aabb_sphere<float, float_sphere, min::vec3, min::tree>(V, fabw3, fs3);
+    R += bench_oobb_aabb<float, float_bb, min::vec3, min::tree>(V, fobw3, fab3);
+    R += bench_oobb_oobb<float, float_bb, min::vec3, min::tree>(V, fobw3, fob3);
+    R += bench_oobb_sphere<float, float_sphere, min::vec3, min::tree>(V, fobw3, fs3);
+    R += bench_sphere_aabb<float, float_bb, min::vec3, min::tree>(V, fsw3, fab3);
+    R += bench_sphere_oobb<float, float_bb, min::vec3, min::tree>(V, fsw3, fob3);
+    R += bench_sphere_sphere<float, float_sphere, min::vec3, min::tree>(V, fsw3, fs3);
 
     // Run 3D benchmarks in double precision
     std::cout << std::endl
               << "Running in 3D tree tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec3, min::tree>(V, dabw3, dab3);
-    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec3, min::tree>(V, dabw3, dob3);
-    iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec3, min::tree>(V, dabw3, ds3);
-    iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec3, min::tree>(V, dobw3, dab3);
-    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec3, min::tree>(V, dobw3, dob3);
-    iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec3, min::tree>(V, dobw3, ds3);
-    iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec3, min::tree>(V, dsw3, dab3);
-    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec3, min::tree>(V, dsw3, dob3);
-    iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec3, min::tree>(V, dsw3, ds3);
+    R += bench_aabb_aabb<double, double_both, min::vec3, min::tree>(V, dabw3, dab3);
+    R += bench_aabb_oobb<double, double_oobb, min::vec3, min::tree>(V, dabw3, dob3);
+    R += bench_aabb_sphere<double, double_both, min::vec3, min::tree>(V, dabw3, ds3);
+    R += bench_oobb_aabb<double, double_both, min::vec3, min::tree>(V, dobw3, dab3);
+    R += bench_oobb_oobb<double, double_oobb, min::vec3, min::tree>(V, dobw3, dob3);
+    R += bench_oobb_sphere<double, double_both, min::vec3, min::tree>(V, dobw3, ds3);
+    R += bench_sphere_aabb<double, double_both, min::vec3, min::tree>(V, dsw3, dab3);
+    R += bench_sphere_oobb<double, double_oobb, min::vec3, min::tree>(V, dsw3, dob3);
+    R += bench_sphere_sphere<double, double_both, min::vec3, min::tree>(V, dsw3, ds3);
 
-    return iR;
+    return R;
 }
 
 double grid(const size_t V)
 {
-    double iR = 0.0;
+    double R = 0.0;
 
     // Run 2D benchmarks in single precision
     std::cout << std::endl
               << "Running in 2D grid tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<float, float_bb, min::vec2, min::grid>(V, fabw2, fab2);
-    iR += 1.0 / bench_aabb_oobb<float, float_bb, min::vec2, min::grid>(V, fabw2, fob2);
-    iR += 1.0 / bench_aabb_sphere<float, float_sphere, min::vec2, min::grid>(V, fabw2, fs2);
-    iR += 1.0 / bench_oobb_aabb<float, float_bb, min::vec2, min::grid>(V, fobw2, fab2);
-    iR += 1.0 / bench_oobb_oobb<float, float_bb, min::vec2, min::grid>(V, fobw2, fob2);
-    iR += 1.0 / bench_oobb_sphere<float, float_sphere, min::vec2, min::grid>(V, fobw2, fs2);
-    iR += 1.0 / bench_sphere_aabb<float, float_bb, min::vec2, min::grid>(V, fsw2, fab2);
-    iR += 1.0 / bench_sphere_oobb<float, float_bb, min::vec2, min::grid>(V, fsw2, fob2);
-    iR += 1.0 / bench_sphere_sphere<float, float_sphere, min::vec2, min::grid>(V, fsw2, fs2);
+    R += bench_aabb_aabb<float, float_bb, min::vec2, min::grid>(V, fabw2, fab2);
+    R += bench_aabb_oobb<float, float_bb, min::vec2, min::grid>(V, fabw2, fob2);
+    R += bench_aabb_sphere<float, float_sphere, min::vec2, min::grid>(V, fabw2, fs2);
+    R += bench_oobb_aabb<float, float_bb, min::vec2, min::grid>(V, fobw2, fab2);
+    R += bench_oobb_oobb<float, float_bb, min::vec2, min::grid>(V, fobw2, fob2);
+    R += bench_oobb_sphere<float, float_sphere, min::vec2, min::grid>(V, fobw2, fs2);
+    R += bench_sphere_aabb<float, float_bb, min::vec2, min::grid>(V, fsw2, fab2);
+    R += bench_sphere_oobb<float, float_bb, min::vec2, min::grid>(V, fsw2, fob2);
+    R += bench_sphere_sphere<float, float_sphere, min::vec2, min::grid>(V, fsw2, fs2);
 
     // Run 2D benchmarks in double precision
     std::cout << std::endl
               << "Running in 2D grid tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec2, min::grid>(V, dabw2, dab2);
-    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec2, min::grid>(V, dabw2, dob2);
-    iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec2, min::grid>(V, dabw2, ds2);
-    iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec2, min::grid>(V, dobw2, dab2);
-    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec2, min::grid>(V, dobw2, dob2);
-    iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec2, min::grid>(V, dobw2, ds2);
-    iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec2, min::grid>(V, dsw2, dab2);
-    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec2, min::grid>(V, dsw2, dob2);
-    iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec2, min::grid>(V, dsw2, ds2);
+    R += bench_aabb_aabb<double, double_both, min::vec2, min::grid>(V, dabw2, dab2);
+    R += bench_aabb_oobb<double, double_oobb, min::vec2, min::grid>(V, dabw2, dob2);
+    R += bench_aabb_sphere<double, double_both, min::vec2, min::grid>(V, dabw2, ds2);
+    R += bench_oobb_aabb<double, double_both, min::vec2, min::grid>(V, dobw2, dab2);
+    R += bench_oobb_oobb<double, double_oobb, min::vec2, min::grid>(V, dobw2, dob2);
+    R += bench_oobb_sphere<double, double_both, min::vec2, min::grid>(V, dobw2, ds2);
+    R += bench_sphere_aabb<double, double_both, min::vec2, min::grid>(V, dsw2, dab2);
+    R += bench_sphere_oobb<double, double_oobb, min::vec2, min::grid>(V, dsw2, dob2);
+    R += bench_sphere_sphere<double, double_both, min::vec2, min::grid>(V, dsw2, ds2);
 
     // Run 3D benchmarks in single precision
     std::cout << std::endl
               << "Running in 3D grid tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<float, float_bb, min::vec3, min::grid>(V, fabw3, fab3);
-    iR += 1.0 / bench_aabb_oobb<float, float_bb, min::vec3, min::grid>(V, fabw3, fob3);
-    iR += 1.0 / bench_aabb_sphere<float, float_sphere, min::vec3, min::grid>(V, fabw3, fs3);
-    iR += 1.0 / bench_oobb_aabb<float, float_bb, min::vec3, min::grid>(V, fobw3, fab3);
-    iR += 1.0 / bench_oobb_oobb<float, float_bb, min::vec3, min::grid>(V, fobw3, fob3);
-    iR += 1.0 / bench_oobb_sphere<float, float_sphere, min::vec3, min::grid>(V, fobw3, fs3);
-    iR += 1.0 / bench_sphere_aabb<float, float_bb, min::vec3, min::grid>(V, fsw3, fab3);
-    iR += 1.0 / bench_sphere_oobb<float, float_bb, min::vec3, min::grid>(V, fsw3, fob3);
-    iR += 1.0 / bench_sphere_sphere<float, float_sphere, min::vec3, min::grid>(V, fsw3, fs3);
+    R += bench_aabb_aabb<float, float_bb, min::vec3, min::grid>(V, fabw3, fab3);
+    R += bench_aabb_oobb<float, float_bb, min::vec3, min::grid>(V, fabw3, fob3);
+    R += bench_aabb_sphere<float, float_sphere, min::vec3, min::grid>(V, fabw3, fs3);
+    R += bench_oobb_aabb<float, float_bb, min::vec3, min::grid>(V, fobw3, fab3);
+    R += bench_oobb_oobb<float, float_bb, min::vec3, min::grid>(V, fobw3, fob3);
+    R += bench_oobb_sphere<float, float_sphere, min::vec3, min::grid>(V, fobw3, fs3);
+    R += bench_sphere_aabb<float, float_bb, min::vec3, min::grid>(V, fsw3, fab3);
+    R += bench_sphere_oobb<float, float_bb, min::vec3, min::grid>(V, fsw3, fob3);
+    R += bench_sphere_sphere<float, float_sphere, min::vec3, min::grid>(V, fsw3, fs3);
 
     // Run 3D benchmarks in double precision
     std::cout << std::endl
               << "Running in 3D grid tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_aabb_aabb<double, double_both, min::vec3, min::grid>(V, dabw3, dab3);
-    iR += 1.0 / bench_aabb_oobb<double, double_oobb, min::vec3, min::grid>(V, dabw3, dob3);
-    iR += 1.0 / bench_aabb_sphere<double, double_both, min::vec3, min::grid>(V, dabw3, ds3);
-    iR += 1.0 / bench_oobb_aabb<double, double_both, min::vec3, min::grid>(V, dobw3, dab3);
-    iR += 1.0 / bench_oobb_oobb<double, double_oobb, min::vec3, min::grid>(V, dobw3, dob3);
-    iR += 1.0 / bench_oobb_sphere<double, double_both, min::vec3, min::grid>(V, dobw3, ds3);
-    iR += 1.0 / bench_sphere_aabb<double, double_both, min::vec3, min::grid>(V, dsw3, dab3);
-    iR += 1.0 / bench_sphere_oobb<double, double_oobb, min::vec3, min::grid>(V, dsw3, dob3);
-    iR += 1.0 / bench_sphere_sphere<double, double_both, min::vec3, min::grid>(V, dsw3, ds3);
+    R += bench_aabb_aabb<double, double_both, min::vec3, min::grid>(V, dabw3, dab3);
+    R += bench_aabb_oobb<double, double_oobb, min::vec3, min::grid>(V, dabw3, dob3);
+    R += bench_aabb_sphere<double, double_both, min::vec3, min::grid>(V, dabw3, ds3);
+    R += bench_oobb_aabb<double, double_both, min::vec3, min::grid>(V, dobw3, dab3);
+    R += bench_oobb_oobb<double, double_oobb, min::vec3, min::grid>(V, dobw3, dob3);
+    R += bench_oobb_sphere<double, double_both, min::vec3, min::grid>(V, dobw3, ds3);
+    R += bench_sphere_aabb<double, double_both, min::vec3, min::grid>(V, dsw3, dab3);
+    R += bench_sphere_oobb<double, double_oobb, min::vec3, min::grid>(V, dsw3, dob3);
+    R += bench_sphere_sphere<double, double_both, min::vec3, min::grid>(V, dsw3, ds3);
 
-    return iR;
+    return R;
 }
 
 double physics2D(const size_t V)
 {
-    double iR = 0.0;
+    double R = 0.0;
 
     // Run benchmarks in single precision
     std::cout << std::endl
               << "Running in 2D physics tree tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<float, min::vec2, min::tree>(V, fabw2, fab2);
-    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec2, min::tree>(V, fabw2, fob2);
-    iR += 1.0 / bench_physics_aabb_sphere<float, min::vec2, min::tree>(V, fabw2, fs2);
-    iR += 1.0 / bench_physics_sphere_aabb<float, min::vec2, min::tree>(V, fsw2, fab2);
-    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec2, min::tree>(V, fsw2, fob2);
-    iR += 1.0 / bench_physics_sphere_sphere<float, min::vec2, min::tree>(V, fsw2, fs2);
+    R += bench_physics_aabb_aabb<float, min::vec2, min::tree>(V, fabw2, fab2);
+    R += bench_physics_aabb_oobb<float, min::vec2, min::tree>(V, fabw2, fob2);
+    R += bench_physics_aabb_sphere<float, min::vec2, min::tree>(V, fabw2, fs2);
+    R += bench_physics_sphere_aabb<float, min::vec2, min::tree>(V, fsw2, fab2);
+    R += bench_physics_sphere_oobb<float, min::vec2, min::tree>(V, fsw2, fob2);
+    R += bench_physics_sphere_sphere<float, min::vec2, min::tree>(V, fsw2, fs2);
 
     // Run benchmarks in single precision
     std::cout << std::endl
               << "Running in 2D physics tree tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<double, min::vec2, min::tree>(V, dabw2, dab2);
-    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec2, min::tree>(V, dabw2, dob2);
-    iR += 1.0 / bench_physics_aabb_sphere<double, min::vec2, min::tree>(V, dabw2, ds2);
-    iR += 1.0 / bench_physics_sphere_aabb<double, min::vec2, min::tree>(V, dsw2, dab2);
-    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec2, min::tree>(V, dsw2, dob2);
-    iR += 1.0 / bench_physics_sphere_sphere<double, min::vec2, min::tree>(V, dsw2, ds2);
+    R += bench_physics_aabb_aabb<double, min::vec2, min::tree>(V, dabw2, dab2);
+    R += bench_physics_aabb_oobb<double, min::vec2, min::tree>(V, dabw2, dob2);
+    R += bench_physics_aabb_sphere<double, min::vec2, min::tree>(V, dabw2, ds2);
+    R += bench_physics_sphere_aabb<double, min::vec2, min::tree>(V, dsw2, dab2);
+    R += bench_physics_sphere_oobb<double, min::vec2, min::tree>(V, dsw2, dob2);
+    R += bench_physics_sphere_sphere<double, min::vec2, min::tree>(V, dsw2, ds2);
 
     // Run benchmarks in single precision
     std::cout << std::endl
               << "Running in 2D physics grid tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<float, min::vec2, min::grid>(V, fabw2, fab2);
-    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec2, min::grid>(V, fabw2, fob2);
-    iR += 1.0 / bench_physics_aabb_sphere<float, min::vec2, min::grid>(V, fabw2, fs2);
-    iR += 1.0 / bench_physics_sphere_aabb<float, min::vec2, min::grid>(V, fsw2, fab2);
-    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec2, min::grid>(V, fsw2, fob2);
-    iR += 1.0 / bench_physics_sphere_sphere<float, min::vec2, min::grid>(V, fsw2, fs2);
+    R += bench_physics_aabb_aabb<float, min::vec2, min::grid>(V, fabw2, fab2);
+    R += bench_physics_aabb_oobb<float, min::vec2, min::grid>(V, fabw2, fob2);
+    R += bench_physics_aabb_sphere<float, min::vec2, min::grid>(V, fabw2, fs2);
+    R += bench_physics_sphere_aabb<float, min::vec2, min::grid>(V, fsw2, fab2);
+    R += bench_physics_sphere_oobb<float, min::vec2, min::grid>(V, fsw2, fob2);
+    R += bench_physics_sphere_sphere<float, min::vec2, min::grid>(V, fsw2, fs2);
 
     // Run benchmarks in double precision
     std::cout << std::endl
               << "Running in 2D physics grid tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<double, min::vec2, min::grid>(V, dabw2, dab2);
-    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec2, min::grid>(V, dabw2, dob2);
-    iR += 1.0 / bench_physics_aabb_sphere<double, min::vec2, min::grid>(V, dabw2, ds2);
-    iR += 1.0 / bench_physics_sphere_aabb<double, min::vec2, min::grid>(V, dsw2, dab2);
-    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec2, min::grid>(V, dsw2, dob2);
-    iR += 1.0 / bench_physics_sphere_sphere<double, min::vec2, min::grid>(V, dsw2, ds2);
+    R += bench_physics_aabb_aabb<double, min::vec2, min::grid>(V, dabw2, dab2);
+    R += bench_physics_aabb_oobb<double, min::vec2, min::grid>(V, dabw2, dob2);
+    R += bench_physics_aabb_sphere<double, min::vec2, min::grid>(V, dabw2, ds2);
+    R += bench_physics_sphere_aabb<double, min::vec2, min::grid>(V, dsw2, dab2);
+    R += bench_physics_sphere_oobb<double, min::vec2, min::grid>(V, dsw2, dob2);
+    R += bench_physics_sphere_sphere<double, min::vec2, min::grid>(V, dsw2, ds2);
 
-    return iR;
+    return R;
 }
 
 double physics3D(const size_t V)
 {
-    double iR = 0.0;
+    double R = 0.0;
 
     // Run benchmarks in single precision
     std::cout << std::endl
               << "Running in 3D physics tree tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<float, min::vec3, min::tree>(V, fabw3, fab3);
-    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec3, min::tree>(V, fabw3, fob3);
-    iR += 1.0 / bench_physics_aabb_sphere<float, min::vec3, min::tree>(V, fabw3, fs3);
-    iR += 1.0 / bench_physics_sphere_aabb<float, min::vec3, min::tree>(V, fsw3, fab3);
-    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec3, min::tree>(V, fsw3, fob3);
-    iR += 1.0 / bench_physics_sphere_sphere<float, min::vec3, min::tree>(V, fsw3, fs3);
+    R += bench_physics_aabb_aabb<float, min::vec3, min::tree>(V, fabw3, fab3);
+    R += bench_physics_aabb_oobb<float, min::vec3, min::tree>(V, fabw3, fob3);
+    R += bench_physics_aabb_sphere<float, min::vec3, min::tree>(V, fabw3, fs3);
+    R += bench_physics_sphere_aabb<float, min::vec3, min::tree>(V, fsw3, fab3);
+    R += bench_physics_sphere_oobb<float, min::vec3, min::tree>(V, fsw3, fob3);
+    R += bench_physics_sphere_sphere<float, min::vec3, min::tree>(V, fsw3, fs3);
 
     // Run benchmarks in double precision
     std::cout << std::endl
               << "Running in 3D physics tree tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<double, min::vec3, min::tree>(V, dabw3, dab3);
-    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec3, min::tree>(V, dabw3, dob3);
-    iR += 1.0 / bench_physics_aabb_sphere<double, min::vec3, min::tree>(V, dabw3, ds3);
-    iR += 1.0 / bench_physics_sphere_aabb<double, min::vec3, min::tree>(V, dsw3, dab3);
-    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec3, min::tree>(V, dsw3, dob3);
-    iR += 1.0 / bench_physics_sphere_sphere<double, min::vec3, min::tree>(V, dsw3, ds3);
+    R += bench_physics_aabb_aabb<double, min::vec3, min::tree>(V, dabw3, dab3);
+    R += bench_physics_aabb_oobb<double, min::vec3, min::tree>(V, dabw3, dob3);
+    R += bench_physics_aabb_sphere<double, min::vec3, min::tree>(V, dabw3, ds3);
+    R += bench_physics_sphere_aabb<double, min::vec3, min::tree>(V, dsw3, dab3);
+    R += bench_physics_sphere_oobb<double, min::vec3, min::tree>(V, dsw3, dob3);
+    R += bench_physics_sphere_sphere<double, min::vec3, min::tree>(V, dsw3, ds3);
 
     // Run benchmarks in single precision
     std::cout << std::endl
               << "Running in 3D physics grid tests single precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<float, min::vec3, min::grid>(V, fabw3, fab3);
-    iR += 1.0 / bench_physics_aabb_oobb<float, min::vec3, min::grid>(V, fabw3, fob3);
-    iR += 1.0 / bench_physics_aabb_sphere<float, min::vec3, min::grid>(V, fabw3, fs3);
-    iR += 1.0 / bench_physics_sphere_aabb<float, min::vec3, min::grid>(V, fsw3, fab3);
-    iR += 1.0 / bench_physics_sphere_oobb<float, min::vec3, min::grid>(V, fsw3, fob3);
-    iR += 1.0 / bench_physics_sphere_sphere<float, min::vec3, min::grid>(V, fsw3, fs3);
+    R += bench_physics_aabb_aabb<float, min::vec3, min::grid>(V, fabw3, fab3);
+    R += bench_physics_aabb_oobb<float, min::vec3, min::grid>(V, fabw3, fob3);
+    R += bench_physics_aabb_sphere<float, min::vec3, min::grid>(V, fabw3, fs3);
+    R += bench_physics_sphere_aabb<float, min::vec3, min::grid>(V, fsw3, fab3);
+    R += bench_physics_sphere_oobb<float, min::vec3, min::grid>(V, fsw3, fob3);
+    R += bench_physics_sphere_sphere<float, min::vec3, min::grid>(V, fsw3, fs3);
 
     // Run benchmarks in double precision
     std::cout << std::endl
               << "Running in 3D physics grid tests double precision mode" << std::endl
               << std::endl;
 
-    iR += 1.0 / bench_physics_aabb_aabb<double, min::vec3, min::grid>(V, dabw3, dab3);
-    iR += 1.0 / bench_physics_aabb_oobb<double, min::vec3, min::grid>(V, dabw3, dob3);
-    iR += 1.0 / bench_physics_aabb_sphere<double, min::vec3, min::grid>(V, dabw3, ds3);
-    iR += 1.0 / bench_physics_sphere_aabb<double, min::vec3, min::grid>(V, dsw3, dab3);
-    iR += 1.0 / bench_physics_sphere_oobb<double, min::vec3, min::grid>(V, dsw3, dob3);
-    iR += 1.0 / bench_physics_sphere_sphere<double, min::vec3, min::grid>(V, dsw3, ds3);
+    R += bench_physics_aabb_aabb<double, min::vec3, min::grid>(V, dabw3, dab3);
+    R += bench_physics_aabb_oobb<double, min::vec3, min::grid>(V, dabw3, dob3);
+    R += bench_physics_aabb_sphere<double, min::vec3, min::grid>(V, dabw3, ds3);
+    R += bench_physics_sphere_aabb<double, min::vec3, min::grid>(V, dsw3, dab3);
+    R += bench_physics_sphere_oobb<double, min::vec3, min::grid>(V, dsw3, dob3);
+    R += bench_physics_sphere_sphere<double, min::vec3, min::grid>(V, dsw3, ds3);
 
-    return iR;
+    return R;
+}
+
+double ray2D(const size_t V)
+{
+    double R = 0.0;
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray tree tests single precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<float, min::vec2, min::tree>(V, fabw2);
+    R += bench_ray_oobb<float, min::vec2, min::tree>(V, fobw2);
+    R += bench_ray_sphere<float, min::vec2, min::tree>(V, fsw2);
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray tree tests double precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<double, min::vec2, min::tree>(V, dabw2);
+    R += bench_ray_oobb<double, min::vec2, min::tree>(V, dobw2);
+    R += bench_ray_sphere<double, min::vec2, min::tree>(V, dsw2);
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray grid tests single precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<float, min::vec2, min::grid>(V, fabw2);
+    R += bench_ray_oobb<float, min::vec2, min::grid>(V, fobw2);
+    R += bench_ray_sphere<float, min::vec2, min::grid>(V, fsw2);
+
+    // Run benchmarks in double precision
+    std::cout << std::endl
+              << "Running in 2D ray grid tests double precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<double, min::vec2, min::grid>(V, dabw2);
+    R += bench_ray_oobb<double, min::vec2, min::grid>(V, dobw2);
+    R += bench_ray_sphere<double, min::vec2, min::grid>(V, dsw2);
+
+    return R;
+}
+
+double ray3D(const size_t V)
+{
+    double R = 0.0;
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray tree tests single precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<float, min::vec3, min::tree>(V, fabw3);
+    R += bench_ray_oobb<float, min::vec3, min::tree>(V, fobw3);
+    R += bench_ray_sphere<float, min::vec3, min::tree>(V, fsw3);
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray tree tests double precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<double, min::vec3, min::tree>(V, dabw3);
+    R += bench_ray_oobb<double, min::vec3, min::tree>(V, dobw3);
+    R += bench_ray_sphere<double, min::vec3, min::tree>(V, dsw3);
+
+    // Run benchmarks in single precision
+    std::cout << std::endl
+              << "Running in 2D ray grid tests single precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<float, min::vec3, min::grid>(V, fabw3);
+    R += bench_ray_oobb<float, min::vec3, min::grid>(V, fobw3);
+    R += bench_ray_sphere<float, min::vec3, min::grid>(V, fsw3);
+
+    // Run benchmarks in double precision
+    std::cout << std::endl
+              << "Running in 2D ray grid tests double precision mode" << std::endl
+              << std::endl;
+
+    R += bench_ray_aabb<double, min::vec3, min::grid>(V, dabw3);
+    R += bench_ray_oobb<double, min::vec3, min::grid>(V, dobw3);
+    R += bench_ray_sphere<double, min::vec3, min::grid>(V, dsw3);
+
+    return R;
 }
 
 int main(int argc, char *argv[])
@@ -339,42 +424,54 @@ int main(int argc, char *argv[])
             std::cout.setstate(std::ios_base::failbit);
         }
 
-        const size_t V = N;
-        double I = 0.0;
-        double iR = 0.0;
+        const size_t V_COL = N;
+        const size_t V_RAY = 4000;
+        double V = 400000.0;
 
         // Test tree
-        iR = tree(V);
-        I += V * iR;
+        const double tt = tree(V_COL);
 
         // Test grid
-        iR = grid(V);
-        I += V * iR;
+        const double gt = grid(V_COL);
 
         // Test physics2D
-        iR = physics2D(V);
-        I += V * iR;
+        const double p2t = physics2D(V_COL);
 
         // Test physics3D
-        iR = physics3D(V);
-        I += V * iR;
+        const double p3t = physics3D(V_COL);
+
+        // Test ray2D
+        const double r2t = ray2D(V_RAY);
+
+        // Test ray3D
+        const double r3t = ray3D(V_RAY);
 
         // Test load wavefront
-        iR = bench_wavefront();
-        I += 100.0 / iR;
+        const double wt = bench_wavefront();
 
-        iR = bench_bmesh();
-        I += 100.0 / iR;
+        // Test load binary
+        const double bt = bench_bmesh();
 
         // Test load md5
-        iR = bench_md5();
-        I += 100.0 / iR;
+        const double mt = bench_md5();
 
         // Enable logging to cout
         std::cout.clear();
 
-        // print the performance score
-        std::cout << "Graphics score is: " << I << std::endl;
+        // Print out diagnostics
+        std::cout << "Tree took " << tt << " ms" << std::endl;
+        std::cout << "Grid took " << gt << " ms" << std::endl;
+        std::cout << "Physics2D took " << p2t << " ms" << std::endl;
+        std::cout << "Physics3D took " << p3t << " ms" << std::endl;
+        std::cout << "Ray2D took " << r2t << " ms" << std::endl;
+        std::cout << "Ray3D took " << r3t << " ms" << std::endl;
+        std::cout << "Wavefront mesh took " << wt << " ms" << std::endl;
+        std::cout << "Binary mesh took " << bt << " ms" << std::endl;
+        std::cout << "MD5 mesh took " << mt << " ms" << std::endl;
+
+        // Print the performance score
+        const double R = tt + gt + p2t + p3t + r2t + r3t + wt + bt + mt;
+        std::cout << "Graphics score is: " << V / R << std::endl;
         return 0;
     }
     catch (std::exception &ex)
