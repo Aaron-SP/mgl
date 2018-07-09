@@ -318,7 +318,7 @@ class grid
     {
         return vec<T>(point).clamp(_lower_bound, _upper_bound);
     }
-    inline void force_rebuild() const
+    inline void force_rebuild()
     {
         // Must rebuild if any shape has increased its size from the previous build
         _cached_scale = 0;
