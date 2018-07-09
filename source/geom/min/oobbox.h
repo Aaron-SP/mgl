@@ -117,10 +117,11 @@ class oobbox_base
     {
         return _rotation;
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> grid(const size_t scale) const
+    template <typename C>
+    inline void grid(C &v, const size_t scale) const
     {
-        // Create the grid cells in world space AABB
-        return vec<T>::grid(get_min(), get_max(), scale);
+        // Create the grid cells
+        vec<T>::grid(v, get_min(), get_max(), scale);
     }
     inline bool point_inside(const vec<T> &p) const
     {

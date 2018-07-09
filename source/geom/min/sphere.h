@@ -135,13 +135,14 @@ class sphere
     {
         return _radius2;
     }
-    inline std::vector<std::pair<vec<T>, T>> grid(const size_t scale) const
+    template <typename C>
+    inline void grid(C &v, const size_t scale) const
     {
         // Calculate radius for this scale
         const T radius = _radius / scale;
 
         // Create the grid cells
-        return vec<T>::grid_center(get_min(), get_max(), scale, radius);
+        vec<T>::grid_center(v, get_min(), get_max(), scale, radius);
     }
     inline vec<T> normal(const vec<T> &p, T &length, const T tolerance) const
     {

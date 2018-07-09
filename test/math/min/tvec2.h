@@ -442,8 +442,10 @@ bool test_vec2()
     // Test grid and grid center
     one = min::vec2<double>(-1.0, -1.0);
     two = min::vec2<double>(1.0, 1.0);
-    auto grid = min::vec2<double>::grid(one, two, 2);
-    auto gridc = min::vec2<double>::grid_center(one, two, 2, 1.414);
+    std::vector<std::pair<min::vec2<double>, min::vec2<double>>> grid;
+    std::vector<std::pair<min::vec2<double>, double>> gridc;
+    min::vec2<double>::grid(grid, one, two, 2);
+    min::vec2<double>::grid_center(gridc, one, two, 2, 1.414);
 
     // Test zero
     out = out && compare(-1.0, grid[0].first.x(), 1E-4);

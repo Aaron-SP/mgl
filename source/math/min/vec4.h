@@ -192,10 +192,11 @@ class vec4
     // o  /  0  /  2  /
     // l /-----/-----/
     //   row --->
-    inline static std::vector<std::pair<vec4<T>, vec4<T>>> grid(const vec4<T> &min, const vec4<T> &max, const size_t scale)
+    template <typename C>
+    inline static void grid(C &out, const vec4<T> &min, const vec4<T> &max, const size_t scale)
     {
         // Create out vector
-        std::vector<std::pair<vec4<T>, vec4<T>>> out;
+        out.clear();
         out.reserve(scale * scale * scale);
 
         // Calculate the grid dimensions
@@ -225,18 +226,16 @@ class vec4
                 {
                     // Set the cell z value
                     cell.z(z);
-                    out.emplace_back(std::make_pair(cell, cell + extent));
+                    out.emplace_back(cell, cell + extent);
                 }
             }
         }
-
-        // return the compute grid
-        return out;
     }
-    inline static std::vector<std::pair<vec4<T>, T>> grid_center(const vec4<T> &min, const vec4<T> &max, const size_t scale, const T size)
+    template <typename C>
+    inline static void grid_center(C &out, const vec4<T> &min, const vec4<T> &max, const size_t scale, const T size)
     {
         // Create out vector
-        std::vector<std::pair<vec4<T>, T>> out;
+        out.clear();
         out.reserve(scale * scale * scale);
 
         // Calculate the grid dimensions
@@ -266,13 +265,10 @@ class vec4
                 {
                     // Set the cell z value
                     cell.z(z);
-                    out.emplace_back(std::make_pair(cell + half_extent, size));
+                    out.emplace_back(cell + half_extent, size);
                 }
             }
         }
-
-        // return the compute grid
-        return out;
     }
     inline static min::tri<size_t> grid_index(const vec4<T> &min, const vec4<T> &extent, const vec4<T> &point)
     {

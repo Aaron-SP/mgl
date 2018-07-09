@@ -155,10 +155,11 @@ class vec2
     // o  /  0  /  2  /
     // l /-----/-----/
     //   row --->
-    inline static std::vector<std::pair<vec2<T>, vec2<T>>> grid(const vec2<T> &min, const vec2<T> &max, const size_t scale)
+    template <typename C>
+    inline static void grid(C &out, const vec2<T> &min, const vec2<T> &max, const size_t scale)
     {
-        // Create out vector
-        std::vector<std::pair<vec2<T>, vec2<T>>> out;
+        // Clear the vector
+        out.clear();
         out.reserve(scale * scale);
 
         // Calculate the grid dimensions
@@ -181,17 +182,15 @@ class vec2
             {
                 // Set the cell y value
                 cell.y(y);
-                out.emplace_back(std::make_pair(cell, cell + extent));
+                out.emplace_back(cell, cell + extent);
             }
         }
-
-        // return the compute grid
-        return out;
     }
-    inline static std::vector<std::pair<vec2<T>, T>> grid_center(const vec2<T> &min, const vec2<T> &max, const size_t scale, const T size)
+    template <typename C>
+    inline static void grid_center(C &out, const vec2<T> &min, const vec2<T> &max, const size_t scale, const T size)
     {
         // Create out vector
-        std::vector<std::pair<vec2<T>, T>> out;
+        out.clear();
         out.reserve(scale * scale);
 
         // Calculate the grid dimensions
@@ -214,12 +213,9 @@ class vec2
             {
                 // Set the cell y value
                 cell.y(y);
-                out.emplace_back(std::make_pair(cell + half_extent, size));
+                out.emplace_back(cell + half_extent, size);
             }
         }
-
-        // return the compute grid
-        return out;
     }
     inline static min::bi<size_t> grid_index(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &point)
     {

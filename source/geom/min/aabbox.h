@@ -80,10 +80,11 @@ class aabbox
     {
         return _max;
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> grid(const size_t scale) const
+    template <typename C>
+    inline void grid(C &v, const size_t scale) const
     {
         // Create the grid cells
-        return vec<T>::grid(_min, _max, scale);
+        vec<T>::grid(v, _min, _max, scale);
     }
     inline bool point_inside(const vec<T> &p) const
     {

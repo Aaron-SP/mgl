@@ -63,8 +63,8 @@ class grid_node
     }
 
   public:
-    grid_node() {}
-    grid_node(const cell<T, vec> &c) : _cell(c) {}
+    grid_node(const vec<T> &min, const vec<T> &max) : _cell(min, max) {}
+    grid_node(const vec<T> &c, const T r) : _cell(c, r) {}
     inline const std::vector<K> &get_keys() const
     {
         return _keys;
@@ -77,10 +77,6 @@ class grid_node
     {
         // The grid_key is assumed to be a box, so can't use _root.get_cell().point_inside()!
         return point.inside(_cell.get_min(), _cell.get_max());
-    }
-    inline void set_shape(const cell<T, vec> &c)
-    {
-        _cell = c;
     }
     inline K size() const
     {
@@ -120,16 +116,7 @@ class grid
         if (_scale != _cached_scale)
         {
             // Create the grid cells, memory allocation here!
-            const std::vector<std::pair<vec<T>, vec<T>>> cell_extents = _root.grid(_scale);
-            const size_t cell_size = cell_extents.size();
-            _cells.resize(cell_size);
-
-            // Assign the new grid cell
-            for (size_t i = 0; i < cell_size; i++)
-            {
-                const auto extent = cell_extents[i];
-                _cells[i].set_shape(cell<T, vec>(extent.first, extent.second));
-            }
+            _root.grid(_cells, _scale);
 
             // Update the cached scale
             _cached_scale = _scale;
