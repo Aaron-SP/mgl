@@ -135,7 +135,7 @@ class sphere
     {
         return _radius2;
     }
-    inline std::vector<std::pair<vec<T>, T>> grid(size_t scale) const
+    inline std::vector<std::pair<vec<T>, T>> grid(const size_t scale) const
     {
         // Calculate radius for this scale
         const T radius = _radius / scale;

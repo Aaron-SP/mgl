@@ -68,11 +68,8 @@ bool test_sphere_tree()
             throw std::runtime_error("Failed sphere tree vec2 optimum depth");
         }
 
-        // Test set_depth
-        t.set_depth(5);
-
         // Insert into tree twice, should reset and rebuild
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test point inside
         p = min::vec2<double>(2.9, 2.9);
@@ -182,7 +179,7 @@ bool test_sphere_tree()
         items.push_back(min::sphere<double, min::vec2>(min, max));
 
         // Insert into tree
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
         min = min::vec2<double>(0.0, 0.0);
@@ -248,11 +245,8 @@ bool test_sphere_tree()
             throw std::runtime_error("Failed sphere tree vec3 optimum depth");
         }
 
-        // Test set_depth
-        t.set_depth(5);
-
         // Insert into tree twice, should reset and rebuild
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test point inside
         p = min::vec3<double>(2.9, 2.9, 2.9);
@@ -366,7 +360,7 @@ bool test_sphere_tree()
         items.push_back(min::sphere<double, min::vec3>(min, max));
 
         // Insert into tree
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
         min = min::vec3<double>(0.0, 0.0, 0.0);
@@ -432,11 +426,8 @@ bool test_sphere_tree()
             throw std::runtime_error("Failed sphere tree vec4 optimum depth");
         }
 
-        // Test set_depth
-        t.set_depth(5);
-
         // Insert into tree twice, should reset and rebuild
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test point inside
         p = min::vec4<double>(2.9, 2.9, 2.9, 1.0);
@@ -550,7 +541,7 @@ bool test_sphere_tree()
         items.push_back(min::sphere<double, min::vec4>(min, max));
 
         // Insert into tree
-        t.insert(items);
+        t.insert(items, 5);
 
         // Test overlap upper right quadrant, center 5.0, 5.0
         min = min::vec4<double>(0.0, 0.0, 0.0, 1.0);

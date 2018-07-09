@@ -80,7 +80,7 @@ class aabbox
     {
         return _max;
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> grid(size_t scale) const
+    inline std::vector<std::pair<vec<T>, vec<T>>> grid(const size_t scale) const
     {
         // Create the grid cells
         return vec<T>::grid(_min, _max, scale);

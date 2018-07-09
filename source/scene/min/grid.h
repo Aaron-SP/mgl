@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef __GRID__
 #define __GRID__
 
+#include <algorithm>
 #include <cmath>
 #include <min/bit_flag.h>
 #include <min/intersect.h>
@@ -62,6 +63,7 @@ class grid_node
     }
 
   public:
+    grid_node() {}
     grid_node(const cell<T, vec> &c) : _cell(c) {}
     inline const std::vector<K> &get_keys() const
     {
@@ -75,6 +77,10 @@ class grid_node
     {
         // The grid_key is assumed to be a box, so can't use _root.get_cell().point_inside()!
         return point.inside(_cell.get_min(), _cell.get_max());
+    }
+    inline void set_shape(const cell<T, vec> &c)
+    {
+        _cell = c;
     }
     inline K size() const
     {
@@ -95,23 +101,47 @@ class grid
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     cell<T, vec> _root;
+    vec<T> _cell_extent;
     vec<T> _lower_bound;
     vec<T> _upper_bound;
     K _scale;
-    vec<T> _cell_extent;
-    size_t _flag_size;
+    K _cached_scale;
+    K _flag_size;
 
     inline void build()
     {
-        // Clears out the entire grid cell buffer
-        _cells.clear();
-
-        // Calculate the grid cells from the root cell
-        const auto cells = _root.grid(_scale);
-        _cells.reserve(cells.size());
-        for (const auto &c : cells)
+        // Break out if scale is zero
+        if (_scale == 0)
         {
-            _cells.emplace_back(cell<T, vec>(c.first, c.second));
+            return;
+        }
+
+        // Build grid if scale has been changed
+        if (_scale != _cached_scale)
+        {
+            // Create the grid cells, memory allocation here!
+            const std::vector<std::pair<vec<T>, vec<T>>> cell_extents = _root.grid(_scale);
+            const size_t cell_size = cell_extents.size();
+            _cells.resize(cell_size);
+
+            // Assign the new grid cell
+            for (size_t i = 0; i < cell_size; i++)
+            {
+                const auto extent = cell_extents[i];
+                _cells[i].set_shape(cell<T, vec>(extent.first, extent.second));
+            }
+
+            // Update the cached scale
+            _cached_scale = _scale;
+        }
+        else
+        {
+            // Reuse the grid cells and empty the keys in each cell
+            const size_t cell_size = _cells.size();
+            for (size_t i = 0; i < cell_size; i++)
+            {
+                _cells[i].clear();
+            }
         }
 
         // Calculate intersections of sub cell with list of shapes
@@ -214,52 +244,55 @@ class grid
             }
         }
     }
+    inline K set_depth(const K depth)
+    {
+        const K bits = std::numeric_limits<K>::digits - 1;
+        return std::min(bits, depth);
+    }
     inline void set_scale(const std::vector<shape<T, vec>> &shapes)
     {
         // Find the largest object in the collection
-        const auto size = shapes.size();
-        if (size > 0)
+        // Square distance across the extent
+        T max = shapes[0].square_size();
+
+        // Calculate the maximum square distance across each extent
+        const K size = shapes.size();
+        for (K i = 1; i < size; i++)
         {
-            // square distance across the extent
-            T max = shapes[0].square_size();
-
-            // Calculate the maximum square distance across each extent
-            for (K i = 1; i < size; i++)
+            // Update the maximum
+            const T d2 = shapes[i].square_size();
+            if (d2 > max)
             {
-                // Update the maximum
-                const T d2 = shapes[i].square_size();
-                if (d2 > max)
-                {
-                    max = d2;
-                }
+                max = d2;
             }
-
-            // Calculate the world cell extent
-            const T d2 = std::sqrt(_root.square_size());
-            max = std::sqrt(max);
-
-            // Calculate the scale
-            // to be the world cell extent / max object extent
-            // Calculate 2^n, (28.284/8.48) == 4, 2^4 = 16
-            _scale = 0x1 << static_cast<K>(std::ceil(std::log2(d2 / max)));
-
-            // Optimize the grid scale if there are two many items
-            _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
-
-            // Set the grid cell extent
-            _cell_extent = _root.get_extent() / _scale;
         }
+
+        // Calculate the world cell extent
+        const T d2 = std::sqrt(_root.square_size());
+        max = std::sqrt(max);
+
+        // Calculate the scale
+        // to be the world cell extent / max object extent
+        // Calculate 2^n, (28.284/8.48) == 4, 2^4 = 16
+        const K depth = std::ceil(std::log2(d2 / max));
+        _scale = 0x1 << set_depth(depth);
+
+        // Optimize the grid scale if there are two many items
+        _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
+
+        // Set the grid cell extent
+        _cell_extent = _root.get_extent() / _scale;
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
         // Create index vector to sort 0 to N
-        const auto size = shapes.size();
+        const K size = shapes.size();
         _index_map.resize(size);
         std::iota(_index_map.begin(), _index_map.end(), 0);
 
         // Cache key calculation for sorting speed up
         _key_cache.resize(size);
-        for (size_t i = 0; i < size; i++)
+        for (K i = 0; i < size; i++)
         {
             _key_cache[i] = this->get_key(shapes[i].get_center());
         }
@@ -273,7 +306,7 @@ class grid
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
         _shapes.reserve(size);
-        for (auto &i : _index_map)
+        for (const K i : _index_map)
         {
             _shapes.emplace_back(shapes[i]);
         }
@@ -284,34 +317,8 @@ class grid
         : _root(c),
           _lower_bound(_root.get_min() + var<T>::TOL_PHYS_EDGE),
           _upper_bound(_root.get_max() - var<T>::TOL_PHYS_EDGE),
-          _scale(0), _flag_size(0) {}
+          _scale(0), _cached_scale(0), _flag_size(0) {}
 
-    inline vec<T> clamp_bounds(const vec<T> &point) const
-    {
-        return vec<T>(point).clamp(_lower_bound, _upper_bound);
-    }
-    inline const vec<T> &get_lower_bound() const
-    {
-        return _lower_bound;
-    }
-    inline const vec<T> &get_upper_bound() const
-    {
-        return _upper_bound;
-    }
-    inline const grid_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
-    {
-        // This function computes the grid location code
-        const size_t key = get_key(point);
-
-        // Return the cell node
-        return _cells[key];
-    }
-    inline void resize(const cell<T, vec> &c)
-    {
-        _root = c;
-        _lower_bound = _root.get_min() + var<T>::TOL_PHYS_EDGE;
-        _upper_bound = _root.get_max() - var<T>::TOL_PHYS_EDGE;
-    }
     inline void check_size(const std::vector<shape<T, vec>> &shapes) const
     {
         // Check size of the number of objects to insert into grid
@@ -320,8 +327,23 @@ class grid
             throw std::runtime_error("grid: too many objects to insert, max supported is " + std::to_string(std::numeric_limits<K>::max()));
         }
     }
+    inline vec<T> clamp_bounds(const vec<T> &point) const
+    {
+        return vec<T>(point).clamp(_lower_bound, _upper_bound);
+    }
+    inline void force_rebuild() const
+    {
+        // Must rebuild if any shape has increased its size from the previous build
+        _cached_scale = 0;
+    }
     inline const std::vector<std::pair<K, K>> &get_collisions() const
     {
+        // Check if grid is not built yet
+        if (_cells.size() == 0)
+        {
+            return _hits;
+        }
+
         // Clear out the old collision sets and vectors
         _flags.clear();
 
@@ -340,6 +362,12 @@ class grid
     }
     inline const std::vector<std::pair<K, K>> &get_collisions(const vec<T> &point) const
     {
+        // Check if grid is not built yet
+        if (_cells.size() == 0)
+        {
+            return _hits;
+        }
+
         // Clear out the old collision sets and vectors
         _flags.clear();
 
@@ -361,15 +389,15 @@ class grid
     }
     inline const std::vector<std::pair<K, vec<T>>> &get_collisions(const ray<T, vec> &r) const
     {
-        // Output vector
-        _ray_hits.clear();
-        _ray_hits.reserve(_shapes.size());
-
         // Check if grid is not built yet
         if (_cells.size() == 0)
         {
             return _ray_hits;
         }
+
+        // Output vector
+        _ray_hits.clear();
+        _ray_hits.reserve(_shapes.size());
 
         // Get the cell from the ray origin
         // this will check if ray originates within the grid
@@ -417,6 +445,22 @@ class grid
     {
         return _index_map;
     }
+    inline const vec<T> &get_lower_bound() const
+    {
+        return _lower_bound;
+    }
+    inline const vec<T> &get_upper_bound() const
+    {
+        return _upper_bound;
+    }
+    inline const grid_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
+    {
+        // This function computes the grid location code
+        const size_t key = get_key(point);
+
+        // Return the cell node
+        return _cells[key];
+    }
     inline K get_scale() const
     {
         return _scale;
@@ -462,48 +506,72 @@ class grid
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
-        // Set the grid scale
-        set_scale(shapes);
+        if (shapes.size() > 0)
+        {
+            // Set the grid scale
+            set_scale(shapes);
 
-        // Sort the shape array and store copy
-        sort(shapes);
+            // Sort the shape array and store copy
+            sort(shapes);
 
-        // Rebuild the grid after changing the contents
-        build();
+            // Rebuild the grid after changing the contents
+            build();
+        }
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes, const K scale)
     {
-        // Set the grid scale
-        _scale = scale;
+        if (shapes.size() > 0)
+        {
+            // Set the grid scale
+            _scale = scale;
 
-        // Set the grid cell extent
-        _cell_extent = _root.get_extent() / _scale;
+            // Set the grid cell extent
+            _cell_extent = _root.get_extent() / _scale;
 
-        // Sort the shape array and store copy
-        sort(shapes);
+            // Sort the shape array and store copy
+            sort(shapes);
 
-        // Rebuild the grid after changing the contents
-        build();
+            // Rebuild the grid after changing the contents
+            build();
+        }
     }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
-        // Set the grid scale
-        set_scale(shapes);
+        if (shapes.size() > 0)
+        {
+            // Set the grid scale
+            set_scale(shapes);
 
-        // Insert shapes without sorting
-        _shapes.clear();
-        _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
+            // Insert shapes without sorting
+            _shapes.clear();
+            _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
 
-        // Rebuild the grid after changing the contents
-        build();
+            // Rebuild the grid after changing the contents
+            build();
+        }
     }
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
+        // Check if grid is not built yet
+        if (_cells.size() == 0)
+        {
+            return _sort_copy;
+        }
+
         // Clamp point into world bounds
         const vec<T> clamped = clamp_bounds(point);
 
         // Get the keys on the cell node
         return get_node(clamped).get_keys();
+    }
+    inline void resize(const cell<T, vec> &c)
+    {
+        _root = c;
+        _lower_bound = _root.get_min() + var<T>::TOL_PHYS_EDGE;
+        _upper_bound = _root.get_max() - var<T>::TOL_PHYS_EDGE;
+
+        // Force rebuilding the grid
+        force_rebuild();
     }
 };
 }

@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef __TREE__
 #define __TREE__
 
+#include <algorithm>
 #include <cmath>
 #include <min/bit_flag.h>
 #include <min/intersect.h>
@@ -107,12 +108,11 @@ class tree
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     tree_node<T, K, L, vec, cell, shape> _root;
+    vec<T> _cell_extent;
     vec<T> _lower_bound;
     vec<T> _upper_bound;
     K _depth;
     K _scale;
-    vec<T> _cell_extent;
-    bool _depth_override;
     size_t _flag_size;
 
     inline void build(tree_node<T, K, L, vec, cell, shape> &node, const K depth)
@@ -192,12 +192,6 @@ class tree
             // clear the flag buffer
             _flags.clear();
         }
-    }
-    inline size_t get_sorting_key(const vec<T> &point) const
-    {
-        // This must be guaranteed to be safe by callers
-        // Use grid to sort all shapes in tree since it is a global identifier
-        return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
     }
     inline void get_overlap(const tree_node<T, K, L, vec, cell, shape> &node) const
     {
@@ -339,53 +333,58 @@ class tree
             }
         }
     }
-    inline K optimize_depth(const std::vector<shape<T, vec>> &shapes)
+    inline size_t get_sorting_key(const vec<T> &point) const
     {
-        // Find the largest object in the collection
+        // This must be guaranteed to be safe by callers
+        // Use grid to sort all shapes in tree since it is a global identifier
+        return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
+    }
+    inline K set_depth(const K depth)
+    {
+        const K bits = std::numeric_limits<K>::digits - 1;
+        return std::min(bits, depth);
+    }
+    inline K set_scale(const std::vector<shape<T, vec>> &shapes)
+    {
+        // square distance across the extent
+        T max = shapes[0].square_size();
+
+        // Calculate the maximum square distance across each extent
         const auto size = shapes.size();
-        if (size > 0)
+        for (K i = 1; i < size; i++)
         {
-            if (!_depth_override)
+            // Update the maximum
+            const T d2 = shapes[i].square_size();
+            if (d2 > max)
             {
-                // square distance across the extent
-                T max = shapes[0].square_size();
-
-                // Calculate the maximum square distance across each extent
-                for (K i = 1; i < size; i++)
-                {
-                    // Update the maximum
-                    const T d2 = shapes[i].square_size();
-                    if (d2 > max)
-                    {
-                        max = d2;
-                    }
-                }
-
-                // Calculate the world cell extent
-                const T d2 = std::sqrt(_root.get_cell().square_size());
-                max = std::sqrt(max);
-
-                // Calculate the depth of the tree
-                _depth = std::ceil(std::log2(d2 / max));
+                max = d2;
             }
-
-            // Set the tree cell extent 2^depth
-            _scale = static_cast<K>((0x1 << _depth));
-            _cell_extent = _root.get_cell().get_extent() / _scale;
         }
+
+        // Calculate the world cell extent
+        const T d2 = std::sqrt(_root.get_cell().square_size());
+        max = std::sqrt(max);
+
+        // Calculate the depth of the tree
+        const K depth = std::ceil(std::log2(d2 / max));
+        _depth = set_depth(depth);
+
+        // Set the tree cell extent 2^depth
+        _scale = static_cast<K>(0x1 << _depth);
+        _cell_extent = _root.get_cell().get_extent() / _scale;
 
         return _depth;
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
         // Create index vector to sort 0 to N
-        const auto size = shapes.size();
+        const K size = shapes.size();
         _index_map.resize(size);
         std::iota(_index_map.begin(), _index_map.end(), 0);
 
         // Cache key calculation for sorting speed up
         _key_cache.resize(size);
-        for (size_t i = 0; i < size; i++)
+        for (K i = 0; i < size; i++)
         {
             _key_cache[i] = this->get_sorting_key(shapes[i].get_center());
         }
@@ -399,7 +398,7 @@ class tree
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
         _shapes.reserve(size);
-        for (const auto &i : _index_map)
+        for (const K i : _index_map)
         {
             _shapes.emplace_back(shapes[i]);
         }
@@ -410,7 +409,7 @@ class tree
         : _root(c),
           _lower_bound(_root.get_cell().get_min() + var<T>::TOL_PHYS_EDGE),
           _upper_bound(_root.get_cell().get_max() - var<T>::TOL_PHYS_EDGE),
-          _depth_override(false), _flag_size(0) {}
+          _flag_size(0) {}
     inline void resize(const cell<T, vec> &c)
     {
         _root = c;
@@ -429,13 +428,75 @@ class tree
     {
         return vec<T>(point).clamp(_lower_bound, _upper_bound);
     }
-    inline const vec<T> &get_lower_bound() const
+    inline const std::vector<std::pair<K, K>> &get_collisions() const
     {
-        return _lower_bound;
+        // Check if tree is not built yet
+        if (_root.get_children().size() == 0)
+        {
+            return _hits;
+        }
+
+        // Clear out the old collision sets and vectors
+        _flags.clear();
+        _hits.clear();
+        _hits.reserve(_shapes.size());
+
+        // get all intersecting pairs
+        get_pairs(_root, _depth);
+
+        // Return the list
+        return _hits;
     }
-    inline const vec<T> &get_upper_bound() const
+    inline const std::vector<std::pair<K, K>> &get_collisions(const vec<T> &point) const
     {
-        return _upper_bound;
+        // Check if tree is not built yet
+        if (_root.get_children().size() == 0)
+        {
+            return _hits;
+        }
+
+        // Clear out the old collision sets and vectors
+        _flags.clear();
+        _hits.clear();
+        _hits.reserve(_shapes.size());
+
+        // Clamp point into world bounds
+        const vec<T> clamped = clamp_bounds(point);
+
+        // get the node from the point
+        const tree_node<T, K, L, vec, cell, shape> &node = get_node(clamped);
+
+        // Get the intersecting pairs in this cell
+        get_pairs(node);
+
+        // Return the list
+        return _hits;
+    }
+    inline const std::vector<std::pair<K, vec<T>>> &get_collisions(const ray<T, vec> &r) const
+    {
+        // Check if tree is not built yet
+        if (_root.get_children().size() == 0)
+        {
+            return _ray_hits;
+        }
+
+        // Output vector
+        _ray_hits.clear();
+        _ray_hits.reserve(_shapes.size());
+
+        // Get shapes intersecting ray with early stop
+        get_ray_intersect(_root, r, _depth);
+
+        // Return the collision list
+        return _ray_hits;
+    }
+    inline K get_depth() const
+    {
+        return _depth;
+    }
+    inline const std::vector<K> &get_index_map() const
+    {
+        return _index_map;
     }
     inline const tree_node<T, K, L, vec, cell, shape> &get_node(const vec<T> &point) const
     {
@@ -474,66 +535,6 @@ class tree
         // Return the cell node
         return *child;
     }
-    inline K get_scale() const
-    {
-        return _scale;
-    }
-    inline const std::vector<shape<T, vec>> &get_shapes()
-    {
-        return _shapes;
-    }
-    inline const std::vector<std::pair<K, K>> &get_collisions() const
-    {
-        // Clear out the old collision sets and vectors
-        _flags.clear();
-        _hits.clear();
-        _hits.reserve(_shapes.size());
-
-        // get all intersecting pairs
-        get_pairs(_root, _depth);
-
-        // Return the list
-        return _hits;
-    }
-    inline const std::vector<std::pair<K, K>> &get_collisions(const vec<T> &point) const
-    {
-        // Clear out the old collision sets and vectors
-        _flags.clear();
-        _hits.clear();
-        _hits.reserve(_shapes.size());
-
-        // Clamp point into world bounds
-        const vec<T> clamped = clamp_bounds(point);
-
-        // get the node from the point
-        const tree_node<T, K, L, vec, cell, shape> &node = get_node(clamped);
-
-        // Get the intersecting pairs in this cell
-        get_pairs(node);
-
-        // Return the list
-        return _hits;
-    }
-    inline const std::vector<std::pair<K, vec<T>>> &get_collisions(const ray<T, vec> &r) const
-    {
-        // Output vector
-        _ray_hits.clear();
-        _ray_hits.reserve(_shapes.size());
-
-        // Get shapes intersecting ray with early stop
-        get_ray_intersect(_root, r, _depth);
-
-        // Return the collision list
-        return _ray_hits;
-    }
-    inline K get_depth() const
-    {
-        return _depth;
-    }
-    inline const std::vector<K> &get_index_map() const
-    {
-        return _index_map;
-    }
     inline const std::vector<std::pair<K, K>> &get_overlap(const shape<T, vec> &overlap) const
     {
         // Check if tree is not built yet
@@ -553,79 +554,104 @@ class tree
         // Return the list
         return _hits;
     }
+    inline const vec<T> &get_lower_bound() const
+    {
+        return _lower_bound;
+    }
+    inline const vec<T> &get_upper_bound() const
+    {
+        return _upper_bound;
+    }
+    inline K get_scale() const
+    {
+        return _scale;
+    }
+    inline const std::vector<shape<T, vec>> &get_shapes()
+    {
+        return _shapes;
+    }
     inline bool inside(const vec<T> &point) const
     {
         return _root.get_cell().point_inside(point);
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
-        // Set the tree depth
-        optimize_depth(shapes);
+        if (shapes.size() > 0)
+        {
+            // Set the tree depth
+            set_scale(shapes);
 
-        // Sort shapes by grid key id
-        sort(shapes);
+            // Sort shapes by grid key id
+            sort(shapes);
 
-        // Clear out the root node
-        _root.clear();
+            // Clear out the root node
+            _root.clear();
 
-        // Create box keys
-        create_keys();
+            // Create box keys
+            create_keys();
 
-        // Rebuild the tree after changing the contents
-        build(_root, _depth);
+            // Rebuild the tree after changing the contents
+            build(_root, _depth);
+        }
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes, const K depth)
     {
-        // Set the depth
-        _depth = depth;
+        if (shapes.size() > 0)
+        {
+            // Set the depth
+            _depth = set_depth(depth);
 
-        // Set the tree cell extent 2^depth
-        _scale = static_cast<K>(0x1 << _depth);
-        _cell_extent = _root.get_cell().get_extent() / _scale;
+            // Set the tree cell extent 2^depth
+            _scale = static_cast<K>(0x1 << _depth);
+            _cell_extent = _root.get_cell().get_extent() / _scale;
 
-        // Sort shapes by grid key id
-        sort(shapes);
+            // Sort shapes by grid key id
+            sort(shapes);
 
-        // Clear out the root node
-        _root.clear();
+            // Clear out the root node
+            _root.clear();
 
-        // Create box keys
-        create_keys();
+            // Create box keys
+            create_keys();
 
-        // Rebuild the tree after changing the contents
-        build(_root, _depth);
+            // Rebuild the tree after changing the contents
+            build(_root, _depth);
+        }
     }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
-        // Set the tree depth
-        optimize_depth(shapes);
+        if (shapes.size() > 0)
+        {
+            // Set the tree depth
+            set_scale(shapes);
 
-        // insert shapes without sorting
-        _shapes.clear();
-        _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
+            // insert shapes without sorting
+            _shapes.clear();
+            _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
 
-        // Clear out the root node
-        _root.clear();
+            // Clear out the root node
+            _root.clear();
 
-        // Create box keys
-        create_keys();
+            // Create box keys
+            create_keys();
 
-        // Rebuild the tree after changing the contents
-        build(_root, _depth);
+            // Rebuild the tree after changing the contents
+            build(_root, _depth);
+        }
     }
     inline const std::vector<K> &point_inside(const vec<T> &point) const
     {
+        // Check if tree is not built yet
+        if (_root.get_children().size() == 0)
+        {
+            return _sort_copy;
+        }
+
         // Clamp point into world bounds
         const vec<T> clamped = clamp_bounds(point);
 
         // Get the keys on the leaf node
         return get_node(clamped).get_keys();
-    }
-    inline void set_depth(const K depth)
-    {
-        // Set the depth and indicate overriding calculated depth
-        _depth_override = true;
-        _depth = depth;
     }
 };
 }

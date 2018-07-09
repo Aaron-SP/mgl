@@ -117,7 +117,7 @@ class oobbox_base
     {
         return _rotation;
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> grid(size_t scale) const
+    inline std::vector<std::pair<vec<T>, vec<T>>> grid(const size_t scale) const
     {
         // Create the grid cells in world space AABB
         return vec<T>::grid(get_min(), get_max(), scale);
