@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cmath>
 #include <cstdio>
+#include <min/stack_vector.h>
 #include <utility>
 #include <vector>
 
@@ -185,7 +186,7 @@ class sphere
         // Calculates the squared distance across the sphere extent
         return 4.0 * _radius2;
     }
-    inline std::vector<std::pair<vec<T>, T>> subdivide() const
+    inline min::stack_vector<std::pair<vec<T>, T>, vec<T>::sub_size()> subdivide() const
     {
         // Calculate radius for next level
         const T radius = _radius * 0.5;

@@ -497,8 +497,8 @@ bool test_vec4()
     min::vec4<double> inverse = direction.inverse();
     vmin = min::vec4<double>(-100000.0, -100000.0, -100000.0, 1.0);
     vmax = min::vec4<double>(100000.0, 100000.0, 100000.0, 1.0);
-    min::stack_vector<size_t, min::vec4<double>::sub_size()> keys;
-    min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
+    min::stack_vector<uint_fast8_t, min::vec4<double>::sub_size()> keys;
+    keys = min::vec4<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
     out = out && compare(7, keys[0]);
     out = out && compare(6, keys[1]);
@@ -513,7 +513,7 @@ bool test_vec4()
     origin = min::vec4<double>(-300.0, -50.0, -100.0, 1.0);
     direction = min::vec4<double>(1.0, 1.0, 1.0, 1.0).normalize();
     inverse = direction.inverse();
-    min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
+    keys = min::vec4<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
     out = out && compare(4, keys.size());
     out = out && compare(0, keys[0]);
     out = out && compare(2, keys[1]);
@@ -528,7 +528,7 @@ bool test_vec4()
     origin = min::vec4<double>(-300.0, -300.0, -300.0, 1.0);
     direction = min::vec4<double>(-1.0, -1.0, -1.0, 1.0).normalize();
     inverse = direction.inverse();
-    min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
+    keys = min::vec4<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
     out = out && compare(8, keys.size());
     out = out && compare(7, keys[0]);
     out = out && compare(6, keys[1]);
@@ -547,7 +547,7 @@ bool test_vec4()
     origin = min::vec4<double>(-1E-7, 1E-7, 1E-7, 1.0);
     direction = min::vec4<double>(1.0, -1.0, -1.0, 1.0).normalize();
     inverse = direction.inverse();
-    min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
+    keys = min::vec4<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
     out = out && compare(8, keys.size());
     out = out && compare(3, keys[0]);
     out = out && compare(7, keys[1]);
@@ -566,7 +566,7 @@ bool test_vec4()
     origin = min::vec4<double>(-99999.0, 99999.0, -99999.0, 1.0);
     direction = min::vec4<double>(0.0, -1.0, 0.0, 1.0).normalize();
     inverse = direction.inverse();
-    min::vec4<double>::subdivide_ray(keys, vmin, vmax, origin, direction, inverse);
+    keys = min::vec4<double>::subdivide_ray(vmin, vmax, origin, direction, inverse);
     out = out && compare(2, keys.size());
     out = out && compare(2, keys[0]);
     out = out && compare(0, keys[1]);
@@ -579,8 +579,8 @@ bool test_vec4()
     one = min::vec4<double>(-1.0, -1.0, -1.0, 1.0);
     two = min::vec4<double>(1.0, 1.0, 1.0, 1.0);
     three = min::vec4<double>(0.0, 0.0, 0.0, 1.0);
-    std::vector<uint_fast8_t> sub_over;
-    min::vec4<double>::subdivide_overlap(sub_over, one, two, three);
+    min::stack_vector<uint_fast8_t, min::vec4<double>::sub_size()> sub_over;
+    sub_over = min::vec4<double>::subdivide_overlap(one, two, three);
     out = out && compare(0, sub_over[0]);
     out = out && compare(1, sub_over[1]);
     out = out && compare(2, sub_over[2]);

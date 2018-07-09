@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cmath>
 #include <min/coord_sys.h>
+#include <min/stack_vector.h>
 #include <min/utility.h>
 #include <vector>
 
@@ -160,7 +161,7 @@ class oobbox_base
         const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> subdivide() const
+    inline min::stack_vector<std::pair<vec<T>, vec<T>>, vec<T>::sub_size()> subdivide() const
     {
         // Create the subdivided space in world space AABB
         return vec<T>::subdivide(get_min(), get_max());

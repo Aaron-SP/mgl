@@ -103,7 +103,6 @@ class tree
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
     std::vector<K> _sort_copy;
-    mutable std::vector<uint_fast8_t> _sub_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
@@ -130,7 +129,7 @@ class tree
 
         // Reserve space for this node
         children.reserve(sub_cell.size());
-        for (auto &sc : sub_cell)
+        for (const auto &sc : sub_cell)
         {
             children.emplace_back(cell<T, vec>(sc.first, sc.second));
         }
@@ -147,9 +146,9 @@ class tree
             const vec<T> &min = b.get_min();
             const vec<T> &max = b.get_max();
 
-            // Calculate intersection between shape and the node sub cells, sub_over.size() < 8
-            vec<T>::subdivide_overlap(_sub_overlap, min, max, center);
-            for (const auto &sub : _sub_overlap)
+            // Calculate intersection between shape and the node sub cells
+            const auto subs = vec<T>::subdivide_overlap(min, max, center);
+            for (const uint_fast8_t sub : subs)
             {
                 // Set key for all overlapping sub cells
                 children[sub].add_key(key);
@@ -233,9 +232,9 @@ class tree
             // Recursively search for overlap in all children
             if (child.size() > 0)
             {
-                // Calculate intersection between overlap shape and the node sub cells, sub_over.size() < 8
-                vec<T>::subdivide_overlap(_sub_overlap, min, max, center);
-                for (const auto &sub : _sub_overlap)
+                // Calculate intersection between overlap shape and the node sub cells
+                const auto subs = vec<T>::subdivide_overlap(min, max, center);
+                for (const uint_fast8_t sub : subs)
                 {
                     get_overlap(children[sub], min, max, depth - 1);
                 }
@@ -329,14 +328,13 @@ class tree
             const cell<T, vec> &c = node.get_cell();
 
             // For all child nodes intersecting ray
-            min::stack_vector<size_t, vec<T>::sub_size()> keys;
-            vec<T>::subdivide_ray(keys, c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
-            for (const size_t k : keys)
+            const auto subs = vec<T>::subdivide_ray(c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
+            for (const uint_fast8_t sub : subs)
             {
                 // If we haven't hit anything yet
                 if (_ray_hits.size() == 0)
                 {
-                    get_ray_intersect(children[k], r, depth - 1);
+                    get_ray_intersect(children[sub], r, depth - 1);
                 }
             }
         }

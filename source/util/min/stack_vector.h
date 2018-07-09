@@ -61,11 +61,11 @@ class stack_vector
     {
         _end = 0;
     }
-    T *begin()
+    const T *begin() const
     {
         return &_vec[0];
     }
-    T *end()
+    const T *end() const
     {
         return &_vec[_end];
     }

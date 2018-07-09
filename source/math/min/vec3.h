@@ -1338,10 +1338,9 @@ class vec3
     {
         return 8;
     }
-    inline static std::vector<std::pair<vec3<T>, vec3<T>>> subdivide(const vec3<T> &min, const vec3<T> &max)
+    inline static auto subdivide(const vec3<T> &min, const vec3<T> &max)
     {
-        std::vector<std::pair<vec3<T>, vec3<T>>> out;
-        out.reserve(vec3<T>::sub_size());
+        min::stack_vector<std::pair<vec3<T>, vec3<T>>, vec3<T>::sub_size()> out;
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -1390,10 +1389,9 @@ class vec3
 
         return out;
     }
-    inline static std::vector<std::pair<vec3<T>, T>> subdivide_center(const vec3<T> &min, const vec3<T> &max, const T size)
+    inline static auto subdivide_center(const vec3<T> &min, const vec3<T> &max, const T size)
     {
-        std::vector<std::pair<vec3<T>, T>> out;
-        out.reserve(vec3<T>::sub_size());
+        min::stack_vector<std::pair<vec3<T>, T>, vec3<T>::sub_size()> out;
 
         // Quarter extent of vector space
         const vec3<T> h = (max - min) * 0.25;
@@ -1455,10 +1453,9 @@ class vec3
     // tx(yz-plane) = (cx - nx · Px) / (nx · dx)
     // ty(xz-plane) = (cy - ny · Py) / (ny · dy)
     // tz(xy-plane) = (cz - nz · Pz) / (nz · dz)
-    inline static void subdivide_ray(min::stack_vector<size_t, vec3<T>::sub_size()> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
+    inline static auto subdivide_ray(const vec3<T> &min, const vec3<T> &max, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
     {
-        // Clear the vector
-        out.clear();
+        min::stack_vector<uint_fast8_t, vec3<T>::sub_size()> out;
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -2218,12 +2215,12 @@ class vec3
             const uint_fast8_t key = ratio.subdivide_key(0.5);
             out.push_back(key);
         }
+
+        return out;
     }
-    inline static void subdivide_overlap(std::vector<uint_fast8_t> &out, const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
+    inline static auto subdivide_overlap(const vec3<T> &min, const vec3<T> &max, const vec3<T> &center)
     {
-        // Reserve space for output
-        out.clear();
-        out.reserve(vec3<T>::sub_size());
+        min::stack_vector<uint_fast8_t, vec3<T>::sub_size()> out;
 
         const bool minx = min.x() <= center.x();
         const bool miny = min.y() <= center.y();
@@ -2351,6 +2348,8 @@ class vec3
                 }
             }
         }
+
+        return out;
     }
     inline constexpr static T unit_length()
     {

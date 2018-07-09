@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cmath>
 #include <cstdio>
+#include <min/stack_vector.h>
 #include <min/utility.h>
 #include <utility>
 #include <vector>
@@ -113,7 +114,7 @@ class aabbox
         const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
-    inline std::vector<std::pair<vec<T>, vec<T>>> subdivide() const
+    inline min::stack_vector<std::pair<vec<T>, vec<T>>, vec<T>::sub_size()> subdivide() const
     {
         // Create the subdivided space
         return vec<T>::subdivide(_min, _max);
