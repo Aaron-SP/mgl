@@ -635,8 +635,8 @@ bool test_vec2()
     two = min::vec2<double>(10000.0, 10000.0);
     vmin = min::vec2<double>(-100.0, -100.0);
     vmax = min::vec2<double>(100.0, 100.0);
-    std::vector<size_t> over;
-    min::vec2<double>::grid_overlap(over, one, (two - one) / 40, 40, vmin, vmax);
+    min::stack_vector<size_t, min::vec2<double>::sub_size()> over;
+    over = min::vec2<double>::grid_overlap(one, (two - one) / 40, 40, vmin, vmax);
     out = out && compare(4, over.size());
     if (!out)
     {

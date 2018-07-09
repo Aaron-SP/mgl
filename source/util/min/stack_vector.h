@@ -16,6 +16,7 @@ limitations under the License.
 #define __STACK_VECTOR__
 
 #include <cstddef>
+#include <utility>
 
 namespace min
 {
@@ -61,13 +62,18 @@ class stack_vector
     {
         _end = 0;
     }
-    const T *begin() const
+    inline const T *begin() const
     {
         return &_vec[0];
     }
-    const T *end() const
+    inline const T *end() const
     {
         return &_vec[_end];
+    }
+    template <typename... Ts>
+    inline void emplace_back(Ts &&... args)
+    {
+        _vec[_end++] = T(std::forward<Ts>(args)...);
     }
     inline void push_back(const T &v)
     {

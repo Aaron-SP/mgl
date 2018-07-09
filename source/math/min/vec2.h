@@ -263,11 +263,9 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
-    inline static void grid_overlap(std::vector<size_t> &out, const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
+    inline static auto grid_overlap(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
     {
-        // Reserve space for output
-        out.clear();
-        out.reserve(9);
+        min::stack_vector<size_t, vec2<T>::sub_size()> out;
 
         // Calculate the grid dimensions
         const T dx = extent.x();
@@ -331,6 +329,8 @@ class vec2
             if (tgy)
                 out.push_back(px * scale + py); // + Y
         }
+
+        return out;
     }
     inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
     {

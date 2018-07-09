@@ -91,7 +91,6 @@ class grid
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
     std::vector<K> _sort_copy;
-    std::vector<size_t> _grid_overlap;
     mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
@@ -121,10 +120,10 @@ class grid
         {
             // Get the surrounding overlapping neighbor cells
             const auto &b = _shapes[i];
-            vec<T>::grid_overlap(_grid_overlap, _root.get_min(), _cell_extent, _scale, b.get_min(), b.get_max());
+            const auto overlap = vec<T>::grid_overlap(_root.get_min(), _cell_extent, _scale, b.get_min(), b.get_max());
 
             // All surrounding neighbors overlap
-            for (auto &n : _grid_overlap)
+            for (auto &n : overlap)
             {
                 // Assign keys to cell
                 _cells[n].add_key(i);
