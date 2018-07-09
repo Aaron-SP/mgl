@@ -1334,9 +1334,11 @@ class vec3
     {
         return 8;
     }
-    inline static auto subdivide(const vec3<T> &min, const vec3<T> &max)
+    template <typename C>
+    inline static auto subdivide(C &out, const vec3<T> &min, const vec3<T> &max)
     {
-        min::stack_vector<std::pair<vec3<T>, vec3<T>>, vec3<T>::sub_size()> out;
+        // Clear out vector
+        out.clear();
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -1374,20 +1376,20 @@ class vec3
         const vec3<T> max7 = vec3<T>(max.x(), max.y(), max.z());
 
         // Add sub spaces to out vector
-        out.push_back(std::make_pair(min0, max0));
-        out.push_back(std::make_pair(min1, max1));
-        out.push_back(std::make_pair(min2, max2));
-        out.push_back(std::make_pair(min3, max3));
-        out.push_back(std::make_pair(min4, max4));
-        out.push_back(std::make_pair(min5, max5));
-        out.push_back(std::make_pair(min6, max6));
-        out.push_back(std::make_pair(min7, max7));
-
-        return out;
+        out.emplace_back(min0, max0);
+        out.emplace_back(min1, max1);
+        out.emplace_back(min2, max2);
+        out.emplace_back(min3, max3);
+        out.emplace_back(min4, max4);
+        out.emplace_back(min5, max5);
+        out.emplace_back(min6, max6);
+        out.emplace_back(min7, max7);
     }
-    inline static auto subdivide_center(const vec3<T> &min, const vec3<T> &max, const T size)
+    template <typename C>
+    inline static auto subdivide_center(C &out, const vec3<T> &min, const vec3<T> &max, const T size)
     {
-        min::stack_vector<std::pair<vec3<T>, T>, vec3<T>::sub_size()> out;
+        // Clear out vector
+        out.clear();
 
         // Quarter extent of vector space
         const vec3<T> h = (max - min) * 0.25;
@@ -1429,16 +1431,14 @@ class vec3
         const vec3<T> c7 = vec3<T>(cxhx, cyhy, czhz);
 
         // Add sub spaces to out vector
-        out.push_back(std::make_pair(c0, size));
-        out.push_back(std::make_pair(c1, size));
-        out.push_back(std::make_pair(c2, size));
-        out.push_back(std::make_pair(c3, size));
-        out.push_back(std::make_pair(c4, size));
-        out.push_back(std::make_pair(c5, size));
-        out.push_back(std::make_pair(c6, size));
-        out.push_back(std::make_pair(c7, size));
-
-        return out;
+        out.emplace_back(c0, size);
+        out.emplace_back(c1, size);
+        out.emplace_back(c2, size);
+        out.emplace_back(c3, size);
+        out.emplace_back(c4, size);
+        out.emplace_back(c5, size);
+        out.emplace_back(c6, size);
+        out.emplace_back(c7, size);
     }
     // Plane n·x - c = 0
     // Ray x = P + td

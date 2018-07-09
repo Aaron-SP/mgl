@@ -162,10 +162,11 @@ class oobbox_base
         const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
-    inline min::stack_vector<std::pair<vec<T>, vec<T>>, vec<T>::sub_size()> subdivide() const
+    template <typename C>
+    inline void subdivide(C &v) const
     {
         // Create the subdivided space in world space AABB
-        return vec<T>::subdivide(get_min(), get_max());
+        vec<T>::subdivide(v, get_min(), get_max());
     }
 };
 

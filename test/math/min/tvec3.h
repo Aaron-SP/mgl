@@ -314,8 +314,10 @@ bool test_vec3()
     // Test sub-divide
     one = min::vec3<double>(-1.0, -1.0, -1.0);
     two = min::vec3<double>(1.0, 1.0, 1.0);
-    auto sub = min::vec3<double>::subdivide(one, two);
-    auto subc = min::vec3<double>::subdivide_center(one, two, 1.7320);
+    std::vector<std::pair<min::vec3<double>, min::vec3<double>>> sub;
+    std::vector<std::pair<min::vec3<double>, double>> subc;
+    min::vec3<double>::subdivide(sub, one, two);
+    min::vec3<double>::subdivide_center(subc, one, two, 1.7320);
 
     // Test zero
     out = out && compare(-1.0, sub[0].first.x(), 1E-4);

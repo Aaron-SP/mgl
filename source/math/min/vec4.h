@@ -195,7 +195,7 @@ class vec4
     template <typename C>
     inline static void grid(C &out, const vec4<T> &min, const vec4<T> &max, const size_t scale)
     {
-        // Create out vector
+        // Clear out vector
         out.clear();
         out.reserve(scale * scale * scale);
 
@@ -1350,9 +1350,11 @@ class vec4
     {
         return 8;
     }
-    inline static auto subdivide(const vec4<T> &min, const vec4<T> &max)
+    template <typename C>
+    inline static auto subdivide(C &out, const vec4<T> &min, const vec4<T> &max)
     {
-        min::stack_vector<std::pair<vec4<T>, vec4<T>>, vec4<T>::sub_size()> out;
+        // Clear out vector
+        out.clear();
 
         // Center of the vector space
         const vec4<T> c = (max + min) * 0.5;
@@ -1390,21 +1392,18 @@ class vec4
         const vec4<T> max7 = vec4<T>(max.x(), max.y(), max.z(), 1.0);
 
         // Add sub spaces to out vector
-        out.push_back(std::make_pair(min0, max0));
-        out.push_back(std::make_pair(min1, max1));
-        out.push_back(std::make_pair(min2, max2));
-        out.push_back(std::make_pair(min3, max3));
-        out.push_back(std::make_pair(min4, max4));
-        out.push_back(std::make_pair(min5, max5));
-        out.push_back(std::make_pair(min6, max6));
-        out.push_back(std::make_pair(min7, max7));
-
-        return out;
+        out.emplace_back(min0, max0);
+        out.emplace_back(min1, max1);
+        out.emplace_back(min2, max2);
+        out.emplace_back(min3, max3);
+        out.emplace_back(min4, max4);
+        out.emplace_back(min5, max5);
+        out.emplace_back(min6, max6);
+        out.emplace_back(min7, max7);
     }
-    inline static auto subdivide_center(const vec4<T> &min, const vec4<T> &max, const T size)
+    template <typename C>
+    inline static auto subdivide_center(C &out, const vec4<T> &min, const vec4<T> &max, const T size)
     {
-        min::stack_vector<std::pair<vec4<T>, T>, vec4<T>::sub_size()> out;
-
         // Quarter extent of vector space
         const vec4<T> h = (max - min) * 0.25;
 
@@ -1445,16 +1444,14 @@ class vec4
         const vec4<T> c7 = vec4<T>(cxhx, cyhy, czhz, 1.0);
 
         // Add sub spaces to out vector
-        out.push_back(std::make_pair(c0, size));
-        out.push_back(std::make_pair(c1, size));
-        out.push_back(std::make_pair(c2, size));
-        out.push_back(std::make_pair(c3, size));
-        out.push_back(std::make_pair(c4, size));
-        out.push_back(std::make_pair(c5, size));
-        out.push_back(std::make_pair(c6, size));
-        out.push_back(std::make_pair(c7, size));
-
-        return out;
+        out.emplace_back(c0, size);
+        out.emplace_back(c1, size);
+        out.emplace_back(c2, size);
+        out.emplace_back(c3, size);
+        out.emplace_back(c4, size);
+        out.emplace_back(c5, size);
+        out.emplace_back(c6, size);
+        out.emplace_back(c7, size);
     }
     // Plane n·x - c = 0
     // Ray x = P + td

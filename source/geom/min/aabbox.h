@@ -115,10 +115,11 @@ class aabbox
         const vec<T> extent = get_extent();
         return extent.dot(extent);
     }
-    inline min::stack_vector<std::pair<vec<T>, vec<T>>, vec<T>::sub_size()> subdivide() const
+    template <typename C>
+    inline void subdivide(C &v) const
     {
         // Create the subdivided space
-        return vec<T>::subdivide(_min, _max);
+        vec<T>::subdivide(v, _min, _max);
     }
 };
 }

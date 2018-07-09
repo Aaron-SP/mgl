@@ -132,7 +132,7 @@ class grid
         }
 
         // Calculate intersections of sub cell with list of shapes
-        const auto size = _shapes.size();
+        const K size = _shapes.size();
         for (K i = 0; i < size; i++)
         {
             // Get the surrounding overlapping neighbor cells

@@ -187,13 +187,14 @@ class sphere
         // Calculates the squared distance across the sphere extent
         return 4.0 * _radius2;
     }
-    inline min::stack_vector<std::pair<vec<T>, T>, vec<T>::sub_size()> subdivide() const
+    template <typename C>
+    inline void subdivide(C &v) const
     {
         // Calculate radius for next level
         const T radius = _radius * 0.5;
 
         // Create the subdivided space
-        return vec<T>::subdivide_center(get_min(), get_max(), radius);
+        vec<T>::subdivide_center(v, get_min(), get_max(), radius);
     }
 };
 }

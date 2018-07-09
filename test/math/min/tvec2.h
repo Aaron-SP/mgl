@@ -275,8 +275,10 @@ bool test_vec2()
     // Test sub-divide and sub-divide center
     one = min::vec2<double>(-1.0, -1.0);
     two = min::vec2<double>(1.0, 1.0);
-    auto sub = min::vec2<double>::subdivide(one, two);
-    auto subc = min::vec2<double>::subdivide_center(one, two, 1.4141);
+    std::vector<std::pair<min::vec2<double>, min::vec2<double>>> sub;
+    std::vector<std::pair<min::vec2<double>, double>> subc;
+    min::vec2<double>::subdivide(sub, one, two);
+    min::vec2<double>::subdivide_center(subc, one, two, 1.4141);
 
     // Test zero
     out = out && compare(-1.0, sub[0].first.x(), 1E-4);

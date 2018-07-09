@@ -73,6 +73,8 @@ class tree_node
 
   public:
     tree_node(const cell<T, vec> &c) : _cell(c) {}
+    tree_node(const vec<T> &min, const vec<T> &max) : _cell(min, max) {}
+    tree_node(const vec<T> &c, const T r) : _cell(c, r) {}
     inline const std::vector<tree_node<T, K, L, vec, cell, shape>> &get_children() const
     {
         return _child;
@@ -125,14 +127,7 @@ class tree
 
         // Calculate sub cell regions in this node, and set the node children cells
         auto &children = node.get_children();
-        const auto sub_cell = node.get_cell().subdivide();
-
-        // Reserve space for this node
-        children.reserve(sub_cell.size());
-        for (const auto &sc : sub_cell)
-        {
-            children.emplace_back(cell<T, vec>(sc.first, sc.second));
-        }
+        node.get_cell().subdivide(children);
 
         // Get this node center
         const vec<T> &center = node.get_cell().get_center();
@@ -168,7 +163,7 @@ class tree
     inline void create_keys()
     {
         // Preallocate the key vector and collision cache
-        const auto size = _shapes.size();
+        const K size = _shapes.size();
 
         // Resize the keys vector and fill with increasing series
         std::vector<K> &keys = _root.get_keys();
@@ -350,7 +345,7 @@ class tree
         T max = shapes[0].square_size();
 
         // Calculate the maximum square distance across each extent
-        const auto size = shapes.size();
+        const K size = shapes.size();
         for (K i = 1; i < size; i++)
         {
             // Update the maximum
