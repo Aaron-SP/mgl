@@ -259,9 +259,13 @@ class vec2
         // Return the grid index key for accessing cell
         return col * scale + row;
     }
+    inline static constexpr size_t over_size()
+    {
+        return 9;
+    }
     inline static auto grid_overlap(const vec2<T> &min, const vec2<T> &extent, const size_t scale, const vec2<T> &b_min, const vec2<T> &b_max)
     {
-        min::stack_vector<size_t, vec2<T>::sub_size()> out;
+        min::stack_vector<size_t, vec2<T>::over_size()> out;
 
         // Calculate the grid dimensions
         const T dx = extent.x();

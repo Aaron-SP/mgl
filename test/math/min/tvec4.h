@@ -898,7 +898,7 @@ bool test_vec4()
     two = min::vec4<double>(10000.0, 10000.0, 10000.0, 1.0);
     vmin = min::vec4<double>(-100.0, -100.0, -100.0, 1.0);
     vmax = min::vec4<double>(100.0, 100.0, 100.0, 1.0);
-    min::stack_vector<size_t, min::vec4<double>::sub_size()> over;
+    min::stack_vector<size_t, min::vec4<double>::over_size()> over;
     over = min::vec4<double>::grid_overlap(one, (two - one) / 40, 40, vmin, vmax);
     out = out && compare(8, over.size());
     if (!out)
