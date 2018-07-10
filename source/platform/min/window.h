@@ -24,7 +24,7 @@ namespace min
 using window = min::win32_window;
 }
 
-#elif __linux__
+#else
 
 #include <min/x_window.h>
 
