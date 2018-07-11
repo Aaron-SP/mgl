@@ -222,7 +222,7 @@ class body_base
     {
         _rotation = r;
     }
-    inline const void move_offset(const vec<T> &offset)
+    inline void move_offset(const vec<T> &offset)
     {
         _position += offset;
     }
@@ -830,7 +830,7 @@ class physics
     {
         return _spatial.get_overlap(overlap);
     }
-    inline const size_t get_scale() const
+    inline size_t get_scale() const
     {
         return _spatial.get_scale();
     }

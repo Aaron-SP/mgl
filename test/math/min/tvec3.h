@@ -317,7 +317,7 @@ bool test_vec3()
     std::vector<std::pair<min::vec3<double>, min::vec3<double>>> sub;
     std::vector<std::pair<min::vec3<double>, double>> subc;
     min::vec3<double>::subdivide(sub, one, two);
-    min::vec3<double>::subdivide_center(subc, one, two, 1.7320);
+    min::vec3<double>::subdivide_center(subc, one, two);
 
     // Test zero
     out = out && compare(-1.0, sub[0].first.x(), 1E-4);

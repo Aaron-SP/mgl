@@ -35,6 +35,7 @@ class aabbox
   public:
     aabbox() : _min(), _max() {}
     aabbox(const vec<T> &min, const vec<T> &max) : _min(min), _max(max) {}
+    aabbox(const vec<T> &min, const vec<T> &max, const T tol) : _min(min - tol), _max(max + tol) {}
     aabbox(const std::vector<vec<T>> &verts) : _min(), _max()
     {
         add(verts);

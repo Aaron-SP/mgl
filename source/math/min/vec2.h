@@ -872,7 +872,7 @@ class vec2
 
         // Get the x portion of key
         uint_fast8_t key = 0;
-        if (x > middle)
+        if (x >= middle)
         {
             // Set the least significant bit
             key |= 0x1;
@@ -882,12 +882,32 @@ class vec2
 
         // Get the y portion of key
         key <<= 1;
-        if (y > middle)
+        if (y >= middle)
         {
             // Set the least significant bit
             key |= 0x1;
             y -= middle;
             _y = y;
+        }
+
+        return key;
+    }
+    inline uint_fast8_t subdivide_key(const vec2<T> &center) const
+    {
+        // Get the x portion of key
+        uint_fast8_t key = 0;
+        if (_x >= center.x())
+        {
+            // Set the least significant bit
+            key |= 0x1;
+        }
+
+        // Get the y portion of key
+        key <<= 1;
+        if (_y >= center.y())
+        {
+            // Set the least significant bit
+            key |= 0x1;
         }
 
         return key;
@@ -928,13 +948,13 @@ class vec2
         out.emplace_back(min3, max3);
     }
     template <typename C>
-    inline static auto subdivide_center(C &out, const vec2<T> &min, const vec2<T> &max, const T size)
+    inline static auto subdivide_center(C &out, const vec2<T> &min, const vec2<T> &max)
     {
         // Clear out vector
         out.clear();
 
         // quarter extent of vector space
-        const vec2<T> h = (max - min) * 0.25;
+        const vec2<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
 
         // Center of the vector space
         const vec2<T> c = (max + min) * 0.5;
@@ -958,11 +978,17 @@ class vec2
         // Octant 3
         const vec2<T> c3 = vec2<T>(cxhx, cyhy);
 
+        // Calculate the square distance between center and extent
+        const T radius2 = h.dot(h);
+
+        // Calculate the radius
+        const T radius = std::sqrt(radius2);
+
         // Add sub spaces to out vector
-        out.emplace_back(c0, size);
-        out.emplace_back(c1, size);
-        out.emplace_back(c2, size);
-        out.emplace_back(c3, size);
+        out.emplace_back(c0, radius);
+        out.emplace_back(c1, radius);
+        out.emplace_back(c2, radius);
+        out.emplace_back(c3, radius);
     }
     // Plane n·x - c = 0
     // Ray x = P + td
@@ -976,33 +1002,86 @@ class vec2
     {
         min::stack_vector<uint_fast8_t, vec2<T>::sub_size()> out;
 
+        // Ray can't intersect the slab if ray is parallel to axis
+        if (origin.any_zero_outside(dir, min, max))
+        {
+            return out;
+        }
+
         // Center of the vector space
         const vec2<T> center = (max + min) * 0.5;
 
         // Calculate ray intersections among all axes
         const vec2<T> t = (center - origin) * inv_dir;
-        const vec2<T> t_abs = vec2<T>(t).abs();
 
         // X intersection types
         const bool x_front = t.y() >= 0.0;
-        const T px = origin.x() + t.y() * dir.x();
+        const T px = origin.x() + (t.y() * dir.x());
         const bool xmin_out = x_front && (px < center.x());
-        const bool xmin = px >= min.x();
         const bool xmax_out = x_front && (px >= center.x());
+        const bool xmin = px >= min.x();
         const bool xmax = px <= max.x();
 
         // Y intersection types
         const bool y_front = t.x() >= 0.0;
-        const T py = origin.y() + t.x() * dir.y();
+        const T py = origin.y() + (t.x() * dir.y());
         const bool ymin_out = y_front && (py < center.y());
-        const bool ymin = py >= min.y();
         const bool ymax_out = y_front && (py >= center.y());
+        const bool ymin = py >= min.y();
         const bool ymax = py <= max.y();
 
         // Calculate first axis intersection
-        const bool x_axis_first = t_abs.y() < t_abs.x();
-        const bool y_axis_first = t_abs.x() < t_abs.y();
-        if (x_axis_first)
+        const bool xly = x_front && (!y_front || (t.y() < t.x()));
+        const bool ylx = y_front && (!x_front || (t.x() < t.y()));
+
+        // Prefer point inside versus first plane intersection
+        const bool x_inside = xmin && xmax;
+        const bool y_inside = ymin && ymax;
+
+        // Special case, only one cell is intersected in this case
+        const bool all_outside = !x_inside && !y_inside;
+        if (all_outside)
+        {
+            if (origin.within(min, max))
+            {
+                // Get the key from octant
+                const uint_fast8_t key = origin.subdivide_key(center);
+                out.push_back(key);
+            }
+            else
+            {
+                // Calculate the intersection with near and far plane
+                vec2<T> near = (min - origin) * inv_dir;
+                vec2<T> far = (max - origin) * inv_dir;
+
+                // Order to get the nearer intersection points
+                vec2<T>::order(near, far);
+
+                // Get the farthest entry into the slab
+                const T tmin = near.max();
+
+                // Get the nearest exit from a slab
+                const T tmax = far.min();
+
+                // If tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
+                if (tmax >= tmin && tmin >= 0.0)
+                {
+                    // Find the octant the the origin is in
+                    const vec2<T> point = (origin + (dir * tmin));
+
+                    // Get the key from octant
+                    const uint_fast8_t key = point.subdivide_key(center);
+                    out.push_back(key);
+                }
+            }
+
+            // Early return
+            return out;
+        }
+
+        const bool x_ = xly && x_inside;
+        const bool y_ = ylx && y_inside;
+        if (x_)
         {
             if (xmin_out)
             {
@@ -1059,7 +1138,7 @@ class vec2
                 }
             }
         }
-        else if (y_axis_first)
+        else if (y_)
         {
             if (ymin_out)
             {
@@ -1134,20 +1213,6 @@ class vec2
             {
                 out = {0, 1, 2, 3};
             }
-        }
-
-        // If we didn't hit any planes, test if ray origin is within the cell
-        if (out.size() == 0 && origin.within(min, max))
-        {
-            // Find the quadrant the origin is in
-            vec2<T> enter = vec2<T>(origin).clamp(min, max);
-
-            // Calculate ratio between 0.0 and 1.0
-            vec2<T> ratio = vec2<T>::ratio(min, max, enter);
-
-            // Get the key from quadrant
-            const uint_fast8_t key = ratio.subdivide_key(0.5);
-            out.push_back(key);
         }
 
         return out;

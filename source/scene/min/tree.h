@@ -73,8 +73,8 @@ class tree_node
 
   public:
     tree_node(const cell<T, vec> &c) : _cell(c) {}
-    tree_node(const vec<T> &min, const vec<T> &max) : _cell(min, max) {}
-    tree_node(const vec<T> &c, const T r) : _cell(c, r) {}
+    tree_node(const vec<T> &min, const vec<T> &max) : _cell(min, max, var<T>::TOL_REL) {}
+    tree_node(const vec<T> &c, const T r) : _cell(c, r, var<T>::TOL_REL) {}
     inline const std::vector<tree_node<T, K, L, vec, cell, shape>> &get_children() const
     {
         return _child;

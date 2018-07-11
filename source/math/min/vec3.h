@@ -1304,7 +1304,7 @@ class vec3
 
         // Get the x portion of key
         uint_fast8_t key = 0;
-        if (x > middle)
+        if (x >= middle)
         {
             // Set the least significant bit
             key |= 0x1;
@@ -1314,7 +1314,7 @@ class vec3
 
         // Get the y portion of key
         key <<= 1;
-        if (y > middle)
+        if (y >= middle)
         {
             // Set the least significant bit
             key |= 0x1;
@@ -1324,12 +1324,40 @@ class vec3
 
         // Get the z portion of key
         key <<= 1;
-        if (z > middle)
+        if (z >= middle)
         {
             // Set the least significant bit
             key |= 0x1;
             z -= middle;
             _z = z;
+        }
+
+        return key;
+    }
+    inline uint_fast8_t subdivide_key(const vec3<T> &center) const
+    {
+        // Get the x portion of key
+        uint_fast8_t key = 0;
+        if (_x >= center.x())
+        {
+            // Set the least significant bit
+            key |= 0x1;
+        }
+
+        // Get the y portion of key
+        key <<= 1;
+        if (_y >= center.y())
+        {
+            // Set the least significant bit
+            key |= 0x1;
+        }
+
+        // Get the z portion of key
+        key <<= 1;
+        if (_z >= center.z())
+        {
+            // Set the least significant bit
+            key |= 0x1;
         }
 
         return key;
@@ -1390,13 +1418,13 @@ class vec3
         out.emplace_back(min7, max7);
     }
     template <typename C>
-    inline static auto subdivide_center(C &out, const vec3<T> &min, const vec3<T> &max, const T size)
+    inline static auto subdivide_center(C &out, const vec3<T> &min, const vec3<T> &max)
     {
         // Clear out vector
         out.clear();
 
         // Quarter extent of vector space
-        const vec3<T> h = (max - min) * 0.25;
+        const vec3<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -1434,15 +1462,21 @@ class vec3
         // Octant 7
         const vec3<T> c7 = vec3<T>(cxhx, cyhy, czhz);
 
+        // Calculate the square distance between center and extent
+        const T radius2 = h.dot(h);
+
+        // Calculate the radius
+        const T radius = std::sqrt(radius2);
+
         // Add sub spaces to out vector
-        out.emplace_back(c0, size);
-        out.emplace_back(c1, size);
-        out.emplace_back(c2, size);
-        out.emplace_back(c3, size);
-        out.emplace_back(c4, size);
-        out.emplace_back(c5, size);
-        out.emplace_back(c6, size);
-        out.emplace_back(c7, size);
+        out.emplace_back(c0, radius);
+        out.emplace_back(c1, radius);
+        out.emplace_back(c2, radius);
+        out.emplace_back(c3, radius);
+        out.emplace_back(c4, radius);
+        out.emplace_back(c5, radius);
+        out.emplace_back(c6, radius);
+        out.emplace_back(c7, radius);
     }
     // Plane n·x - c = 0
     // Ray x = P + td
@@ -1457,68 +1491,119 @@ class vec3
     {
         min::stack_vector<uint_fast8_t, vec3<T>::sub_size()> out;
 
+        // Ray can't intersect the slab if ray is parallel to axis
+        if (origin.any_zero_outside(dir, min, max))
+        {
+            return out;
+        }
+
         // Center of the vector space
-        const vec3<T> c = (max + min) * 0.5;
+        const vec3<T> center = (max + min) * 0.5;
 
         // Calculate ray intersections among all axes
-        const vec3<T> t = (c - origin) * inv_dir;
-        const vec3<T> t_abs = vec3<T>(t).abs();
+        const vec3<T> t = (center - origin) * inv_dir;
 
         // YZ intersection types
-        const T pyz_y = origin.y() + t.x() * dir.y();
-        const T pyz_z = origin.z() + t.x() * dir.z();
+        const T pyz_y = origin.y() + (t.x() * dir.y());
+        const T pyz_z = origin.z() + (t.x() * dir.z());
         const bool yz_front = t.x() >= 0.0;
-        const bool ymin_zmin_out = yz_front && (pyz_y < c.y()) && (pyz_z < c.z());
+        const bool ymin_zmin_out = yz_front && (pyz_y < center.y()) && (pyz_z < center.z());
+        const bool ymax_zmin_out = yz_front && (pyz_y >= center.y()) && (pyz_z < center.z());
+        const bool ymin_zmax_out = yz_front && (pyz_y < center.y()) && (pyz_z >= center.z());
+        const bool ymax_zmax_out = yz_front && (pyz_y >= center.y()) && (pyz_z >= center.z());
         const bool ymin_zmin = (pyz_y >= min.y()) && (pyz_z >= min.z());
-        const bool ymax_zmin_out = yz_front && (pyz_y >= c.y()) && (pyz_z < c.z());
         const bool ymax_zmin = (pyz_y <= max.y()) && (pyz_z >= min.z());
-        const bool ymin_zmax_out = yz_front && (pyz_y < c.y()) && (pyz_z >= c.z());
         const bool ymin_zmax = (pyz_y >= min.y()) && (pyz_z <= max.z());
-        const bool ymax_zmax_out = yz_front && (pyz_y >= c.y()) && (pyz_z >= c.z());
         const bool ymax_zmax = (pyz_y <= max.y()) && (pyz_z <= max.z());
 
         // XZ intersection types
-        const T pxz_x = origin.x() + t.y() * dir.x();
-        const T pxz_z = origin.z() + t.y() * dir.z();
+        const T pxz_x = origin.x() + (t.y() * dir.x());
+        const T pxz_z = origin.z() + (t.y() * dir.z());
         const bool xz_front = t.y() >= 0.0;
-        const bool xmin_zmin_out = xz_front && (pxz_x < c.x()) && (pxz_z < c.z());
+        const bool xmin_zmin_out = xz_front && (pxz_x < center.x()) && (pxz_z < center.z());
+        const bool xmax_zmin_out = xz_front && (pxz_x >= center.x()) && (pxz_z < center.z());
+        const bool xmin_zmax_out = xz_front && (pxz_x < center.x()) && (pxz_z >= center.z());
+        const bool xmax_zmax_out = xz_front && (pxz_x >= center.x()) && (pxz_z >= center.z());
         const bool xmin_zmin = (pxz_x >= min.x()) && (pxz_z >= min.z());
-        const bool xmax_zmin_out = xz_front && (pxz_x >= c.x()) && (pxz_z < c.z());
         const bool xmax_zmin = (pxz_x <= max.x()) && (pxz_z >= min.z());
-        const bool xmin_zmax_out = xz_front && (pxz_x < c.x()) && (pxz_z >= c.z());
         const bool xmin_zmax = (pxz_x >= min.x()) && (pxz_z <= max.z());
-        const bool xmax_zmax_out = xz_front && (pxz_x >= c.x()) && (pxz_z >= c.z());
         const bool xmax_zmax = (pxz_x <= max.x()) && (pxz_z <= max.z());
 
         // XY intersection types
-        const T pxy_x = origin.x() + t.z() * dir.x();
-        const T pxy_y = origin.y() + t.z() * dir.y();
+        const T pxy_x = origin.x() + (t.z() * dir.x());
+        const T pxy_y = origin.y() + (t.z() * dir.y());
         const bool xy_front = t.z() >= 0.0;
-        const bool xmin_ymin_out = xy_front && (pxy_x < c.x()) && (pxy_y < c.y());
+        const bool xmin_ymin_out = xy_front && (pxy_x < center.x()) && (pxy_y < center.y());
+        const bool xmax_ymin_out = xy_front && (pxy_x >= center.x()) && (pxy_y < center.y());
+        const bool xmin_ymax_out = xy_front && (pxy_x < center.x()) && (pxy_y >= center.y());
+        const bool xmax_ymax_out = xy_front && (pxy_x >= center.x()) && (pxy_y >= center.y());
         const bool xmin_ymin = (pxy_x >= min.x()) && (pxy_y >= min.y());
-        const bool xmax_ymin_out = xy_front && (pxy_x >= c.x()) && (pxy_y < c.y());
         const bool xmax_ymin = (pxy_x <= max.x()) && (pxy_y >= min.y());
-        const bool xmin_ymax_out = xy_front && (pxy_x < c.x()) && (pxy_y >= c.y());
         const bool xmin_ymax = (pxy_x >= min.x()) && (pxy_y <= max.y());
-        const bool xmax_ymax_out = xy_front && (pxy_x >= c.x()) && (pxy_y >= c.y());
         const bool xmax_ymax = (pxy_x <= max.x()) && (pxy_y <= max.y());
 
         // Less than
-        const bool xly = t_abs.x() < t_abs.y();
-        const bool xlz = t_abs.x() < t_abs.z();
-        const bool ylx = t_abs.y() < t_abs.x();
-        const bool ylz = t_abs.y() < t_abs.z();
-        const bool zlx = t_abs.z() < t_abs.x();
-        const bool zly = t_abs.z() < t_abs.y();
+        const bool xly = yz_front && (!xz_front || (t.x() < t.y()));
+        const bool xlz = yz_front && (!xy_front || (t.x() < t.z()));
+        const bool ylx = xz_front && (!yz_front || (t.y() < t.x()));
+        const bool ylz = xz_front && (!xy_front || (t.y() < t.z()));
+        const bool zlx = xy_front && (!yz_front || (t.z() < t.x()));
+        const bool zly = xy_front && (!xz_front || (t.z() < t.y()));
+
+        // Prefer point inside versus first plane intersection
+        const bool yz_inside = ymin_zmin && ymax_zmax;
+        const bool xz_inside = xmin_zmin && xmax_zmax;
+        const bool xy_inside = xmin_ymin && xmax_ymax;
+
+        // Special case, only one cell is intersected in this case
+        const bool all_outside = !yz_inside && !xz_inside && !xy_inside;
+        if (all_outside)
+        {
+            if (origin.within(min, max))
+            {
+                // Get the key from octant
+                const uint_fast8_t key = origin.subdivide_key(center);
+                out.push_back(key);
+            }
+            else
+            {
+                // Calculate the intersection with near and far plane
+                vec3<T> near = (min - origin) * inv_dir;
+                vec3<T> far = (max - origin) * inv_dir;
+
+                // Order to get the nearer intersection points
+                vec3<T>::order(near, far);
+
+                // Get the farthest entry into the slab
+                const T tmin = near.max();
+
+                // Get the nearest exit from a slab
+                const T tmax = far.min();
+
+                // If tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
+                if (tmax >= tmin && tmin >= 0.0)
+                {
+                    // Find the octant the the origin is in
+                    const vec3<T> point = (origin + (dir * tmin));
+
+                    // Get the key from octant
+                    const uint_fast8_t key = point.subdivide_key(center);
+                    out.push_back(key);
+                }
+            }
+
+            // Early return
+            return out;
+        }
 
         // Calculate first axis intersection
-        const bool yz_ = xly && xlz;
+        const bool yz_ = xly && xlz && yz_inside;
         const bool yz_xz = ylz;
         const bool yz_xy = zly;
-        const bool xz_ = ylx && ylz;
+        const bool xz_ = ylx && ylz && xz_inside;
         const bool xz_yz = xlz;
         const bool xz_xy = zlx;
-        const bool xy_ = zlx && zly;
+        const bool xy_ = zlx && zly && xy_inside;
         const bool xy_xz = ylx;
         const bool xy_yz = xly;
         if (yz_)
@@ -2200,20 +2285,6 @@ class vec3
             {
                 out = {0, 1, 4, 5, 2, 3, 6, 7};
             }
-        }
-
-        // If we didn't hit any planes, test if ray origin is within the cell
-        if (out.size() == 0 && origin.within(min, max))
-        {
-            // Find the octant the the origin is in
-            vec3<T> enter = vec3<T>(origin).clamp(min, max);
-
-            // Calculate ratio between 0.0 and 1.0
-            vec3<T> ratio = vec3<T>::ratio(min, max, enter);
-
-            // Get the key from octant
-            const uint_fast8_t key = ratio.subdivide_key(0.5);
-            out.push_back(key);
         }
 
         return out;

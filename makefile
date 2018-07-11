@@ -64,8 +64,9 @@ TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/render
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
 # Compile flags
-DEBUGFLAGS = -std=c++14 -Wall -O1
-RELEASEFLAGS = -std=c++14 -Wall -O3 -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
+WARNFLAGS = -Wall -Wextra -pedantic -Wno-unused-parameter 
+DEBUGFLAGS = -std=c++14 $(WARNFLAGS) -O1
+RELEASEFLAGS = -std=c++14 $(WARNFLAGS) -O3 -fomit-frame-pointer -freciprocal-math -ffast-math --param max-inline-insns-auto=100 --param early-inlining-insns=200
 
 # Set architecture
 ifeq ($(BUILD),debug)

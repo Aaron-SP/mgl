@@ -59,7 +59,10 @@ class sphere
 
   public:
     sphere() : _radius(0.0), _radius2(0.0) {}
-    sphere(const vec<T> &c, const T r) : _center(c), _radius(r), _radius2(r * r) {}
+    sphere(const vec<T> &c, const T r)
+        : _center(c), _radius(r), _radius2(_radius * _radius) {}
+    sphere(const vec<T> &c, const T r, const T tol)
+        : _center(c), _radius(r + tol), _radius2(_radius * _radius) {}
     sphere(const vec<T> &min, const vec<T> &max)
     {
         // calculate center position of space
@@ -190,11 +193,8 @@ class sphere
     template <typename C>
     inline void subdivide(C &v) const
     {
-        // Calculate radius for next level
-        const T radius = _radius * 0.5;
-
         // Create the subdivided space
-        vec<T>::subdivide_center(v, get_min(), get_max(), radius);
+        vec<T>::subdivide_center(v, get_min(), get_max());
     }
 };
 }
