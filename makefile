@@ -41,14 +41,14 @@ ifeq ($(OS),Windows_NT)
     endif
 
 	# Link library settings
-	LINKER = -lgdi32 -lopengl32 -lfreetype.dll -lOpenAL32.dll -lvorbisfile.dll
+	LINKER = -lgdi32 -lopengl32 -lfreetype.dll -lOpenAL32.dll -lvorbisfile.dll -lglew32.dll
 	STATIC = $(LINKER) -static -lmingw32 -static-libgcc -static-libstdc++ -Wl,--as-needed
 	DYNAMIC = -Wl,-Bdynamic $(LINKER) -lmingw32 -Wl,--as-needed
 else
 	MGL_PATH = /usr/include/mgl
 
 	# Link library settings
-	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile
+	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile -lglew32
 	STATIC = $(LINKER) -Wl,-Bstatic -pthread -static-libgcc -static-libstdc++ -Wl,--as-needed
 	DYNAMIC = -Wl,-Bdynamic $(LINKER) -pthread -Wl,--as-needed
 endif
@@ -88,13 +88,11 @@ endif
 endif
 
 # Build targets
-CPP_O = -DGLEW_STATIC $(LIB_SOURCES)
-GLEW = -DGLEW_STATIC source/platform/min/glew.cpp
 TEST_AL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/al_test.cpp
 TEST_GL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/gl_test.cpp
-TEST_WL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest $(GLEW) test/wl_test.cpp
+TEST_WL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/wl_test.cpp
 TEST_BENCH = $(LIB_SOURCES) $(BENCH_SOURCES) -Ibench bench/gl_bench.cpp
-EXFLAGS = $(LIB_SOURCES) $(TEST_SOURCES) $(GLEW)
+EXFLAGS = $(LIB_SOURCES) $(TEST_SOURCES)
 EX1 = $(EXFLAGS) example/programs/ex1.cpp
 EX2 = $(EXFLAGS) example/programs/ex2.cpp
 EX3 = $(EXFLAGS) example/programs/ex3.cpp
@@ -169,7 +167,7 @@ $(BIN_EX10):
 
 # pattern matching .cpp
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(CPP_O) -c $< -o $@ 2> "gcc.txt"
+	$(CXX) $(CXXFLAGS) -c $< -o $@ 2> "gcc.txt"
 
 # clean targets
 clean:

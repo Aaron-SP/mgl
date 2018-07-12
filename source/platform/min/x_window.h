@@ -15,12 +15,12 @@ limitations under the License.
 #ifndef __XWINDOW__
 #define __XWINDOW__
 
+#include <GL/glew.h>
+#include <GL/glxew.h>
 #include <X11/XKBlib.h>
 #include <X11/keysym.h>
 #include <cstdio>
 #include <iostream>
-#include <min/glew.h>
-#include <min/glxew.h>
 #include <min/keyboard.h>
 #include <stdexcept>
 #include <string>

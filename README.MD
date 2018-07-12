@@ -36,6 +36,11 @@ These build targets have been tested for compilation on Arch Linux x64 and Windo
 GLEW is used within the engine for adding OpenGL function support.
 No configuration is necessary, but you can find further information about GLEW at http://glew.sourceforge.net/.
 
+#### FREETYPE2
+
+FREETYPE2 is used for converting TTF fonts into bitmap texture atlases for text rendering. 
+No configuration is necessary, but you can find further information about FREETYPE2 at https://www.freetype.org/.
+
 #### OPENAL
 
 OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org/.
@@ -53,13 +58,13 @@ Additional dependencies that are required and not distributed in this package in
 - 'freetype' - for win32 and linux
 - 'X11' - for linux only
 
-#### Arch Linux Users
+#### Arch/Ubuntu Linux Users
 
 For Arch Linux users, the following pacman command should install all needed dependencies:
-- pacman -S freetype2 xorg-server xorg-server-devel openal libvorbis
+- pacman -S base-devel git xorg-server xorg-server-devel glew freetype2 libvorbis openal
 
 For Ubuntu 14.04.1 Linux users, the following apt-get command should install all needed dependencies:
-- sudo apt-get install build-essential git libvorbis-dev libfreetype6-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev libalut-dev
+- apt-get install build-essential git libgl1-mesa-dev libglu1-mesa-dev xorg-dev libglew-dev libfreetype6-dev libvorbis-dev libalut-dev
 
 To verify freetype has been installed properly, query it using the following command:
 - pkg-config freetype2 --cflags

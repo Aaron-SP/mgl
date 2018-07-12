@@ -16,9 +16,8 @@ limitations under the License.
 #define __WIN32WINDOW__
 
 // Do not reorder the GLEW headers, clang-format will break compiles
-#include <min/glew.h>
-
-#include <min/wglew.h>
+#include <GL/glew.h>
+#include <GL/wglew.h>
 
 #include <gl\GL.h>
 
