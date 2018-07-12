@@ -2268,35 +2268,43 @@ class vec4
         {
             if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
-                out = {7, 6, 3, 2, 5, 4, 1, 0};
+                const uint_fast8_t temp[sub_size()] = {7, 6, 3, 2, 5, 4, 1, 0};
+                out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
-                out = {6, 2, 7, 3, 4, 0, 5, 1};
+                const uint_fast8_t temp[sub_size()] = {6, 2, 7, 3, 4, 0, 5, 1};
+                out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
-                out = {5, 4, 1, 0, 7, 6, 3, 2};
+                const uint_fast8_t temp[sub_size()] = {5, 4, 1, 0, 7, 6, 3, 2};
+                out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
             {
-                out = {4, 0, 5, 1, 6, 2, 7, 3};
+                const uint_fast8_t temp[sub_size()] = {4, 0, 5, 1, 6, 2, 7, 3};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
-                out = {3, 7, 2, 6, 1, 5, 0, 4};
+                const uint_fast8_t temp[sub_size()] = {3, 7, 2, 6, 1, 5, 0, 4};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
-                out = {2, 3, 6, 7, 0, 1, 4, 5};
+                const uint_fast8_t temp[sub_size()] = {2, 3, 6, 7, 0, 1, 4, 5};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
-                out = {1, 5, 0, 4, 3, 7, 2, 6};
+                const uint_fast8_t temp[sub_size()] = {1, 5, 0, 4, 3, 7, 2, 6};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
             {
-                out = {0, 1, 4, 5, 2, 3, 6, 7};
+                const uint_fast8_t temp[sub_size()] = {0, 1, 4, 5, 2, 3, 6, 7};
+                out = temp;
             }
         }
 

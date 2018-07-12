@@ -111,7 +111,7 @@ class texture_buffer
         const uint32_t width = b.get_width();
         const uint32_t height = b.get_height();
         const uint32_t pixel_size = b.get_pixel_size();
-        const std::vector<uint8_t> &pixels = b.get_pixels();
+        const min::static_vector<uint8_t> &pixels = b.get_pixels();
 
         // Check the texture size vs the maximum size
         check_texture_size(width, height);
@@ -174,7 +174,7 @@ class texture_buffer
         const uint32_t height = d.get_height();
         const uint32_t mips = d.get_mips();
         const uint32_t format = d.get_format();
-        const std::vector<uint8_t> &pixels = d.get_pixels();
+        const min::static_vector<uint8_t> &pixels = d.get_pixels();
 
         // Check the texture size vs the maximum size
         check_texture_size(width, height);

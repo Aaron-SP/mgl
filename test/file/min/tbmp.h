@@ -23,85 +23,53 @@ bool test_bmp()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "bmp_size: " << sizeof(min::bmp) << std::endl;
+    std::cout << "bmp_align: " << alignof(min::bmp) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tbmp.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 2 + 16, sizeof(min::bmp), "Failed bmp sizeof");
+    out = out && test(sizeof(void *), alignof(min::bmp), "Failed bmp alignof");
+#endif
+
     // Windows paint BMP 24 bit
     {
         // Local variables
-        int s;
-        int w;
-        int h;
-        std::vector<uint8_t> data;
         const min::bmp image = min::bmp("data/texture/art_cube.bmp");
-        s = image.get_size();
-        w = image.get_width();
-        h = image.get_height();
-        out = out && compare(256, w);
-        out = out && compare(256, h);
-        out = out && compare(196608, s);
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp win 24 bit image constructor properties");
-        }
+        const char *msg = "Failed bmp win 24 bit image constructor properties";
+        out = out && test(256, image.get_width(), msg);
+        out = out && test(256, image.get_height(), msg);
+        out = out && test(196608, image.get_size(), msg);
 
-        data = image.get_pixels();
-        out = out && compare(196608, data.size());
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp win 24 bit image size");
-        }
+        // Check pixel count
+        out = out && test(196608, image.get_pixels().size(), "Failed bmp win 24 bit image size");
     }
 
     // GIMP BMP 24 bit
     {
         // Local variables
-        int s;
-        int w;
-        int h;
-        std::vector<uint8_t> data;
         const min::bmp image = min::bmp("data/texture/gimp.bmp");
-        s = image.get_size();
-        w = image.get_width();
-        h = image.get_height();
-        out = out && compare(256, w);
-        out = out && compare(256, h);
-        out = out && compare(196608, s);
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp gimp 24 bit image constructor properties");
-        }
+        const char *msg = "Failed bmp gimp 24 bit image constructor properties";
+        out = out && test(256, image.get_width(), msg);
+        out = out && test(256, image.get_height(), msg);
+        out = out && test(196608, image.get_size(), msg);
 
-        data = image.get_pixels();
-        out = out && compare(196608, data.size());
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp gimp 24 bit image size");
-        }
+        // Check pixel count
+        out = out && test(196608, image.get_pixels().size(), "Failed bmp gimp 24 bit image size");
     }
 
     // GIMP BMP 32 bit
     {
         // Local variables
-        int s;
-        int w;
-        int h;
-        std::vector<uint8_t> data;
         const min::bmp image = min::bmp("data/texture/stone.bmp");
-        s = image.get_size();
-        w = image.get_width();
-        h = image.get_height();
-        out = out && compare(256, w);
-        out = out && compare(256, h);
-        out = out && compare(262144, s);
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp 32 bit image constructor properties");
-        }
+        const char *msg = "Failed bmp 32 bit image constructor properties";
+        out = out && test(256, image.get_width(), msg);
+        out = out && test(256, image.get_height(), msg);
+        out = out && test(262144, image.get_size(), msg);
 
-        data = image.get_pixels();
-        out = out && compare(262144, data.size());
-        if (!out)
-        {
-            throw std::runtime_error("Failed bmp 32 bit image size");
-        }
+        // Check pixel count
+        out = out && test(262144, image.get_pixels().size(), "Failed bmp 32 bit image size");
     }
     return out;
 }

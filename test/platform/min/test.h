@@ -21,24 +21,6 @@ limitations under the License.
 #include <string>
 #include <utility>
 
-bool compare(double one, double two, double threshold)
-{
-    // Compare double
-    return std::abs(one - two) <= threshold;
-}
-
-bool compare(int one, int two)
-{
-    // Compare integers
-    return one == two;
-}
-
-bool compare(const std::string &s1, const std::string &s2)
-{
-    // Compare string
-    return s1 == s2;
-}
-
 std::string ask(const std::string &q)
 {
     // Ask a question to the tester
@@ -52,6 +34,51 @@ std::string ask(const std::string &q)
 
     // Return the answer
     return s;
+}
+
+template <typename T>
+struct identity
+{
+    typedef T type;
+};
+template <typename T>
+using identity_t = typename identity<T>::type;
+
+template <typename T>
+bool compare(const T one, const identity_t<T> two)
+{
+    return one == two;
+}
+template <typename T>
+bool test(const T one, const identity_t<T> two, const char *fail)
+{
+    const bool out = compare<T>(one, two);
+    if (!out)
+    {
+        throw std::runtime_error(fail);
+    }
+    return out;
+}
+template <typename T>
+bool compare(const T one, const identity_t<T> two, const identity_t<T> threshold)
+{
+    return std::abs(one - two) <= threshold;
+}
+template <typename T>
+bool test(const T one, const identity_t<T> two, const identity_t<T> tol, const char *fail)
+{
+    const bool out = compare(one, two, tol);
+    if (!out)
+    {
+        throw std::runtime_error(fail);
+    }
+    return out;
+}
+
+bool compare(const std::string &s1, const std::string &s2)
+{
+    // Compare string
+    return s1 == s2;
 }
 
 #endif

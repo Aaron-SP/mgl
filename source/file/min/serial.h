@@ -21,8 +21,8 @@
 namespace min
 {
 
-template <typename T>
-inline T read_le(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline T read_le(const C &stream, size_t &next)
 {
     // Check type is compatible
     static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
@@ -46,8 +46,8 @@ inline T read_le(const std::vector<uint8_t> &stream, size_t &next)
     return *out;
 }
 
-template <typename T>
-inline T read_be(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline T read_be(const C &stream, size_t &next)
 {
     // Check type is compatible
     static_assert(sizeof(long long) >= sizeof(T), "Invalid type size, sizeof(T) <= sizeof(long long)");
@@ -71,8 +71,8 @@ inline T read_be(const std::vector<uint8_t> &stream, size_t &next)
     return *out;
 }
 
-template <typename T>
-inline void write_le(std::vector<uint8_t> &stream, const T data)
+template <typename T, class C>
+inline void write_le(C &stream, const T data)
 {
     // Pointer to data
     uint8_t *const ptr = (uint8_t *)&data;
@@ -86,8 +86,8 @@ inline void write_le(std::vector<uint8_t> &stream, const T data)
     }
 }
 
-template <typename T>
-inline void write_be(std::vector<uint8_t> &stream, const T data)
+template <typename T, class C>
+inline void write_be(C &stream, const T data)
 {
     // Pointer to data
     uint8_t *const ptr = (uint8_t *)&data;
@@ -102,8 +102,8 @@ inline void write_be(std::vector<uint8_t> &stream, const T data)
     }
 }
 
-template <typename T>
-inline void write_le(std::vector<uint8_t> &stream, const T data, const size_t offset)
+template <typename T, class C>
+inline void write_le(C &stream, const T data, const size_t offset)
 {
     // Pointer to data
     uint8_t *const ptr = (uint8_t *)&data;
@@ -117,8 +117,8 @@ inline void write_le(std::vector<uint8_t> &stream, const T data, const size_t of
     }
 }
 
-template <typename T>
-inline void write_be(std::vector<uint8_t> &stream, const T data, const size_t offset)
+template <typename T, class C>
+inline void write_be(C &stream, const T data, const size_t offset)
 {
     // Pointer to data
     uint8_t *const ptr = (uint8_t *)&data;
@@ -133,8 +133,8 @@ inline void write_be(std::vector<uint8_t> &stream, const T data, const size_t of
     }
 }
 
-template <typename T>
-inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<T> read_le_vector(const C &stream, size_t &next)
 {
     const uint32_t size = read_le<uint32_t>(stream, next);
 
@@ -159,8 +159,8 @@ inline std::vector<T> read_le_vector(const std::vector<uint8_t> &stream, size_t 
     return out;
 }
 
-template <typename T>
-inline std::vector<T> read_be_vector(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<T> read_be_vector(const C &stream, size_t &next)
 {
     const uint32_t size = read_be<uint32_t>(stream, next);
 
@@ -185,8 +185,8 @@ inline std::vector<T> read_be_vector(const std::vector<uint8_t> &stream, size_t 
     return out;
 }
 
-template <typename T>
-inline void write_le_vector(std::vector<uint8_t> &stream, const std::vector<T> &data)
+template <typename T, class C>
+inline void write_le_vector(C &stream, const std::vector<T> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -201,8 +201,8 @@ inline void write_le_vector(std::vector<uint8_t> &stream, const std::vector<T> &
     }
 }
 
-template <typename T>
-inline void write_be_vector(std::vector<uint8_t> &stream, const std::vector<T> &data)
+template <typename T, class C>
+inline void write_be_vector(C &stream, const std::vector<T> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -217,38 +217,38 @@ inline void write_be_vector(std::vector<uint8_t> &stream, const std::vector<T> &
     }
 }
 
-template <typename T>
-inline min::vec2<T> read_le_vec2(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec2<T> read_le_vec2(const C &stream, size_t &next)
 {
     const T x = read_le<T>(stream, next);
     const T y = read_le<T>(stream, next);
     return min::vec2<T>(x, y);
 }
-template <typename T>
-inline min::vec2<T> read_be_vec2(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec2<T> read_be_vec2(const C &stream, size_t &next)
 {
     const T x = read_be<T>(stream, next);
     const T y = read_be<T>(stream, next);
     return min::vec2<T>(x, y);
 }
-template <typename T>
-inline min::vec3<T> read_le_vec3(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec3<T> read_le_vec3(const C &stream, size_t &next)
 {
     const T x = read_le<T>(stream, next);
     const T y = read_le<T>(stream, next);
     const T z = read_le<T>(stream, next);
     return min::vec3<T>(x, y, z);
 }
-template <typename T>
-inline min::vec3<T> read_be_vec3(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec3<T> read_be_vec3(const C &stream, size_t &next)
 {
     const T x = read_be<T>(stream, next);
     const T y = read_be<T>(stream, next);
     const T z = read_be<T>(stream, next);
     return min::vec3<T>(x, y, z);
 }
-template <typename T>
-inline min::vec4<T> read_le_vec4(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec4<T> read_le_vec4(const C &stream, size_t &next)
 {
     const T x = read_le<T>(stream, next);
     const T y = read_le<T>(stream, next);
@@ -256,8 +256,8 @@ inline min::vec4<T> read_le_vec4(const std::vector<uint8_t> &stream, size_t &nex
     const T w = read_le<T>(stream, next);
     return min::vec4<T>(x, y, z, w);
 }
-template <typename T>
-inline min::vec4<T> read_be_vec4(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline min::vec4<T> read_be_vec4(const C &stream, size_t &next)
 {
     const T x = read_be<T>(stream, next);
     const T y = read_be<T>(stream, next);
@@ -265,42 +265,42 @@ inline min::vec4<T> read_be_vec4(const std::vector<uint8_t> &stream, size_t &nex
     const T w = read_be<T>(stream, next);
     return min::vec4<T>(x, y, z, w);
 }
-template <typename T>
-inline void write_le_vec2(std::vector<uint8_t> &stream, const min::vec2<T> &v)
+template <typename T, class C>
+inline void write_le_vec2(C &stream, const min::vec2<T> &v)
 {
     write_le<T>(stream, v.x());
     write_le<T>(stream, v.y());
 }
-template <typename T>
-inline void write_be_vec2(std::vector<uint8_t> &stream, const min::vec2<T> &v)
+template <typename T, class C>
+inline void write_be_vec2(C &stream, const min::vec2<T> &v)
 {
     write_be<T>(stream, v.x());
     write_be<T>(stream, v.y());
 }
-template <typename T>
-inline void write_le_vec3(std::vector<uint8_t> &stream, const min::vec3<T> &v)
+template <typename T, class C>
+inline void write_le_vec3(C &stream, const min::vec3<T> &v)
 {
     write_le<T>(stream, v.x());
     write_le<T>(stream, v.y());
     write_le<T>(stream, v.z());
 }
-template <typename T>
-inline void write_be_vec3(std::vector<uint8_t> &stream, const min::vec3<T> &v)
+template <typename T, class C>
+inline void write_be_vec3(C &stream, const min::vec3<T> &v)
 {
     write_be<T>(stream, v.x());
     write_be<T>(stream, v.y());
     write_be<T>(stream, v.z());
 }
-template <typename T>
-inline void write_le_vec4(std::vector<uint8_t> &stream, const min::vec4<T> &v)
+template <typename T, class C>
+inline void write_le_vec4(C &stream, const min::vec4<T> &v)
 {
     write_le<T>(stream, v.x());
     write_le<T>(stream, v.y());
     write_le<T>(stream, v.z());
     write_le<T>(stream, v.w());
 }
-template <typename T>
-inline void write_be_vec4(std::vector<uint8_t> &stream, const min::vec4<T> &v)
+template <typename T, class C>
+inline void write_be_vec4(C &stream, const min::vec4<T> &v)
 {
     write_be<T>(stream, v.x());
     write_be<T>(stream, v.y());
@@ -308,8 +308,8 @@ inline void write_be_vec4(std::vector<uint8_t> &stream, const min::vec4<T> &v)
     write_be<T>(stream, v.w());
 }
 
-template <typename T>
-inline std::vector<min::vec2<T>> read_le_vector_vec2(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec2<T>> read_le_vector_vec2(const C &stream, size_t &next)
 {
     const uint32_t size = read_le<uint32_t>(stream, next);
 
@@ -333,8 +333,8 @@ inline std::vector<min::vec2<T>> read_le_vector_vec2(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline std::vector<min::vec2<T>> read_be_vector_vec2(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec2<T>> read_be_vector_vec2(const C &stream, size_t &next)
 {
     const uint32_t size = read_be<uint32_t>(stream, next);
 
@@ -358,8 +358,8 @@ inline std::vector<min::vec2<T>> read_be_vector_vec2(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline std::vector<min::vec3<T>> read_le_vector_vec3(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec3<T>> read_le_vector_vec3(const C &stream, size_t &next)
 {
     const uint32_t size = read_le<uint32_t>(stream, next);
 
@@ -383,8 +383,8 @@ inline std::vector<min::vec3<T>> read_le_vector_vec3(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline std::vector<min::vec3<T>> read_be_vector_vec3(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec3<T>> read_be_vector_vec3(const C &stream, size_t &next)
 {
     const uint32_t size = read_be<uint32_t>(stream, next);
 
@@ -408,8 +408,8 @@ inline std::vector<min::vec3<T>> read_be_vector_vec3(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline std::vector<min::vec4<T>> read_le_vector_vec4(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec4<T>> read_le_vector_vec4(const C &stream, size_t &next)
 {
     const uint32_t size = read_le<uint32_t>(stream, next);
 
@@ -433,8 +433,8 @@ inline std::vector<min::vec4<T>> read_le_vector_vec4(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline std::vector<min::vec4<T>> read_be_vector_vec4(const std::vector<uint8_t> &stream, size_t &next)
+template <typename T, class C>
+inline std::vector<min::vec4<T>> read_be_vector_vec4(const C &stream, size_t &next)
 {
     const uint32_t size = read_be<uint32_t>(stream, next);
 
@@ -458,8 +458,8 @@ inline std::vector<min::vec4<T>> read_be_vector_vec4(const std::vector<uint8_t> 
 
     return out;
 }
-template <typename T>
-inline void write_le_vector_vec2(std::vector<uint8_t> &stream, const std::vector<vec2<T>> &data)
+template <typename T, class C>
+inline void write_le_vector_vec2(C &stream, const std::vector<vec2<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -473,8 +473,8 @@ inline void write_le_vector_vec2(std::vector<uint8_t> &stream, const std::vector
         write_le_vec2<T>(stream, data[i]);
     }
 }
-template <typename T>
-inline void write_be_vector_vec2(std::vector<uint8_t> &stream, const std::vector<vec2<T>> &data)
+template <typename T, class C>
+inline void write_be_vector_vec2(C &stream, const std::vector<vec2<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -488,8 +488,8 @@ inline void write_be_vector_vec2(std::vector<uint8_t> &stream, const std::vector
         write_be_vec2<T>(stream, data[i]);
     }
 }
-template <typename T>
-inline void write_le_vector_vec3(std::vector<uint8_t> &stream, const std::vector<vec3<T>> &data)
+template <typename T, class C>
+inline void write_le_vector_vec3(C &stream, const std::vector<vec3<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -503,8 +503,8 @@ inline void write_le_vector_vec3(std::vector<uint8_t> &stream, const std::vector
         write_le_vec3<T>(stream, data[i]);
     }
 }
-template <typename T>
-inline void write_be_vector_vec3(std::vector<uint8_t> &stream, const std::vector<vec3<T>> &data)
+template <typename T, class C>
+inline void write_be_vector_vec3(C &stream, const std::vector<vec3<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -518,8 +518,8 @@ inline void write_be_vector_vec3(std::vector<uint8_t> &stream, const std::vector
         write_be_vec3<T>(stream, data[i]);
     }
 }
-template <typename T>
-inline void write_le_vector_vec4(std::vector<uint8_t> &stream, const std::vector<vec4<T>> &data)
+template <typename T, class C>
+inline void write_le_vector_vec4(C &stream, const std::vector<vec4<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();
@@ -533,8 +533,8 @@ inline void write_le_vector_vec4(std::vector<uint8_t> &stream, const std::vector
         write_le_vec4<T>(stream, data[i]);
     }
 }
-template <typename T>
-inline void write_be_vector_vec4(std::vector<uint8_t> &stream, const std::vector<vec4<T>> &data)
+template <typename T, class C>
+inline void write_be_vector_vec4(C &stream, const std::vector<vec4<T>> &data)
 {
     // Get data size, must be less than 2^32-1
     const uint32_t size = data.size();

@@ -169,7 +169,7 @@ class win32_window
     void (*_update)(void *, const uint_fast16_t width, const uint_fast16_t);
 
     // Window class string literal
-    static constexpr const char *window_class = "minwl:win32_window";
+    static constexpr const char *window_class = "mgl:win32_window";
 
     // Window event callback function
     inline static LRESULT CALLBACK window_callback(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

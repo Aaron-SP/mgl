@@ -1199,19 +1199,23 @@ class vec2
         {
             if (dir.x() <= 0.0 && dir.y() <= 0.0)
             {
-                out = {3, 2, 1, 0};
+                const uint_fast8_t temp[sub_size()] = {3, 2, 1, 0};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0)
             {
-                out = {1, 3, 0, 2};
+                const uint_fast8_t temp[sub_size()] = {1, 3, 0, 2};
+                out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0)
             {
-                out = {2, 0, 3, 1};
+                const uint_fast8_t temp[sub_size()] = {2, 0, 3, 1};
+                out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0)
             {
-                out = {0, 1, 2, 3};
+                const uint_fast8_t temp[sub_size()] = {0, 1, 2, 3};
+                out = temp;
             }
         }
 

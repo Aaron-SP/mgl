@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __STACK_VECTOR__
-#define __STACK_VECTOR__
+#ifndef __MGL_STACK_VECTOR__
+#define __MGL_STACK_VECTOR__
 
 #include <cstddef>
 #include <utility>
@@ -28,29 +28,31 @@ class stack_vector
     T _vec[N];
     size_t _end;
 
+    template <size_t S>
+    inline void const_copy(const T (&arr)[S])
+    {
+        static_assert(S <= N, "stack_vector<T, N> operator= overflow");
+        for (size_t i = 0; i < S; i++)
+        {
+            _vec[i] = arr[i];
+        }
+    }
+
   public:
     stack_vector() : _end(0) {}
-    stack_vector(const T (&arr)[N]) : _end(N)
+    template <size_t S>
+    stack_vector(const T (&arr)[S]) : _end(S)
     {
-        for (size_t i = 0; i < N; i++)
-        {
-            _vec[i] = arr[i];
-        }
+        const_copy(arr);
     }
-    inline stack_vector<T, N> &operator=(const T (&arr)[N])
+    template <size_t S>
+    inline stack_vector<T, N> &operator=(const T (&arr)[S])
     {
-        // Set the array values
-        for (size_t i = 0; i < N; i++)
-        {
-            _vec[i] = arr[i];
-        }
-
-        // Set the end of array
-        _end = N;
-
+        _end = S;
+        const_copy(arr);
         return *this;
     }
-    inline T operator[](const size_t index) const
+    inline const T &operator[](const size_t index) const
     {
         return _vec[index];
     }
@@ -63,6 +65,14 @@ class stack_vector
         _end = 0;
     }
     inline const T *begin() const
+    {
+        return &_vec[0];
+    }
+    inline const T *data() const
+    {
+        return &_vec[0];
+    }
+    inline T *data()
     {
         return &_vec[0];
     }

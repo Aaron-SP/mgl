@@ -18,8 +18,8 @@ limitations under the License.
 #include <cstring>
 #include <fstream>
 #include <min/mem_chunk.h>
+#include <min/static_vector.h>
 #include <string>
-#include <vector>
 
 namespace min
 {
@@ -27,13 +27,11 @@ namespace min
 class bmp
 {
   private:
+    min::static_vector<uint8_t> _pixel;
     uint32_t _w;
     uint32_t _h;
     uint32_t _size;
-    uint16_t _bpp;
-    uint32_t _data;
-    uint32_t _dib;
-    std::vector<uint8_t> _pixel;
+    uint32_t _bpp;
 
     inline void load(const std::string _file)
     {
@@ -47,7 +45,7 @@ class bmp
             file.seekg(0, std::ios::beg);
 
             // Allocate space for new file
-            std::vector<uint8_t> data(size);
+            min::static_vector<uint8_t> data(size);
 
             // Read bytes and close the file
             char *ptr = reinterpret_cast<char *>(data.data());
@@ -57,7 +55,7 @@ class bmp
             file.close();
 
             // Process the BMP file
-            load<std::vector<uint8_t>>(data);
+            load<min::static_vector<uint8_t>>(data);
         }
         else
         {
@@ -92,17 +90,17 @@ class bmp
 
         // 4 bytes indicating the starting offset where the bitmap image pixel data can be found
         next = 10;
-        _data = read_le<uint32_t>(data, next);
+        const uint32_t data_start = read_le<uint32_t>(data, next);
 
         // 4 bytes the DIB header size, should be 40
         // 108 and 124 are allowed since they extend the BITMAPINFOHEADER capabilities
         // BITMAPV4HEADER == 108
         // BITMAPV5HEADER == 124
         next = 14;
-        _dib = read_le<uint32_t>(data, next);
-        if (_dib != 40 && _dib != 108 && _dib != 124)
+        const uint32_t dib = read_le<uint32_t>(data, next);
+        if (dib != 40 && dib != 108 && dib != 124)
         {
-            throw std::runtime_error("bmp: expected dib size of 40, 108, or 124 got '" + std::to_string(_dib) + "'");
+            throw std::runtime_error("bmp: expected dib size of 40, 108, or 124 got '" + std::to_string(dib) + "'");
         }
 
         // 4 bytes the width of the image in pixels
@@ -137,7 +135,7 @@ class bmp
         const uint32_t compress = read_le<uint32_t>(data, next);
 
         // Verify 32 bit RGBA format and uses the extended dib header
-        if (_bpp == 4 && compress == 3 && _dib >= 108)
+        if (_bpp == 4 && compress == 3 && dib >= 108)
         {
             next = 54;
             const uint32_t red_mask = read_le<uint32_t>(data, next);
@@ -188,14 +186,14 @@ class bmp
         }
 
         // Check the file size
-        if (size < _data + _size)
+        if (size < data_start + _size)
         {
             throw std::runtime_error("bmp: Image size is corrupted, possibly missing data");
         }
 
         // Read the image data starting at data offset
         _pixel.resize(_size);
-        std::memcpy(&_pixel[0], &data[_data], _size);
+        std::memcpy(_pixel.data(), &data[data_start], _size);
     }
 
   public:
@@ -219,7 +217,7 @@ class bmp
     {
         return _size;
     }
-    inline const std::vector<uint8_t> &get_pixels() const
+    inline const min::static_vector<uint8_t> &get_pixels() const
     {
         return _pixel;
     }

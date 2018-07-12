@@ -23,29 +23,23 @@ bool test_dds()
 {
     bool out = true;
 
-    // Local variables
-    int s;
-    int w;
-    int h;
-    std::vector<uint8_t> data;
-    const min::dds image = min::dds("data/texture/stone.dds");
-    s = image.get_size();
-    w = image.get_width();
-    h = image.get_height();
-    out = out && compare(256, w);
-    out = out && compare(256, h);
-    out = out && compare(43704, s);
-    if (!out)
-    {
-        throw std::runtime_error("Failed dds image constructor properties");
-    }
+    // Print size and alignment of class
+    std::cout << "dds_size: " << sizeof(min::dds) << std::endl;
+    std::cout << "dds_align: " << alignof(min::dds) << std::endl;
 
-    data = image.get_pixels();
-    out = out && compare(43704, data.size());
-    if (!out)
-    {
-        throw std::runtime_error("Failed dds image size");
-    }
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tdds.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 2 + 24, sizeof(min::dds), "Failed dds sizeof");
+    out = out && test(sizeof(void *), alignof(min::dds), "Failed dds alignof");
+#endif
+
+    // Local variables
+    const min::dds image = min::dds("data/texture/stone.dds");
+    const char *msg = "Failed dds image constructor properties";
+    out = out && test(256, image.get_width(), msg);
+    out = out && test(256, image.get_height(), msg);
+    out = out && test(43704, image.get_size(), msg);
+    out = out && test(43704, image.get_pixels().size(), "Failed dds image size");
 
     return out;
 }

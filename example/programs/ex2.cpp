@@ -24,14 +24,14 @@ limitations under the License.
 void write_file(const std::string &file_path, const min::dds &d)
 {
     // Get the file byte vector
-    std::vector<uint8_t> output = d.to_file();
+    const min::static_vector<uint8_t> output = d.to_file();
 
     // Open output binary file
     std::ofstream file(file_path, std::ios::out | std::ios::binary);
     if (file.is_open())
     {
         // Write bytes to file
-        file.write((char *)&output[0], output.size());
+        file.write((char *)output.data(), output.size());
 
         // Close the file
         file.close();

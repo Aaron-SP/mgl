@@ -51,6 +51,8 @@ limitations under the License.
 #include <min/tsphinter.h>
 #include <min/tsphresolve.h>
 #include <min/tsphtree.h>
+#include <min/tstack_vector.h>
+#include <min/tstatic_vector.h>
 #include <min/tthread_pool.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
@@ -62,6 +64,8 @@ int main()
     try
     {
         bool out = true;
+        out = out && test_bmp();
+        out = out && test_dds();
         out = out && test_vec2();
         out = out && test_vec3();
         out = out && test_vec4();
@@ -91,8 +95,6 @@ int main()
         out = out && test_sample();
         out = out && test_wavefront();
         out = out && test_model();
-        out = out && test_bmp();
-        out = out && test_dds();
         out = out && test_aabb_tree();
         out = out && test_sphere_tree();
         out = out && test_bit_flag();
@@ -107,9 +109,11 @@ int main()
         out = out && test_mem_chunk();
         out = out && test_thread_pool();
         out = out && test_height_map();
+        out = out && test_stack_vector();
+        out = out && test_static_vector();
         if (out)
         {
-            std::cout << "Graphics tests passed!" << std::endl;
+            std::cout << "\033[0;32mGraphics tests passed!" << std::endl;
             return 0;
         }
     }
@@ -118,6 +122,6 @@ int main()
         std::cout << ex.what() << std::endl;
     }
 
-    std::cout << "Graphics tests failed!" << std::endl;
+    std::cout << "\033[0;31mGraphics tests failed!" << std::endl;
     return -1;
 }

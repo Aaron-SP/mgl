@@ -163,7 +163,7 @@ class x_window
     void (*_update)(void *, const uint_fast16_t width, const uint_fast16_t);
 
     // Window class string literal
-    static constexpr const char *window_class = "minwl:x_window";
+    static constexpr const char *window_class = "mgl:x_window";
 
     inline void init_glew() const
     {

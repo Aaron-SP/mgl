@@ -20,10 +20,10 @@ limitations under the License.
 #include <cstdint>
 #include <min/bmp.h>
 #include <min/dds.h>
+#include <min/static_vector.h>
 #include <min/window.h>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
 namespace min
 {
@@ -31,13 +31,12 @@ namespace min
 class texture_compressor
 {
   private:
-    std::vector<GLint> _formats;
     bool _mips;
     bool _dxt1_support;
     bool _dxt3_support;
     bool _dxt5_support;
 
-    inline static std::vector<uint8_t> flip_bgr_image(const unsigned width, const unsigned height, const unsigned pixel_size, const std::vector<uint8_t> &pixel)
+    inline static min::static_vector<uint8_t> flip_bgr_image(const unsigned width, const unsigned height, const unsigned pixel_size, const min::static_vector<uint8_t> &pixel)
     {
         // Check our pixel dimensions
         size_t pixel_width = pixel_size * width;
@@ -47,7 +46,7 @@ class texture_compressor
         }
 
         // Create output buffer
-        std::vector<uint8_t> out(pixel.size(), 0);
+        min::static_vector<uint8_t> out(pixel.size());
 
         // OpenGL starts at (0, 0) = bottom right corner so we must vertical flip all input
         for (unsigned i = 0; i < height; i++)
@@ -73,10 +72,10 @@ class texture_compressor
 
         return out;
     }
-    inline dds compress_bmp_dds(const unsigned width, const unsigned height, const int dxt_format, unsigned header_format, const unsigned pixel_size, const std::vector<uint8_t> &pixel) const
+    inline dds compress_bmp_dds(const unsigned width, const unsigned height, const int dxt_format, unsigned header_format, const unsigned pixel_size, const min::static_vector<uint8_t> &pixel) const
     {
         // We must flip input image because opengl origin is (0, 0) == bottom left corner
-        std::vector<uint8_t> flip_pixel = flip_bgr_image(width, height, pixel_size, pixel);
+        min::static_vector<uint8_t> flip_pixel = flip_bgr_image(width, height, pixel_size, pixel);
 
         // Generate texture
         GLuint id = generate_texture();
@@ -87,12 +86,12 @@ class texture_compressor
         if (pixel_size == 3)
         {
             // bitmap is stored in GL_BGR which is the target for this function
-            glTexImage2D(GL_TEXTURE_2D, 0, dxt_format, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &flip_pixel[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, dxt_format, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, flip_pixel.data());
         }
         else if (pixel_size == 4)
         {
             // bitmap is stored in GL_BGR which is the target for this function
-            glTexImage2D(GL_TEXTURE_2D, 0, dxt_format, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &flip_pixel[0]);
+            glTexImage2D(GL_TEXTURE_2D, 0, dxt_format, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, flip_pixel.data());
         }
         else
         {
@@ -141,8 +140,9 @@ class texture_compressor
 
         // Query size information of each mip map
         unsigned size = 0;
-        std::vector<GLint> level_size(mips, 0);
-        std::vector<unsigned> offset(mips + 1, 0);
+        min::static_vector<GLint> level_size(mips);
+        min::static_vector<unsigned> offset(mips + 1);
+        offset[0] = 0;
         for (unsigned i = 0; i < mips; i++)
         {
             // Get size of this mip level
@@ -161,7 +161,7 @@ class texture_compressor
         }
 
         // Get the compressed pixel data for each mip map
-        std::vector<uint8_t> compressed_pixel(size, 0);
+        min::static_vector<uint8_t> compressed_pixel(size);
         for (unsigned i = 0; i < mips; i++)
         {
             // Verify the offset is valid
@@ -216,11 +216,11 @@ class texture_compressor
         glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB, &size);
 
         // store and print out the supported formats
-        _formats = std::vector<GLint>(size, 0);
-        glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS_ARB, &_formats[0]);
+        min::static_vector<GLint> formats(size);
+        glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS_ARB, formats.data());
 
         // Check supported formats for the DXT1/3/5 formats and flag them
-        for (const auto &i : _formats)
+        for (const auto &i : formats)
         {
             if (i == GL_COMPRESSED_RGB_S3TC_DXT1_EXT)
             {

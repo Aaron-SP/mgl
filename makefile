@@ -114,6 +114,11 @@ ifdef MGL_VB43
 	CXXFLAGS += -DMGL_VB43
 endif
 
+# Enable testing sizeof and alignment
+ifdef MGL_TEST_ALIGN
+	CXXFLAGS += -DMGL_TEST_ALIGN
+endif
+
 # Default run target
 default: tests benchmarks examples
 benchmarks: $(BIN_BENCH)
@@ -134,6 +139,9 @@ install:
 lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
 tests: $(BIN_AL_TEST) $(BIN_GL_TEST) $(BIN_WL_TEST)
+al_test: $(BIN_AL_TEST)
+gl_test: $(BIN_GL_TEST)
+wl_test: $(BIN_WL_TEST)
 uninstall:
 	rm -rI $(MGL_PATH)
 $(BIN_AL_TEST):
@@ -167,7 +175,7 @@ $(BIN_EX10):
 
 # pattern matching .cpp
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@ 2> "gcc.txt"
+	$(CXX) $(CXXFLAGS) $(LIB_SOURCES) -c $< -o $@ 2> "gcc.txt"
 
 # clean targets
 clean:

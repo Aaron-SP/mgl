@@ -19,8 +19,8 @@ limitations under the License.
 #include <cstring>
 #include <fstream>
 #include <min/mem_chunk.h>
+#include <min/static_vector.h>
 #include <string>
-#include <vector>
 
 namespace min
 {
@@ -34,13 +34,13 @@ class dds
 
   private:
     static constexpr uint8_t DDS_HEADER_SIZE = 128;
+    min::static_vector<uint8_t> _pixel;
     uint32_t _w;
     uint32_t _h;
     uint32_t _size;
     uint32_t _bpp;
     uint32_t _mips;
     uint32_t _format;
-    std::vector<uint8_t> _pixel;
 
     inline uint32_t calculate_size() const
     {
@@ -83,7 +83,7 @@ class dds
             file.seekg(0, std::ios::beg);
 
             // Allocate space for new file
-            std::vector<uint8_t> data(size);
+            min::static_vector<uint8_t> data(size);
 
             // Read bytes and close the file
             char *ptr = reinterpret_cast<char *>(data.data());
@@ -93,7 +93,7 @@ class dds
             file.close();
 
             // Process the DDS file
-            load<std::vector<uint8_t>>(data);
+            load<min::static_vector<uint8_t>>(data);
         }
         else
         {
@@ -168,7 +168,7 @@ class dds
 
         // Read the pixel data
         _pixel.resize(_size);
-        std::memcpy(&_pixel[0], &data[DDS_HEADER_SIZE], _size);
+        std::memcpy(_pixel.data(), &data[DDS_HEADER_SIZE], _size);
     }
 
   public:
@@ -180,8 +180,8 @@ class dds
     {
         load<mem_file>(mem);
     }
-    dds(const uint32_t w, const uint32_t h, const uint32_t mips, const uint32_t format, const std::vector<uint8_t> &pixel)
-        : _w(w), _h(h), _mips(mips), _format(format), _pixel(pixel)
+    dds(const uint32_t w, const uint32_t h, const uint32_t mips, const uint32_t format, const min::static_vector<uint8_t> &pixel)
+        : _pixel(pixel), _w(w), _h(h), _mips(mips), _format(format)
     {
         // Check that we have data
         if (_pixel.size() == 0)
@@ -230,19 +230,19 @@ class dds
     {
         return _size;
     }
-    inline const std::vector<uint8_t> &get_pixels() const
+    inline const min::static_vector<uint8_t> &get_pixels() const
     {
         return _pixel;
     }
-    inline std::vector<uint8_t> to_file() const
+    inline min::static_vector<uint8_t> to_file() const
     {
         // Write out the dds file to a byte buffer for writing to file
         size_t size = DDS_HEADER_SIZE + _size;
-        std::vector<uint8_t> out(size, 0);
+        min::static_vector<uint8_t> out(size);
 
         // The DDS header
         const char *head = "DDS ";
-        memcpy(&out[0], head, 4 * sizeof(char));
+        memcpy(out.data(), head, 4 * sizeof(char));
 
         // 4 bytes the height of the image
         write_le<uint32_t>(out, _h, 12);
@@ -260,7 +260,7 @@ class dds
         write_le<uint32_t>(out, _format, 84);
 
         // _size bytes the compressed pixel data
-        memcpy(&out[DDS_HEADER_SIZE], &_pixel[0], _size);
+        memcpy(&out[DDS_HEADER_SIZE], _pixel.data(), _size);
 
         return out;
     }
