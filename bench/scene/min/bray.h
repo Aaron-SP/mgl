@@ -26,7 +26,7 @@ template <typename T, template <typename> class vec,
 double bench_ray_aabb(const size_t N, const min::aabbox<T, vec> &world)
 {
     // Running ray_aabbox test
-    std::cout << "ray_aabb: Starting benchmark with " << N * 2 << " ray collisions" << std::endl;
+    std::cout << "ray_aabb: Starting benchmark with " << N * 4 << " ray collisions" << std::endl;
 
     // Start the time clock
     const auto start = std::chrono::high_resolution_clock::now();
@@ -48,12 +48,13 @@ double bench_ray_aabb(const size_t N, const min::aabbox<T, vec> &world)
     // We do this for precision purposes
     // Shooting rays from huge distances can result in errors
     const T ray_offset = 1000.0;
+    const T angle = 0.01;
 
     // Create 'N' random cubic aabbox's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate aabbox center and extent
-        const T step = (i + 1) * 2.0;
+        const T step = (i + 1) * 10.0;
         const vec<T> center = min + (dir * step);
 
         // Create the aabbox
@@ -84,6 +85,23 @@ double bench_ray_aabb(const size_t N, const min::aabbox<T, vec> &world)
                 throw std::runtime_error("ray_aabb: Failed bench_ray_aabbox x-axis benchmark");
             }
         }
+        // Shoot X axis with dynamic angle
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + ray_offset);
+            shoot_from.y(shoot_from.y() + angle * i);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_aabb: Failed bench_ray_aabbox x-axis dynamic benchmark");
+            }
+        }
         // Shoot Y axis aligned
         {
             // Create ray from origin to shape
@@ -98,6 +116,23 @@ double bench_ray_aabb(const size_t N, const min::aabbox<T, vec> &world)
             if (collisions.size() != 1)
             {
                 throw std::runtime_error("ray_aabb: Failed bench_ray_aabbox y-axis benchmark");
+            }
+        }
+        // Shoot Y axis aligned
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + angle * i);
+            shoot_from.y(shoot_from.y() + ray_offset);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_aabb: Failed bench_ray_aabbox y-axis dynamic benchmark");
             }
         }
     }
@@ -118,7 +153,7 @@ template <typename T, template <typename> class vec,
 double bench_ray_oobb(const size_t N, const min::oobbox<T, vec> &world)
 {
     // Running ray_oobbox test
-    std::cout << "ray_oobb: Starting benchmark with " << N * 2 << " ray collisions" << std::endl;
+    std::cout << "ray_oobb: Starting benchmark with " << N * 4 << " ray collisions" << std::endl;
 
     // Start the time clock
     const auto start = std::chrono::high_resolution_clock::now();
@@ -140,12 +175,13 @@ double bench_ray_oobb(const size_t N, const min::oobbox<T, vec> &world)
     // We do this for precision purposes
     // Shooting rays from huge distances can result in errors
     const T ray_offset = 1000.0;
+    const T angle = 0.01;
 
     // Create 'N' random cubic oobbox's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate oobbox center and extent
-        const T step = (i + 1) * 2.0;
+        const T step = (i + 1) * 10.0;
         const vec<T> center = min + (dir * step);
 
         // Create the oobbox
@@ -176,6 +212,23 @@ double bench_ray_oobb(const size_t N, const min::oobbox<T, vec> &world)
                 throw std::runtime_error("ray_oobb: Failed bench_ray_oobbox x-axis benchmark");
             }
         }
+        // Shoot X axis with dynamic angle
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + ray_offset);
+            shoot_from.y(shoot_from.y() + angle * i);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_oobb: Failed bench_ray_oobbox x-axis dynamic benchmark");
+            }
+        }
         // Shoot Y axis aligned
         {
             // Create ray from origin to shape
@@ -190,6 +243,23 @@ double bench_ray_oobb(const size_t N, const min::oobbox<T, vec> &world)
             if (collisions.size() != 1)
             {
                 throw std::runtime_error("ray_oobb: Failed bench_ray_oobbox y-axis benchmark");
+            }
+        }
+        // Shoot Y axis aligned
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + angle * i);
+            shoot_from.y(shoot_from.y() + ray_offset);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_oobb: Failed bench_ray_oobbox y-axis dynamic benchmark");
             }
         }
     }
@@ -210,7 +280,7 @@ template <typename T, template <typename> class vec,
 double bench_ray_sphere(const size_t N, const min::sphere<T, vec> &world)
 {
     // Running ray_aabbox test
-    std::cout << "ray_sphere: Starting benchmark with " << N * 2 << " ray collisions" << std::endl;
+    std::cout << "ray_sphere: Starting benchmark with " << N * 4 << " ray collisions" << std::endl;
 
     // Start the time clock
     const auto start = std::chrono::high_resolution_clock::now();
@@ -229,15 +299,16 @@ double bench_ray_sphere(const size_t N, const min::sphere<T, vec> &world)
     const vec<T> dir = (max - min).normalize();
     const T radius = 0.9;
 
-    // We do this for precision purposes
+    // We do this for single float precision purposes
     // Shooting rays from huge distances can result in errors
     const T ray_offset = 1000.0;
+    const T angle = 0.01;
 
     // Create 'N' random cubic sphere's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate sphere center and extent
-        const T step = (i + 1) * 2.0;
+        const T step = (i + 1) * 10.0;
         const vec<T> center = min + (dir * step);
 
         // Create the sphere
@@ -266,6 +337,23 @@ double bench_ray_sphere(const size_t N, const min::sphere<T, vec> &world)
                 throw std::runtime_error("ray_sphere: Failed bench_ray_sphere x-axis benchmark");
             }
         }
+        // Shoot X axis with dynamic angle
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + ray_offset);
+            shoot_from.y(shoot_from.y() + angle * i);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_sphere: Failed bench_ray_sphere x-axis dynamic benchmark");
+            }
+        }
         // Shoot Y axis aligned
         {
             // Create ray from origin to shape
@@ -280,6 +368,23 @@ double bench_ray_sphere(const size_t N, const min::sphere<T, vec> &world)
             if (collisions.size() != 1)
             {
                 throw std::runtime_error("ray_sphere: Failed bench_ray_sphere y-axis benchmark");
+            }
+        }
+        // Shoot Y axis aligned
+        {
+            // Create ray from origin to shape
+            vec<T> shoot_from = items[i].get_center();
+            shoot_from.x(shoot_from.x() + angle * i);
+            shoot_from.y(shoot_from.y() + ray_offset);
+            min::ray<T, vec> r(shoot_from, items[i].get_center());
+
+            // Get collisions with ray
+            const std::vector<std::pair<uint_fast16_t, vec<T>>> &collisions = g.get_collisions(r);
+
+            // Test if we got a collision with ray
+            if (collisions.size() != 1)
+            {
+                throw std::runtime_error("ray_sphere: Failed bench_ray_sphere y-axis dynamic benchmark");
             }
         }
     }
