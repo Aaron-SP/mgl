@@ -455,7 +455,7 @@ class vec3
 
         return out;
     }
-    inline static std::tuple<int, T, T, int, T, T, int, T, T> grid_ray(const vec3<T> &min, const vec3<T> &extent, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
+    inline static std::tuple<T, T, T, T, T, T, int_fast8_t, int_fast8_t, int_fast8_t> grid_ray(const vec3<T> &min, const vec3<T> &extent, const vec3<T> &origin, const vec3<T> &dir, const vec3<T> &inv_dir)
     {
         // Get the grid dimensions
         const T ex = extent.x();
@@ -476,7 +476,7 @@ class vec3
         // Test for ray parallel to X axis
         T tx = std::numeric_limits<T>::max();
         T dtx = std::numeric_limits<T>::max();
-        int drx = 1;
+        int_fast8_t drx = 1;
         if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
@@ -503,7 +503,7 @@ class vec3
         // Test for ray parallel to Y axis
         T ty = std::numeric_limits<T>::max();
         T dty = std::numeric_limits<T>::max();
-        int dry = 1;
+        int_fast8_t dry = 1;
         if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
@@ -530,7 +530,7 @@ class vec3
         // Test for ray parallel to Z axis
         T tz = std::numeric_limits<T>::max();
         T dtz = std::numeric_limits<T>::max();
-        int drz = 1;
+        int_fast8_t drz = 1;
         if (std::abs(dir.z()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
@@ -549,9 +549,9 @@ class vec3
         }
 
         // return the ray tuple
-        return std::make_tuple(drx, tx, dtx, dry, ty, dty, drz, tz, dtz);
+        return std::make_tuple(tx, dtx, ty, dty, tz, dtz, drx, dry, drz);
     }
-    inline static size_t grid_ray_next(min::tri<size_t> &index, std::tuple<int, T, T, int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
+    inline static size_t grid_ray_next(min::tri<size_t> &index, std::tuple<T, T, T, T, T, T, int_fast8_t, int_fast8_t, int_fast8_t> &grid_ray, bool &flag, const size_t scale)
     {
         // Get the cell row / col
         size_t &col = index.x_ref();
@@ -559,19 +559,21 @@ class vec3
         size_t &zin = index.z_ref();
 
         // X
-        const int &drx = std::get<0>(grid_ray);
-        T &tx = std::get<1>(grid_ray);
-        const T &dtx = std::get<2>(grid_ray);
+        T &tx = std::get<0>(grid_ray);
+        const T &dtx = std::get<1>(grid_ray);
 
         // Y
-        const int &dry = std::get<3>(grid_ray);
-        T &ty = std::get<4>(grid_ray);
-        const T &dty = std::get<5>(grid_ray);
+        T &ty = std::get<2>(grid_ray);
+        const T &dty = std::get<3>(grid_ray);
 
         // Z
-        const int &drz = std::get<6>(grid_ray);
-        T &tz = std::get<7>(grid_ray);
-        const T &dtz = std::get<8>(grid_ray);
+        T &tz = std::get<4>(grid_ray);
+        const T &dtz = std::get<5>(grid_ray);
+
+        // Dir
+        const int_fast8_t &drx = std::get<6>(grid_ray);
+        const int_fast8_t &dry = std::get<7>(grid_ray);
+        const int_fast8_t &drz = std::get<8>(grid_ray);
 
         // Should we move along the x, y, or z axis? Guarantee a valid return value.
         if (tx <= ty && tx <= tz)

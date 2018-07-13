@@ -332,7 +332,7 @@ class vec2
 
         return out;
     }
-    inline static std::tuple<int, T, T, int, T, T> grid_ray(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
+    inline static std::tuple<T, T, T, T, int_fast8_t, int_fast8_t> grid_ray(const vec2<T> &min, const vec2<T> &extent, const vec2<T> &origin, const vec2<T> &dir, const vec2<T> &inv_dir)
     {
         // Get the grid dimensions
         const T ex = extent.x();
@@ -351,7 +351,7 @@ class vec2
         // Test for ray parallel to X axis
         T tx = std::numeric_limits<T>::max();
         T dtx = std::numeric_limits<T>::max();
-        int drx = 1;
+        int_fast8_t drx = 1;
         if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
@@ -378,7 +378,7 @@ class vec2
         // Test for ray parallel to Y axis
         T ty = std::numeric_limits<T>::max();
         T dty = std::numeric_limits<T>::max();
-        int dry = 1;
+        int_fast8_t dry = 1;
         if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
@@ -397,23 +397,25 @@ class vec2
         }
 
         // return the ray tuple
-        return std::make_tuple(drx, tx, dtx, dry, ty, dty);
+        return std::make_tuple(tx, dtx, ty, dty, drx, dry);
     }
-    inline static size_t grid_ray_next(min::bi<size_t> &index, std::tuple<int, T, T, int, T, T> &grid_ray, bool &flag, const size_t scale)
+    inline static size_t grid_ray_next(min::bi<size_t> &index, std::tuple<T, T, T, T, int_fast8_t, int_fast8_t> &grid_ray, bool &flag, const size_t scale)
     {
         // Get the cell row / col
         size_t &col = index.x_ref();
         size_t &row = index.y_ref();
 
         // X
-        const int &drx = std::get<0>(grid_ray);
-        T &tx = std::get<1>(grid_ray);
-        const T &dtx = std::get<2>(grid_ray);
+        T &tx = std::get<0>(grid_ray);
+        const T &dtx = std::get<1>(grid_ray);
 
         // Y
-        const int &dry = std::get<3>(grid_ray);
-        T &ty = std::get<4>(grid_ray);
-        const T &dty = std::get<5>(grid_ray);
+        T &ty = std::get<2>(grid_ray);
+        const T &dty = std::get<3>(grid_ray);
+
+        // Dir
+        const int_fast8_t &drx = std::get<4>(grid_ray);
+        const int_fast8_t &dry = std::get<5>(grid_ray);
 
         // Should we move along the x, y, or z axis? Guarantee a valid return value.
         if (tx <= ty)
