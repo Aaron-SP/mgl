@@ -38,6 +38,7 @@ limitations under the License.
 #include <min/toobboxinter.h>
 #include <min/toobbresolve.h>
 #include <min/tphysics.h>
+#include <min/tphysics_nt.h>
 #include <min/tplane.h>
 #include <min/tquat.h>
 #include <min/tray.h>
@@ -64,49 +65,60 @@ int main()
     try
     {
         bool out = true;
+
+        // File tests
         out = out && test_bmp();
         out = out && test_dds();
-        out = out && test_vec2();
-        out = out && test_vec3();
-        out = out && test_vec4();
-        out = out && test_quat();
-        out = out && test_mat2();
-        out = out && test_mat3();
-        out = out && test_mat4();
-        out = out && test_bezier_cubic();
-        out = out && test_bspline_cubic();
-        out = out && test_hermite_cubic();
-        out = out && test_plane();
-        out = out && test_ray();
-        out = out && test_ray_grid();
-        out = out && test_ray_tree();
-        out = out && test_sphere();
-        out = out && test_aabbox();
-        out = out && test_oobbox();
-        out = out && test_sphere_intersect();
-        out = out && test_sphere_resolve();
-        out = out && test_aabbox_intersect();
-        out = out && test_aabb_resolve();
-        out = out && test_oobbox_intersect();
-        out = out && test_oobb_resolve();
-        out = out && test_frustum();
-        out = out && test_frustum_intersect();
-        out = out && test_camera();
-        out = out && test_sample();
-        out = out && test_wavefront();
-        out = out && test_model();
-        out = out && test_aabb_tree();
-        out = out && test_sphere_tree();
-        out = out && test_bit_flag();
-        out = out && test_uint_sort();
-        out = out && test_aabb_grid();
-        out = out && test_sphere_grid();
         out = out && test_md5_anim();
         out = out && test_md5_mesh();
         out = out && test_md5_model();
-        out = out && test_physics_aabb_grid();
+        out = out && test_model();
         out = out && test_serial();
         out = out && test_mem_chunk();
+        out = out && test_wavefront();
+
+        // Math tests
+        out = out && test_bit_flag();
+        out = out && test_bezier_cubic();
+        out = out && test_bspline_cubic();
+        out = out && test_hermite_cubic();
+        out = out && test_mat2();
+        out = out && test_mat3();
+        out = out && test_mat4();
+        out = out && test_quat();
+        out = out && test_sample();
+        out = out && test_uint_sort();
+        out = out && test_vec2();
+        out = out && test_vec3();
+        out = out && test_vec4();
+
+        // Geom tests
+        out = out && test_aabbox();
+        out = out && test_aabb_grid();
+        out = out && test_aabbox_intersect();
+        out = out && test_aabb_resolve();
+        out = out && test_aabb_tree();
+        out = out && test_frustum();
+        out = out && test_frustum_intersect();
+        out = out && test_oobbox();
+        out = out && test_oobbox_intersect();
+        out = out && test_oobb_resolve();
+        out = out && test_plane();
+        out = out && test_ray();
+        out = out && test_sphere();
+        out = out && test_sphere_grid();
+        out = out && test_sphere_intersect();
+        out = out && test_sphere_resolve();
+        out = out && test_sphere_tree();
+
+        // Scene tests
+        out = out && test_camera();
+        out = out && test_ray_grid();
+        out = out && test_ray_tree();
+        out = out && test_physics_aabb_grid();
+        out = out && test_physics_nt_aabb_grid();
+
+        // Util tests
         out = out && test_thread_pool();
         out = out && test_height_map();
         out = out && test_stack_vector();

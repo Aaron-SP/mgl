@@ -29,6 +29,16 @@ bool test_sample()
 
     // vec2 sample
     {
+        // Print size and alignment of class
+        std::cout << "sample_vec2_size: " << sizeof(min::sample<double, min::vec2>) << std::endl;
+        std::cout << "sample_vec2_align: " << alignof(min::sample<double, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsample.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(double) * 6, sizeof(min::sample<double, min::vec2>), "Failed sample_vec2 sizeof");
+        out = out && test(sizeof(double), alignof(min::sample<double, min::vec2>), "Failed sample_vec2 alignof");
+#endif
+
         // Local variables
         min::vec2<double> src;
         min::vec2<double> dst;
@@ -62,6 +72,16 @@ bool test_sample()
 
     // vec3 sample
     {
+        // Print size and alignment of class
+        std::cout << "sample_vec3_size: " << sizeof(min::sample<double, min::vec3>) << std::endl;
+        std::cout << "sample_vec3_align: " << alignof(min::sample<double, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsample.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(double) * 8, sizeof(min::sample<double, min::vec3>), "Failed sample_vec3 sizeof");
+        out = out && test(sizeof(double), alignof(min::sample<double, min::vec3>), "Failed sample_vec3 alignof");
+#endif
+
         // Local variables
         min::vec3<double> src;
         min::vec3<double> dst;
@@ -97,6 +117,16 @@ bool test_sample()
 
     // vec4 sample
     {
+        // Print size and alignment of class
+        std::cout << "sample_vec4_size: " << sizeof(min::sample<double, min::vec4>) << std::endl;
+        std::cout << "sample_vec4_align: " << alignof(min::sample<double, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsample.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(double) * 10, sizeof(min::sample<double, min::vec4>), "Failed sample_vec4 sizeof");
+        out = out && test(sizeof(double), alignof(min::sample<double, min::vec4>), "Failed sample_vec4 alignof");
+#endif
+
         // Local variables
         min::vec4<double> src;
         min::vec4<double> dst;

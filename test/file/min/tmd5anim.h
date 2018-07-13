@@ -23,6 +23,35 @@ bool test_md5_anim()
 {
     bool out = true;
 
+    std::cout << "md5_node_size: " << sizeof(min::md5_node) << std::endl;
+    std::cout << "md5_node_align: " << alignof(min::md5_node) << std::endl;
+    std::cout << "md5_transform_size: " << sizeof(min::md5_transform<float>) << std::endl;
+    std::cout << "md5_transform_align: " << alignof(min::md5_transform<float>) << std::endl;
+    std::cout << "md5_animated_node_size: " << sizeof(min::md5_animated_node<float>) << std::endl;
+    std::cout << "md5_animated_node_align: " << alignof(min::md5_animated_node<float>) << std::endl;
+    std::cout << "md5_frame_data_size: " << sizeof(min::md5_frame_data<float>) << std::endl;
+    std::cout << "md5_frame_data_align: " << alignof(min::md5_frame_data<float>) << std::endl;
+    std::cout << "md5_frame_size: " << sizeof(min::md5_frame<float>) << std::endl;
+    std::cout << "md5_frame_align: " << alignof(min::md5_frame<float>) << std::endl;
+    std::cout << "md5_anim_size: " << sizeof(min::md5_anim<float>) << std::endl;
+    std::cout << "md5_anim_align: " << alignof(min::md5_anim<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tmd5anim.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 6, sizeof(min::md5_node), "Failed md5_node sizeof");
+    out = out && test(sizeof(void *), alignof(min::md5_node), "Failed md5_node alignof");
+    out = out && test(sizeof(float) * 7, sizeof(min::md5_transform<float>), "Failed md5_transform sizeof");
+    out = out && test(sizeof(float), alignof(min::md5_transform<float>), "Failed md5_transform alignof");
+    out = out && test(sizeof(float) * 8, sizeof(min::md5_animated_node<float>), "Failed md5_animated_node sizeof");
+    out = out && test(sizeof(float), alignof(min::md5_animated_node<float>), "Failed md5_animated_node alignof");
+    out = out && test(sizeof(void *) * 4, sizeof(min::md5_frame_data<float>), "Failed md5_frame_data sizeof");
+    out = out && test(sizeof(void *), alignof(min::md5_frame_data<float>), "Failed md5_frame_data alignof");
+    out = out && test(sizeof(void *) * 6, sizeof(min::md5_frame<float>), "Failed md5_frame sizeof");
+    out = out && test(sizeof(void *), alignof(min::md5_frame<float>), "Failed md5_frame alignof");
+    out = out && test(sizeof(void *) * 20, sizeof(min::md5_anim<float>), "Failed md5_anim sizeof");
+    out = out && test(sizeof(void *), alignof(min::md5_anim<float>), "Failed md5_anim alignof");
+#endif
+
     // Low polygon box character animation
     const min::md5_anim<float> anim = min::md5_anim<float>("data/models/bob.md5anim");
 

@@ -23,9 +23,18 @@ bool test_mem_chunk()
 {
     bool out = true;
 
-    min::mem_chunk chunk1;
+    // Print size and alignment of class
+    std::cout << "mem_chunk_size: " << sizeof(min::mem_chunk) << std::endl;
+    std::cout << "mem_chunk_align: " << alignof(min::mem_chunk) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tmem_chunk.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 10, sizeof(min::mem_chunk), "Failed mem_chunk sizeof");
+    out = out && test(sizeof(void *), alignof(min::mem_chunk), "Failed mem_chunk alignof");
+#endif
 
     // Add some files to the set
+    min::mem_chunk chunk1;
     chunk1.add_file("data/texture/art_cube.bmp");
     chunk1.add_file("data/texture/stone.dds");
     out = out && compare(2, chunk1.size());

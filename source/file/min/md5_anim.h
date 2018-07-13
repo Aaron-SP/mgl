@@ -45,7 +45,8 @@ class md5_node
     unsigned _start;
 
   public:
-    md5_node(const std::string name, int parent, int flag, unsigned start) : _name(name), _parent(parent), _flag(flag), _start(start) {}
+    md5_node(const std::string &name, const int parent, const int flag, const unsigned start)
+        : _name(name), _parent(parent), _flag(flag), _start(start) {}
     inline const std::string &get_name() const
     {
         return _name;
@@ -72,7 +73,8 @@ class md5_transform
     quat<T> _rotation;
 
   public:
-    md5_transform(const vec3<T> &t, const quat<T> &r) : _position(t), _rotation(r)
+    md5_transform(const vec3<T> &t, const quat<T> &r)
+        : _position(t), _rotation(r)
     {
         _rotation.calculate_w();
     }
@@ -90,13 +92,13 @@ template <class T>
 class md5_animated_node
 {
   private:
-    int _parent;
     vec3<T> _position;
     quat<T> _rotation;
+    int _parent;
 
   public:
-    md5_animated_node(const md5_transform<T> &copy, int parent)
-        : _parent(parent), _position(copy.get_position()), _rotation(copy.get_rotation()) {}
+    md5_animated_node(const md5_transform<T> &copy, const int parent)
+        : _position(copy.get_position()), _rotation(copy.get_rotation()), _parent(parent) {}
 
     inline int get_parent() const
     {
@@ -124,11 +126,12 @@ template <typename T>
 class md5_frame_data
 {
   private:
-    unsigned _id;
     std::vector<T> _data;
+    unsigned _id;
 
   public:
-    md5_frame_data(unsigned id) : _id(id) {}
+    md5_frame_data(const unsigned id)
+        : _id(id) {}
     inline void add(const T data)
     {
         _data.push_back(data);
@@ -180,13 +183,13 @@ class md5_anim
     std::vector<md5_transform<T>> _transforms;
     std::vector<md5_frame_data<T>> _frame_data;
     std::vector<md5_frame<T>> _frames;
-    unsigned _frame_rate;
-    T _animation_length;
-    mutable unsigned _loops;
     mutable std::vector<mat4<T>> _current_frame;
+    T _animation_length;
     mutable T _time;
+    unsigned _frame_rate;
+    mutable unsigned _loops;
 
-    inline void load_file(const std::string _file)
+    inline void load_file(const std::string &_file)
     {
         std::ifstream file(_file, std::ios::in | std::ios::binary | std::ios::ate);
         if (file.is_open())
@@ -222,6 +225,11 @@ class md5_anim
         // Read line by line
         unsigned frames, nodes, components;
         frames = nodes = components = 0;
+
+        // Allocate field buffer
+        std::string field;
+        field.reserve(16);
+
         const size_t size = lines.size();
         for (size_t i = 0; i < size; i++)
         {
@@ -237,7 +245,7 @@ class md5_anim
             }
 
             // Read the property of this line
-            std::string field;
+            field.clear();
             std::istringstream s(line);
             s >> field;
 
@@ -347,10 +355,18 @@ class md5_anim
     {
         if (lines.size() > 0)
         {
+            // Create name buffer
+            std::string name;
+            name.reserve(16);
+
+            // For all lines
             _nodes.reserve(lines.size());
             for (const auto &line : lines)
             {
-                std::string name;
+                // Clear the name buffer
+                name.clear();
+
+                // Local variables
                 int parent, flag;
                 unsigned start;
 
@@ -383,10 +399,18 @@ class md5_anim
     {
         if (lines.size() > 0)
         {
+            // Create junk buffer
+            std::string junk;
+            junk.reserve(16);
+
+            // For all lines
             _bounds.reserve(lines.size());
             for (const auto &line : lines)
             {
-                std::string junk;
+                // Clear the junk buffer
+                junk.clear();
+
+                // Local variables
                 T minx, miny, minz;
                 T maxx, maxy, maxz;
 
@@ -429,10 +453,18 @@ class md5_anim
     {
         if (lines.size() > 0)
         {
+            // Create junk buffer
+            std::string junk;
+            junk.reserve(16);
+
+            // For all lines
             _transforms.reserve(lines.size());
             for (const auto &line : lines)
             {
-                std::string junk;
+                // Clear the junk buffer
+                junk.clear();
+
+                // Local variables
                 T x, y, z;
                 T qx, qy, qz;
 
@@ -621,7 +653,7 @@ class md5_anim
     }
 
   public:
-    md5_anim(const std::string &file) : _frame_rate(0), _loops(0), _time(0.0)
+    md5_anim(const std::string &file) : _time(0.0), _frame_rate(0), _loops(0)
     {
         load_file(file);
 

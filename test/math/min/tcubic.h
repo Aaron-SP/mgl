@@ -17,6 +17,9 @@ limitations under the License.
 
 #include <min/cubic.h>
 #include <min/test.h>
+#include <min/vec2.h>
+#include <min/vec3.h>
+#include <min/vec4.h>
 #include <stdexcept>
 
 bool test_bezier_cubic()
@@ -25,6 +28,16 @@ bool test_bezier_cubic()
 
     // vec2 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bezier_vec2_size: " << sizeof(min::bezier<float, min::vec2>) << std::endl;
+        std::cout << "bezier_vec2_align: " << alignof(min::bezier<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 8, sizeof(min::bezier<float, min::vec2>), "Failed bezier_vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::bezier<float, min::vec2>), "Failed bezier_vec2 alignof");
+#endif
+
         const min::vec2<float> p1(0.0, 0.0);
         const min::vec2<float> p2(0.5, 0.25);
         const min::vec2<float> p3(1.0, 0.5);
@@ -100,6 +113,16 @@ bool test_bezier_cubic()
 
     // vec3 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bezier_vec3_size: " << sizeof(min::bezier<float, min::vec3>) << std::endl;
+        std::cout << "bezier_vec3_align: " << alignof(min::bezier<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 12, sizeof(min::bezier<float, min::vec3>), "Failed bezier_vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::bezier<float, min::vec3>), "Failed bezier_vec3 alignof");
+#endif
+
         const min::vec3<float> p1(0.0, 0.0, 0.0);
         const min::vec3<float> p2(1.0, 0.0, 0.0);
         const min::vec3<float> p3(1.0, 1.0, 0.0);
@@ -182,6 +205,16 @@ bool test_bezier_cubic()
 
     // vec4 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bezier_vec4_size: " << sizeof(min::bezier<float, min::vec4>) << std::endl;
+        std::cout << "bezier_vec4_align: " << alignof(min::bezier<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 16, sizeof(min::bezier<float, min::vec4>), "Failed bezier_vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::bezier<float, min::vec4>), "Failed bezier_vec4 alignof");
+#endif
+
         const min::vec4<float> p1(0.0, 0.0, 0.0, 1.0);
         const min::vec4<float> p2(1.0, 0.0, 0.0, 1.0);
         const min::vec4<float> p3(1.0, 1.0, 0.0, 1.0);
@@ -271,6 +304,16 @@ bool test_bspline_cubic()
 
     // vec2 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bspline_vec2_size: " << sizeof(min::bspline<float, min::vec2>) << std::endl;
+        std::cout << "bspline_vec2_align: " << alignof(min::bspline<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 8, sizeof(min::bspline<float, min::vec2>), "Failed bspline_vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::bspline<float, min::vec2>), "Failed bspline_vec2 alignof");
+#endif
+
         // p1 and p4 are control points not curve end points!
         const min::vec2<float> p1(0.0, 0.0);
         const min::vec2<float> p2(0.5, 0.25);
@@ -347,6 +390,16 @@ bool test_bspline_cubic()
 
     // vec3 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bspline_vec3_size: " << sizeof(min::bspline<float, min::vec3>) << std::endl;
+        std::cout << "bspline_vec3_align: " << alignof(min::bspline<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 12, sizeof(min::bspline<float, min::vec3>), "Failed bspline_vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::bspline<float, min::vec3>), "Failed bspline_vec3 alignof");
+#endif
+
         // p1 and p4 are control points not curve end points!
         const min::vec3<float> p1(0.0, 0.0, 0.0);
         const min::vec3<float> p2(1.0, 0.0, 0.0);
@@ -430,6 +483,16 @@ bool test_bspline_cubic()
 
     // vec4 cubic
     {
+        // Print size and alignment of class
+        std::cout << "bspline_vec4_size: " << sizeof(min::bspline<float, min::vec4>) << std::endl;
+        std::cout << "bspline_vec4_align: " << alignof(min::bspline<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 16, sizeof(min::bspline<float, min::vec4>), "Failed bspline_vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::bspline<float, min::vec4>), "Failed bspline_vec4 alignof");
+#endif
+
         // p1 and p4 are control points not curve end points!
         const min::vec4<float> p1(0.0, 0.0, 0.0, 1.0);
         const min::vec4<float> p2(1.0, 0.0, 0.0, 1.0);
@@ -520,6 +583,16 @@ bool test_hermite_cubic()
 
     // vec2 cubic
     {
+        // Print size and alignment of class
+        std::cout << "hermite_vec2_size: " << sizeof(min::hermite<float, min::vec2>) << std::endl;
+        std::cout << "hermite_vec2_align: " << alignof(min::hermite<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 8, sizeof(min::hermite<float, min::vec2>), "Failed hermite_vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::hermite<float, min::vec2>), "Failed hermite_vec2 alignof");
+#endif
+
         const min::vec2<float> p1(0.0, 0.0);
         const min::vec2<float> p2(1.0, 1.0);
         const min::vec2<float> t1(0.0, 1.0);
@@ -595,6 +668,16 @@ bool test_hermite_cubic()
 
     // vec3 cubic
     {
+        // Print size and alignment of class
+        std::cout << "hermite_vec3_size: " << sizeof(min::hermite<float, min::vec3>) << std::endl;
+        std::cout << "hermite_vec3_align: " << alignof(min::hermite<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 12, sizeof(min::hermite<float, min::vec3>), "Failed hermite_vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::hermite<float, min::vec3>), "Failed hermite_vec3 alignof");
+#endif
+
         const min::vec3<float> p1(0.0, 0.0, 0.0);
         const min::vec3<float> p2(1.0, 1.0, 1.0);
         const min::vec3<float> t1(0.0, 1.0, 0.0);
@@ -677,6 +760,16 @@ bool test_hermite_cubic()
 
     // vec4 cubic
     {
+        // Print size and alignment of class
+        std::cout << "hermite_vec4_size: " << sizeof(min::hermite<float, min::vec4>) << std::endl;
+        std::cout << "hermite_vec4_align: " << alignof(min::hermite<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tcubic.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 16, sizeof(min::hermite<float, min::vec4>), "Failed hermite_vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::hermite<float, min::vec4>), "Failed hermite_vec4 alignof");
+#endif
+
         const min::vec4<float> p1(0.0, 0.0, 0.0, 1.0);
         const min::vec4<float> p2(1.0, 1.0, 1.0, 1.0);
         const min::vec4<float> t1(0.0, 1.0, 0.0, 1.0);

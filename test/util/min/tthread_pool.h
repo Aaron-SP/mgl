@@ -23,6 +23,16 @@ bool test_thread_pool()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "thread_pool_size: " << sizeof(min::thread_pool) << std::endl;
+    std::cout << "thread_pool_align: " << alignof(min::thread_pool) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tthread_pool.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 320, sizeof(min::thread_pool), "Failed thread_pool sizeof");
+    out = out && test(sizeof(void *), alignof(min::thread_pool), "Failed thread_pool alignof");
+#endif
+
     // Create a threadpool for doing work in parallel
     min::thread_pool pool;
 

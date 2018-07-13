@@ -39,14 +39,14 @@ template <class T>
 class md5_joint
 {
   private:
-    std::string _name;
+    //std::string _name;
     int _id;
     vec3<T> _position;
     quat<T> _rotation;
 
   public:
-    md5_joint(const std::string &name, const int id, const vec3<T> &p, const quat<T> &r)
-        : _name(name), _id(id), _position(p), _rotation(r) {}
+    md5_joint(const int id, const vec3<T> &p, const quat<T> &r)
+        : _id(id), _position(p), _rotation(r) {}
 
     inline int get_id() const
     {
@@ -352,9 +352,16 @@ class md5_mesh
             _joints.reserve(lines.size());
 
             // For all lines
+            std::string name, junk;
+            name.reserve(16);
+            junk.reserve(16);
             for (const auto &line : lines)
             {
-                std::string name, junk;
+                // Clear the string buffers
+                name.clear();
+                junk.clear();
+
+                // Local variables
                 int id;
                 T x, y, z;
                 T qx, qy, qz;
@@ -383,7 +390,7 @@ class md5_mesh
                 s >> qz;
 
                 // Remove quotes from string name
-                name.erase(std::remove(name.begin(), name.end(), '\"'), name.end());
+                //name.erase(std::remove(name.begin(), name.end(), '\"'), name.end());
 
                 // Calculate the quaternion and w component, this normalizes the quaternion
                 // We need to negate rotation angle here since we use left-handed coordinates
@@ -391,7 +398,7 @@ class md5_mesh
                 rotation.calculate_w();
 
                 // Add joint to the joint list
-                _joints.emplace_back(name, id, vec3<T>(x, y, z), rotation);
+                _joints.emplace_back(id, vec3<T>(x, y, z), rotation);
 
                 // Check for errors
                 if (s.fail())
@@ -418,9 +425,14 @@ class md5_mesh
             _vertex_weights.reserve(vw_size);
 
             // For all lines
+            std::string junk;
+            junk.reserve(16);
             for (const auto &line : lines)
             {
-                std::string junk;
+                // Clear the string buffers
+                junk.clear();
+
+                // Local variables
                 T x, y;
                 unsigned start, count;
 
@@ -472,9 +484,14 @@ class md5_mesh
             m.index.reserve(lines.size());
 
             // For all lines
+            std::string junk;
+            junk.reserve(16);
             for (const auto &line : lines)
             {
-                std::string junk;
+                // Clear the string buffers
+                junk.clear();
+
+                // Local variables
                 K i1, i2, i3;
 
                 // Parse the items on the line
@@ -514,9 +531,14 @@ class md5_mesh
             _weights.reserve(lines.size());
 
             // For all lines
+            std::string junk;
+            junk.reserve(16);
             for (const auto &line : lines)
             {
-                std::string junk;
+                // Clear the string buffers
+                junk.clear();
+
+                // Local variables
                 unsigned id;
                 T bias, x, y, z;
 

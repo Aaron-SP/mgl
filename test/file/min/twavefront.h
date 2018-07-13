@@ -24,6 +24,16 @@ bool test_wavefront()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "wavefront_size: " << sizeof(min::wavefront<double, uint16_t>) << std::endl;
+    std::cout << "wavefront_align: " << alignof(min::wavefront<double, uint16_t>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "twavefront.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 16, sizeof(min::wavefront<double, uint16_t>), "Failed wavefront sizeof");
+    out = out && test(sizeof(void *), alignof(min::wavefront<double, uint16_t>), "Failed wavefront alignof");
+#endif
+
     // Test small wavefront file
     {
         // Local variables
