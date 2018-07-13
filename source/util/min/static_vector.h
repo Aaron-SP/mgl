@@ -118,6 +118,10 @@ class static_vector
     {
         return _beg;
     }
+    inline T *begin()
+    {
+        return _beg;
+    }
     inline const T *data() const
     {
         return _beg;
@@ -127,6 +131,10 @@ class static_vector
         return _beg;
     }
     inline const T *end() const
+    {
+        return _end;
+    }
+    inline T *end()
     {
         return _end;
     }

@@ -24,6 +24,16 @@ bool test_quat()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "quat_size: " << sizeof(min::quat<float>) << std::endl;
+    std::cout << "quat_align: " << alignof(min::quat<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tquat.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(float) * 4, sizeof(min::quat<float>), "Failed quat sizeof");
+    out = out && test(sizeof(float), alignof(min::quat<float>), "Failed quat alignof");
+#endif
+
     // Local variables
     min::quat<double> q;
     min::quat<double> one;

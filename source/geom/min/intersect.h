@@ -344,15 +344,6 @@ inline bool intersect(const frustum<T> &f, const sphere<T, vec3> &s)
     return f.point_within(s.get_center(), s.get_radius());
 }
 
-// Calculates the closest point on sphere to frustum center
-// Tests if the closest point is inside the frustum
-template <typename T>
-inline bool intersect(const frustum<T> &f, const sphere<T, vec3> &s, vec3<T> &p)
-{
-    p = s.closest_point(f.get_center());
-    return f.point_inside(p);
-}
-
 // Tests if the frustum intersects the aabb
 // For each plane in frustum determine if the box axis intersects the frustum plane
 template <typename T>
@@ -362,16 +353,6 @@ inline bool intersect(const frustum<T> &f, const aabbox<T, vec3> &box)
     const vec3<T> &max = box.get_max();
 
     return f.between(min, max);
-}
-
-// Calculates the closest point on aabb to frustum center
-// Tests if the frustum intersects the aabb
-// For each plane in frustum determine if the box axis intersects the frustum plane
-template <typename T>
-inline bool intersect(const frustum<T> &f, const aabbox<T, vec3> &box, vec3<T> &p)
-{
-    p = box.closest_point(f.get_center());
-    return f.point_inside(p);
 }
 
 // This function is only valid if s1 is intersecting s2

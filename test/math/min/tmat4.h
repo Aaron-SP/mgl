@@ -23,6 +23,16 @@ bool test_mat4()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "mat4_size: " << sizeof(min::mat4<float>) << std::endl;
+    std::cout << "mat4_align: " << alignof(min::mat4<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tmat4.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(float) * 16, sizeof(min::mat4<float>), "Failed mat4 sizeof");
+    out = out && test(sizeof(float), alignof(min::mat4<float>), "Failed mat4 alignof");
+#endif
+
     // Local variables
     min::mat4<double> mat;
     min::vec3<double> v3;

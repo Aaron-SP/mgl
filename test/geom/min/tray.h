@@ -28,6 +28,16 @@ bool test_ray()
 
     // vec2 ray
     {
+        // Print size and alignment of class
+        std::cout << "ray_vec2_size: " << sizeof(min::ray<float, min::vec2>) << std::endl;
+        std::cout << "ray_vec2_align: " << alignof(min::ray<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tray.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 6, sizeof(min::ray<float, min::vec2>), "Failed ray vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::ray<float, min::vec2>), "Failed ray vec2 alignof");
+#endif
+
         // Local variables
         min::ray<double, min::vec2> r;
         min::vec2<double> to;
@@ -58,6 +68,16 @@ bool test_ray()
 
     // vec3 ray
     {
+        // Print size and alignment of class
+        std::cout << "ray_vec3_size: " << sizeof(min::ray<float, min::vec3>) << std::endl;
+        std::cout << "ray_vec3_align: " << alignof(min::ray<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tray.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 9, sizeof(min::ray<float, min::vec3>), "Failed ray vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::ray<float, min::vec3>), "Failed ray vec3 alignof");
+#endif
+
         // Local variables
         min::ray<double, min::vec3> r;
         min::vec3<double> to;
@@ -90,6 +110,16 @@ bool test_ray()
 
     // vec4 ray
     {
+        // Print size and alignment of class
+        std::cout << "ray_vec4_size: " << sizeof(min::ray<float, min::vec4>) << std::endl;
+        std::cout << "ray_vec4_align: " << alignof(min::ray<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tray.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 12, sizeof(min::ray<float, min::vec4>), "Failed ray vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::ray<float, min::vec4>), "Failed ray vec4 alignof");
+#endif
+
         // Local variables
         min::ray<double, min::vec4> r;
         min::vec4<double> to;

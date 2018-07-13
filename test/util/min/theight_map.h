@@ -23,8 +23,19 @@ bool test_height_map()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "height_map_size: " << sizeof(min::height_map<float>) << std::endl;
+    std::cout << "height_map_align: " << alignof(min::height_map<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "theight_map.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(void *) * 5, sizeof(min::height_map<float>), "Failed height_map sizeof");
+    out = out && test(sizeof(void *), alignof(min::height_map<float>), "Failed height_map alignof");
+#endif
+
     // Create height map, generate a 257x257 image; 2^8 + 1 = 257
-    min::height_map<float> map(8, 4.0, 8.0);
+    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    min::height_map<float> map(gen, 8, 4.0, 8.0);
 
     // Test size of height map
     out = out && compare(257, map.size());

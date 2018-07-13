@@ -93,9 +93,9 @@ class grid
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
     std::vector<K> _sort_copy;
-    mutable bit_flag<K, L> _flags;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
+    mutable bit_flag<K, L> _flags;
     cell<T, vec> _root;
     vec<T> _cell_extent;
     vec<T> _lower_bound;

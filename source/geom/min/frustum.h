@@ -27,17 +27,13 @@ template <class T>
 class frustum
 {
   private:
-    T _fov; // Screen dimensions
+    plane<T, vec3> _plane[6];
+    vec3<T> _near;
+    vec3<T> _far;
+    T _fov;
     T _ratio;
     T _zoom;
-    vec3<T> _near; // Z planes
-    vec3<T> _far;
-    vec3<T> _center; // Orientation
-    vec3<T> _right;
-    mat4<T> _proj; // Matricies
-    mat4<T> _view;
-    plane<T, vec3> _plane[6]; // Planes
-    bool _dirty;              // Needs updating
+    bool _dirty;
 
     // If the plane is facing in the negative direction then the excluding corner
     // is the maximum corner in the plane normal direction else use the minimum corner
@@ -71,7 +67,7 @@ class frustum
         // a positive distance from plane means it is outside the half space
         return _plane[i].get_distance(p) > d;
     }
-    inline void orthographic_frustum()
+    inline mat4<T> orthographic_frustum()
     {
         // This frustum is symmetric and thus is simplified from the generic equations
         const T r = _near.x();
@@ -80,9 +76,9 @@ class frustum
         const T far = _far.z();
 
         // Create orthographic projection matrix
-        _proj = mat4<T>(r, t, near, far);
+        return mat4<T>(r, t, near, far);
     }
-    inline void perspective_frustum()
+    inline mat4<T> perspective_frustum()
     {
         // This frustum is symmetric and thus is simplified from the generic equations
         const T r = _near.x();
@@ -109,7 +105,7 @@ class frustum
         T o = 1.0;
         T p = 0.0;
 
-        _proj = mat4<T>(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
+        return mat4<T>(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
     }
     inline void update()
     {
@@ -132,8 +128,10 @@ class frustum
     }
 
   public:
-    frustum() : _fov(45.0), _ratio(1.33), _zoom(1.0), _near(0.0, 0.0, 0.1), _far(0.0, 0.0, 200.0), _dirty(true) {}
-    frustum(const T ratio, const T fov, const T near, const T far) : _fov(fov), _ratio(ratio), _zoom(1.0), _near(0.0, 0.0, near), _far(0.0, 0.0, far), _dirty(true) {}
+    frustum()
+        : _near(0.0, 0.0, 0.1), _far(0.0, 0.0, 200.0), _fov(45.0), _ratio(1.33), _zoom(1.0), _dirty(true) {}
+    frustum(const T ratio, const T fov, const T near, const T far)
+        : _near(0.0, 0.0, near), _far(0.0, 0.0, far), _fov(fov), _ratio(ratio), _zoom(1.0), _dirty(true) {}
     inline bool between(const vec3<T> &min, const vec3<T> &max) const
     {
         if (not_between_plane(min, max, 0))
@@ -194,15 +192,7 @@ class frustum
         // Calculate the closest point on this frustum
         return _plane[index].get_point(p, min);
     }
-    inline const vec3<T> &get_center() const
-    {
-        return _center;
-    }
-    inline const vec3<T> &get_right() const
-    {
-        return _right;
-    }
-    inline const mat4<T> &orthographic()
+    inline mat4<T> orthographic()
     {
         // Update the frustum dimensions if dirty
         if (_dirty)
@@ -210,17 +200,14 @@ class frustum
             // Update the frustum properties
             update();
 
-            // Create the orthographic frustum
-            orthographic_frustum();
-
             // No longer dirty
             _dirty = false;
         }
 
-        // Return the view matrix
-        return _proj;
+        // Create the orthographic frustum
+        return orthographic_frustum();
     }
-    inline const mat4<T> &perspective()
+    inline mat4<T> perspective()
     {
         // Update the frustum dimensions if dirty
         if (_dirty)
@@ -228,40 +215,37 @@ class frustum
             // Update the frustum properties
             update();
 
-            // Create the perspective frustum
-            perspective_frustum();
-
             // No longer dirty
             _dirty = false;
         }
 
-        // Return the view matrix
-        return _proj;
+        // Create the perspective frustum
+        return perspective_frustum();
     }
-    inline const mat4<T> &look_at(const vec3<T> &eye, const vec3<T> &forward, vec3<T> &up)
+    inline mat4<T> look_at(const vec3<T> &eye, const vec3<T> &forward, vec3<T> &right, vec3<T> &up, vec3<T> &center)
     {
         // right: up x forward - left handed coordinates
-        _right = up.cross(forward);
-        _right.y(0.0);
-        _right.normalize_unsafe();
+        right = up.cross(forward);
+        right.y(0.0);
+        right.normalize_unsafe();
 
         // up: = forward x right - left handed coordinates
         // up is recalculated for stabilization
-        up = forward.cross(_right);
+        up = forward.cross(right);
 
         // near corners: top left, top right, bottom left, bottom right
         const vec3<T> near = eye + forward * _near.z();
-        vec3<T> tl = near + up * _near.y() - _right * _near.x();
-        vec3<T> tr = near + up * _near.y() + _right * _near.x();
-        vec3<T> bl = near - up * _near.y() - _right * _near.x();
-        vec3<T> br = near - up * _near.y() + _right * _near.x();
+        vec3<T> tl = near + up * _near.y() - right * _near.x();
+        vec3<T> tr = near + up * _near.y() + right * _near.x();
+        vec3<T> bl = near - up * _near.y() - right * _near.x();
+        vec3<T> br = near - up * _near.y() + right * _near.x();
 
         // far corners: top left, top right, bottom left, bottom right
         const vec3<T> far = eye + forward * _far.z();
-        vec3<T> ftl = far + up * _far.y() - _right * _far.x();
-        vec3<T> ftr = far + up * _far.y() + _right * _far.x();
-        vec3<T> fbl = far - up * _far.y() - _right * _far.x();
-        vec3<T> fbr = far - up * _far.y() + _right * _far.x();
+        vec3<T> ftl = far + up * _far.y() - right * _far.x();
+        vec3<T> ftr = far + up * _far.y() + right * _far.x();
+        vec3<T> fbl = far - up * _far.y() - right * _far.x();
+        vec3<T> fbr = far - up * _far.y() + right * _far.x();
 
         // planes: top, bottom, left: all normals point inside
         _plane[0] = plane<T, vec3>(tr, tl, ftl);
@@ -273,13 +257,11 @@ class frustum
         _plane[4] = plane<T, vec3>(tl, tr, br);
         _plane[5] = plane<T, vec3>(ftr, ftl, fbl);
 
-        // construct the lookat matrix
-        _view = mat4<T>(_right, up, forward, eye);
-
         // Update the frustum center
-        _center = (far + near) * 0.5;
+        center = (far + near) * 0.5;
 
-        return _view;
+        // construct the lookat matrix
+        return mat4<T>(right, up, forward, eye);
     }
     inline void make_dirty()
     {

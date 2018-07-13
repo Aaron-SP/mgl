@@ -45,6 +45,16 @@ bool test_sphere()
 
     // vec2 sphere = circle
     {
+        // Print size and alignment of class
+        std::cout << "sphere_vec2_size: " << sizeof(min::sphere<float, min::vec2>) << std::endl;
+        std::cout << "sphere_vec2_align: " << alignof(min::sphere<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsphere.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 4, sizeof(min::sphere<float, min::vec2>), "Failed sphere vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::sphere<float, min::vec2>), "Failed sphere vec2 alignof");
+#endif
+
         // Local variables
         min::sphere<double, min::vec2> s;
         min::vec2<double> a;
@@ -228,6 +238,16 @@ bool test_sphere()
 
     // vec3 sphere
     {
+        // Print size and alignment of class
+        std::cout << "sphere_vec3_size: " << sizeof(min::sphere<float, min::vec3>) << std::endl;
+        std::cout << "sphere_vec3_align: " << alignof(min::sphere<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsphere.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 5, sizeof(min::sphere<float, min::vec3>), "Failed sphere vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::sphere<float, min::vec3>), "Failed sphere vec3 alignof");
+#endif
+
         // Local variables
         min::sphere<double, min::vec3> s;
         min::vec3<double> a;
@@ -422,6 +442,16 @@ bool test_sphere()
 
     // vec4 sphere
     {
+        // Print size and alignment of class
+        std::cout << "sphere_vec4_size: " << sizeof(min::sphere<float, min::vec4>) << std::endl;
+        std::cout << "sphere_vec4_align: " << alignof(min::sphere<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tsphere.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 6, sizeof(min::sphere<float, min::vec4>), "Failed sphere vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::sphere<float, min::vec4>), "Failed sphere vec4 alignof");
+#endif
+
         // Local variables
         min::sphere<double, min::vec4> s;
         min::vec4<double> a;

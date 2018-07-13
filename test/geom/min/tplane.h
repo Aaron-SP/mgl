@@ -28,6 +28,16 @@ bool test_plane()
 
     // vec2 plane
     {
+        // Print size and alignment of class
+        std::cout << "plane_vec2_size: " << sizeof(min::plane<float, min::vec2>) << std::endl;
+        std::cout << "plane_vec2_align: " << alignof(min::plane<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tplane.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 3, sizeof(min::plane<float, min::vec2>), "Failed plane vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::plane<float, min::vec2>), "Failed plane vec2 alignof");
+#endif
+
         // Local variables
         min::plane<double, min::vec2> p;
         min::vec2<double> a;
@@ -109,6 +119,16 @@ bool test_plane()
 
     // vec3 plane
     {
+        // Print size and alignment of class
+        std::cout << "plane_vec3_size: " << sizeof(min::plane<float, min::vec3>) << std::endl;
+        std::cout << "plane_vec3_align: " << alignof(min::plane<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tplane.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 4, sizeof(min::plane<float, min::vec3>), "Failed plane vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::plane<float, min::vec3>), "Failed plane vec3 alignof");
+#endif
+
         // Local variables
         min::plane<double, min::vec3> p;
         min::vec3<double> a;
@@ -197,6 +217,16 @@ bool test_plane()
 
     // vec4 plane
     {
+        // Print size and alignment of class
+        std::cout << "plane_vec4_size: " << sizeof(min::plane<float, min::vec4>) << std::endl;
+        std::cout << "plane_vec4_align: " << alignof(min::plane<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "tplane.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 5, sizeof(min::plane<float, min::vec4>), "Failed plane vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::plane<float, min::vec4>), "Failed plane vec4 alignof");
+#endif
+
         // Local variables
         min::plane<double, min::vec4> p;
         min::vec4<double> a;

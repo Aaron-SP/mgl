@@ -45,6 +45,16 @@ bool test_aabbox()
 
     // vec2 aabbox = circle
     {
+        // Print size and alignment of class
+        std::cout << "aabbox_vec2_size: " << sizeof(min::aabbox<float, min::vec2>) << std::endl;
+        std::cout << "aabbox_vec2_align: " << alignof(min::aabbox<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "taabbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 4, sizeof(min::aabbox<float, min::vec2>), "Failed aabbox vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::aabbox<float, min::vec2>), "Failed aabbox vec2 alignof");
+#endif
+
         // Local variables
         min::aabbox<double, min::vec2> box;
         min::vec2<double> a;
@@ -179,6 +189,16 @@ bool test_aabbox()
 
     // vec3 aabbox
     {
+        // Print size and alignment of class
+        std::cout << "aabbox_vec3_size: " << sizeof(min::aabbox<float, min::vec3>) << std::endl;
+        std::cout << "aabbox_vec3_align: " << alignof(min::aabbox<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "taabbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 6, sizeof(min::aabbox<float, min::vec3>), "Failed aabbox vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::aabbox<float, min::vec3>), "Failed aabbox vec3 alignof");
+#endif
+
         // Local variables
         min::aabbox<double, min::vec3> box;
         min::vec3<double> a;
@@ -322,6 +342,16 @@ bool test_aabbox()
 
     // vec4 aabbox
     {
+        // Print size and alignment of class
+        std::cout << "aabbox_vec4_size: " << sizeof(min::aabbox<float, min::vec4>) << std::endl;
+        std::cout << "aabbox_vec4_align: " << alignof(min::aabbox<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "taabbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 8, sizeof(min::aabbox<float, min::vec4>), "Failed aabbox vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::aabbox<float, min::vec4>), "Failed aabbox vec4 alignof");
+#endif
+
         // Local variables
         min::aabbox<double, min::vec4> box;
         min::vec4<double> a;

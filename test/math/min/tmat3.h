@@ -23,6 +23,16 @@ bool test_mat3()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "mat3_size: " << sizeof(min::mat3<float>) << std::endl;
+    std::cout << "mat3_align: " << alignof(min::mat3<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tmat3.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(float) * 9, sizeof(min::mat3<float>), "Failed mat3 sizeof");
+    out = out && test(sizeof(float), alignof(min::mat3<float>), "Failed mat3 alignof");
+#endif
+
     // Local variables
     min::mat3<double> mat;
     min::vec2<double> v;

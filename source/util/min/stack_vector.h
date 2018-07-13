@@ -67,6 +67,10 @@ class stack_vector
     {
         return &_vec[0];
     }
+    inline T *begin()
+    {
+        return &_vec[0];
+    }
     inline const T *data() const
     {
         return &_vec[0];
@@ -76,6 +80,10 @@ class stack_vector
         return &_vec[0];
     }
     inline const T *end() const
+    {
+        return &_vec[_end];
+    }
+    inline T *end()
     {
         return &_vec[_end];
     }

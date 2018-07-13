@@ -17,9 +17,9 @@ limitations under the License.
 
 #include <chrono>
 #include <cmath>
+#include <min/static_vector.h>
 #include <random>
 #include <stdexcept>
-#include <vector>
 
 namespace min
 {
@@ -29,11 +29,10 @@ class height_map
 {
   private:
     const size_t _size;
+    min::static_vector<T> _map;
+    std::uniform_real_distribution<T> _dist;
     const T _lower;
     const T _upper;
-    std::vector<T> _map;
-    std::uniform_real_distribution<T> _dist;
-    std::mt19937 _gen;
 
     inline void gaussian_blur_5x5()
     {
@@ -46,7 +45,8 @@ class height_map
         const size_t end2 = _size - 2;
 
         // Create a copy of the image to populate map edges
-        std::vector<T> copy(_map.size(), 0.0);
+        min::static_vector<T> copy(_map.size());
+        copy.fill(0.0);
 
         // X Dimensional blur
         {
@@ -147,7 +147,7 @@ class height_map
             }
         }
     }
-    inline void generate()
+    inline void generate(std::mt19937 &gen)
     {
         // Generate start indexes
         const size_t end = _size - 1;
@@ -159,20 +159,20 @@ class height_map
         const size_t ur = key(end, end);
 
         // Generate random values at corners
-        _map[ll] = _dist(_gen);
-        _map[lr] = _dist(_gen);
-        _map[ul] = _dist(_gen);
-        _map[ur] = _dist(_gen);
+        _map[ll] = _dist(gen);
+        _map[lr] = _dist(gen);
+        _map[ul] = _dist(gen);
+        _map[ur] = _dist(gen);
 
         // Recursively diamond square
         const size_t mid_point = end / 2;
-        diamond_square(mid_point, mid_point, mid_point, 1);
+        diamond_square(gen, mid_point, mid_point, mid_point, 1);
     }
     inline size_t key(const size_t x, const size_t y) const
     {
         return _size * x + y;
     }
-    inline void diamond_square(const size_t x, const size_t y, const size_t length, const size_t level)
+    inline void diamond_square(std::mt19937 &gen, const size_t x, const size_t y, const size_t length, const size_t level)
     {
         // Generate the corner points
         const size_t nx = x - length;
@@ -188,7 +188,7 @@ class height_map
 
         // Generate average value at center
         const size_t center = key(x, y);
-        _map[center] = _dist(_gen) + (_map[ll] + _map[ul] + _map[lr] + _map[ur]) / 4.0;
+        _map[center] = _dist(gen) + (_map[ll] + _map[ul] + _map[lr] + _map[ur]) / 4.0;
 
         // Generate square keys
         const size_t l = key(nx, y);
@@ -197,10 +197,10 @@ class height_map
         const size_t u = key(x, py);
 
         // Generate random values at corners
-        _map[l] = _dist(_gen) + (_map[ll] + _map[ul] + _map[center]) / 3.0;
-        _map[r] = _dist(_gen) + (_map[lr] + _map[ur] + _map[center]) / 3.0;
-        _map[d] = _dist(_gen) + (_map[ll] + _map[lr] + _map[center]) / 3.0;
-        _map[u] = _dist(_gen) + (_map[ul] + _map[ur] + _map[center]) / 3.0;
+        _map[l] = _dist(gen) + (_map[ll] + _map[ul] + _map[center]) / 3.0;
+        _map[r] = _dist(gen) + (_map[lr] + _map[ur] + _map[center]) / 3.0;
+        _map[d] = _dist(gen) + (_map[ll] + _map[lr] + _map[center]) / 3.0;
+        _map[u] = _dist(gen) + (_map[ul] + _map[ur] + _map[center]) / 3.0;
 
         // Recursively call this function
         const size_t half = length / 2;
@@ -217,10 +217,10 @@ class height_map
             const size_t next = level + 1;
 
             // Recurse into lower
-            diamond_square(nnx, nny, half, next); // LL
-            diamond_square(npx, nny, half, next); // LR
-            diamond_square(nnx, npy, half, next); // UL
-            diamond_square(npx, npy, half, next); // UR
+            diamond_square(gen, nnx, nny, half, next); // LL
+            diamond_square(gen, npx, nny, half, next); // LR
+            diamond_square(gen, nnx, npy, half, next); // UL
+            diamond_square(gen, npx, npy, half, next); // UR
         }
     }
     inline static size_t pow2(const size_t level)
@@ -229,10 +229,11 @@ class height_map
     }
 
   public:
-    height_map(const size_t level, const T lower, const T upper)
-        : _size(pow2(level) + 1), _lower(lower), _upper(upper),
-          _map(_size * _size), _dist(_lower, _upper),
-          _gen(std::chrono::high_resolution_clock::now().time_since_epoch().count())
+    height_map(std::mt19937 &gen, const size_t level, const T lower, const T upper)
+        : _size(pow2(level) + 1), _map(_size * _size),
+          _dist(lower, upper),
+          _lower(lower), _upper(upper)
+
     {
         // Map size must be odd, and greater than one
         if (level == 0)
@@ -241,7 +242,7 @@ class height_map
         }
 
         // Generate the random height map
-        generate();
+        generate(gen);
     }
     inline void gauss_blur_5x5()
     {

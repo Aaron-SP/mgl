@@ -25,6 +25,16 @@ bool test_camera()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "camera_size: " << sizeof(min::camera<float>) << std::endl;
+    std::cout << "camera_align: " << alignof(min::camera<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tcamera.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(float) * 85, sizeof(min::camera<float>), "Failed camera sizeof");
+    out = out && test(sizeof(float), alignof(min::camera<float>), "Failed camera alignof");
+#endif
+
     // Local variables
     min::camera<double> c;
     min::vec3<double> p;
@@ -38,8 +48,7 @@ bool test_camera()
 
     // get_pv_matrix() updates the camera and frustum internals
     mat = c.get_pv_matrix();
-    const min::frustum<double> &cf = c.get_frustum();
-    p = cf.get_center();
+    p = c.get_center();
     out = out && compare(0.0, p.x(), 1E-4);
     out = out && compare(100.05, p.y(), 1E-4);
     out = out && compare(0.0, p.z(), 1E-4);
@@ -52,7 +61,7 @@ bool test_camera()
     p = min::vec3<double>(0.0, 2.0, 0.0);
     c.set_position(p);
     mat = c.get_pv_matrix();
-    p = cf.get_center();
+    p = c.get_center();
     out = out && compare(0.0, p.x(), 1E-4);
     out = out && compare(102.05, p.y(), 1E-4);
     out = out && compare(0.0, p.z(), 1E-4);
@@ -65,7 +74,7 @@ bool test_camera()
     p = min::vec3<double>(0.0, 2.0, -2.0);
     c.set_look_at(p);
     mat = c.get_pv_matrix();
-    p = cf.get_center();
+    p = c.get_center();
     out = out && compare(0.0, p.x(), 1E-4);
     out = out && compare(2.0, p.y(), 1E-4);
     out = out && compare(-100.05, p.z(), 1E-4);
@@ -75,7 +84,7 @@ bool test_camera()
     }
 
     // Check the right vector
-    p = cf.get_right();
+    p = c.get_right();
     out = out && compare(1.0, p.x(), 1E-4);
     out = out && compare(0.0, p.y(), 1E-4);
     out = out && compare(0.0, p.z(), 1E-4);
@@ -92,7 +101,7 @@ bool test_camera()
     f.set_far(60.0);
     c.make_dirty();          // must call this to update camera
     mat = c.get_pv_matrix(); // must call this to update camera
-    p = cf.get_center();
+    p = c.get_center();
     out = out && compare(0.0, p.x(), 1E-4);
     out = out && compare(2.0, p.y(), 1E-4);
     out = out && compare(-35.0, p.z(), 1E-4);

@@ -29,6 +29,16 @@ bool test_oobbox()
 
     // vec2 oobbox = circle
     {
+        // Print size and alignment of class
+        std::cout << "oobbox_vec2_size: " << sizeof(min::oobbox<float, min::vec2>) << std::endl;
+        std::cout << "oobbox_vec2_align: " << alignof(min::oobbox<float, min::vec2>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "toobbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 12, sizeof(min::oobbox<float, min::vec2>), "Failed oobbox vec2 sizeof");
+        out = out && test(sizeof(float), alignof(min::oobbox<float, min::vec2>), "Failed oobbox vec2 alignof");
+#endif
+
         // Local variables
         min::vec2<double> a(-2.0, 0.0);
         min::vec2<double> b(2.0, 4.0);
@@ -219,6 +229,16 @@ bool test_oobbox()
 
     // vec3 oobbox
     {
+        // Print size and alignment of class
+        std::cout << "oobbox_vec3_size: " << sizeof(min::oobbox<float, min::vec3>) << std::endl;
+        std::cout << "oobbox_vec3_align: " << alignof(min::oobbox<float, min::vec3>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "toobbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 19, sizeof(min::oobbox<float, min::vec3>), "Failed oobbox vec3 sizeof");
+        out = out && test(sizeof(float), alignof(min::oobbox<float, min::vec3>), "Failed oobbox vec3 alignof");
+#endif
+
         // Local variables
         min::vec3<double> a(-2.0, 0.0, -2.0);
         min::vec3<double> b(2.0, 4.0, 2.0);
@@ -420,6 +440,16 @@ bool test_oobbox()
 
     // vec4 oobbox
     {
+        // Print size and alignment of class
+        std::cout << "oobbox_vec4_size: " << sizeof(min::oobbox<float, min::vec4>) << std::endl;
+        std::cout << "oobbox_vec4_align: " << alignof(min::oobbox<float, min::vec4>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+        std::cout << "toobbox.h: Testing alignment" << std::endl;
+        out = out && test(sizeof(float) * 24, sizeof(min::oobbox<float, min::vec4>), "Failed oobbox vec4 sizeof");
+        out = out && test(sizeof(float), alignof(min::oobbox<float, min::vec4>), "Failed oobbox vec4 alignof");
+#endif
+
         // Local variables
         min::vec4<double> a(-2.0, 0.0, -2.0, 1.0);
         min::vec4<double> b(2.0, 4.0, 2.0, 1.0);

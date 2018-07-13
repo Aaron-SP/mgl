@@ -61,22 +61,24 @@ template <typename T, template <typename> class vec, class angular, template <ty
 class body_base
 {
   protected:
-    vec<T> _force;
-    vec<T> _position; // This is at the center of mass
+    size_t _id;
+    body_data _data;
     rot<T> _rotation;
+    vec<T> _force;
+    vec<T> _position;
     vec<T> _linear_velocity;
     angular _angular_velocity;
     T _mass;
     T _inv_mass;
-    size_t _id;
-    body_data _data;
     bool _dead;
 
   public:
     body_base(const vec<T> &center, const vec<T> &gravity, const T mass, const size_t id, const body_data data)
-        : _force(gravity * mass), _position(center), _angular_velocity{},
+        : _id(id), _data(data),
+          _force(gravity * mass), _position(center),
+          _angular_velocity{},
           _mass(mass), _inv_mass(1.0 / mass),
-          _id(id), _data(data), _dead(false) {}
+          _dead(false) {}
 
     inline void add_force(const vec<T> &force)
     {
@@ -305,7 +307,7 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
     inline quat<T> update_rotation(const T time_step)
     {
         // Calculate rotation for this timestep
-        vec3<T> rotation = this->_angular_velocity * time_step;
+        vec3<T> rotation = (this->_angular_velocity * time_step).xyz();
 
         // Calculate rotation angle for angular velocity
         const T angle = rotation.magnitude();

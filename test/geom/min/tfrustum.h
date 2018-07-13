@@ -24,13 +24,25 @@ bool test_frustum()
 {
     bool out = true;
 
+    // Print size and alignment of class
+    std::cout << "frustum_size: " << sizeof(min::frustum<float>) << std::endl;
+    std::cout << "frustum_align: " << alignof(min::frustum<float>) << std::endl;
+
+#ifdef MGL_TEST_ALIGN
+    std::cout << "tfrustum.h: Testing alignment" << std::endl;
+    out = out && test(sizeof(float) * 34, sizeof(min::frustum<float>), "Failed frustum sizeof");
+    out = out && test(sizeof(float), alignof(min::frustum<float>), "Failed frustum alignof");
+#endif
+
     // Local variables
     min::frustum<double> f;
     min::vec3<double> p;
     min::vec3<double> eye;
     min::vec3<double> look;
     min::vec3<double> forward;
+    min::vec3<double> right;
     min::vec3<double> up = min::vec3<double>::up();
+    min::vec3<double> center;
     min::mat4<double> proj;
     min::mat4<double> view;
 
@@ -41,7 +53,7 @@ bool test_frustum()
     look = min::vec3<double>(0.0, 0.0, 5.0);
     forward = (look - eye).normalize();
     proj = f.orthographic();
-    view = f.look_at(eye, forward, up);
+    view = f.look_at(eye, forward, right, up, center);
     out = out && f.point_inside(p);
     if (!out)
     {
@@ -125,7 +137,7 @@ bool test_frustum()
     eye = min::vec3<double>(0.0, 0.0, 0.0);
     look = min::vec3<double>(5.0, 0.0, 0.0);
     forward = (look - eye).normalize();
-    view = f.look_at(eye, forward, up);
+    view = f.look_at(eye, forward, right, up, center);
     out = out && f.point_inside(p);
     if (!out)
     {

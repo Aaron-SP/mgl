@@ -28,33 +28,31 @@ template <typename T>
 class camera
 {
   private:
+    frustum<T> _f;
+    mat4<T> _v;
+    mat4<T> _pv;
     vec3<T> _p;
     vec3<T> _look;
     vec3<T> _forward;
+    vec3<T> _right;
     vec3<T> _up;
-    frustum<T> _f;
-    mat4<T> _pv;
-    mat4<T> _v;
+    vec3<T> _center;
     bool _dirty;
     bool _proj_ortho;
     inline void update()
     {
         if (_dirty)
         {
-            // Get the projection matrix
-            mat4<T> const *proj = nullptr;
-            if (_proj_ortho)
-                proj = &_f.orthographic();
-            else
-                proj = &_f.perspective();
-
             // Update the view matrix
-            _v = _f.look_at(_p, _forward, _up);
+            _v = _f.look_at(_p, _forward, _right, _up, _center);
 
             // Update the projection-view matrix
             // (A*B)^T = (B^T*A^T)
             // A*B = ((A*B)^T)^T = ((B^T*A^T)^T)
-            _pv = (*proj).transpose_multiply(_v);
+            if (_proj_ortho)
+                _pv = _f.orthographic().transpose_multiply(_v);
+            else
+                _pv = _f.perspective().transpose_multiply(_v);
 
             // No longer dirty
             _dirty = false;
@@ -62,11 +60,17 @@ class camera
     }
 
   public:
-    camera() : _look(0.0, 0.0, 1.0), _forward(0.0, 0.0, 1.0), _up(0.0, 1.0, 0.0), _dirty(true), _proj_ortho(true) {}
+    camera()
+        : _look(0.0, 0.0, 1.0), _forward(0.0, 0.0, 1.0), _right(1.0, 0.0, 0.0),
+          _up(0.0, 1.0, 0.0), _dirty(true), _proj_ortho(true) {}
     inline void force_update()
     {
         // If the camera needs to be updated
         update();
+    }
+    inline const vec3<T> &get_center() const
+    {
+        return _center;
     }
     inline const vec3<T> &get_forward() const
     {
@@ -74,7 +78,7 @@ class camera
     }
     inline const vec3<T> &get_right() const
     {
-        return _f.get_right();
+        return _right;
     }
     inline const vec3<T> &get_up() const
     {
@@ -121,11 +125,8 @@ class camera
         // Calculate the direction camera is facing, centered at origin
         vec3<T> direction = _look - _p;
 
-        // Get the right axis
-        const vec3<T> &right = _f.get_right();
-
         // Rotate the camera by the move.y around the right
-        quat<T> rotation(right, y);
+        quat<T> rotation(_right, y);
 
         // Rotate the camera by the move.x around the global up
         rotation *= quat<T>(vec3<T>::up(), x);

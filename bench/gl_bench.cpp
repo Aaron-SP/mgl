@@ -18,6 +18,7 @@ limitations under the License.
 #include <min/bphysics.h>
 #include <min/bray.h>
 #include <min/bspatial.h>
+#include <min/bvector.h>
 #include <min/bwavefront.h>
 #include <min/grid.h>
 #include <min/tree.h>
@@ -455,11 +456,15 @@ int main(int argc, char *argv[])
         // Test load md5
         const double mt = bench_md5();
 
+        // Test load vector
+        const double sv = bench_static_vector();
+
         // Enable logging to cout
         std::cout.clear();
 
         // Print out diagnostics
-        std::cout << "Tree took " << tt << " ms" << std::endl;
+        std::cout << std::endl
+                  << "Tree took " << tt << " ms" << std::endl;
         std::cout << "Grid took " << gt << " ms" << std::endl;
         std::cout << "Physics2D took " << p2t << " ms" << std::endl;
         std::cout << "Physics3D took " << p3t << " ms" << std::endl;
@@ -468,9 +473,10 @@ int main(int argc, char *argv[])
         std::cout << "Wavefront mesh took " << wt << " ms" << std::endl;
         std::cout << "Binary mesh took " << bt << " ms" << std::endl;
         std::cout << "MD5 mesh took " << mt << " ms" << std::endl;
+        std::cout << "Static vector took " << sv << " ms" << std::endl;
 
         // Print the performance score
-        const double R = tt + gt + p2t + p3t + r2t + r3t + wt + bt + mt;
+        const double R = tt + gt + p2t + p3t + r2t + r3t + wt + bt + mt + sv;
         std::cout << "Graphics score is: " << V / R << std::endl;
         return 0;
     }
