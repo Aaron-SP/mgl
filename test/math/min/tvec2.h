@@ -17,7 +17,6 @@ limitations under the License.
 
 #include <min/test.h>
 #include <min/vec2.h>
-#include <stdexcept>
 
 bool test_vec2()
 {

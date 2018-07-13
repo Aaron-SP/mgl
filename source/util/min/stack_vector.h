@@ -16,6 +16,7 @@ limitations under the License.
 #define __MGL_STACK_VECTOR__
 
 #include <cstddef>
+#include <cstring>
 #include <utility>
 
 namespace min
@@ -32,10 +33,8 @@ class stack_vector
     inline void const_copy(const T (&arr)[S])
     {
         static_assert(S <= N, "stack_vector<T, N> operator= overflow");
-        for (size_t i = 0; i < S; i++)
-        {
-            _vec[i] = arr[i];
-        }
+        constexpr size_t bytes = S * sizeof(T);
+        std::memcpy(_vec, arr, bytes);
     }
 
   public:
@@ -85,6 +84,13 @@ class stack_vector
     {
         _vec[_end++] = T(std::forward<Ts>(args)...);
     }
+    inline void fill(const T value)
+    {
+        for (size_t i = 0; i < _end; i++)
+        {
+            _vec[i] = value;
+        }
+    }
     inline void push_back(const T &v)
     {
         _vec[_end++] = v;
@@ -92,6 +98,11 @@ class stack_vector
     inline size_t size() const
     {
         return _end;
+    }
+    inline void zero()
+    {
+        const size_t bytes = this->size() * sizeof(T);
+        std::memset(&_vec[0], 0, bytes);
     }
 };
 }

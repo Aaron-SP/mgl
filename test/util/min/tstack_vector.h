@@ -65,7 +65,21 @@ bool test_stack_vector()
     {
         sum += v2[i];
     }
-    out = out && test(55, sum, "Failed stack_vector sum1");
+    out = out && test(55, sum, "Failed stack_vector sum2");
+
+    // Test fill
+    v.fill(1);
+    for (size_t i = 0; i < size; i++)
+    {
+        test(1, v2[i], "Failed stack_vector fill");
+    }
+
+    // Test zero
+    v.zero();
+    for (size_t i = 0; i < size; i++)
+    {
+        test(0, v2[i], "Failed stack_vector zero");
+    }
 
     // Test clear
     v.clear();

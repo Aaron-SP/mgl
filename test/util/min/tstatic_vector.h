@@ -66,7 +66,21 @@ bool test_static_vector()
     {
         sum += v2[i];
     }
-    out = out && test(55, sum, "Failed static_vector sum1");
+    out = out && test(55, sum, "Failed static_vector sum2");
+
+    // Test fill
+    v.fill(1);
+    for (size_t i = 0; i < size; i++)
+    {
+        test(1, v2[i], "Failed static_vector fill");
+    }
+
+    // Test zero
+    v.zero();
+    for (size_t i = 0; i < size; i++)
+    {
+        test(0, v2[i], "Failed static_vector zero");
+    }
 
     // Test assign
     v = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
@@ -78,6 +92,17 @@ bool test_static_vector()
     }
     out = out && test(65, sum, "Failed static_vector operator=");
     out = out && test(size, v.size(), "Failed static_vector operator=");
+
+    // Test assign less size
+    v = {2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    sum = 0;
+    for (size_t i = 0; i < size - 1; i++)
+    {
+        sum += v2[i];
+    }
+    out = out && test(54, sum, "Failed static_vector operator= less size");
+    out = out && test(size - 1, v.size(), "Failed static_vector operator= less size");
 
     // Resize the vector
     v.resize(size2);

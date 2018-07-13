@@ -16,6 +16,7 @@ limitations under the License.
 #define __MGL_STATIC_VECTOR__
 
 #include <cstddef>
+#include <cstring>
 
 namespace min
 {
@@ -34,11 +35,8 @@ class static_vector
     }
     inline void const_copy(const static_vector<T> &sv)
     {
-        const size_t size = sv.size();
-        for (size_t i = 0; i < size; i++)
-        {
-            _beg[i] = sv._beg[i];
-        }
+        const size_t bytes = sv.size() * sizeof(T);
+        std::memcpy(_beg, sv._beg, bytes);
     }
     inline void dealloc()
     {
@@ -94,10 +92,8 @@ class static_vector
     {
         // Set the array values
         resize(N);
-        for (size_t i = 0; i < N; i++)
-        {
-            _beg[i] = arr[i];
-        }
+        constexpr size_t bytes = N * sizeof(T);
+        std::memcpy(_beg, arr, bytes);
 
         return *this;
     }
@@ -134,6 +130,13 @@ class static_vector
     {
         return _end;
     }
+    inline void fill(const T value)
+    {
+        for (T *i = _beg; i != _end; i++)
+        {
+            *i = value;
+        }
+    }
     inline void resize(const size_t size)
     {
         // Only allocate if need to grow
@@ -150,6 +153,11 @@ class static_vector
     inline size_t size() const
     {
         return _end - _beg;
+    }
+    inline void zero()
+    {
+        const size_t bytes = this->size() * sizeof(T);
+        std::memset(_beg, 0, bytes);
     }
 };
 }

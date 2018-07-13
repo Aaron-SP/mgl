@@ -15,9 +15,8 @@ limitations under the License.
 #ifndef __BIT_FLAG__
 #define __BIT_FLAG__
 
-#include <algorithm>
 #include <cstdint>
-#include <vector>
+#include <min/static_vector.h>
 
 namespace min
 {
@@ -26,9 +25,9 @@ template <typename K, typename L>
 class bit_flag
 {
   private:
+    min::static_vector<uint8_t> _flags;
     K _row;
     K _col;
-    std::vector<uint8_t> _flags;
 
     inline std::pair<L, uint_fast8_t> get_address(const L row, const L col) const
     {
@@ -46,11 +45,13 @@ class bit_flag
 
   public:
     bit_flag() : _row(0), _col(0) {}
-    bit_flag(const L row, const L col) : _row(row), _col(col), _flags((row * col >> 3) + 1, 0) {}
+    bit_flag(const L row, const L col) : _flags((row * col >> 3) + 1), _row(row), _col(col)
+    {
+        clear();
+    }
     inline void clear()
     {
-        // Zero out the bit buffer
-        std::fill(_flags.begin(), _flags.end(), 0);
+        _flags.zero();
     }
     inline bool get(const K row, const K col) const
     {
