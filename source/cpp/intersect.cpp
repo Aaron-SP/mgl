@@ -77,6 +77,4 @@ template bool min::intersect<float>(const min::oobbox<float, min::vec3> &box, co
 
 // FRUSTUM
 template bool min::intersect<float>(const frustum<float> &f, const min::sphere<float, min::vec3> &s);
-template bool min::intersect<float>(const frustum<float> &f, const min::sphere<float, min::vec3> &s, min::vec3<float> &p);
 template bool min::intersect<float>(const frustum<float> &f, const min::aabbox<float, min::vec3> &box);
-template bool min::intersect<float>(const frustum<float> &f, const min::aabbox<float, min::vec3> &box, min::vec3<float> &p);

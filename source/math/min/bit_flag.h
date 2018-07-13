@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cstdint>
 #include <min/static_vector.h>
+#include <utility>
 
 namespace min
 {
