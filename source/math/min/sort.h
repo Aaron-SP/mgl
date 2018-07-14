@@ -21,7 +21,7 @@ limitations under the License.
 
 namespace min
 {
-// radix sort for unsigned integers
+// Radix sort for unsigned integers
 template <typename T, typename F>
 inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_function)
 {
@@ -49,13 +49,13 @@ inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_funct
 
     for (int i = 0; i < passes; i++)
     {
-        // zero counts
+        // Zero counts
         for (T &count : counts)
         {
             count = 0;
         }
 
-        // count frequency
+        // Count frequency
         for (const auto &ui : *from)
         {
             // Extract the key
@@ -65,7 +65,7 @@ inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_funct
             counts[key]++;
         }
 
-        // prefix sum
+        // Prefix sum
         T total = 0;
         for (T &count : counts)
         {
@@ -74,13 +74,13 @@ inline void uint_sort(std::vector<T> &uints, std::vector<T> &copy, F &&key_funct
             total += old_count;
         }
 
-        // sort
+        // Sort
         for (const auto &ui : *from)
         {
             // Extract the key
             const uint_fast8_t key = (key_function(ui) >> 8 * i) & (0xFF);
 
-            // perform copy sort
+            // Perform copy sort
             (*to)[counts[key]++] = ui;
         }
 

@@ -27,8 +27,8 @@ class bit_flag
 {
   private:
     min::static_vector<uint8_t> _flags;
-    K _row;
     K _col;
+    K _row;
 
     inline std::pair<L, uint_fast8_t> get_address(const L row, const L col) const
     {
@@ -43,10 +43,15 @@ class bit_flag
         // Return address
         return std::make_pair(byte, offset);
     }
+    static inline L calc_size(const L row, const L col)
+    {
+        return (row * col >> 3) + 1;
+    }
 
   public:
-    bit_flag() : _row(0), _col(0) {}
-    bit_flag(const L row, const L col) : _flags((row * col >> 3) + 1), _row(row), _col(col)
+    bit_flag() : _col(0), _row(0) {}
+    bit_flag(const L row, const L col)
+        : _flags(calc_size(row, col)), _col(col), _row(row)
     {
         clear();
     }
@@ -78,6 +83,18 @@ class bit_flag
 
         return out;
     }
+    inline void resize(const L row, const L col)
+    {
+        // Resize the flag buffer
+        _flags.resize(calc_size(row, col));
+
+        // Capture new size
+        _col = col;
+        _row = row;
+
+        // Initialize memory
+        clear();
+    }
     inline void set_on(const K row, const K col)
     {
         // Get the address
@@ -89,6 +106,14 @@ class bit_flag
         // Get the address
         const std::pair<L, uint_fast8_t> addr = get_address(row, col);
         _flags[addr.first] &= ~(0x1 << addr.second);
+    }
+    inline K col() const
+    {
+        return _col;
+    }
+    inline K row() const
+    {
+        return _row;
     }
 };
 }

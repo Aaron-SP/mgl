@@ -105,7 +105,6 @@ class tree
     std::vector<shape<T, vec>> _shapes;
     std::vector<K> _index_map;
     std::vector<size_t> _key_cache;
-    std::vector<K> _sort_copy;
     mutable std::vector<std::pair<K, K>> _hits;
     mutable std::vector<std::pair<K, vec<T>>> _ray_hits;
     mutable bit_flag<K, L> _flags;
@@ -115,7 +114,6 @@ class tree
     vec<T> _upper_bound;
     K _depth;
     K _scale;
-    K _flag_size;
 
     inline void build(tree_node<T, K, L, vec, cell, shape> &node, const K depth)
     {
@@ -160,31 +158,17 @@ class tree
             build(child, depth - 1);
         }
     }
-    inline void create_keys()
+    inline void reserve(const K size)
     {
-        // Preallocate the key vector and collision cache
-        const K size = _shapes.size();
-
-        // Resize the keys vector and fill with increasing series
-        std::vector<K> &keys = _root.get_keys();
-        keys.resize(size);
-        std::iota(keys.begin(), keys.end(), 0);
-
-        // Reserve capacity for collisions and create flags index
-        _hits.reserve(size);
-
-        // Reset the flag size if size changes
-        if (size > _flag_size)
+        // Create flags index
+        if (size > _flags.col())
         {
-            // cache the flag size
-            _flag_size = size;
-
-            // Create flag buffer
-            _flags = bit_flag<K, L>(size, size);
+            // Resize the flag buffer
+            _flags.resize(size, size);
         }
         else
         {
-            // clear the flag buffer
+            // Clear the flag buffer
             _flags.clear();
         }
     }
@@ -334,12 +318,15 @@ class tree
         // Use grid to sort all shapes in tree since it is a global identifier
         return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
     }
-    inline K set_depth(const K depth)
+    inline void set_scale(const K depth)
     {
+        // Set the tree cell scale 2^depth
         const K bits = std::numeric_limits<K>::digits - 1;
-        return std::min(bits, depth);
+        _depth = std::min(bits, depth);
+        _scale = static_cast<K>(0x1 << _depth);
+        _cell_extent = _root.get_cell().get_extent() / _scale;
     }
-    inline K set_scale(const std::vector<shape<T, vec>> &shapes)
+    inline void scale(const std::vector<shape<T, vec>> &shapes)
     {
         // square distance across the extent
         T max = shapes[0].square_size();
@@ -362,13 +349,9 @@ class tree
 
         // Calculate the depth of the tree
         const K depth = std::ceil(std::log2(d2 / max));
-        _depth = set_depth(depth);
 
-        // Set the tree cell extent 2^depth
-        _scale = static_cast<K>(0x1 << _depth);
-        _cell_extent = _root.get_cell().get_extent() / _scale;
-
-        return _depth;
+        // Set the scale from depth
+        set_scale(depth);
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -384,11 +367,19 @@ class tree
             _key_cache[i] = this->get_sorting_key(shapes[i].get_center());
         }
 
-        // use uint radix sort for sorting keys
-        // lambda function to create sorted array indices based on tree key
-        uint_sort<K>(_index_map, _sort_copy, [this](const K a) {
+        // Use the root cell key vector for sort copying
+        _root.clear();
+        std::vector<K> &root_keys = _root.get_keys();
+
+        // Use uint radix sort for sorting keys
+        // Lambda function to create sorted array indices based on tree key
+        uint_sort<K>(_index_map, root_keys, [this](const K a) {
             return this->_key_cache[a];
         });
+
+        // Initialize the root keys, root_keys is the same size as index_map now
+        root_keys.resize(size);
+        std::iota(root_keys.begin(), root_keys.end(), 0);
 
         // Iterate over sorted indices and store sorted shapes
         _shapes.clear();
@@ -398,13 +389,29 @@ class tree
             _shapes.emplace_back(shapes[i]);
         }
     }
+    inline void no_sort(const std::vector<shape<T, vec>> &shapes)
+    {
+        // Clear the root node
+        const K size = shapes.size();
+        _root.clear();
+
+        // Initialize the root keys
+        std::vector<K> &root_keys = _root.get_keys();
+        root_keys.resize(size);
+        std::iota(root_keys.begin(), root_keys.end(), 0);
+
+        // Insert shapes without sorting
+        _shapes.clear();
+        _shapes.reserve(size);
+        _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
+    }
 
   public:
     tree(const cell<T, vec> &c)
         : _root(c),
           _lower_bound(_root.get_cell().get_min() + var<T>::TOL_PHYS_EDGE),
           _upper_bound(_root.get_cell().get_max() - var<T>::TOL_PHYS_EDGE),
-          _depth(0), _scale(0), _flag_size(0) {}
+          _depth(0), _scale(0) {}
     inline void resize(const cell<T, vec> &c)
     {
         _root = c;
@@ -571,19 +578,17 @@ class tree
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes)
     {
-        if (shapes.size() > 0)
+        const size_t size = shapes.size();
+        if (size > 0)
         {
             // Set the tree depth
-            set_scale(shapes);
+            scale(shapes);
 
-            // Sort shapes by grid key id
+            // Process and sort shapes by grid key id
             sort(shapes);
 
-            // Clear out the root node
-            _root.clear();
-
-            // Create box keys
-            create_keys();
+            // Reserve memory
+            reserve(size);
 
             // Rebuild the tree after changing the contents
             build(_root, _depth);
@@ -591,23 +596,17 @@ class tree
     }
     inline void insert(const std::vector<shape<T, vec>> &shapes, const K depth)
     {
-        if (shapes.size() > 0)
+        const size_t size = shapes.size();
+        if (size > 0)
         {
-            // Set the depth
-            _depth = set_depth(depth);
+            // Set the scale from depth
+            set_scale(depth);
 
-            // Set the tree cell extent 2^depth
-            _scale = static_cast<K>(0x1 << _depth);
-            _cell_extent = _root.get_cell().get_extent() / _scale;
-
-            // Sort shapes by grid key id
+            // Process and sort shapes by grid key id
             sort(shapes);
 
-            // Clear out the root node
-            _root.clear();
-
-            // Create box keys
-            create_keys();
+            // Reserve memory
+            reserve(size);
 
             // Rebuild the tree after changing the contents
             build(_root, _depth);
@@ -615,20 +614,17 @@ class tree
     }
     inline void insert_no_sort(const std::vector<shape<T, vec>> &shapes)
     {
-        if (shapes.size() > 0)
+        const size_t size = shapes.size();
+        if (size > 0)
         {
             // Set the tree depth
-            set_scale(shapes);
+            scale(shapes);
 
-            // insert shapes without sorting
-            _shapes.clear();
-            _shapes.insert(_shapes.end(), shapes.begin(), shapes.end());
+            // Process but do not sort shapes
+            no_sort(shapes);
 
-            // Clear out the root node
-            _root.clear();
-
-            // Create box keys
-            create_keys();
+            // Reserve memory
+            reserve(size);
 
             // Rebuild the tree after changing the contents
             build(_root, _depth);
@@ -639,7 +635,7 @@ class tree
         // Check if tree is not built yet
         if (_root.get_children().size() == 0)
         {
-            return _sort_copy;
+            return _root.get_keys();
         }
 
         // Clamp point into world bounds

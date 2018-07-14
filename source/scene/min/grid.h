@@ -102,7 +102,6 @@ class grid
     vec<T> _upper_bound;
     K _scale;
     K _cached_scale;
-    K _flag_size;
 
     inline void build()
     {
@@ -148,17 +147,14 @@ class grid
         }
 
         // Reset the flag size if size changes
-        if (size > _flag_size)
+        if (size > _flags.col())
         {
-            // cache the flag size
-            _flag_size = size;
-
-            // Create flag buffer
-            _flags = bit_flag<K, L>(size, size);
+            // Resize the flag buffer
+            _flags.resize(size, size);
         }
         else
         {
-            // clear the flag buffer
+            // Clear the flag buffer
             _flags.clear();
         }
     }
@@ -231,12 +227,22 @@ class grid
             }
         }
     }
-    inline K set_depth(const K depth)
+    inline void set_scale(const K depth, const K size)
     {
+        // Set the grid cell scale 2^depth
         const K bits = std::numeric_limits<K>::digits - 1;
-        return std::min(bits, depth);
+        _scale = static_cast<K>(0x1 << std::min(bits, depth));
+
+        // Optimize the grid scale if there are two many items
+        if (size > 0)
+        {
+            _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
+        }
+
+        // Set the grid cell extent
+        _cell_extent = _root.get_extent() / _scale;
     }
-    inline void set_scale(const std::vector<shape<T, vec>> &shapes)
+    inline void scale(const std::vector<shape<T, vec>> &shapes)
     {
         // Find the largest object in the collection
         // Square distance across the extent
@@ -262,13 +268,9 @@ class grid
         // to be the world cell extent / max object extent
         // Calculate 2^n, (28.284/8.48) == 4, 2^4 = 16
         const K depth = std::ceil(std::log2(d2 / max));
-        _scale = 0x1 << set_depth(depth);
 
-        // Optimize the grid scale if there are two many items
-        _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
-
-        // Set the grid cell extent
-        _cell_extent = _root.get_extent() / _scale;
+        // Set the scale from depth
+        set_scale(depth, size);
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -304,7 +306,7 @@ class grid
         : _root(c),
           _lower_bound(_root.get_min() + var<T>::TOL_PHYS_EDGE),
           _upper_bound(_root.get_max() - var<T>::TOL_PHYS_EDGE),
-          _scale(0), _cached_scale(0), _flag_size(0) {}
+          _scale(0), _cached_scale(0) {}
 
     inline void check_size(const std::vector<shape<T, vec>> &shapes) const
     {
@@ -496,7 +498,7 @@ class grid
         if (shapes.size() > 0)
         {
             // Set the grid scale
-            set_scale(shapes);
+            scale(shapes);
 
             // Sort the shape array and store copy
             sort(shapes);
@@ -505,15 +507,13 @@ class grid
             build();
         }
     }
-    inline void insert(const std::vector<shape<T, vec>> &shapes, const K scale)
+    inline void insert(const std::vector<shape<T, vec>> &shapes, const K depth)
     {
+        // !! For this function to succeed can't create cells smaller than the largest shape!!
         if (shapes.size() > 0)
         {
-            // Set the grid scale
-            _scale = scale;
-
-            // Set the grid cell extent
-            _cell_extent = _root.get_extent() / _scale;
+            // Set the grid scale from depth
+            set_scale(depth, 0);
 
             // Sort the shape array and store copy
             sort(shapes);
@@ -527,7 +527,7 @@ class grid
         if (shapes.size() > 0)
         {
             // Set the grid scale
-            set_scale(shapes);
+            scale(shapes);
 
             // Insert shapes without sorting
             _shapes.clear();

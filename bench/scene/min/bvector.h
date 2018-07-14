@@ -39,7 +39,6 @@ double bench_static_vector()
         // Create array and fill it with 1's then sum in random values
         min::static_vector<uint8_t> sv(size);
         sv.fill(1);
-        size_t sum = 0;
         for (auto &i : sv)
         {
             i += dist(gen);
@@ -66,7 +65,6 @@ double bench_static_vector()
     {
         // Create array and fill it with 1's then sum in random values
         std::vector<uint8_t> v(size, 1);
-        size_t sum = 0;
         for (auto &i : v)
         {
             i += dist(gen);
