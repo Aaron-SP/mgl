@@ -58,8 +58,6 @@ class tree_node
     }
     inline void clear()
     {
-        // Clear out the node data
-        _child.clear();
         _keys.clear();
     }
     inline std::vector<tree_node<T, K, L, vec, cell, shape>> &get_children()
@@ -127,10 +125,8 @@ class tree
         auto &children = node.get_children();
         node.get_cell().subdivide(children);
 
-        // Get this node center
-        const vec<T> &center = node.get_cell().get_center();
-
         // Calculate intersections of sub cell with list of shapes
+        const vec<T> &center = node.get_cell().get_center();
         const std::vector<K> &keys = node.get_keys();
         for (const auto key : keys)
         {
@@ -148,14 +144,38 @@ class tree
             }
         }
 
+        // Recurse into children
+        for (auto &child : children)
+        {
+            // Skip over sub cells without any possible intersections
+            if (child.size() > 1)
+            {
+                // Build all sub cells recursively
+                build(child, depth - 1);
+            }
+        }
+    }
+    inline void clear(tree_node<T, K, L, vec, cell, shape> &node, const K depth)
+    {
+        // Clear keys at this level
+        node.clear();
+
+        // We are at a leaf node and we have hit the stopping criteria
+        auto &children = node.get_children();
+        if (children.size() == 0)
+        {
+            return;
+        }
+
+        // Recurse into children
         for (auto &child : children)
         {
             // Skip over empty sub cells
-            if (child.size() == 0)
-                continue;
-
-            // Build all sub cells recursively
-            build(child, depth - 1);
+            if (child.size() != 0)
+            {
+                // Clear all sub cells recursively
+                clear(child, depth - 1);
+            }
         }
     }
     inline void reserve(const K size)
@@ -189,17 +209,18 @@ class tree
     {
         // Returns all overlapping keys
         // We are at a leaf node and we have hit the stopping criteria
-        if (depth == 0)
+        const auto &children = node.get_children();
+        if (children.size() == 0)
         {
             // Get the overlapping keys in this cell
             get_overlap(node);
+
+            // Early return
+            return;
         }
 
         // For all child nodes of this node check overlap
         const vec<T> &center = node.get_cell().get_center();
-
-        // Search for all children
-        const auto &children = node.get_children();
         for (const auto &child : children)
         {
             // Recursively search for overlap in all children
@@ -250,14 +271,17 @@ class tree
     {
         // Returns all intersecting key pairs
         // We are at a leaf node and we have hit the stopping criteria
-        if (depth == 0)
+        const auto &children = node.get_children();
+        if (children.size() == 0)
         {
             // Get the intersecting pairs in this cell
             get_pairs(node);
+
+            // Early return
+            return;
         }
 
         // For all child nodes of this node check intersection
-        const auto &children = node.get_children();
         for (const auto &child : children)
         {
             // Terminate recursion and test pair
@@ -276,7 +300,8 @@ class tree
     inline void get_ray_intersect(const tree_node<T, K, L, vec, cell, shape> &node, const ray<T, vec> &r, const K depth) const
     {
         // We are at a leaf node and we have hit the stopping criteria
-        if (depth == 0)
+        const auto &children = node.get_children();
+        if (children.size() == 0)
         {
             // Perform an N intersection test for all shapes in this cell against the ray
             const std::vector<K> &keys = node.get_keys();
@@ -291,24 +316,20 @@ class tree
                     _ray_hits.emplace_back(key, point);
                 }
             }
+
+            // Early return
+            return;
         }
 
-        // Further recursion if we have children
-        const auto &children = node.get_children();
-        if (children.size() > 0)
+        // For all child nodes intersecting ray
+        const cell<T, vec> &c = node.get_cell();
+        const auto subs = vec<T>::subdivide_ray(c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
+        for (const uint_fast8_t sub : subs)
         {
-            // Get the current node cell
-            const cell<T, vec> &c = node.get_cell();
-
-            // For all child nodes intersecting ray
-            const auto subs = vec<T>::subdivide_ray(c.get_min(), c.get_max(), r.get_origin(), r.get_direction(), r.get_inverse());
-            for (const uint_fast8_t sub : subs)
+            // If we haven't hit anything yet
+            if (_ray_hits.size() == 0)
             {
-                // If we haven't hit anything yet
-                if (_ray_hits.size() == 0)
-                {
-                    get_ray_intersect(children[sub], r, depth - 1);
-                }
+                get_ray_intersect(children[sub], r, depth - 1);
             }
         }
     }
@@ -318,12 +339,20 @@ class tree
         // Use grid to sort all shapes in tree since it is a global identifier
         return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
     }
-    inline void set_scale(const K depth)
+    inline void set_scale(const K depth, const K size)
     {
         // Set the tree cell scale 2^depth
         const K bits = std::numeric_limits<K>::digits - 1;
         _depth = std::min(bits, depth);
         _scale = static_cast<K>(0x1 << _depth);
+
+        // Optimize the tree scale if there are two many items
+        if (size > 0)
+        {
+            _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
+        }
+
+        // Set the tree cell extent
         _cell_extent = _root.get_cell().get_extent() / _scale;
     }
     inline void scale(const std::vector<shape<T, vec>> &shapes)
@@ -351,7 +380,7 @@ class tree
         const K depth = std::ceil(std::log2(d2 / max));
 
         // Set the scale from depth
-        set_scale(depth);
+        set_scale(depth, size);
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -368,7 +397,7 @@ class tree
         }
 
         // Use the root cell key vector for sort copying
-        _root.clear();
+        clear(_root, _depth);
         std::vector<K> &root_keys = _root.get_keys();
 
         // Use uint radix sort for sorting keys
@@ -393,9 +422,9 @@ class tree
     {
         // Clear the root node
         const K size = shapes.size();
-        _root.clear();
 
         // Initialize the root keys
+        clear(_root, _depth);
         std::vector<K> &root_keys = _root.get_keys();
         root_keys.resize(size);
         std::iota(root_keys.begin(), root_keys.end(), 0);
@@ -600,7 +629,7 @@ class tree
         if (size > 0)
         {
             // Set the scale from depth
-            set_scale(depth);
+            set_scale(depth, 0);
 
             // Process and sort shapes by grid key id
             sort(shapes);

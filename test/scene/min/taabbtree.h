@@ -82,18 +82,18 @@ bool test_aabb_tree()
         // Test get_cell center
         auto *node = &t.get_node(p);
         p = node->get_cell().get_center();
-        out = out && compare(2.8125, p.x(), 1E-4);
-        out = out && compare(2.8125, p.y(), 1E-4);
+        out = out && compare(3.75, p.x(), 1E-4);
+        out = out && compare(3.75, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec2 get_cell 1 get_center");
         }
 
         // Check the cell extents
-        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        // Extent max depth 5, depth 3 should be 20/2/2/2 = 2.5
         p = node->get_cell().get_extent();
-        out = out && compare(0.625, p.x(), 1E-4);
-        out = out && compare(0.625, p.y(), 1E-4);
+        out = out && compare(2.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec2 get_cell 1 cell_extents");
@@ -250,20 +250,20 @@ bool test_aabb_tree()
         // Test get_cell center
         auto *node = &t.get_node(p);
         p = node->get_cell().get_center();
-        out = out && compare(2.8125, p.x(), 1E-4);
-        out = out && compare(2.8125, p.y(), 1E-4);
-        out = out && compare(2.8125, p.z(), 1E-4);
+        out = out && compare(3.75, p.x(), 1E-4);
+        out = out && compare(3.75, p.y(), 1E-4);
+        out = out && compare(3.75, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec3 get_cell 1 get_center");
         }
 
         // Check the cell extents
-        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        // Extent max depth 5, depth 3 should be 20/2/2/2 = 2.5
         p = node->get_cell().get_extent();
-        out = out && compare(0.625, p.x(), 1E-4);
-        out = out && compare(0.625, p.y(), 1E-4);
-        out = out && compare(0.625, p.z(), 1E-4);
+        out = out && compare(2.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
+        out = out && compare(2.5, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec3 get_cell 1 cell_extents");
@@ -422,20 +422,20 @@ bool test_aabb_tree()
         // Test get_cell center
         auto *node = &t.get_node(p);
         p = node->get_cell().get_center();
-        out = out && compare(2.8125, p.x(), 1E-4);
-        out = out && compare(2.8125, p.y(), 1E-4);
-        out = out && compare(2.8125, p.z(), 1E-4);
+        out = out && compare(3.75, p.x(), 1E-4);
+        out = out && compare(3.75, p.y(), 1E-4);
+        out = out && compare(3.75, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec4 get_cell 1 get_center");
         }
 
         // Check the cell extents
-        // Extent depth 5 should 20/2/2/2/2/2 = 0.625
+        // Extent max depth 5, depth 3 should be 20/2/2/2 = 2.5
         p = node->get_cell().get_extent();
-        out = out && compare(0.625, p.x(), 1E-4);
-        out = out && compare(0.625, p.y(), 1E-4);
-        out = out && compare(0.625, p.z(), 1E-4);
+        out = out && compare(2.5, p.x(), 1E-4);
+        out = out && compare(2.5, p.y(), 1E-4);
+        out = out && compare(2.5, p.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed aabb tree vec4 get_cell 1 cell_extents");
