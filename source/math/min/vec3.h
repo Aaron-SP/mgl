@@ -183,7 +183,7 @@ class vec3
     {
         // Clear the vector
         out.clear();
-        out.reserve(scale * scale * scale);
+        out.reserve(out.size() + scale * scale * scale);
 
         // Calculate the grid dimensions
         const vec3<T> size = max - min;
@@ -222,7 +222,7 @@ class vec3
     {
         // Create out vector
         out.clear();
-        out.reserve(scale * scale * scale);
+        out.reserve(out.size() + scale * scale * scale);
 
         // Calculate the grid dimensions
         const vec3<T> extent = (max - min) / scale;
@@ -849,19 +849,19 @@ class vec3
     inline vec3<T> project_point(const coord_sys<T, min::vec3> &axis, const vec3<T> &extent)
     {
         // Project v onto local x axis
-        T x = this->dot(axis.x());
+        T x = dot(axis.x());
 
         // Clamp d onto the box half extent
         min::clamp<T>(x, -extent.x(), extent.x());
 
         // Project v onto local y axis
-        T y = this->dot(axis.y());
+        T y = dot(axis.y());
 
         // Clamp d onto the box half extent
         min::clamp<T>(y, -extent.y(), extent.y());
 
         // Project v onto local z axis
-        T z = this->dot(axis.z());
+        T z = dot(axis.z());
 
         // Clamp d onto the box half extent
         min::clamp<T>(z, -extent.z(), extent.z());
@@ -872,19 +872,19 @@ class vec3
     inline T project_length(const coord_sys<T, min::vec3> &axis, const vec3<T> &extent)
     {
         // Project this onto local x axis
-        const T x = this->dot(axis.x());
+        const T x = dot(axis.x());
 
         // Clamp x onto the box half extent, else zero
         const T dx = clamp_value<T>(x, -extent.x(), x + extent.x(), extent.x(), x - extent.x());
 
         // Project this onto local y axis
-        const T y = this->dot(axis.y());
+        const T y = dot(axis.y());
 
         // Clamp y onto the box half extent, else 0
         const T dy = clamp_value<T>(y, -extent.y(), y + extent.y(), extent.y(), y - extent.y());
 
         // Project this onto local y axis
-        const T z = this->dot(axis.z());
+        const T z = dot(axis.z());
 
         // Clamp y onto the box half extent, else 0
         const T dz = clamp_value<T>(z, -extent.z(), z + extent.z(), extent.z(), z - extent.z());
@@ -1373,6 +1373,7 @@ class vec3
     {
         // Clear out vector
         out.clear();
+        out.reserve(out.size() + vec3<T>::sub_size());
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5;
@@ -1424,6 +1425,7 @@ class vec3
     {
         // Clear out vector
         out.clear();
+        out.reserve(out.size() + vec3<T>::sub_size());
 
         // Quarter extent of vector space
         const vec3<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
@@ -2257,42 +2259,42 @@ class vec3
         {
             if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {7, 6, 3, 2, 5, 4, 1, 0};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {7, 6, 3, 2, 5, 4, 1, 0};
                 out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {6, 2, 7, 3, 4, 0, 5, 1};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {6, 2, 7, 3, 4, 0, 5, 1};
                 out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {5, 4, 1, 0, 7, 6, 3, 2};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {5, 4, 1, 0, 7, 6, 3, 2};
                 out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {4, 0, 5, 1, 6, 2, 7, 3};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {4, 0, 5, 1, 6, 2, 7, 3};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {3, 7, 2, 6, 1, 5, 0, 4};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {3, 7, 2, 6, 1, 5, 0, 4};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {2, 3, 6, 7, 0, 1, 4, 5};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {2, 3, 6, 7, 0, 1, 4, 5};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {1, 5, 0, 4, 3, 7, 2, 6};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {1, 5, 0, 4, 3, 7, 2, 6};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {0, 1, 4, 5, 2, 3, 6, 7};
+                const uint_fast8_t temp[vec3<T>::sub_size()] = {0, 1, 4, 5, 2, 3, 6, 7};
                 out = temp;
             }
         }

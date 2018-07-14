@@ -48,7 +48,7 @@ else
 	MGL_PATH = /usr/include/mgl
 
 	# Link library settings
-	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile -lglew32
+	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile -lGLEW
 	STATIC = $(LINKER) -Wl,-Bstatic -pthread -static-libgcc -static-libstdc++ -Wl,--as-needed
 	DYNAMIC = -Wl,-Bdynamic $(LINKER) -pthread -Wl,--as-needed
 endif

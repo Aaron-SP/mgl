@@ -160,7 +160,7 @@ class vec2
     {
         // Clear the vector
         out.clear();
-        out.reserve(scale * scale);
+        out.reserve(out.size() + scale * scale);
 
         // Calculate the grid dimensions
         const vec2<T> size = max - min;
@@ -191,7 +191,7 @@ class vec2
     {
         // Clear out vector
         out.clear();
-        out.reserve(scale * scale);
+        out.reserve(out.size() + scale * scale);
 
         // Calculate the grid dimensions
         const vec2<T> extent = (max - min) / scale;
@@ -616,13 +616,13 @@ class vec2
     inline vec2<T> project_point(const coord_sys<T, min::vec2> &axis, const vec2<T> &extent)
     {
         // Project this onto local x axis
-        T x = this->dot(axis.x());
+        T x = dot(axis.x());
 
         // Clamp x onto the box half extent, else x
         min::clamp<T>(x, -extent.x(), extent.x());
 
         // Project this onto local y axis
-        T y = this->dot(axis.y());
+        T y = dot(axis.y());
 
         // Clamp y onto the box half extent, else y
         min::clamp<T>(y, -extent.y(), extent.y());
@@ -633,13 +633,13 @@ class vec2
     inline T project_length(const coord_sys<T, min::vec2> &axis, const vec2<T> &extent)
     {
         // Project this onto local x axis
-        const T x = this->dot(axis.x());
+        const T x = dot(axis.x());
 
         // Clamp x onto the box half extent, else zero
         const T dx = clamp_value<T>(x, -extent.x(), x + extent.x(), extent.x(), x - extent.x());
 
         // Project this onto local y axis
-        const T y = this->dot(axis.y());
+        const T y = dot(axis.y());
 
         // Clamp y onto the box half extent, else 0
         const T dy = clamp_value<T>(y, -extent.y(), y + extent.y(), extent.y(), y - extent.y());
@@ -923,6 +923,7 @@ class vec2
     {
         // Clear out vector
         out.clear();
+        out.reserve(out.size() + vec2<T>::sub_size());
 
         // Center of the vector space
         const vec2<T> c = (max + min) * 0.5;
@@ -954,6 +955,7 @@ class vec2
     {
         // Clear out vector
         out.clear();
+        out.reserve(out.size() + vec2<T>::sub_size());
 
         // quarter extent of vector space
         const vec2<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
@@ -1201,22 +1203,22 @@ class vec2
         {
             if (dir.x() <= 0.0 && dir.y() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {3, 2, 1, 0};
+                const uint_fast8_t temp[vec2<T>::sub_size()] = {3, 2, 1, 0};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() <= 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {1, 3, 0, 2};
+                const uint_fast8_t temp[vec2<T>::sub_size()] = {1, 3, 0, 2};
                 out = temp;
             }
             else if (dir.x() <= 0.0 && dir.y() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {2, 0, 3, 1};
+                const uint_fast8_t temp[vec2<T>::sub_size()] = {2, 0, 3, 1};
                 out = temp;
             }
             else if (dir.x() > 0.0 && dir.y() > 0.0)
             {
-                const uint_fast8_t temp[sub_size()] = {0, 1, 2, 3};
+                const uint_fast8_t temp[vec2<T>::sub_size()] = {0, 1, 2, 3};
                 out = temp;
             }
         }
