@@ -668,7 +668,7 @@ class md5_anim
         // Set the current frame
         _current_frame = _frames[0].get_bones();
     }
-    md5_anim(const mem_file &mem) : _frame_rate(0), _loops(0), _time(0.0)
+    md5_anim(const mem_file &mem) : _time(0.0), _frame_rate(0), _loops(0)
     {
         load(mem.to_string());
 
