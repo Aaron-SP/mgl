@@ -27,7 +27,7 @@ int main()
         out = out && test_sound_buffer();
         if (out)
         {
-            std::cout << "Sound tests passed!" << std::endl;
+            std::cout << "\033[0;32mSound tests passed!\033[0m" << std::endl;
             return 0;
         }
     }
@@ -36,6 +36,6 @@ int main()
         std::cout << ex.what() << std::endl;
     }
 
-    std::cout << "Sound tests failed!" << std::endl;
+    std::cout << "\033[0;31mSound tests failed!\033[0m" << std::endl;
     return -1;
 }

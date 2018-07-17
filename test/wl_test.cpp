@@ -33,7 +33,7 @@ int main()
         out = out && test_tessellation();
         if (out)
         {
-            std::cout << "Window tests passed!" << std::endl;
+            std::cout << "\033[0;32mWindow tests passed!\033[0m" << std::endl;
             return 0;
         }
     }
@@ -42,6 +42,6 @@ int main()
         std::cout << ex.what() << std::endl;
     }
 
-    std::cout << "Window tests failed!" << std::endl;
+    std::cout << "\033[0;31mWindow tests failed!\033[0m" << std::endl;
     return -1;
 }

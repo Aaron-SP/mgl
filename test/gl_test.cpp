@@ -125,7 +125,7 @@ int main()
         out = out && test_static_vector();
         if (out)
         {
-            std::cout << "\033[0;32mGraphics tests passed!" << std::endl;
+            std::cout << "\033[0;32mGraphics tests passed!\033[0m" << std::endl;
             return 0;
         }
     }
@@ -134,6 +134,6 @@ int main()
         std::cout << ex.what() << std::endl;
     }
 
-    std::cout << "\033[0;31mGraphics tests failed!" << std::endl;
+    std::cout << "\033[0;31mGraphics tests failed!\033[0m" << std::endl;
     return -1;
 }
