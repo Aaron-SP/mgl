@@ -29,15 +29,15 @@ BIN_WL_TEST = bin/wl_test
 ifeq ($(OS),Windows_NT)
 	# 64 bit
 	ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        MGL_PATH = C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
     endif
 
 	#64 bit
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-        MGL_PATH = C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
     else
 	#32 bit
-        MGL_PATH = C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
     endif
 
 	# Link library settings
@@ -45,17 +45,12 @@ ifeq ($(OS),Windows_NT)
 	STATIC = $(LINKER) -static -lmingw32 -static-libgcc -static-libstdc++ -Wl,--as-needed
 	DYNAMIC = -Wl,-Bdynamic $(LINKER) -lmingw32 -Wl,--as-needed
 else
-	MGL_PATH = /usr/include/mgl
+	MGL_DESTDIR ?= /usr/include/mgl
 
 	# Link library settings
 	LINKER = -lX11 -lGL -lfreetype -lopenal -lvorbisfile -lGLEW
 	STATIC = $(LINKER) -Wl,-Bstatic -pthread -static-libgcc -static-libstdc++ -Wl,--as-needed
 	DYNAMIC = -Wl,-Bdynamic $(LINKER) -pthread -Wl,--as-needed
-endif
-
-# Override if MGL_DESTDIR specified
-ifdef MGL_DESTDIR
-	MGL_PATH = $(MGL_DESTDIR)/mgl
 endif
 
 # Include directories
@@ -120,7 +115,7 @@ ifdef MGL_TEST_ALIGN
 endif
 
 # Default run target
-default: tests benchmarks examples
+all: tests benchmarks examples
 benchmarks: $(BIN_BENCH)
 example1: $(BIN_EX1)
 example2: $(BIN_EX2)
@@ -134,8 +129,8 @@ example9: $(BIN_EX9)
 example10: $(BIN_EX10)
 examples: $(BIN_EX1) $(BIN_EX2) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10)
 install:
-	mkdir -p $(MGL_PATH)
-	cp -r source/* $(MGL_PATH)
+	mkdir -p $(MGL_DESTDIR)
+	cp -r source/* $(MGL_DESTDIR)
 lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
 tests: $(BIN_AL_TEST) $(BIN_GL_TEST) $(BIN_WL_TEST)
@@ -143,35 +138,35 @@ al_test: $(BIN_AL_TEST)
 gl_test: $(BIN_GL_TEST)
 wl_test: $(BIN_WL_TEST)
 uninstall:
-	rm -rI $(MGL_PATH)
+	rm -rI $(MGL_DESTDIR)
 $(BIN_AL_TEST):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC) 2> "al_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC)
 $(BIN_BENCH):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC) 2> "gcc_bench.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC)
 $(BIN_GL_TEST):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC) 2> "gl_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC)
 $(BIN_WL_TEST):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC) 2> "wl_test.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC)
 $(BIN_EX1):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX1) -o $@ $(DYNAMIC) 2> "ex1.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX1) -o $@ $(DYNAMIC)
 $(BIN_EX2):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX2) -o $@ $(DYNAMIC) 2> "ex2.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX2) -o $@ $(DYNAMIC)
 $(BIN_EX3):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX3) -o $@ $(DYNAMIC) 2> "ex3.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX3) -o $@ $(DYNAMIC)
 $(BIN_EX4):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX4) -o $@ $(DYNAMIC) 2> "ex4.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX4) -o $@ $(DYNAMIC)
 $(BIN_EX5):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX5) -o $@ $(DYNAMIC) 2> "ex5.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX5) -o $@ $(DYNAMIC)
 $(BIN_EX6):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX6) -o $@ $(DYNAMIC) 2> "ex6.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX6) -o $@ $(DYNAMIC)
 $(BIN_EX7):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX7) -o $@ $(DYNAMIC) 2> "ex7.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX7) -o $@ $(DYNAMIC)
 $(BIN_EX8):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX8) -o $@ $(DYNAMIC) 2> "ex8.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX8) -o $@ $(DYNAMIC)
 $(BIN_EX9):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC) 2> "ex9.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC)
 $(BIN_EX10):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC) 2> "ex10.txt"
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC)
 
 # pattern matching .cpp
 %.o: %.cpp
@@ -179,7 +174,6 @@ $(BIN_EX10):
 
 # clean targets
 clean:
-	rm -f *.txt
 	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
 	rm -f test/*.o
