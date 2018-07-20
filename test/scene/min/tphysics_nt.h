@@ -12,29 +12,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TEST_PHYSICS_NT__
-#define __TEST_PHYSICS_NT__
+#ifndef _MGL_TEST_PHYSICS_NT_MGL_
+#define _MGL_TEST_PHYSICS_NT_MGL_
 
 // DO NOT COPY THIS! THIS IS A HACK!
 namespace test_nt
 {
-#undef __MATRIX2__
-#undef __QUATERNION__
-#undef __VECTOR2__
-#undef __VECTOR3__
-#undef __VECTOR4__
-#undef __GRID__
-#undef __BIT_FLAG__
-#undef __RAY__
-#undef __AABBOX__
-#undef __MGL_STATIC_VECTOR__
-#undef __MGL_STACK_VECTOR__
-#undef __UTILITY__
-#undef __UINT_SORT__
-#undef __MGL_BI__
-#undef __MGL_TRI__
-#undef __INTERSECT__
-#undef __TEMPLATE_MATH__
+#undef _MGL_MATRIX2_MGL_
+#undef _MGL_QUATERNION_MGL_
+#undef _MGL_VECTOR2_MGL_
+#undef _MGL_VECTOR3_MGL_
+#undef _MGL_VECTOR4_MGL_
+#undef _MGL_GRID_MGL_
+#undef _MGL_BIT_FLAG_MGL_
+#undef _MGL_RAY_MGL_
+#undef _MGL_AABBOX_MGL_
+#undef _MGL_MGL_STATIC_VECTOR_MGL_
+#undef _MGL_MGL_STACK_VECTOR_MGL_
+#undef _MGL_UTILITY_MGL_
+#undef _MGL_UINT_SORT_MGL_
+#undef _MGL_MGL_BI_MGL_
+#undef _MGL_MGL_TRI_MGL_
+#undef _MGL_INTERSECT_MGL_
+#undef _MGL_TEMPLATE_MATH_MGL_
 using namespace min;
 #include <min/aabbox.h>
 #include <min/grid.h>

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __PLANE__
-#define __PLANE__
+#ifndef _MGL_PLANE_MGL_
+#define _MGL_PLANE_MGL_
 
 // This class solves the following plane equation:
 // n · (x - x0) = d = 0;

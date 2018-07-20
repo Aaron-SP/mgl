@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __MGL_BI__
-#define __MGL_BI__
+#ifndef _MGL_MGL_BI_MGL_
+#define _MGL_MGL_BI_MGL_
 
 namespace min
 {

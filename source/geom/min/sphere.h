@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __SPHERE__
-#define __SPHERE__
+#ifndef _MGL_SPHERE_MGL_
+#define _MGL_SPHERE_MGL_
 
 #include <cmath>
 #include <cstdio>

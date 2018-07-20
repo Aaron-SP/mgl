@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTRAY__
-#define __TESTRAY__
+#ifndef _MGL_TESTRAY_MGL_
+#define _MGL_TESTRAY_MGL_
 
 #include <min/ray.h>
 #include <min/test.h>

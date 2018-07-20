@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTUTIL__
-#define __TESTUTIL__
+#ifndef _MGL_TESTUTIL_MGL_
+#define _MGL_TESTUTIL_MGL_
 
 #include <algorithm>
 #include <cmath>

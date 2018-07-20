@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTBITFLAG__
-#define __TESTBITFLAG__
+#ifndef _MGL_TESTBITFLAG_MGL_
+#define _MGL_TESTBITFLAG_MGL_
 
 #include <cstdint>
 #include <min/bit_flag.h>

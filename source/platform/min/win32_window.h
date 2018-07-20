@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __WIN32WINDOW__
-#define __WIN32WINDOW__
+#ifndef _MGL_WIN32WINDOW_MGL_
+#define _MGL_WIN32WINDOW_MGL_
 
 // Do not reorder the GLEW headers, clang-format will break compiles
 #include <GL/glew.h>

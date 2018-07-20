@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTMATRIX2__
-#define __TESTMATRIX2__
+#ifndef _MGL_TESTMATRIX2_MGL_
+#define _MGL_TESTMATRIX2_MGL_
 
 #include <min/mat2.h>
 #include <min/test.h>

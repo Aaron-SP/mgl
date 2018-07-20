@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __BENCHWAVEFRONT__
-#define __BENCHWAVEFRONT__
+#ifndef _MGL_BENCHWAVEFRONT_MGL_
+#define _MGL_BENCHWAVEFRONT_MGL_
 
 #include <chrono>
 #include <iostream>

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __MD5_MESH__
-#define __MD5_MESH__
+#ifndef _MGL_MD5_MESH_MGL_
+#define _MGL_MD5_MESH_MGL_
 
 #include <array>
 #include <min/mat4.h>

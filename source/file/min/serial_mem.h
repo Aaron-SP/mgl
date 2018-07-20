@@ -1,5 +1,5 @@
-#ifndef __SERIALIZE_MEM__
-#define __SERIALIZE_MEM__
+#ifndef _MGL_SERIALIZE_MEM_MGL_
+#define _MGL_SERIALIZE_MEM_MGL_
 
 #include <cstdint>
 #include <cstring>

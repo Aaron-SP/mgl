@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __OOBBOX__
-#define __OOBBOX__
+#ifndef _MGL_OOBBOX_MGL_
+#define _MGL_OOBBOX_MGL_
 
 #include <cmath>
 #include <min/coord_sys.h>

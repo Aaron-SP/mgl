@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTFRUSTUM__
-#define __TESTFRUSTUM__
+#ifndef _MGL_TESTFRUSTUM_MGL_
+#define _MGL_TESTFRUSTUM_MGL_
 
 #include <min/frustum.h>
 #include <min/mat4.h>

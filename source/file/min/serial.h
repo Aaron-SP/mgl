@@ -1,5 +1,5 @@
-#ifndef __SERIALIZE__
-#define __SERIALIZE__
+#ifndef _MGL_SERIALIZE_MGL_
+#define _MGL_SERIALIZE_MGL_
 
 #include <cstdint>
 #include <cstring>

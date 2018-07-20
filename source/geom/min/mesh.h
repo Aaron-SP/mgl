@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __MESH__
-#define __MESH__
+#ifndef _MGL_MESH_MGL_
+#define _MGL_MESH_MGL_
 #include <fstream>
 #include <min/mem_chunk.h>
 #include <min/vec2.h>

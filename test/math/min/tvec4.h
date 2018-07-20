@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTVECTOR4__
-#define __TESTVECTOR4__
+#ifndef _MGL_TESTVECTOR4_MGL_
+#define _MGL_TESTVECTOR4_MGL_
 
 #include <min/test.h>
 #include <min/vec4.h>

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTSORT__
-#define __TESTSORT__
+#ifndef _MGL_TESTSORT_MGL_
+#define _MGL_TESTSORT_MGL_
 
 #include <cstdint>
 #include <min/sort.h>

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTTEXTUREBUFFER__
-#define __TESTTEXTUREBUFFER__
+#ifndef _MGL_TESTTEXTUREBUFFER_MGL_
+#define _MGL_TESTTEXTUREBUFFER_MGL_
 
 #include <min/bmp.h>
 #include <min/camera.h>

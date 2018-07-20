@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __SOUND_BUFFER__
-#define __SOUND_BUFFER__
+#ifndef _MGL_SOUND_BUFFER_MGL_
+#define _MGL_SOUND_BUFFER_MGL_
 
 #include <AL/al.h>
 #include <AL/alc.h>

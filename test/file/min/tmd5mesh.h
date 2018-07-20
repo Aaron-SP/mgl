@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTMD5MESH__
-#define __TESTMD5MESH__
+#ifndef _MGL_TESTMD5MESH_MGL_
+#define _MGL_TESTMD5MESH_MGL_
 
 #include <min/md5_mesh.h>
 #include <min/test.h>

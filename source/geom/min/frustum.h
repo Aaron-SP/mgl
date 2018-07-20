@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __FRUSTUM__
-#define __FRUSTUM__
+#ifndef _MGL_FRUSTUM_MGL_
+#define _MGL_FRUSTUM_MGL_
 
 #include <cmath>
 #include <min/mat4.h>

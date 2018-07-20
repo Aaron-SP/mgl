@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTOOBBRESOLVE__
-#define __TESTOOBBRESOLVE__
+#ifndef _MGL_TESTOOBBRESOLVE_MGL_
+#define _MGL_TESTOOBBRESOLVE_MGL_
 
 #include <min/intersect.h>
 #include <min/oobbox.h>

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __WAVEFRONT__
-#define __WAVEFRONT__
+#ifndef _MGL_WAVEFRONT_MGL_
+#define _MGL_WAVEFRONT_MGL_
 
 #include <array>
 #include <fstream>

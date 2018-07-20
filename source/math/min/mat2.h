@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __MATRIX2__
-#define __MATRIX2__
+#ifndef _MGL_MATRIX2_MGL_
+#define _MGL_MATRIX2_MGL_
 
 namespace min
 {

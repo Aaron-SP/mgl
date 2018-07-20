@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TEST_MEM_CHUNK__
-#define __TEST_MEM_CHUNK__
+#ifndef _MGL_TEST_MEM_CHUNK_MGL_
+#define _MGL_TEST_MEM_CHUNK_MGL_
 
 #include <min/mem_chunk.h>
 #include <min/test.h>

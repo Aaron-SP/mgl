@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTVECTOR2__
-#define __TESTVECTOR2__
+#ifndef _MGL_TESTVECTOR2_MGL_
+#define _MGL_TESTVECTOR2_MGL_
 
 #include <min/test.h>
 #include <min/vec2.h>

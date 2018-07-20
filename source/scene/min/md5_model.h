@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __MD5_MODEL__
-#define __MD5_MODEL__
+#ifndef _MGL_MD5_MODEL_MGL_
+#define _MGL_MD5_MODEL_MGL_
 
 #include <min/md5_anim.h>
 #include <min/md5_mesh.h>

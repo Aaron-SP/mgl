@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __VECTOR2__
-#define __VECTOR2__
+#ifndef _MGL_VECTOR2_MGL_
+#define _MGL_VECTOR2_MGL_
 
 namespace min
 {

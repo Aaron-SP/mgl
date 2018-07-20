@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __SHADOW_BUFFER__
-#define __SHADOW_BUFFER__
+#ifndef _MGL_SHADOW_BUFFER_MGL_
+#define _MGL_SHADOW_BUFFER_MGL_
 
 #include <min/frustum.h>
 #include <min/mat4.h>

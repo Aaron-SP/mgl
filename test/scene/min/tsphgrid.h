@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTSPHEREGRID__
-#define __TESTSPHEREGRID__
+#ifndef _MGL_TESTSPHEREGRID_MGL_
+#define _MGL_TESTSPHEREGRID_MGL_
 
 #include <min/grid.h>
 #include <min/sphere.h>

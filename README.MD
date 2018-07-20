@@ -20,7 +20,7 @@ The GNU makefile contains various build targets.
 - 'make' - builds all tests and examples.
 - 'make benchmarks' - builds only benchmarks (gl_bench)
 - 'make clean' - cleans up all generated output files
-- 'make examples' - builds only examples (ex1-ex9)
+- 'make examples' - builds only examples (ex1-ex10)
 - 'make lib' - builds a static library (libmin.a)
 - 'make tests' - builds only tests (gl_test, wl_test)
 - 'make install' - installs header files into /usr/include/mgl
@@ -84,7 +84,7 @@ This mode requires using a OpenGL 4.3 core profile.
 ### Usage
 
 After building the project tests and examples, you can run any example from the project root directory.
-- Running examples 'bin/ex<1-9>'
+- Running examples 'bin/ex<1-10>'
 
 All examples assume that the current working directory is the project root directory.
 

@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TEST_STACK_VECTOR__
-#define __TEST_STACK_VECTOR__
+#ifndef _MGL_TEST_STACK_VECTOR_MGL_
+#define _MGL_TEST_STACK_VECTOR_MGL_
 
 #include <cstdint>
 #include <min/stack_vector.h>

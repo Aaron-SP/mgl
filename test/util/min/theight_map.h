@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TEST_HEIGHT_MAP__
-#define __TEST_HEIGHT_MAP__
+#ifndef _MGL_TEST_HEIGHT_MAP_MGL_
+#define _MGL_TEST_HEIGHT_MAP_MGL_
 
 #include <min/height_map.h>
 #include <min/test.h>

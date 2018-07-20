@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTPLANE__
-#define __TESTPLANE__
+#ifndef _MGL_TESTPLANE_MGL_
+#define _MGL_TESTPLANE_MGL_
 
 #include <min/plane.h>
 #include <min/test.h>

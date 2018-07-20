@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTCAMERA__
-#define __TESTCAMERA__
+#ifndef _MGL_TESTCAMERA_MGL_
+#define _MGL_TESTCAMERA_MGL_
 
 #include <min/camera.h>
 #include <min/frustum.h>

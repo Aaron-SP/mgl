@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTSAMPLE__
-#define __TESTSAMPLE__
+#ifndef _MGL_TESTSAMPLE_MGL_
+#define _MGL_TESTSAMPLE_MGL_
 
 #include <min/quat.h>
 #include <min/sample.h>

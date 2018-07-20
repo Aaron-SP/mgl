@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __TESTWAVEFRONT__
-#define __TESTWAVEFRONT__
+#ifndef _MGL_TESTWAVEFRONT_MGL_
+#define _MGL_TESTWAVEFRONT_MGL_
 
 #include <limits>
 #include <min/test.h>

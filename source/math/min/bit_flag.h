@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#ifndef __BIT_FLAG__
-#define __BIT_FLAG__
+#ifndef _MGL_BIT_FLAG_MGL_
+#define _MGL_BIT_FLAG_MGL_
 
 #include <cstdint>
 #include <min/static_vector.h>
