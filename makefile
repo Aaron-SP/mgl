@@ -1,7 +1,7 @@
 # MGL Makefile - CYGWIN | LINUX
 
 # Automatically generate variable name lists
-CGRAPH_SOURCES = $(wildcard source/cpp/*.cpp) $(source/platform/min/glew.cpp)
+CGRAPH_SOURCES = $(wildcard source/cpp/*.cpp)
 
 # Convert the .cpp files to .o files
 OBJGRAPH_SOURCES = $(CGRAPH_SOURCES:.cpp=.o)
@@ -29,15 +29,15 @@ BIN_WL_TEST = bin/wl_test
 ifeq ($(OS),Windows_NT)
 	# 64 bit
 	ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
-        MGL_DESTDIR ?= C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= $(shell cygpath -m /usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl)
     endif
 
 	#64 bit
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
-        MGL_DESTDIR ?= C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= $(shell cygpath -m /usr/x86_64-w64-mingw32/sys-root/mingw/include/mgl)
     else
 	#32 bit
-        MGL_DESTDIR ?= C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include/mgl
+        MGL_DESTDIR ?= $(shell cygpath -m /usr/i686-w64-mingw32/sys-root/mingw/include/mgl)
     endif
 
 	# Link library settings
@@ -170,7 +170,7 @@ $(BIN_EX10):
 
 # pattern matching .cpp
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(LIB_SOURCES) -c $< -o $@ 2> "gcc.txt"
+	$(CXX) $(CXXFLAGS) $(LIB_SOURCES) -c $< -o $@
 
 # clean targets
 clean:
