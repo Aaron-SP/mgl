@@ -27,12 +27,12 @@ namespace test_nt
 #undef _MGL_BIT_FLAG_MGL_
 #undef _MGL_RAY_MGL_
 #undef _MGL_AABBOX_MGL_
-#undef _MGL_MGL_STATIC_VECTOR_MGL_
-#undef _MGL_MGL_STACK_VECTOR_MGL_
+#undef _MGL_STATIC_VECTOR_MGL_
+#undef _MGL_STACK_VECTOR_MGL_
 #undef _MGL_UTILITY_MGL_
 #undef _MGL_UINT_SORT_MGL_
-#undef _MGL_MGL_BI_MGL_
-#undef _MGL_MGL_TRI_MGL_
+#undef _MGL_BI_MGL_
+#undef _MGL_TRI_MGL_
 #undef _MGL_INTERSECT_MGL_
 #undef _MGL_TEMPLATE_MATH_MGL_
 using namespace min;
