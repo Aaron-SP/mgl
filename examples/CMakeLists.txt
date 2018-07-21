@@ -1,40 +1,40 @@
 # Example 1
-add_executable("ex1")
+make_program("ex1")
 add_opengl("ex1")
 
 # Example 2
-add_executable("ex2")
+make_program("ex2")
 add_opengl("ex2")
 
 # Example 3
-add_executable("ex3")
+make_program("ex3")
 add_opengl("ex3")
 
 # Example 4
-add_executable("ex4")
+make_program("ex4")
 add_opengl("ex4")
 
 # Example 5
-add_executable("ex5")
+make_program("ex5")
 add_opengl("ex5")
 add_freetype("ex5")
 
 # Example 6
-add_executable("ex6")
+make_program("ex6")
 add_opengl("ex6")
 
 # Example 7
-add_executable("ex7")
+make_program("ex7")
 add_opengl("ex7")
 
 # Example 8
-add_executable("ex8")
+make_program("ex8")
 add_opengl("ex8")
 
 # Example 9
-add_executable("ex9")
+make_program("ex9")
 add_opengl("ex9")
 
 # Example 10
-add_executable("ex10")
+make_program("ex10")
 add_opengl("ex10")

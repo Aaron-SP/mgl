@@ -15,13 +15,13 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 		add_compile_options(/fp:fast)
 endif()
 
-function( add_executable ex )
+function( make_program ex )
 
 # Add new example and set output directory
 add_executable( ${ex} ${ex}.cpp )
 set_target_properties( ${ex} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../../bin" )
 
-endfunction ( add_executable )
+endfunction ( make_program )
 
 # Add OpenGL support to executable
 function( add_opengl ex )
@@ -180,6 +180,10 @@ include_directories( test/scene )
 include_directories( test/sound )
 include_directories( test/util )
 
+# Bench files
+include_directories( bench/scene )
+
 # CPP folders
+add_subdirectory( bench )
 add_subdirectory( examples )
 add_subdirectory( test )
