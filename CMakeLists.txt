@@ -21,6 +21,11 @@ function( make_program ex )
 add_executable( ${ex} ${ex}.cpp )
 set_target_properties( ${ex} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../../bin" )
 
+# Add threading support
+if( UNIX )
+    target_link_libraries( ${ex} pthread )
+endif()
+
 endfunction ( make_program )
 
 # Add OpenAL support to executable
