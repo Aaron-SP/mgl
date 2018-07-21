@@ -1,4 +1,3 @@
-*.txt
 source/*.o
 source/*/*.o
 test/*.o

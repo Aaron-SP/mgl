@@ -88,16 +88,16 @@ TEST_GL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/gl_test.cpp
 TEST_WL = $(LIB_SOURCES) $(TEST_SOURCES) -Itest test/wl_test.cpp
 TEST_BENCH = $(LIB_SOURCES) $(BENCH_SOURCES) -Ibench bench/gl_bench.cpp
 EXFLAGS = $(LIB_SOURCES) $(TEST_SOURCES)
-EX1 = $(EXFLAGS) example/programs/ex1.cpp
-EX2 = $(EXFLAGS) example/programs/ex2.cpp
-EX3 = $(EXFLAGS) example/programs/ex3.cpp
-EX4 = $(EXFLAGS) example/programs/ex4.cpp
-EX5 = $(EXFLAGS) example/programs/ex5.cpp
-EX6 = $(EXFLAGS) example/programs/ex6.cpp
-EX7 = $(EXFLAGS) example/programs/ex7.cpp
-EX8 = $(EXFLAGS) example/programs/ex8.cpp
-EX9 = $(EXFLAGS) example/programs/ex9.cpp
-EX10 = $(EXFLAGS) example/programs/ex10.cpp
+EX1 = $(EXFLAGS) examples/ex1.cpp
+EX2 = $(EXFLAGS) examples/ex2.cpp
+EX3 = $(EXFLAGS) examples/ex3.cpp
+EX4 = $(EXFLAGS) examples/ex4.cpp
+EX5 = $(EXFLAGS) examples/ex5.cpp
+EX6 = $(EXFLAGS) examples/ex6.cpp
+EX7 = $(EXFLAGS) examples/ex7.cpp
+EX8 = $(EXFLAGS) examples/ex8.cpp
+EX9 = $(EXFLAGS) examples/ex9.cpp
+EX10 = $(EXFLAGS) examples/ex10.cpp
 
 # Enable GS rendering
 ifdef MGL_GS_RENDER
@@ -171,9 +171,8 @@ $(BIN_EX10):
 # pattern matching .cpp
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(LIB_SOURCES) -c $< -o $@
-
-# clean targets
 clean:
+	rm -rf cmake-build/*
 	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
 	rm -f test/*.o

@@ -3,8 +3,8 @@
 
 Welcome to the Minimal Graphics Library! This is the prerelease alpha version 0.1.
 
-This package is the source code distribution of the Minimal Graphics Library, hence abbreviated MGL. The library builds on linux and win32 platforms. 
-A GNU makefile is available for compilation with GCC/MINGW for win32 platforms or GCC/X11 for linux platforms. 
+This package is the source code distribution of the Minimal Graphics Library, hence abbreviated MGL. The library builds on Linux and Windows platforms. 
+A GNU makefile is available for compilation with GCC|CLANG with MINGW for Windows platforms or GCC|CLANG with X11 for Linux platforms. 
 The makefile should work for both environments without modification.
 
 ### PKGBUILD
@@ -38,13 +38,17 @@ No configuration is necessary, but you can find further information about GLEW a
 
 #### FREETYPE2
 
-FREETYPE2 is used for converting TTF fonts into bitmap texture atlases for text rendering. 
+FREETYPE2 is used for converting TTF fonts into bitmap texture atlases for text rendering. You only need this dependency if you wish to use text rendering features (renderer/text_buffer.h).
 No configuration is necessary, but you can find further information about FREETYPE2 at https://www.freetype.org/.
+
+#### Libvorbis
+
+Libvorbis is used to decompress OGG files for sound playback. You only need this dependency if you wish to play OGG files (file/ogg.h).
 
 #### OPENAL
 
-OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org/.
-OpenAL-Soft can also be used for providing a software renderer. OpenAL-Soft can be downloaded at http://kcat.strangesoft.net/openal.html.
+OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org/. You only need this dependency if you wish to use sound playback features (sound/sound_buffer.h).
+OpenAL-Soft can also be used for providing a software audio renderer. OpenAL-Soft can be downloaded at http://kcat.strangesoft.net/openal.html.
 
 #### Platform Specific
 
@@ -54,8 +58,8 @@ Additional dependencies that are required and not distributed in this package in
 - 'openal' - all platforms
 - 'libvorbis' - all platforms
 - 'openal-soft' - for linux only
-- 'mingw32' - for win32 only
-- 'freetype' - for win32 and linux
+- 'mingw32' - for windows only
+- 'freetype' - for windows and linux
 - 'X11' - for linux only
 
 #### Arch/Ubuntu Linux Users
