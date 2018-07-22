@@ -113,7 +113,7 @@ bool test_camera()
     // Check orthographic NDC transformation
     ndc = mat * min::vec4<double>(0.0, 2.0, -2.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
     out = out && compare(1.32, ndc.z(), 1E-4);
     out = out && compare(1.0, ndc.w(), 1E-4);
     if (!out)
@@ -124,7 +124,7 @@ bool test_camera()
     // Check orthographic NDC transformation
     ndc = mat * min::vec4<double>(0.0, 2.0, -35.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
     out = out && compare(0.0, ndc.z(), 1E-4);
     out = out && compare(1.0, ndc.w(), 1E-4);
     if (!out)
@@ -135,7 +135,7 @@ bool test_camera()
     // Check orthographic NDC transformation
     ndc = mat * min::vec4<double>(0.0, 2.0, -61.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
     out = out && compare(-1.04, ndc.z(), 1E-4);
     out = out && compare(1.0, ndc.w(), 1E-4);
     if (!out)
@@ -150,9 +150,9 @@ bool test_camera()
     // Check perspective NDC transformation behind
     ndc = mat * min::vec4<double>(0.0, 2.0, -2.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
     out = out && compare(21.2, ndc.z(), 1E-4);
-    out = out && compare(2, ndc.w(), 1E-4);
+    out = out && compare(2.0, ndc.w(), 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed camera perspective ndc transformation behind");
@@ -161,9 +161,9 @@ bool test_camera()
     // Check perspective NDC transformation behind
     ndc = mat * min::vec4<double>(0.0, 2.0, -35.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
-    out = out && compare(-25, ndc.z(), 1E-4);
-    out = out && compare(35, ndc.w(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
+    out = out && compare(-25.0, ndc.z(), 1E-4);
+    out = out && compare(35.0, ndc.w(), 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed camera perspective ndc transformation inside");
@@ -172,9 +172,9 @@ bool test_camera()
     // Check perspective NDC transformation behind
     ndc = mat * min::vec4<double>(0.0, 2.0, -61.0, 1.0);
     out = out && compare(0.0, ndc.x(), 1E-4);
-    out = out && compare(0, ndc.y(), 1E-4);
+    out = out && compare(0.0, ndc.y(), 1E-4);
     out = out && compare(-61.4, ndc.z(), 1E-4);
-    out = out && compare(61, ndc.w(), 1E-4);
+    out = out && compare(61.0, ndc.w(), 1E-4);
     if (!out)
     {
         throw std::runtime_error("Failed camera perspective ndc transformation outside");

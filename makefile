@@ -142,9 +142,9 @@ uninstall:
 $(BIN_AL_TEST):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC)
 $(BIN_BENCH):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC)
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@
 $(BIN_GL_TEST):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC)
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@
 $(BIN_WL_TEST):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC)
 $(BIN_EX1):
