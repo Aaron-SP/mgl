@@ -56,8 +56,8 @@ bool test_aabb_resolve()
         offset = min::resolve<double, min::vec2>(b1, b2, normal, intersect, 1E-3);
 
         // Test normal vector
-        out = out && compare(-1.0, normal.x(), 1E-4);
-        out = out && compare(0.0, normal.y(), 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
+        out = out && compare(-1.0, normal.y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 aabb-aabb normal vector validation");
@@ -82,8 +82,8 @@ bool test_aabb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.048, b1.get_center().x(), 1E-4);
-        out = out && compare(1.05, b1.get_center().y(), 1E-4);
+        out = out && compare(1.05, b1.get_center().x(), 1E-4);
+        out = out && compare(0.048, b1.get_center().y(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec2 aabb-aabb resolution offset");
@@ -131,9 +131,9 @@ bool test_aabb_resolve()
         offset = min::resolve<double, min::vec3>(b1, b2, normal, intersect, 1E-3);
 
         // Test normal vector
-        out = out && compare(-1.0, normal.x(), 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
         out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
+        out = out && compare(-1.0, normal.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 aabb-aabb normal vector validation");
@@ -159,9 +159,9 @@ bool test_aabb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.04615, b1.get_center().x(), 1E-4);
+        out = out && compare(1.05, b1.get_center().x(), 1E-4);
         out = out && compare(1.05, b1.get_center().y(), 1E-4);
-        out = out && compare(1.05, b1.get_center().z(), 1E-4);
+        out = out && compare(0.04615, b1.get_center().z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec3 aabb-aabb resolution offset");
@@ -209,9 +209,9 @@ bool test_aabb_resolve()
         offset = min::resolve<double, min::vec4>(b1, b2, normal, intersect, 1E-3);
 
         // Test normal vector
-        out = out && compare(-1.0, normal.x(), 1E-4);
+        out = out && compare(0.0, normal.x(), 1E-4);
         out = out && compare(0.0, normal.y(), 1E-4);
-        out = out && compare(0.0, normal.z(), 1E-4);
+        out = out && compare(-1.0, normal.z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 aabb-aabb normal vector validation");
@@ -237,9 +237,9 @@ bool test_aabb_resolve()
         }
 
         // Test b1 position
-        out = out && compare(0.04615, b1.get_center().x(), 1E-4);
+        out = out && compare(1.05, b1.get_center().x(), 1E-4);
         out = out && compare(1.05, b1.get_center().y(), 1E-4);
-        out = out && compare(1.05, b1.get_center().z(), 1E-4);
+        out = out && compare(0.04615, b1.get_center().z(), 1E-4);
         if (!out)
         {
             throw std::runtime_error("Failed vec4 aabb-aabb resolution offset");

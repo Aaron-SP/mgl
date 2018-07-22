@@ -813,7 +813,7 @@ class vec2
         if (penetration[0] > tolerance)
         {
             // Find the minimum, non-zero penetration index
-            if (penetration[1] > tolerance && penetration[1] < penetration[0])
+            if ((penetration[1] > tolerance) && (penetration[1] < (penetration[0] + tolerance)))
             {
                 min = penetration[1];
                 index = 1;

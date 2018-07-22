@@ -152,13 +152,13 @@ class sphere
         // Calculate normal direction vector
         const vec<T> normal = p - _center;
 
-        // Length is initially zero
-        length = 0.0;
-
         // Test for zero vector if p = center
-        T mag2 = normal.dot(normal);
+        const T mag2 = normal.dot(normal);
         if (mag2 < tolerance)
         {
+            // Length is initially zero
+            length = 0.0;
+
             // If the two spheres have the same center use up vector
             return vec<T>::up();
         }

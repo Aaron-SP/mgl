@@ -40,13 +40,13 @@ bool test_uint_sort()
     });
 
     // Check array is sorted
-    out = out && compare(1, uints[0], 1E-4);
-    out = out && compare(3, uints[1], 1E-4);
-    out = out && compare(70000, uints[2], 1E-4);
-    out = out && compare(100000, uints[3], 1E-4);
-    out = out && compare(130000, uints[4], 1E-4);
-    out = out && compare(5000000, uints[5], 1E-4);
-    out = out && compare(100000000, uints[6], 1E-4);
+    out = out && compare(1, uints[0]);
+    out = out && compare(3, uints[1]);
+    out = out && compare(70000, uints[2]);
+    out = out && compare(100000, uints[3]);
+    out = out && compare(130000, uints[4]);
+    out = out && compare(5000000, uints[5]);
+    out = out && compare(100000000, uints[6]);
     if (!out)
     {
         throw std::runtime_error("Failed uint radix sort");
