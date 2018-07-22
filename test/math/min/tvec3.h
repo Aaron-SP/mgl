@@ -622,11 +622,11 @@ bool test_vec3()
     vmax = min::vec3<double>(3.0, 3.0, 3.0);
 
     // center, half_extent, center, half_extent
-    std::pair<min::vec3<double>, double> p = min::vec3<double>::project_sat_aligned_penetration(one, vmin, two, vmax, 0.01);
+    std::pair<min::vec3<double>, double> p = min::vec3<double>::project_sat_aligned_penetration(one, vmin, two, vmax, 1E-6);
     out = out && test(1.0, p.first.x(), 1E-4, "Failed vec3 sat penetration aligned");
     out = out && test(0.0, p.first.y(), 1E-4, "Failed vec3 sat penetration aligned");
     out = out && test(0.0, p.first.z(), 1E-4, "Failed vec3 sat penetration aligned");
-    out = out && test(4.09, p.second, 1E-4, "Failed vec3 sat penetration aligned");
+    out = out && test(4.0, p.second, 1E-4, "Failed vec3 sat penetration aligned");
 
     // Test grid sat penetration
     one = min::vec3<double>(10.0, 10.1, 10.2);
@@ -635,13 +635,11 @@ bool test_vec3()
     vmax = min::vec3<double>(3.0, 3.0, 3.0);
 
     // coord_sys, center, half_extent, coord_sys, center, half_extent
-    p = min::vec3<double>::project_sat_penetration(min::vec3<double>::axes(), one, vmin, min::vec3<double>::axes(), two, vmax, 0.01);
-
-    // Z has the least penetration
+    p = min::vec3<double>::project_sat_penetration(min::vec3<double>::axes(), one, vmin, min::vec3<double>::axes(), two, vmax, 1E-6);
     out = out && test(0.0, p.first.x(), 1E-4, "Failed vec3 sat penetration");
     out = out && test(0.0, p.first.y(), 1E-4, "Failed vec3 sat penetration");
     out = out && test(1.0, p.first.z(), 1E-4, "Failed vec3 sat penetration");
-    out = out && test(3.89, p.second, 1E-4, "Failed vec3 sat penetration");
+    out = out && test(3.8, p.second, 1E-4, "Failed vec3 sat penetration");
 
     return out;
 }

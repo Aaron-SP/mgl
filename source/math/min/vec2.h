@@ -763,7 +763,7 @@ class vec2
         {
             // Prune all parallel normal vectors and non-penetrating depths
             const T mag2 = axes[i].dot(axes[i]);
-            if (mag2 > tolerance && penetration[i] > tolerance && penetration[i] < min)
+            if ((mag2 > tolerance) && (penetration[i] > tolerance) && (penetration[i] < (min + tolerance)))
             {
                 min = penetration[i];
                 index = i;

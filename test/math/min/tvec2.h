@@ -439,10 +439,10 @@ bool test_vec2()
     vmax = min::vec2<double>(3.0, 3.0);
 
     // center, half_extent, center, half_extent
-    std::pair<min::vec2<double>, double> p = min::vec2<double>::project_sat_aligned_penetration(one, vmin, two, vmax, 0.01);
+    std::pair<min::vec2<double>, double> p = min::vec2<double>::project_sat_aligned_penetration(one, vmin, two, vmax, 1E-6);
     out = out && test(1.0, p.first.x(), 1E-4, "Failed vec2 sat penetration aligned");
     out = out && test(0.0, p.first.y(), 1E-4, "Failed vec2 sat penetration aligned");
-    out = out && test(4.01, p.second, 1E-4, "Failed vec2 sat penetration aligned");
+    out = out && test(4.0, p.second, 1E-4, "Failed vec2 sat penetration aligned");
 
     // Test grid sat penetration
     one = min::vec2<double>(10.0, 10.0);
@@ -451,10 +451,10 @@ bool test_vec2()
     vmax = min::vec2<double>(3.0, 3.0);
 
     // center, half_extent, center, half_extent
-    p = min::vec2<double>::project_sat_penetration(min::vec2<double>::axes(), one, vmin, min::vec2<double>::axes(), two, vmax, 0.01);
-    out = out && test(1.0, p.first.x(), 1E-4, "Failed vec2 sat penetration");
-    out = out && test(0.0, p.first.y(), 1E-4, "Failed vec2 sat penetration");
-    out = out && test(4.06, p.second, 1E-4, "Failed vec2 sat penetration");
+    p = min::vec2<double>::project_sat_penetration(min::vec2<double>::axes(), one, vmin, min::vec2<double>::axes(), two, vmax, 1E-6);
+    out = out && test(0.0, p.first.x(), 1E-4, "Failed vec2 sat penetration");
+    out = out && test(1.0, p.first.y(), 1E-4, "Failed vec2 sat penetration");
+    out = out && test(4.0, p.second, 1E-4, "Failed vec2 sat penetration");
 
     return out;
 }
