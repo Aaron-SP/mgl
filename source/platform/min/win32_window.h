@@ -33,6 +33,8 @@ limitations under the License.
 // This pollutes the namespace
 #undef far
 #undef near
+#undef max
+#undef min
 
 namespace min
 {
@@ -729,7 +731,10 @@ class win32_window
             }
         }
 
-        return std::make_pair<uint_fast16_t, uint_fast16_t>(p.x, p.y);
+        // Convert mouse coordinates
+        const uint_fast16_t x = static_cast<uint_fast16_t>(p.x);
+        const uint_fast16_t y = static_cast<uint_fast16_t>(p.y);
+        return std::make_pair(x, y);
     }
     inline keyboard<key_type, double> &get_keyboard()
     {

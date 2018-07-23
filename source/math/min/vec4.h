@@ -833,15 +833,15 @@ class vec4
         // Order the components into min and max
         if (min._x > max._x)
         {
-            swap(min._x, max._x);
+            std::swap(min._x, max._x);
         }
         if (min._y > max._y)
         {
-            swap(min._y, max._y);
+            std::swap(min._y, max._y);
         }
         if (min._z > max._z)
         {
-            swap(min._z, max._z);
+            std::swap(min._z, max._z);
         }
     }
     inline vec4<T> orthogonal() const

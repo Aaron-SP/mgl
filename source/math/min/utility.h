@@ -146,15 +146,6 @@ inline int sgn(const T val)
 {
     return (T(0) < val) - (val < T(0));
 }
-
-template <typename T>
-inline void swap(T &a, T &b)
-{
-    // Swaps a and b
-    T _a = a;
-    a = b;
-    b = _a;
-}
 }
 
 #endif

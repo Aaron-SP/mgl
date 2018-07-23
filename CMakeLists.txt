@@ -52,7 +52,7 @@ if (NOT OPENAL_FOUND)
         # Find OPENAL on CYGWIN
         find_library(openal
                 NAMES libOpenAL32.dll.a
-                PATHS "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
 
         # Include headers directory
         target_include_directories( ${ex} PUBLIC "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include" )
@@ -63,7 +63,7 @@ if (NOT OPENAL_FOUND)
         # Find OPENAL on CYGWIN
         find_library(openal
                 NAMES libOpenAL32.dll.a
-                PATHS "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
 
         # Include headers directory
         target_include_directories( ${ex} PUBLIC "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include" )
@@ -75,9 +75,6 @@ if (NOT OPENAL_FOUND)
         # Find OPENAL on UNIX
         find_library(openal
                 NAMES openal)
-
-        # Include OPENAL path
-        target_include_directories( ${ex} PUBLIC "/usr/include" )
 
     endif()
 
@@ -120,7 +117,7 @@ if (NOT GLEW_FOUND OR NOT OPENGL_FOUND)
         # Find GLEW on CYGWIN
         find_library(glew
                 NAMES libglew32.dll.a
-                PATHS "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
 
         # Include headers directory
         target_include_directories( ${ex} PUBLIC "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include" )
@@ -131,7 +128,7 @@ if (NOT GLEW_FOUND OR NOT OPENGL_FOUND)
         # Find GLEW on CYGWIN
         find_library(glew
                 NAMES libglew32.dll.a
-                PATHS "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
 
         # Include headers directory
         target_include_directories( ${ex} PUBLIC "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include" )
@@ -183,7 +180,7 @@ if (NOT FREETYPE_FOUND)
         # Find FREETYPE on CYGWIN
         find_library(freetype
                 NAMES libfreetype.dll.a
-                PATHS "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
 
         # 32 bits
         elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -191,7 +188,7 @@ if (NOT FREETYPE_FOUND)
         # Find FREETYPE on CYGWIN
         find_library(freetype
                 NAMES libfreetype.dll.a
-                PATHS "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
 
         endif()
 
@@ -234,7 +231,7 @@ function( add_vorbis ex )
         # Find LIBVORBIS on CYGWIN
         find_library(libvorbis
                 NAMES libvorbisfile.dll.a
-                PATHS "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/lib" )
 
         # Include LIBVORBIS path
         target_include_directories( ${ex} PUBLIC "C:/cygwin64/usr/x86_64-w64-mingw32/sys-root/mingw/include" )
@@ -245,7 +242,7 @@ function( add_vorbis ex )
         # Find LIBVORBIS on CYGWIN
         find_library(libvorbis
                 NAMES libvorbisfile.dll.a
-                PATHS "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
+                HINTS  "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
 
         # Include LIBVORBIS path
         target_include_directories( ${ex} PUBLIC "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include" )
@@ -257,9 +254,6 @@ function( add_vorbis ex )
         # Find LIBVORBIS on UNIX
         find_library(libvorbis
                 NAMES vorbisfile)
-
-        # Include LIBVORBIS path
-        target_include_directories( ${ex} PUBLIC "/usr/include" )
 
     endif()
 

@@ -172,9 +172,9 @@ $(BIN_EX10):
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(LIB_SOURCES) -c $< -o $@
 clean:
+	rm -rf bin/*
+	rm -f bench/*.o
 	rm -rf cmake-build/*
 	rm -f source/cpp/*.o
 	rm -f source/platform/*.o
 	rm -f test/*.o
-	rm -f bench/*.o
-	rm -f bin/*

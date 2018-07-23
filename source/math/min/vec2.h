@@ -601,11 +601,11 @@ class vec2
         // Order the components into min and max
         if (min._x > max._x)
         {
-            swap(min._x, max._x);
+            std::swap(min._x, max._x);
         }
         if (min._y > max._y)
         {
-            swap(min._y, max._y);
+            std::swap(min._y, max._y);
         }
     }
     inline vec2<T> orthogonal() const

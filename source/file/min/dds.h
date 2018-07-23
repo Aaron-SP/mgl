@@ -56,8 +56,8 @@ class dds
             total += ((width + 3) / 4) * ((height + 3) / 4) * block_size;
 
             // Calculate width and height for next level, accurate for non-power of two textures
-            width = std::max((unsigned)1, width / 2);
-            height = std::max((unsigned)1, height / 2);
+            width = std::max(1u, width / 2);
+            height = std::max(1u, height / 2);
         }
 
         return total;

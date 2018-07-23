@@ -26,7 +26,7 @@ double bench_static_vector()
 {
     const size_t size = 100000000;
     std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
-    std::uniform_int_distribution<uint8_t> dist(1, 128);
+    std::uniform_int_distribution<int> dist(1, 128);
 
     // Running vector test
     std::cout
@@ -37,7 +37,7 @@ double bench_static_vector()
     auto start = std::chrono::high_resolution_clock::now();
     {
         // Create array and fill it with 1's then sum in random values
-        min::static_vector<uint8_t> sv(size);
+        min::static_vector<int> sv(size);
         sv.fill(1);
         for (auto &i : sv)
         {
@@ -64,7 +64,7 @@ double bench_static_vector()
     start = std::chrono::high_resolution_clock::now();
     {
         // Create array and fill it with 1's then sum in random values
-        std::vector<uint8_t> v(size, 1);
+        std::vector<int> v(size, 1);
         for (auto &i : v)
         {
             i += dist(gen);

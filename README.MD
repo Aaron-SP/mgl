@@ -16,6 +16,16 @@ If you are running Arch Linux, I have created PKGBUILD's for this project locate
 Verify a bin directory exists before compiling with the makefile. 
 - 'mkdir -p bin'
 
+### CMAKE
+
+The CMakeLists.txt file builds all example executables, tests, and benchmarks. Building with CMake has been tested on Cygwin, Unix, and Windows + Vcpkg environments.
+
+### CMAKE + MSVC + Vcpkg
+
+Add the Vcpkg library directory(vcpkg\installed\*-windows) to your path so that CMake can find the libraries on the system. Install the required dependencies with Vcpkg and make sure to run 'vcpkg integrate install' to automatically add the include and linker settings to the MSVC build files, as the CMake files do not try to set them for this environment. Use CMake to generate the Visual Studio projects files. Then run 'msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32' for building optimized x86 executables. You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the Vcpkg directory to run the executables as it may not have been automatically copied by MSBuild.
+
+### GNU MAKE
+
 The GNU makefile contains various build targets.
 - 'make' - builds all tests and examples.
 - 'make benchmarks' - builds only benchmarks (gl_bench)
