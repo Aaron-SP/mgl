@@ -591,19 +591,19 @@ bool test_vec3()
 
     // Starting point x = 100, y = 100, z = 100
     flag = false;
-    key = min::vec3<double>::grid_key(vmin, cell_extent, 200.0, origin);
+    key = min::vec3<double>::grid_key(vmin, cell_extent, 200, origin);
     out = out && test(4020100, key, "Failed vec3 grid_ray_next diagonal 1");
 
     // point x = 101, y = 100, z = 100
-    key = min::vec3<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec3<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(4060100, key, "Failed vec3 grid_ray_next diagonal 2");
 
     // point x = 101, y = 101, z = 100
-    key = min::vec3<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec3<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(4060300, key, "Failed vec3 grid_ray_next diagonal 3");
 
     // point x = 101, y = 101, z = 101
-    key = min::vec3<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec3<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(4060301, key, "Failed vec3 grid_ray_next diagonal 4");
 
     // Test grid overlap

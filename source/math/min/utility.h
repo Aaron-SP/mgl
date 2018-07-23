@@ -27,6 +27,8 @@ template <typename T>
 class var
 {
   public:
+    static constexpr T DEG_180 = 180.0;
+    static constexpr T DEG_360 = 360.0;
     static constexpr T PI = 3.14159265358979323846;
     static constexpr T SQRT2 = 1.4142135623731;
     static constexpr T INV_SQRT2 = 0.707106781186547;
@@ -47,20 +49,23 @@ template <typename T>
 constexpr inline T rad_to_deg(const T rad)
 {
     // Converts degrees to radians
-    return rad * (180.0 / var<T>::PI);
+    constexpr T ratio = var<T>::DEG_180 / var<T>::PI;
+    return rad * ratio;
 }
 
 template <typename T>
 constexpr inline T deg_to_rad(const T degrees)
 {
     // Converts degrees to radians
-    return degrees * (var<T>::PI / 180.0);
+    constexpr T ratio = var<T>::PI / var<T>::DEG_180;
+    return degrees * ratio;
 }
 template <typename T>
 constexpr inline T deg_to_rad2(const T degrees)
 {
     // Converts degrees to radians / 2
-    return degrees * (var<T>::PI / 360.0);
+    constexpr T ratio = var<T>::PI / var<T>::DEG_360;
+    return degrees * ratio;
 }
 
 template <typename T>
@@ -135,7 +140,7 @@ inline T safe_inverse(const T v)
     }
     else
     {
-        out = 1.0 / v;
+        out = 1.0f / v;
     }
 
     return out;

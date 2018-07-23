@@ -121,8 +121,8 @@ class screen_draw_test
     void add_geometry(const uint_fast16_t x, const uint_fast16_t y)
     {
         // Convert width and height to coordinates
-        const float x_screen = (2.0 / _win.get_width()) * x - 1.0;
-        const float y_screen = (2.0 / _win.get_height()) * y - 1.0;
+        const float x_screen = (2.0f / _win.get_width()) * x - 1.0f;
+        const float y_screen = (2.0f / _win.get_height()) * y - 1.0f;
 
         // Initialize the mesh buffer with one point
         min::mesh<float, uint32_t> point("add_geometry");

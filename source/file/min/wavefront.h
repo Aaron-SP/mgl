@@ -64,7 +64,7 @@ class wavefront
         if (file.is_open())
         {
             // Get the size of the file
-            const auto size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
@@ -137,7 +137,7 @@ class wavefront
     inline void process_mesh(mesh<T, K> &mesh)
     {
         // Check attribute indices are multiple of three
-        auto size = _i.size();
+        const size_t size = _i.size();
         if (size % 3 != 0)
         {
             throw std::runtime_error("wavefront: Face attribute indices not multiple of three, invalid format");
@@ -152,7 +152,7 @@ class wavefront
         {
             // If inserted into map, copy the attribute to attribute vector
             std::array<K, 3> node = {_i[i], _i[i + 1], _i[i + 2]};
-            auto it = map.insert(std::pair<std::array<K, 3>, K>(node, j));
+            const auto it = map.insert(std::pair<std::array<K, 3>, K>(node, static_cast<K>(j)));
             if (it.second)
             {
                 // No duplicate so copy this node
@@ -224,7 +224,7 @@ class wavefront
         }
 
         // add vertex to list
-        _v.emplace_back(x, y, z, 1.0);
+        _v.emplace_back(x, y, z, 1.0f);
     }
     inline void process_uv(const std::string &line)
     {
@@ -244,7 +244,7 @@ class wavefront
         if (!_invert)
             _uv.emplace_back(u, v);
         else
-            _uv.emplace_back(u, 1.0 - v);
+            _uv.emplace_back(u, 1.0f - v);
     }
     inline void process_normal(const std::string &line)
     {

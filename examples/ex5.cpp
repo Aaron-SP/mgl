@@ -157,7 +157,7 @@ class md5_render_loop_test
         // Add bones matrices to uniform buffer
         for (const auto &bone : _md5_model.get_bones())
         {
-            size_t bone_id = _ubuffer.add_matrix(bone);
+            const size_t bone_id = _ubuffer.add_matrix(bone);
             _bone_id.push_back(bone_id);
         }
 
@@ -233,7 +233,7 @@ class md5_render_loop_test
     void clear_background() const
     {
         // blue background
-        const float color[] = {0.690, 0.875f, 0.901f, 1.0f};
+        const float color[] = {0.690f, 0.875f, 0.901f, 1.0f};
         glClearBufferfv(GL_COLOR, 0, color);
         glClear(GL_DEPTH_BUFFER_BIT);
     }
@@ -241,10 +241,10 @@ class md5_render_loop_test
     {
         return _win.get_shutdown();
     }
-    void draw(const double time_step)
+    void draw(const float time_step)
     {
         // Rotate the model around the Z axis
-        _model_matrix *= min::mat4<float>(min::mat3<float>().set_rotation_y(10.0 * time_step));
+        _model_matrix *= min::mat4<float>(min::mat3<float>().set_rotation_y(10.0f * time_step));
 
         // Update matrix uniforms
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
@@ -365,7 +365,7 @@ int test_render_loop()
     min::loop_sync sync(frames);
 
     // User can close with Q or use window manager
-    double frame_time = 0.0;
+    float frame_time = 0.0;
     while (!test.is_closed())
     {
         for (int i = 0; i < frames; i++)
@@ -386,7 +386,7 @@ int test_render_loop()
             test.window_update();
 
             // Calculate needed delay to hit target
-            frame_time = sync.sync();
+            frame_time = static_cast<float>(sync.sync());
         }
 
         // Calculate the number of 'average' frames per second

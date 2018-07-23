@@ -25,8 +25,8 @@ bool test_uint_sort()
     bool out = true;
 
     // Creator vector N > 128 to sort
-    std::vector<uint64_t> uints(256, 100000000);
-    std::vector<uint64_t> sort_copy;
+    std::vector<size_t> uints(256, 100000000);
+    std::vector<size_t> sort_copy;
     uints[0] = 100000;
     uints[1] = 70000;
     uints[37] = 130000;
@@ -35,18 +35,18 @@ bool test_uint_sort()
     uints[200] = 5000000;
 
     // Test uint radix sort
-    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+    min::uint_sort<size_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
     // Check array is sorted
-    out = out && compare(1, uints[0]);
-    out = out && compare(3, uints[1]);
-    out = out && compare(70000, uints[2]);
-    out = out && compare(100000, uints[3]);
-    out = out && compare(130000, uints[4]);
-    out = out && compare(5000000, uints[5]);
-    out = out && compare(100000000, uints[6]);
+    out = out && compare(1ull, uints[0]);
+    out = out && compare(3ull, uints[1]);
+    out = out && compare(70000ull, uints[2]);
+    out = out && compare(100000ull, uints[3]);
+    out = out && compare(130000ull, uints[4]);
+    out = out && compare(5000000ull, uints[5]);
+    out = out && compare(100000000ull, uints[6]);
     if (!out)
     {
         throw std::runtime_error("Failed uint radix sort");
@@ -59,7 +59,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort ordered
-    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+    min::uint_sort<size_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -80,7 +80,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort reverse
-    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+    min::uint_sort<size_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -101,7 +101,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort same
-    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+    min::uint_sort<size_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 
@@ -128,7 +128,7 @@ bool test_uint_sort()
     }
 
     // Test uint radix sort same
-    min::uint_sort<uint64_t>(uints, sort_copy, [](const size_t a) {
+    min::uint_sort<size_t>(uints, sort_copy, [](const size_t a) {
         return a;
     });
 

@@ -254,7 +254,8 @@ class uniform_buffer
 
         // GLSL likes to use int vs uint in older drivers
         // We must check for overflow
-        if (_lights.size() > std::numeric_limits<int32_t>::max())
+        const size_t max = std::numeric_limits<int32_t>::max();
+        if (_lights.size() > max)
         {
             throw std::runtime_error("uniform_buffer: light integer overflow");
         }
@@ -294,7 +295,8 @@ class uniform_buffer
 
         // GLSL likes to use int vs uint in older drivers
         // We must check for overflow
-        if (_matrix.size() > std::numeric_limits<int32_t>::max())
+        const size_t max = std::numeric_limits<int32_t>::max();
+        if (_matrix.size() > max)
         {
             throw std::runtime_error("uniform_buffer: matrix integer overflow");
         }
@@ -334,7 +336,8 @@ class uniform_buffer
 
         // GLSL likes to use int vs uint in older drivers
         // We must check for overflow
-        if (_vector.size() > std::numeric_limits<int32_t>::max())
+        const size_t max = std::numeric_limits<int32_t>::max();
+        if (_vector.size() > max)
         {
             throw std::runtime_error("uniform_buffer: vector integer overflow");
         }

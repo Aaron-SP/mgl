@@ -58,7 +58,7 @@ class mat2
   public:
     // constructs an identity matrix
     mat2()
-        : _xc(1.0), _ys(0.0), _xs(0.0), _yc(1.0) {}
+        : _xc(1.0f), _ys(0.0f), _xs(0.0f), _yc(1.0f) {}
 
     // convenience constructor for direct loading
     mat2(T xc, T ys, T xs, T yc)
@@ -67,7 +67,7 @@ class mat2
     // constructs an orthogonal 2D rotation matrix around the screen axis
     mat2(const T angle) // Angle in degrees
     {
-        if (angle > 0.0)
+        if (angle > var<T>::TOL_REL)
         {
             T posAngle = deg_to_rad(std::abs(angle));
             T sine = std::sin(posAngle);
@@ -78,7 +78,7 @@ class mat2
             _xs = -sine;
             _yc = cosine;
         }
-        else if (angle < 0.0)
+        else if (angle < var<T>::TOL_REL)
         {
             T negAngle = deg_to_rad(std::abs(angle));
             T sine = std::sin(negAngle);
@@ -90,10 +90,10 @@ class mat2
         }
         else
         {
-            _xc = 1.0;
-            _ys = 0.0;
-            _xs = 0.0;
-            _yc = 1.0;
+            _xc = 1.0f;
+            _ys = 0.0f;
+            _xs = 0.0f;
+            _yc = 1.0f;
         }
     }
     inline mat2<T> &operator*=(const mat2<T> &A)

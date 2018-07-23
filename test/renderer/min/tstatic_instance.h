@@ -127,7 +127,7 @@ class instance_test
         // The objects will be between radius
         float radius = 5.0;
         std::uniform_real_distribution<float> position(-radius, radius);
-        std::uniform_real_distribution<float> offset(0.0, 0.8 * radius);
+        std::uniform_real_distribution<float> offset(0.0, 0.8f * radius);
         // Mersenne Twister: Good quality random number generator
         std::mt19937 rng;
         // Initialize with fixed seed
@@ -151,7 +151,7 @@ class instance_test
             min::vec3<float> t(x, y, 0);
 
             // Create model matrix from translation away from origin
-            min::mat3<float> rot = min::mat3<float>().set_rotation_x(x * 40.0) * min::mat3<float>().set_rotation_y(y * 40.0);
+            min::mat3<float> rot = min::mat3<float>().set_rotation_x(x * 40.0f) * min::mat3<float>().set_rotation_y(y * 40.0f);
             min::mat4<float> model = min::mat4<float>(t, rot);
 
             // Set the model matrix

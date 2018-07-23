@@ -111,15 +111,15 @@ inline T dot(const vec4<T> &v1, const vec4<T> &v2)
 template <typename T>
 inline T inverse(const T x)
 {
-    return 1.0 / x;
+    return 1.0f / x;
 }
 
 template <typename T>
 inline vec3<T> inverse(const vec3<T> &v)
 {
-    const T x = 1.0 / v.x();
-    const T y = 1.0 / v.y();
-    const T z = 1.0 / v.z();
+    const T x = 1.0f / v.x();
+    const T y = 1.0f / v.y();
+    const T z = 1.0f / v.z();
 
     return vec3<T>(x, y, z);
 }
@@ -127,11 +127,11 @@ inline vec3<T> inverse(const vec3<T> &v)
 template <typename T>
 inline vec4<T> inverse(const vec4<T> &v)
 {
-    const T x = 1.0 / v.x();
-    const T y = 1.0 / v.y();
-    const T z = 1.0 / v.z();
+    const T x = 1.0f / v.x();
+    const T y = 1.0f / v.y();
+    const T z = 1.0f / v.z();
 
-    return vec4<T>(x, y, z, 1.0);
+    return vec4<T>(x, y, z, 1.0f);
 }
 
 // AABB
@@ -142,7 +142,7 @@ inline T get_inertia(const aabbox<T, vec2> &box, const T mass)
     const vec3<T> &b = box.get_extent();
 
     // return the local inertia
-    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833;
+    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833f;
 }
 
 template <typename T>
@@ -157,7 +157,7 @@ inline vec3<T> get_inertia(const aabbox<T, vec3> &box, const T mass)
     const T z2 = b.z() * b.z();
 
     // return the local inertia
-    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833f;
 }
 
 template <typename T>
@@ -172,7 +172,7 @@ inline vec4<T> get_inertia(const aabbox<T, vec4> &box, const T mass)
     const T z2 = b.z() * b.z();
 
     // return the local inertia
-    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833f;
 }
 
 // OOBB
@@ -183,7 +183,7 @@ inline T get_inertia(const oobbox<T, vec2> &box, const T mass)
     const vec3<T> &b = box.get_extent();
 
     // return the local inertia
-    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833;
+    return (b.x() * b.x() + b.y() * b.y()) * mass * 0.0833f;
 }
 
 template <typename T>
@@ -198,7 +198,7 @@ inline vec3<T> get_inertia(const oobbox<T, vec3> &box, const T mass)
     const T z2 = b.z() * b.z();
 
     // return the local inertia
-    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833;
+    return vec3<T>(y2 + z2, x2 + z2, x2 + y2) * mass * 0.0833f;
 }
 
 template <typename T>
@@ -213,7 +213,7 @@ inline vec4<T> get_inertia(const oobbox<T, vec4> &box, const T mass)
     const T z2 = b.z() * b.z();
 
     // return the local inertia
-    return vec4<T>(y2 + z2, x2 + z2, x2 + y2, 1.0) * mass * 0.0833;
+    return vec4<T>(y2 + z2, x2 + z2, x2 + y2, 1.0f) * mass * 0.0833f;
 }
 
 // SPHERE
@@ -223,14 +223,14 @@ inline T get_inertia(const sphere<T, vec2> &s, const T mass)
     // Iz = m*r^2/2
 
     // return the local inertia
-    return s.get_square_radius() * mass * 0.25;
+    return s.get_square_radius() * mass * 0.25f;
 }
 
 template <typename T>
 inline vec3<T> get_inertia(const sphere<T, vec3> &s, const T mass)
 {
-    // Ixyz = (2.0/5.0)*m*r^2
-    T inertia = s.get_square_radius() * mass * 0.4;
+    // Ixyz = (2.0f/5.0f)*m*r^2
+    T inertia = s.get_square_radius() * mass * 0.4f;
 
     // return the local inertia
     return vec3<T>().set_all(inertia);
@@ -239,8 +239,8 @@ inline vec3<T> get_inertia(const sphere<T, vec3> &s, const T mass)
 template <typename T>
 inline vec4<T> get_inertia(const sphere<T, vec4> &s, const T mass)
 {
-    // Ixyz = (2.0/5.0)*m*r^2
-    T inertia = s.get_square_radius() * mass * 0.4;
+    // Ixyz = (2.0f/5.0f)*m*r^2
+    T inertia = s.get_square_radius() * mass * 0.4f;
 
     // return the local inertia
     return vec4<T>().set_all(inertia);

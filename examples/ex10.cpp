@@ -372,7 +372,7 @@ void generate_poisson_disk()
 
     // Random numbers between -1.0, and 1.0
     std::uniform_real_distribution<float> dist(-1.0, 1.0);
-    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    std::mt19937 gen(static_cast<uint_fast32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
 
     // Add first point to vector
     points.emplace_back(dist(gen), dist(gen));

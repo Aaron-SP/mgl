@@ -50,8 +50,8 @@ class vec4
     }
 
   public:
-    vec4() : _x(0.0), _y(0.0), _z(0.0), _w(1.0) { float_assert(); }
-    vec4(const vec3<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()), _w(1.0) { float_assert(); }
+    vec4() : _x(0.0f), _y(0.0f), _z(0.0f), _w(1.0f) { float_assert(); }
+    vec4(const vec3<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()), _w(1.0f) { float_assert(); }
     vec4(const vec3<T> &v, T w) : _x(v.x()), _y(v.y()), _z(v.z()), _w(w) { float_assert(); }
     vec4(const T x, const T y, const T z, const T w) : _x(x), _y(y), _z(z), _w(w) { float_assert(); }
     inline T x() const
@@ -91,7 +91,7 @@ class vec4
         _x = v;
         _y = v;
         _z = v;
-        _w = 1.0;
+        _w = 1.0f;
 
         return *this;
     }
@@ -131,7 +131,7 @@ class vec4
     }
     inline constexpr static coord_sys<T, min::vec4> axes()
     {
-        return coord_sys<T, min::vec4>(vec4<T>(1.0, 0.0, 0.0, 1.0), vec4<T>(0.0, 1.0, 0.0, 1.0), vec4<T>(0.0, 0.0, 1.0, 1.0));
+        return coord_sys<T, min::vec4>(vec4<T>(1.0f, 0.0f, 0.0f, 1.0f), vec4<T>(0.0f, 1.0f, 0.0f, 1.0f), vec4<T>(0.0f, 0.0f, 1.0f, 1.0f));
     }
     inline vec4<T> &clamp(const vec4<T> &min, const vec4<T> &max)
     {
@@ -147,26 +147,26 @@ class vec4
         T y = min::clamp_direction(_y, min.y(), max.y());
         T z = min::clamp_direction(_z, min.z(), max.z());
 
-        return vec4<T>(x, y, z, 1.0);
+        return vec4<T>(x, y, z, 1.0f);
     }
     inline vec4 cross(const vec4<T> &A) const
     {
         T x = _y * A.z() - _z * A.y();
         T y = _z * A.x() - _x * A.z();
         T z = _x * A.y() - _y * A.x();
-        return vec4<T>(x, y, z, 1.0);
+        return vec4<T>(x, y, z, 1.0f);
     }
     inline vec4<T> cross_x() const
     {
-        return vec4<T>(0, _z, -_y, 1.0);
+        return vec4<T>(0, _z, -_y, 1.0f);
     }
     inline vec4<T> cross_y() const
     {
-        return vec4<T>(-_z, 0, _x, 1.0);
+        return vec4<T>(-_z, 0, _x, 1.0f);
     }
     inline vec4<T> cross_z() const
     {
-        return vec4<T>(_y, -_x, 0, 1.0);
+        return vec4<T>(_y, -_x, 0, 1.0f);
     }
     inline T dot(const vec4<T> &A) const
     {
@@ -240,7 +240,7 @@ class vec4
 
         // Calculate the grid dimensions
         const vec4<T> extent = (max - min) / scale;
-        const vec4<T> half_extent = extent * 0.5;
+        const vec4<T> half_extent = extent * 0.5f;
         const T dx = extent.x();
         const T dy = extent.y();
         const T dz = extent.z();
@@ -277,9 +277,9 @@ class vec4
         const T ey = extent.y();
         const T ez = extent.z();
 
-        const size_t col = (point.x() - min.x()) / ex;
-        const size_t row = (point.y() - min.y()) / ey;
-        const size_t zin = (point.z() - min.z()) / ez;
+        const size_t col = static_cast<size_t>((point.x() - min.x()) / ex);
+        const size_t row = static_cast<size_t>((point.y() - min.y()) / ey);
+        const size_t zin = static_cast<size_t>((point.z() - min.z()) / ez);
 
         // Return the row / col of cell
         return min::tri<size_t>(col, row, zin);
@@ -335,7 +335,7 @@ class vec4
         const T dz = extent.z();
 
         // Calculate the center cell
-        const vec4<T> center = (b_min + b_max) * 0.5;
+        const vec4<T> center = (b_min + b_max) * 0.5f;
 
         // Center cell indices
         const min::tri<size_t> index = vec4<T>::grid_index(min, extent, center);
@@ -494,7 +494,7 @@ class vec4
         if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.x() < 0.0)
+            if (dir.x() < 0.0f)
             {
                 drx = -1;
                 tx = (x - minx) * std::abs(inv_dir.x());
@@ -521,7 +521,7 @@ class vec4
         if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.y() < 0.0)
+            if (dir.y() < 0.0f)
             {
                 dry = -1;
                 ty = (y - miny) * std::abs(inv_dir.y());
@@ -548,7 +548,7 @@ class vec4
         if (std::abs(dir.z()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.z() < 0.0)
+            if (dir.z() < 0.0f)
             {
                 drz = -1;
                 tz = (z - minz) * std::abs(inv_dir.z());
@@ -681,7 +681,7 @@ class vec4
             }
 
             // Return the greatest extents
-            return std::make_pair(vec4<T>(minx, miny, minz, 1.0), vec4<T>(maxx, maxy, maxz, 1.0));
+            return std::make_pair(vec4<T>(minx, miny, minz, 1.0f), vec4<T>(maxx, maxy, maxz, 1.0f));
         }
 
         return std::make_pair(vec4<T>(), vec4<T>());
@@ -698,7 +698,7 @@ class vec4
         const T z = safe_inverse<T>(_z);
 
         // return inverse
-        return vec4<T>(x, y, z, 1.0);
+        return vec4<T>(x, y, z, 1.0f);
     }
     inline static vec4<T> lerp(const vec4<T> &v0, const vec4<T> &v1, T t)
     {
@@ -784,25 +784,25 @@ class vec4
     inline vec4<T> &normalize()
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
             _z *= inv_mag;
         }
         else
         {
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
+            _x = 0.0f;
+            _y = 0.0f;
+            _z = 0.0f;
         }
 
         return *this;
     }
     inline vec4<T> &normalize_unsafe()
     {
-        const T inv_mag = 1.0 / magnitude();
+        const T inv_mag = 1.0f / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;
         _z *= inv_mag;
@@ -812,9 +812,9 @@ class vec4
     inline vec4<T> &normalize_safe(const vec4<T> &safe)
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            const T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
             _z *= inv_mag;
@@ -938,7 +938,7 @@ class vec4
 
         // Bring translation into A1's coordinate frame
         const vec4<T> d = center2 - center1;
-        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0);
+        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0f);
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
         T dL1 = extent1.x();
@@ -1066,7 +1066,7 @@ class vec4
 
         // Bring translation into A1's coordinate frame
         const vec4<T> d = center2 - center1;
-        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0);
+        const vec4<T> t = vec4<T>(d.dot(axis1.x()), d.dot(axis1.y()), d.dot(axis1.z()), 1.0f);
 
         // Store axis and penetration depths
         vec4<T> axes[15];
@@ -1164,7 +1164,7 @@ class vec4
 
         // normal default up vector return and zero penetration
         vec4<T> normal = vec4<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         // Find the minimum, non-zero penetration index
         T min = std::numeric_limits<T>::max();
@@ -1204,21 +1204,21 @@ class vec4
         // 3 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        const T abs_x1x2 = 1.0 + tolerance;
+        const T abs_x1x2 = 1.0f + tolerance;
         const T abs_x1y2 = tolerance;
         const T abs_x1z2 = tolerance;
         const T abs_y1x2 = tolerance;
-        const T abs_y1y2 = 1.0 + tolerance;
+        const T abs_y1y2 = 1.0f + tolerance;
         const T abs_y1z2 = tolerance;
         const T abs_z1x2 = tolerance;
         const T abs_z1y2 = tolerance;
-        const T abs_z1z2 = 1.0 + tolerance;
+        const T abs_z1z2 = 1.0f + tolerance;
 
         // Bring translation into A1's coordinate frame
         const vec4<T> t = vec4<T>(center2 - center1);
 
         // Store axis and penetration depths
-        const vec4<T> axes[3] = {vec4<T>(1.0, 0.0, 0.0, 1.0), vec4<T>(0.0, 1.0, 0.0, 1.0), vec4<T>(0.0, 0.0, 1.0, 1.0)};
+        const vec4<T> axes[3] = {vec4<T>(1.0f, 0.0f, 0.0f, 1.0f), vec4<T>(0.0f, 1.0f, 0.0f, 1.0f), vec4<T>(0.0f, 0.0f, 1.0f, 1.0f)};
         T penetration[6];
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
@@ -1253,7 +1253,7 @@ class vec4
 
         // normal default up vector return and zero penetration
         vec4<T> normal = vec4<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         // Find the minimum, non-zero penetration index
         T min = std::numeric_limits<T>::max();
@@ -1298,12 +1298,12 @@ class vec4
     // /-----/-----/
     inline static vec4<T> ratio(const vec4<T> &min, const vec4<T> &max, const vec4<T> &point)
     {
-        // Calculates the ratio of the point between min and max [0.0, 1.0]
+        // Calculates the ratio of the point between min and max [0.0f, 1.0f]
         const T xr = (point.x() - min.x()) / (max.x() - min.x());
         const T yr = (point.y() - min.y()) / (max.y() - min.y());
         const T zr = (point.z() - min.z()) / (max.z() - min.z());
 
-        return vec4<T>(xr, yr, zr, 1.0);
+        return vec4<T>(xr, yr, zr, 1.0f);
     }
     inline vec4<T> sign() const
     {
@@ -1312,7 +1312,7 @@ class vec4
         const T y = sgn<T>(_y);
         const T z = sgn<T>(_z);
 
-        return vec4<T>(x, y, z, 1.0);
+        return vec4<T>(x, y, z, 1.0f);
     }
     inline uint_fast8_t subdivide_key(const T middle)
     {
@@ -1392,39 +1392,39 @@ class vec4
         out.reserve(out.size() + vec4<T>::sub_size());
 
         // Center of the vector space
-        const vec4<T> c = (max + min) * 0.5;
+        const vec4<T> c = (max + min) * 0.5f;
 
         // Octant 0
-        const vec4<T> min0 = vec4<T>(min.x(), min.y(), min.z(), 1.0);
-        const vec4<T> max0 = vec4<T>(c.x(), c.y(), c.z(), 1.0);
+        const vec4<T> min0 = vec4<T>(min.x(), min.y(), min.z(), 1.0f);
+        const vec4<T> max0 = vec4<T>(c.x(), c.y(), c.z(), 1.0f);
 
         // Octant 1
-        const vec4<T> min1 = vec4<T>(min.x(), min.y(), c.z(), 1.0);
-        const vec4<T> max1 = vec4<T>(c.x(), c.y(), max.z(), 1.0);
+        const vec4<T> min1 = vec4<T>(min.x(), min.y(), c.z(), 1.0f);
+        const vec4<T> max1 = vec4<T>(c.x(), c.y(), max.z(), 1.0f);
 
         // Octant 2
-        const vec4<T> min2 = vec4<T>(min.x(), c.y(), min.z(), 1.0);
-        const vec4<T> max2 = vec4<T>(c.x(), max.y(), c.z(), 1.0);
+        const vec4<T> min2 = vec4<T>(min.x(), c.y(), min.z(), 1.0f);
+        const vec4<T> max2 = vec4<T>(c.x(), max.y(), c.z(), 1.0f);
 
         // Octant 3
-        const vec4<T> min3 = vec4<T>(min.x(), c.y(), c.z(), 1.0);
-        const vec4<T> max3 = vec4<T>(c.x(), max.y(), max.z(), 1.0);
+        const vec4<T> min3 = vec4<T>(min.x(), c.y(), c.z(), 1.0f);
+        const vec4<T> max3 = vec4<T>(c.x(), max.y(), max.z(), 1.0f);
 
         // Octant 4
-        const vec4<T> min4 = vec4<T>(c.x(), min.y(), min.z(), 1.0);
-        const vec4<T> max4 = vec4<T>(max.x(), c.y(), c.z(), 1.0);
+        const vec4<T> min4 = vec4<T>(c.x(), min.y(), min.z(), 1.0f);
+        const vec4<T> max4 = vec4<T>(max.x(), c.y(), c.z(), 1.0f);
 
         // Octant 5
-        const vec4<T> min5 = vec4<T>(c.x(), min.y(), c.z(), 1.0);
-        const vec4<T> max5 = vec4<T>(max.x(), c.y(), max.z(), 1.0);
+        const vec4<T> min5 = vec4<T>(c.x(), min.y(), c.z(), 1.0f);
+        const vec4<T> max5 = vec4<T>(max.x(), c.y(), max.z(), 1.0f);
 
         // Octant 6
-        const vec4<T> min6 = vec4<T>(c.x(), c.y(), min.z(), 1.0);
-        const vec4<T> max6 = vec4<T>(max.x(), max.y(), c.z(), 1.0);
+        const vec4<T> min6 = vec4<T>(c.x(), c.y(), min.z(), 1.0f);
+        const vec4<T> max6 = vec4<T>(max.x(), max.y(), c.z(), 1.0f);
 
         // Octant 7
-        const vec4<T> min7 = vec4<T>(c.x(), c.y(), c.z(), 1.0);
-        const vec4<T> max7 = vec4<T>(max.x(), max.y(), max.z(), 1.0);
+        const vec4<T> min7 = vec4<T>(c.x(), c.y(), c.z(), 1.0f);
+        const vec4<T> max7 = vec4<T>(max.x(), max.y(), max.z(), 1.0f);
 
         // Add sub spaces to out vector
         out.emplace_back(min0, max0);
@@ -1444,10 +1444,10 @@ class vec4
         out.reserve(out.size() + vec4<T>::sub_size());
 
         // Quarter extent of vector space
-        const vec4<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
+        const vec4<T> h = ((max - min) * 0.25f) + var<T>::TOL_REL;
 
         // Center of the vector space
-        const vec4<T> c = (max + min) * 0.5;
+        const vec4<T> c = (max + min) * 0.5f;
 
         // Positions
         const T cx_hx = c.x() - h.x();
@@ -1459,28 +1459,28 @@ class vec4
         const T czhz = c.z() + h.z();
 
         // Octant 0
-        const vec4<T> c0 = vec4<T>(cx_hx, cy_hy, cz_hz, 1.0);
+        const vec4<T> c0 = vec4<T>(cx_hx, cy_hy, cz_hz, 1.0f);
 
         // Octant 1
-        const vec4<T> c1 = vec4<T>(cx_hx, cy_hy, czhz, 1.0);
+        const vec4<T> c1 = vec4<T>(cx_hx, cy_hy, czhz, 1.0f);
 
         // Octant 2
-        const vec4<T> c2 = vec4<T>(cx_hx, cyhy, cz_hz, 1.0);
+        const vec4<T> c2 = vec4<T>(cx_hx, cyhy, cz_hz, 1.0f);
 
         // Octant 3
-        const vec4<T> c3 = vec4<T>(cx_hx, cyhy, czhz, 1.0);
+        const vec4<T> c3 = vec4<T>(cx_hx, cyhy, czhz, 1.0f);
 
         // Octant 4
-        const vec4<T> c4 = vec4<T>(cxhx, cy_hy, cz_hz, 1.0);
+        const vec4<T> c4 = vec4<T>(cxhx, cy_hy, cz_hz, 1.0f);
 
         // Octant 5
-        const vec4<T> c5 = vec4<T>(cxhx, cy_hy, czhz, 1.0);
+        const vec4<T> c5 = vec4<T>(cxhx, cy_hy, czhz, 1.0f);
 
         // Octant 6
-        const vec4<T> c6 = vec4<T>(cxhx, cyhy, cz_hz, 1.0);
+        const vec4<T> c6 = vec4<T>(cxhx, cyhy, cz_hz, 1.0f);
 
         // Octant 7
-        const vec4<T> c7 = vec4<T>(cxhx, cyhy, czhz, 1.0);
+        const vec4<T> c7 = vec4<T>(cxhx, cyhy, czhz, 1.0f);
 
         // Calculate the square distance between center and extent
         const T radius2 = h.dot(h);
@@ -1518,7 +1518,7 @@ class vec4
         }
 
         // Center of the vector space
-        const vec4<T> center = (max + min) * 0.5;
+        const vec4<T> center = (max + min) * 0.5f;
 
         // Calculate ray intersections among all axes
         const vec4<T> t = (center - origin) * inv_dir;
@@ -1526,7 +1526,7 @@ class vec4
         // YZ intersection types
         const T pyz_y = origin.y() + (t.x() * dir.y());
         const T pyz_z = origin.z() + (t.x() * dir.z());
-        const bool yz_front = t.x() >= 0.0;
+        const bool yz_front = t.x() >= 0.0f;
         const bool ymin_zmin_out = yz_front && (pyz_y < center.y()) && (pyz_z < center.z());
         const bool ymax_zmin_out = yz_front && (pyz_y >= center.y()) && (pyz_z < center.z());
         const bool ymin_zmax_out = yz_front && (pyz_y < center.y()) && (pyz_z >= center.z());
@@ -1539,7 +1539,7 @@ class vec4
         // XZ intersection types
         const T pxz_x = origin.x() + (t.y() * dir.x());
         const T pxz_z = origin.z() + (t.y() * dir.z());
-        const bool xz_front = t.y() >= 0.0;
+        const bool xz_front = t.y() >= 0.0f;
         const bool xmin_zmin_out = xz_front && (pxz_x < center.x()) && (pxz_z < center.z());
         const bool xmax_zmin_out = xz_front && (pxz_x >= center.x()) && (pxz_z < center.z());
         const bool xmin_zmax_out = xz_front && (pxz_x < center.x()) && (pxz_z >= center.z());
@@ -1552,7 +1552,7 @@ class vec4
         // XY intersection types
         const T pxy_x = origin.x() + (t.z() * dir.x());
         const T pxy_y = origin.y() + (t.z() * dir.y());
-        const bool xy_front = t.z() >= 0.0;
+        const bool xy_front = t.z() >= 0.0f;
         const bool xmin_ymin_out = xy_front && (pxy_x < center.x()) && (pxy_y < center.y());
         const bool xmax_ymin_out = xy_front && (pxy_x >= center.x()) && (pxy_y < center.y());
         const bool xmin_ymax_out = xy_front && (pxy_x < center.x()) && (pxy_y >= center.y());
@@ -1601,7 +1601,7 @@ class vec4
                 const T tmax = far.min();
 
                 // If tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
-                if (tmax >= tmin && tmin >= 0.0)
+                if (tmax >= tmin && tmin >= 0.0f)
                 {
                     // Find the octant the the origin is in
                     const vec4<T> point = (origin + (dir * tmin));
@@ -1630,7 +1630,7 @@ class vec4
         {
             if (ymin_zmin_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymin_zmin)
                     {
@@ -1683,7 +1683,7 @@ class vec4
             }
             else if (ymax_zmin_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymax_zmin)
                     {
@@ -1736,7 +1736,7 @@ class vec4
             }
             else if (ymin_zmax_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymin_zmax)
                     {
@@ -1789,7 +1789,7 @@ class vec4
             }
             else if (ymax_zmax_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymax_zmax)
                     {
@@ -1845,7 +1845,7 @@ class vec4
         {
             if (xmin_zmin_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmin_zmin)
                     {
@@ -1898,7 +1898,7 @@ class vec4
             }
             else if (xmax_zmin_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmax_zmin)
                     {
@@ -1951,7 +1951,7 @@ class vec4
             }
             else if (xmin_zmax_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmin_zmax)
                     {
@@ -2004,7 +2004,7 @@ class vec4
             }
             else if (xmax_zmax_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmax_zmax)
                     {
@@ -2060,7 +2060,7 @@ class vec4
         {
             if (xmin_ymin_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmin_ymin)
                     {
@@ -2113,7 +2113,7 @@ class vec4
             }
             else if (xmax_ymin_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmax_ymin)
                     {
@@ -2166,7 +2166,7 @@ class vec4
             }
             else if (xmin_ymax_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmin_ymax)
                     {
@@ -2219,7 +2219,7 @@ class vec4
             }
             else if (xmax_ymax_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmax_ymax)
                     {
@@ -2273,42 +2273,42 @@ class vec4
         }
         else
         {
-            if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
+            if (dir.x() <= 0.0f && dir.y() <= 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {7, 6, 3, 2, 5, 4, 1, 0};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0f && dir.y() <= 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {6, 2, 7, 3, 4, 0, 5, 1};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
+            else if (dir.x() <= 0.0f && dir.y() > 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {5, 4, 1, 0, 7, 6, 3, 2};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0f && dir.y() > 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {4, 0, 5, 1, 6, 2, 7, 3};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
+            else if (dir.x() > 0.0f && dir.y() <= 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {3, 7, 2, 6, 1, 5, 0, 4};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
+            else if (dir.x() > 0.0f && dir.y() <= 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {2, 3, 6, 7, 0, 1, 4, 5};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
+            else if (dir.x() > 0.0f && dir.y() > 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {1, 5, 0, 4, 3, 7, 2, 6};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            else if (dir.x() > 0.0f && dir.y() > 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec4<T>::sub_size()] = {0, 1, 4, 5, 2, 3, 6, 7};
                 out = temp;
@@ -2460,7 +2460,7 @@ class vec4
     }
     inline constexpr static vec4<T> up()
     {
-        return vec4<T>(0.0, 1.0, 0.0, 1.0);
+        return vec4<T>(0.0f, 1.0f, 0.0f, 1.0f);
     }
     inline bool within(const vec4<T> &min, const vec4<T> &max) const
     {

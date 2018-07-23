@@ -46,7 +46,7 @@ class height_map
 
         // Create a copy of the image to populate map edges
         min::static_vector<T> copy(_map.size());
-        copy.fill(0.0);
+        copy.fill(0.0f);
 
         // X Dimensional blur
         {
@@ -101,7 +101,7 @@ class height_map
                 for (size_t j = 0; j < 2; j++)
                 {
                     // Reset the map value
-                    _map[key(i, j)] = 0.0;
+                    _map[key(i, j)] = 0.0f;
 
                     // Summing convolution
                     for (size_t k = 0; k < 5; k++)
@@ -116,7 +116,7 @@ class height_map
                     const size_t j4 = j - 4;
 
                     // Reset the map value
-                    _map[key(i, j)] = 0.0;
+                    _map[key(i, j)] = 0.0f;
 
                     // Summing convolution
                     for (size_t k = 0; k < 5; k++)
@@ -135,7 +135,7 @@ class height_map
                     const size_t j2 = j - 2;
 
                     // Reset the map value
-                    _map[key(i, j)] = 0.0;
+                    _map[key(i, j)] = 0.0f;
 
                     // Summing convolution
                     for (size_t k = 0; k < 5; k++)
@@ -188,7 +188,7 @@ class height_map
 
         // Generate average value at center
         const size_t center = key(x, y);
-        _map[center] = _dist(gen) + (_map[ll] + _map[ul] + _map[lr] + _map[ur]) / 4.0;
+        _map[center] = _dist(gen) + (_map[ll] + _map[ul] + _map[lr] + _map[ur]) / 4.0f;
 
         // Generate square keys
         const size_t l = key(nx, y);
@@ -197,10 +197,10 @@ class height_map
         const size_t u = key(x, py);
 
         // Generate random values at corners
-        _map[l] = _dist(gen) + (_map[ll] + _map[ul] + _map[center]) / 3.0;
-        _map[r] = _dist(gen) + (_map[lr] + _map[ur] + _map[center]) / 3.0;
-        _map[d] = _dist(gen) + (_map[ll] + _map[lr] + _map[center]) / 3.0;
-        _map[u] = _dist(gen) + (_map[ul] + _map[ur] + _map[center]) / 3.0;
+        _map[l] = _dist(gen) + (_map[ll] + _map[ul] + _map[center]) / 3.0f;
+        _map[r] = _dist(gen) + (_map[lr] + _map[ur] + _map[center]) / 3.0f;
+        _map[d] = _dist(gen) + (_map[ll] + _map[lr] + _map[center]) / 3.0f;
+        _map[u] = _dist(gen) + (_map[ul] + _map[ur] + _map[center]) / 3.0f;
 
         // Recursively call this function
         const size_t half = length / 2;

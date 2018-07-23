@@ -117,7 +117,7 @@ class particle_test
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
           _ebuffer(min::vec3<float>(), 1000, 50, 0.1, 0.1, 10.0),
-          _gen(std::chrono::high_resolution_clock::now().time_since_epoch().count()),
+          _gen(static_cast<uint_fast32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count())),
           _ubuffer(0, 1, 0),
           _force_type(0)
     {
@@ -269,7 +269,8 @@ int test_render_loop()
             test.window_update();
 
             // Update the particles
-            test.step(sync.sync());
+            const float dt = static_cast<float>(sync.sync());
+            test.step(dt);
         }
 
         // Calculate the number of 'average' frames per second

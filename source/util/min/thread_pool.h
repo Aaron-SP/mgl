@@ -62,7 +62,7 @@ class thread
   public:
     thread()
         : _sleep(true), _state(false),
-          _gen(std::chrono::high_resolution_clock::now().time_since_epoch().count()) {}
+          _gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count())) {}
 
     inline std::thread &get_thread()
     {
@@ -229,7 +229,7 @@ class thread_pool
   public:
     thread_pool() : _thread_count(std::thread::hardware_concurrency()),
                     _threads(_thread_count - 1), _die(false), _turbo(false),
-                    _gen(std::chrono::high_resolution_clock::now().time_since_epoch().count())
+                    _gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()))
     {
         // Error out if can't determine core count
         if (_thread_count < 1)

@@ -213,17 +213,21 @@ class text_buffer
             char_data &c = _chars[i];
 
             // the horizontal distance (in 1/64th pixels) from the origin to the origin of the next glyph.
-            c.adv_x = glyph_slot->advance.x >> 6;
-            c.adv_y = glyph_slot->advance.y >> 6;
+            c.adv_x = static_cast<float>(glyph_slot->advance.x >> 6);
+            c.adv_y = static_cast<float>(glyph_slot->advance.y >> 6);
 
             // image dimensions and bitmap buffer
-            c.width = glyph_slot->bitmap.width;
-            c.height = glyph_slot->bitmap.rows;
-            c.left = glyph_slot->bitmap_left;
-            c.top = glyph_slot->bitmap_top;
+            c.width = static_cast<float>(glyph_slot->bitmap.width);
+            c.height = static_cast<float>(glyph_slot->bitmap.rows);
+            c.left = static_cast<float>(glyph_slot->bitmap_left);
+            c.top = static_cast<float>(glyph_slot->bitmap_top);
+
+            // Cast float to unsigned int
+            const unsigned char_w = static_cast<unsigned>(c.width);
+            const unsigned char_h = static_cast<unsigned>(c.height);
 
             // Create a new row if we exceed 1024 pixels in X
-            if (accumw + c.width + 1 >= 1024)
+            if (accumw + char_w + 1 >= 1024)
             {
                 // Calculate the width and height for this row, width transcends all rows
                 _w = std::max(_w, accumw);
@@ -235,8 +239,8 @@ class text_buffer
             }
 
             // Accumulate width and max height
-            accumw += c.width + 1;
-            maxh = std::max(maxh, (unsigned)c.height);
+            accumw += char_w + 1;
+            maxh = std::max(maxh, char_h);
         }
 
         // Record the width of the image
@@ -276,16 +280,20 @@ class text_buffer
                 maxh = 0;
             }
 
+            // Cast float to unsigned int
+            const unsigned char_w = static_cast<unsigned>(c.width);
+            const unsigned char_h = static_cast<unsigned>(c.height);
+
             // Upload part of the image to the opengl texture
-            glTexSubImage2D(GL_TEXTURE_2D, 0, offset_w, offset_h, c.width, c.height, GL_RED, GL_UNSIGNED_BYTE, glyph_slot->bitmap.buffer);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, offset_w, offset_h, char_w, char_h, GL_RED, GL_UNSIGNED_BYTE, glyph_slot->bitmap.buffer);
 
             // calculate the offset in texture coordinates
-            c.offset_x = offset_w / (float)_w;
-            c.offset_y = offset_h / (float)_h;
+            c.offset_x = offset_w / static_cast<float>(_w);
+            c.offset_y = offset_h / static_cast<float>(_h);
 
             // increment the total width of the image
-            offset_w += c.width + 1;
-            maxh = std::max(maxh, (unsigned)c.height);
+            offset_w += char_w + 1;
+            maxh = std::max(maxh, char_h);
         }
     }
     inline void create_texture_atlas(const FT_Face &face)
@@ -347,8 +355,8 @@ class text_buffer
     inline void process_text(const text &t) const
     {
         // Create conversion to screen coordinates using screen size
-        const float scale_x = 2.0 / _screen_x;
-        const float scale_y = 2.0 / _screen_y;
+        const float scale_x = 2.0f / _screen_x;
+        const float scale_y = 2.0f / _screen_y;
 
         // Get the location of the text
         const vec2<float> &p = t.location();
@@ -414,8 +422,8 @@ class text_buffer
     inline vec2<float> to_screen_coords(const float x, const float y) const
     {
         // Convert x & y to screen coordinates
-        const float sx = (2.0 / _screen_x) * x - 1.0;
-        const float sy = (2.0 / _screen_y) * y - 1.0;
+        const float sx = (2.0f / _screen_x) * x - 1.0f;
+        const float sy = (2.0f / _screen_y) * y - 1.0f;
 
         // Return the screen coordinates
         return vec2<float>(sx, sy);
@@ -424,8 +432,8 @@ class text_buffer
     inline vec2<float> to_pixel_coords(const vec2<float> &p) const
     {
         // Convert x & y to pixel coordinates
-        const float px = (p.x() + 1.0) * (_screen_x / 2);
-        const float py = (p.y() + 1.0) * (_screen_y / 2);
+        const float px = (p.x() + 1.0f) * (_screen_x / 2);
+        const float py = (p.y() + 1.0f) * (_screen_y / 2);
 
         // Return the screen coordinates
         return vec2<float>(px, py);
@@ -454,7 +462,7 @@ class text_buffer
 
   public:
     text_buffer(const std::string &file, const int font_height, const size_t size = 1)
-        : _w(0), _h(0), _vbo(size), _char_count(0), _screen_x(0.0), _screen_y(0.0)
+        : _w(0), _h(0), _vbo(size), _char_count(0), _screen_x(0), _screen_y(0)
     {
         // Check that all needed extensions are present
         check_extensions();

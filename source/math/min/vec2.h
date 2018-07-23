@@ -49,7 +49,7 @@ class vec2
     }
 
   public:
-    vec2() : _x(0.0), _y(0.0) { float_assert(); }
+    vec2() : _x(0.0f), _y(0.0f) { float_assert(); }
     vec2(const T x, const T y) : _x(x), _y(y) { float_assert(); }
     inline T x() const
     {
@@ -99,7 +99,7 @@ class vec2
     }
     inline constexpr static coord_sys<T, min::vec2> axes()
     {
-        return coord_sys<T, min::vec2>(vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0));
+        return coord_sys<T, min::vec2>(vec2<T>(1.0f, 0.0f), vec2<T>(0.0f, 1.0f));
     }
     inline vec2<T> &clamp(const vec2<T> &min, const vec2<T> &max)
     {
@@ -164,7 +164,7 @@ class vec2
 
         // Calculate the grid dimensions
         const vec2<T> size = max - min;
-        const vec2<T> extent = size / scale;
+        const vec2<T> extent = size / static_cast<T>(scale);
         const T dx = extent.x();
         const T dy = extent.y();
 
@@ -194,8 +194,8 @@ class vec2
         out.reserve(out.size() + scale * scale);
 
         // Calculate the grid dimensions
-        const vec2<T> extent = (max - min) / scale;
-        const vec2<T> half_extent = extent * 0.5;
+        const vec2<T> extent = (max - min) / static_cast<T>(scale);
+        const vec2<T> half_extent = extent * 0.5f;
         const T dx = extent.x();
         const T dy = extent.y();
 
@@ -224,8 +224,8 @@ class vec2
         const T ey = extent.y();
 
         // Get the row / col of cell
-        const size_t col = (point.x() - min.x()) / ex;
-        const size_t row = (point.y() - min.y()) / ey;
+        const size_t col = static_cast<size_t>((point.x() - min.x()) / ex);
+        const size_t row = static_cast<size_t>((point.y() - min.y()) / ey);
 
         // Return the row / col of cell
         return min::bi<size_t>(col, row);
@@ -272,7 +272,7 @@ class vec2
         const T dy = extent.y();
 
         // Calculate the center cell
-        const vec2<T> center = (b_min + b_max) * 0.5;
+        const vec2<T> center = (b_min + b_max) * 0.5f;
 
         // Center cell indices
         const min::bi<size_t> index = vec2<T>::grid_index(min, extent, center);
@@ -355,7 +355,7 @@ class vec2
         if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.x() < 0.0)
+            if (dir.x() < 0.0f)
             {
                 drx = -1;
                 tx = (x - minx) * std::abs(inv_dir.x());
@@ -382,7 +382,7 @@ class vec2
         if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.y() < 0.0)
+            if (dir.y() < 0.0f)
             {
                 dry = -1;
                 ty = (y - miny) * std::abs(inv_dir.y());
@@ -557,23 +557,23 @@ class vec2
     inline vec2<T> &normalize()
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
         }
         else
         {
-            _x = 0.0;
-            _y = 0.0;
+            _x = 0.0f;
+            _y = 0.0f;
         }
 
         return *this;
     }
     inline vec2<T> &normalize_unsafe()
     {
-        const T inv_mag = 1.0 / magnitude();
+        const T inv_mag = 1.0f / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;
 
@@ -582,9 +582,9 @@ class vec2
     inline vec2<T> &normalize_safe(const vec2<T> &safe)
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            const T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
         }
@@ -754,7 +754,7 @@ class vec2
 
         // normal default up vector return and zero penetration
         vec2<T> normal = vec2<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         // Find the minimum, non-zero penetration index
         T min = std::numeric_limits<T>::max();
@@ -801,12 +801,12 @@ class vec2
         const vec2<T> dL = (extent1 + extent2 + tolerance) - t;
 
         // Store axis and penetration depths
-        const vec2<T> axes[2] = {vec2<T>(1.0, 0.0), vec2<T>(0.0, 1.0)};
+        const vec2<T> axes[2] = {vec2<T>(1.0f, 0.0f), vec2<T>(0.0f, 1.0f)};
         const T penetration[2] = {dL.x(), dL.y()};
 
         // normal default up vector return and zero penetration
         vec2<T> normal = vec2<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         T min = std::numeric_limits<T>::max();
         int index = -1;
@@ -862,8 +862,8 @@ class vec2
     inline vec2<T> sign() const
     {
         // Get the sign of the vector
-        const T x = sgn<T>(_x);
-        const T y = sgn<T>(_y);
+        const T x = static_cast<T>(sgn<T>(_x));
+        const T y = static_cast<T>(sgn<T>(_y));
 
         return vec2<T>(x, y);
     }
@@ -926,7 +926,7 @@ class vec2
         out.reserve(out.size() + vec2<T>::sub_size());
 
         // Center of the vector space
-        const vec2<T> c = (max + min) * 0.5;
+        const vec2<T> c = (max + min) * 0.5f;
 
         // Octant 0
         const vec2<T> min0 = vec2<T>(min.x(), min.y());
@@ -961,7 +961,7 @@ class vec2
         const vec2<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
 
         // Center of the vector space
-        const vec2<T> c = (max + min) * 0.5;
+        const vec2<T> c = (max + min) * 0.5f;
 
         // Positions
         const T cx_hx = c.x() - h.x();
@@ -1013,13 +1013,13 @@ class vec2
         }
 
         // Center of the vector space
-        const vec2<T> center = (max + min) * 0.5;
+        const vec2<T> center = (max + min) * 0.5f;
 
         // Calculate ray intersections among all axes
         const vec2<T> t = (center - origin) * inv_dir;
 
         // X intersection types
-        const bool x_front = t.y() >= 0.0;
+        const bool x_front = t.y() >= 0.0f;
         const T px = origin.x() + (t.y() * dir.x());
         const bool xmin_out = x_front && (px < center.x());
         const bool xmax_out = x_front && (px >= center.x());
@@ -1027,7 +1027,7 @@ class vec2
         const bool xmax = px <= max.x();
 
         // Y intersection types
-        const bool y_front = t.x() >= 0.0;
+        const bool y_front = t.x() >= 0.0f;
         const T py = origin.y() + (t.x() * dir.y());
         const bool ymin_out = y_front && (py < center.y());
         const bool ymax_out = y_front && (py >= center.y());
@@ -1068,7 +1068,7 @@ class vec2
                 const T tmax = far.min();
 
                 // If tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
-                if (tmax >= tmin && tmin >= 0.0)
+                if (tmax >= tmin && tmin >= 0.0f)
                 {
                     // Find the octant the the origin is in
                     const vec2<T> point = (origin + (dir * tmin));
@@ -1089,7 +1089,7 @@ class vec2
         {
             if (xmin_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmin)
                     {
@@ -1116,7 +1116,7 @@ class vec2
             }
             else if (xmax_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmax)
                     {
@@ -1146,7 +1146,7 @@ class vec2
         {
             if (ymin_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymin)
                     {
@@ -1173,7 +1173,7 @@ class vec2
             }
             else if (ymax_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymax)
                     {
@@ -1201,22 +1201,22 @@ class vec2
         }
         else
         {
-            if (dir.x() <= 0.0 && dir.y() <= 0.0)
+            if (dir.x() <= 0.0f && dir.y() <= 0.0f)
             {
                 const uint_fast8_t temp[vec2<T>::sub_size()] = {3, 2, 1, 0};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() <= 0.0)
+            else if (dir.x() > 0.0f && dir.y() <= 0.0f)
             {
                 const uint_fast8_t temp[vec2<T>::sub_size()] = {1, 3, 0, 2};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() > 0.0)
+            else if (dir.x() <= 0.0f && dir.y() > 0.0f)
             {
                 const uint_fast8_t temp[vec2<T>::sub_size()] = {2, 0, 3, 1};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0)
+            else if (dir.x() > 0.0f && dir.y() > 0.0f)
             {
                 const uint_fast8_t temp[vec2<T>::sub_size()] = {0, 1, 2, 3};
                 out = temp;
@@ -1286,7 +1286,7 @@ class vec2
     }
     inline constexpr static vec2<T> up()
     {
-        return vec2<T>(0.0, 1.0);
+        return vec2<T>(0.0f, 1.0f);
     }
     inline bool within(const vec2<T> &min, const vec2<T> &max) const
     {

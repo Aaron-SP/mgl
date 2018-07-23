@@ -40,7 +40,7 @@ template <typename T, typename K>
 inline void append_mesh(const sphere<T, vec3> &s, min::mesh<T, K> &m)
 {
     // Calculate the index offset
-    const size_t index_offset = m.vertex.size();
+    const K index_offset = static_cast<K>(m.vertex.size());
 
     // Calculate sphere vertices
     std::array<vec4<T>, 240> verts{
@@ -620,7 +620,7 @@ inline void append_mesh(const aabbox<T, vec3> &b, min::mesh<T, K> &m)
     // Get box dimensions
     const vec3<T> &min = b.get_min();
     const vec3<T> &max = b.get_max();
-    const size_t index_offset = m.vertex.size();
+    const K index_offset = static_cast<K>(m.vertex.size());
 
     // Append vertices
     m.vertex.insert(m.vertex.end(),

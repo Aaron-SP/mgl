@@ -38,7 +38,7 @@ class mem_chunk
         if (file.is_open())
         {
             // Get the size of the file
-            const std::streampos size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
@@ -73,7 +73,7 @@ class mem_chunk
         if (file.is_open())
         {
             // Get the size of the file
-            std::streampos size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Reserve space for the data
             std::vector<uint8_t> data;

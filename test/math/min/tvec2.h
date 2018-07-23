@@ -408,19 +408,19 @@ bool test_vec2()
     out = out && test(1, std::get<5>(t), "Failed vec2 grid_ray diagonal");
 
     flag = false;
-    key = min::vec2<double>::grid_key(vmin, cell_extent, 200.0, origin);
+    key = min::vec2<double>::grid_key(vmin, cell_extent, 200, origin);
     out = out && test(20100, key, "Failed vec2 grid_ray_next diagonal 1");
 
-    key = min::vec2<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec2<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(20300, key, "Failed vec2 grid_ray_next diagonal 2");
 
-    key = min::vec2<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec2<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(20301, key, "Failed vec2 grid_ray_next diagonal 3");
 
-    key = min::vec2<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec2<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(20501, key, "Failed vec2 grid_ray_next diagonal 4");
 
-    key = min::vec2<double>::grid_ray_next(index, t, flag, 200.0);
+    key = min::vec2<double>::grid_ray_next(index, t, flag, 200);
     out = out && test(20502, key, "Failed vec2 grid_ray_next diagonal 5");
 
     // Test grid overlap

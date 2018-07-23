@@ -45,7 +45,7 @@ class sphere
             vec<T> max = p.second;
 
             // Set the sphere properties from calculated points
-            _center = (min + max) * 0.5;
+            _center = (min + max) * 0.5f;
             const vec<T> dxyz = max - _center;
             _radius2 = dxyz.dot(dxyz);
             _radius = std::sqrt(_radius2);
@@ -53,12 +53,12 @@ class sphere
         else if (size == 1)
         {
             _center = verts[0];
-            _radius = _radius2 = 0.0;
+            _radius = _radius2 = 0.0f;
         }
     }
 
   public:
-    sphere() : _radius(0.0), _radius2(0.0) {}
+    sphere() : _radius(0.0f), _radius2(0.0f) {}
     sphere(const vec<T> &c, const T r)
         : _center(c), _radius(r), _radius2(_radius * _radius) {}
     sphere(const vec<T> &c, const T r, const T tol)
@@ -95,7 +95,7 @@ class sphere
             if (d2 > _radius2)
             {
                 const T d = std::sqrt(d2);
-                const T update = (_radius + d) * 0.5;
+                const T update = (_radius + d) * 0.5f;
                 const T k = (update - _radius) / d;
 
                 // Update the sphere radius and center
@@ -118,7 +118,7 @@ class sphere
     {
         // Calculate the circumference of the sphere
         const T factor = vec<T>::inverse_unit_length();
-        return vec<T>().set_all(2.0 * _radius * factor);
+        return vec<T>().set_all(2.0f * _radius * factor);
     }
     inline vec<T> get_min() const
     {
@@ -188,7 +188,7 @@ class sphere
     inline T square_size() const
     {
         // Calculates the squared distance across the sphere extent
-        return 4.0 * _radius2;
+        return 4.0f * _radius2;
     }
     template <typename C>
     inline void subdivide(C &v) const

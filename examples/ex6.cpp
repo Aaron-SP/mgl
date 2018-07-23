@@ -143,7 +143,7 @@ class physics_test
             const min::vec3<float> translation(x, y, 0);
 
             // Create rigid body, make rigid body a little bigger to avoid small overlap
-            _simulation.add_body(min::sphere<float, min::vec3>(translation, _body_radius + 0.1), 100.0);
+            _simulation.add_body(min::sphere<float, min::vec3>(translation, _body_radius + 0.1f), 100.0f);
             const min::mat4<float> model = min::mat4<float>(translation);
 
             // Set the model matrix
@@ -214,7 +214,7 @@ class physics_test
     {
         _win.set_title(title);
     }
-    void solve(const double frame_time, const double damping)
+    void solve(const float frame_time, const float damping)
     {
         // Solve the simulation
         _simulation.solve(frame_time, damping);
@@ -265,7 +265,7 @@ int test_render_loop()
     min::loop_sync sync(frames);
 
     // User can close with Q or use window manager
-    double frame_time = 0.0;
+    float frame_time = 0.0f;
     while (!test.is_closed())
     {
         for (int i = 0; i < frames; i++)
@@ -276,7 +276,7 @@ int test_render_loop()
             // Update rigid bodies in simulation
             for (int i = 0; i < 30; i++)
             {
-                test.solve(frame_time / 30.0, 0.01);
+                test.solve(frame_time / 30.0f, 0.01f);
             }
 
             // Update the bodies buffer information
@@ -292,7 +292,7 @@ int test_render_loop()
             test.window_update();
 
             // Calculate needed delay to hit target
-            frame_time = sync.sync();
+            frame_time = static_cast<float>(sync.sync());
         }
 
         // Calculate the number of 'average' frames per second

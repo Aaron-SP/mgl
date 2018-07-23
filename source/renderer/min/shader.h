@@ -61,14 +61,13 @@ class shader
         if (file.is_open())
         {
             // Get the size of the file
-            std::streampos one = 1;
-            std::ifstream::pos_type size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
 
             // Allocate space for new file
-            std::string data(size + one, '\0');
+            std::string data(size + 1, '\0');
 
             // Read bytes and close the file
             file.read(&data[0], size);

@@ -77,7 +77,7 @@ class body_base
         : _id(id), _data(data),
           _force(gravity * mass), _position(center),
           _angular_velocity{},
-          _mass(mass), _inv_mass(1.0 / mass),
+          _mass(mass), _inv_mass(1.0f / mass),
           _dead(false) {}
 
     inline void add_force(const vec<T> &force)
@@ -161,8 +161,8 @@ class body_base
     inline void set_no_move()
     {
         // Make the object's mass infinite
-        _inv_mass = 0.0;
-        _mass = 0.0;
+        _inv_mass = 0.0f;
+        _mass = 0.0f;
     }
     inline void set_position(const vec<T> &p)
     {
@@ -263,7 +263,7 @@ class body<T, vec3> : public body_base<T, vec3, vec3<T>, quat>
         if (angle > var<T>::TOL_ZERO)
         {
             // Normalize rotation axis
-            const T inv_angle = 1.0 / angle;
+            const T inv_angle = 1.0f / angle;
             rotation *= inv_angle;
 
             // Create quaternion rotation with angle
@@ -314,7 +314,7 @@ class body<T, vec4> : public body_base<T, vec4, vec4<T>, quat>
         if (angle > var<T>::TOL_ZERO)
         {
             // Normalize rotation axis
-            const T inv_angle = 1.0 / angle;
+            const T inv_angle = 1.0f / angle;
             rotation *= inv_angle;
 
             // Create quaternion rotation with angle
@@ -390,7 +390,7 @@ class physics
         const T total = b1.get_inv_mass() + b2.get_inv_mass();
         if (total > var<T>::TOL_ZERO)
         {
-            const T inv_total = 1.0 / total;
+            const T inv_total = 1.0f / total;
             const vec<T> half_offset1 = offset * (total - b2.get_inv_mass()) * inv_total;
             const vec<T> half_offset2 = offset * (b1.get_inv_mass() - total) * inv_total;
 
@@ -482,7 +482,7 @@ class physics
         const T resistance = inv_m1 + inv_m2;
 
         // Calculate the impulse
-        const T j = -(1.0 + _elasticity) * (v12.dot(n) / resistance);
+        const T j = -(1.0f + _elasticity) * (v12.dot(n) / resistance);
 
         // Calculate the impulse vector
         const vec<T> impulse = n * j;
@@ -528,7 +528,7 @@ class physics
         const T resistance = inv_m;
 
         // Calculate the impulse
-        const T j = -(1.0 + _elasticity) * (v_rel.dot(n) / resistance);
+        const T j = -(1.0f + _elasticity) * (v_rel.dot(n) / resistance);
 
         // Calculate the impulse vector
         const vec<T> impulse = n * j;
@@ -549,8 +549,8 @@ class physics
         }
 
         // Precalculate time constants
-        const T dt2 = dt * 0.5;
-        const T dt6 = dt * 0.16667;
+        const T dt2 = dt * 0.5f;
+        const T dt6 = dt * 0.16667f;
 
         // Solve for linear velocity
         const auto v_n = b.get_linear_velocity();
@@ -562,7 +562,7 @@ class physics
         const auto vk4 = b.get_linear_acceleration(v_n + vk3 * dt, damping);
 
         // Calculate the linear velocity at this time step
-        const auto v_n1 = v_n + (vk1 + (vk2 * 2.0) + (vk3 * 2.0) + vk4) * dt6;
+        const auto v_n1 = v_n + (vk1 + (vk2 * 2.0f) + (vk3 * 2.0f) + vk4) * dt6;
 
         // Update the body position at this timestep
         b.update_position(v_n1, dt, _spatial.get_lower_bound(), _spatial.get_upper_bound());
@@ -593,7 +593,7 @@ class physics
   public:
     physics(const cell<T, vec> &world, const vec<T> &gravity)
         : _spatial(world),
-          _gravity(gravity), _elasticity(1.0), _clean(true) {}
+          _gravity(gravity), _elasticity(1.0f), _clean(true) {}
 
     inline size_t add_body(const shape<T, vec> &s, const T mass, const size_t id = 0, const body_data data = nullptr)
     {
@@ -806,8 +806,8 @@ class physics
     }
     inline T get_total_energy() const
     {
-        T KE2 = 0.0;
-        T PE = 0.0;
+        T KE2 = 0.0f;
+        T PE = 0.0f;
 
         for (auto &b : _bodies)
         {

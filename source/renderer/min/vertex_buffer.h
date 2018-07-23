@@ -84,7 +84,7 @@ class vertex_buffer
             for (size_t i = 0; i < element_size; i++)
             {
                 // Index is from the start of this mesh
-                _element[_index][i + element_offset] = index_shift + m.index[i];
+                _element[_index][i + element_offset] = static_cast<K>(index_shift + m.index[i]);
             }
 
             // Store the object dimensions in the index buffer

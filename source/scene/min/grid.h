@@ -240,7 +240,7 @@ class grid
         }
 
         // Set the grid cell extent
-        _cell_extent = _root.get_extent() / _scale;
+        _cell_extent = _root.get_extent() / static_cast<T>(_scale);
     }
     inline void scale(const std::vector<shape<T, vec>> &shapes)
     {
@@ -267,7 +267,7 @@ class grid
         // Calculate the scale
         // to be the world cell extent / max object extent
         // Calculate 2^n, (28.284/8.48) == 4, 2^4 = 16
-        const K depth = std::ceil(std::log2(d2 / max));
+        const K depth = static_cast<K>(std::ceil(std::log2(d2 / max)));
 
         // Set the scale from depth
         set_scale(depth, size);

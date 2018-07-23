@@ -122,7 +122,7 @@ class mesh
         else
         {
             // Calculate the determinant
-            const T det = 1.0 / denom;
+            const T det = 1.0f / denom;
 
             // Solve inverse matrix equations and calculate tangents
             const vec3<T> tan = (dv1 * duv2.y() - dv2 * duv1.y()) * det;
@@ -148,9 +148,9 @@ class mesh
 
         // Check if the (normal x bitan) must be same orientation as tangent
         // If it is a negative angle, correct it
-        if (otan.cross(norm).dot(btan) < 0.0)
+        if (otan.cross(norm).dot(btan) < 0.0f)
         {
-            otan *= -1.0;
+            otan *= -1.0f;
         }
 
         // Add the calculated tangents to the mesh
@@ -285,14 +285,14 @@ class mesh
     {
         for (auto &a : uv)
         {
-            a.x(1.0 - a.x());
+            a.x(1.0f - a.x());
         }
     }
     inline void flip_uv_y_axis()
     {
         for (auto &a : uv)
         {
-            a.y(1.0 - a.y());
+            a.y(1.0f - a.y());
         }
     }
     inline const std::string &get_name() const
@@ -302,7 +302,7 @@ class mesh
     inline void merge(const min::mesh<T, K> &m)
     {
         // Find the index shift amount
-        const size_t index_shift = vertex.size();
+        const K index_shift = static_cast<K>(vertex.size());
 
         // Preallocate, may be unnecessary
         vertex.reserve(vertex.size() + m.vertex.size());
@@ -406,7 +406,7 @@ class mesh
         if (file.is_open())
         {
             // Get the size of the file
-            std::streampos size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Reserve space for the bytes
             stream.resize(size, 0);

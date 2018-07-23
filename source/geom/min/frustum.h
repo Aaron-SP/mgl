@@ -45,16 +45,16 @@ class frustum
         const vec3<T> &n = pl.get_normal();
 
         // Get the excluding corner of the range to the plane
-        if (n.x() < 0.0)
+        if (n.x() < 0.0f)
             p.x(max.x());
-        if (n.y() < 0.0)
+        if (n.y() < 0.0f)
             p.y(max.y());
-        if (n.z() < 0.0)
+        if (n.z() < 0.0f)
             p.z(max.z());
 
         // If the excluding corner is outside the plane half space
         // it can't be between the frustum planes
-        if (outside_plane(p, i, 0.0))
+        if (outside_plane(p, i, 0.0f))
         {
             return true;
         }
@@ -85,25 +85,25 @@ class frustum
         const T t = _near.y();
         const T near = _near.z();
         const T far = _far.z();
-        const T idz = 1.0 / (far - near);
+        const T idz = 1.0f / (far - near);
 
         // Set symmetric matrix values
         T a = near / r;
-        T b = 0.0;
-        T c = 0.0;
-        T d = 0.0;
-        T e = 0.0;
+        T b = 0.0f;
+        T c = 0.0f;
+        T d = 0.0f;
+        T e = 0.0f;
         T f = near / t;
-        T g = 0.0;
-        T h = 0.0;
-        T i = 0.0;
-        T j = 0.0;
+        T g = 0.0f;
+        T h = 0.0f;
+        T i = 0.0f;
+        T j = 0.0f;
         T k = -(far + near) * idz;
-        T l = (2.0 * far * near) * idz;
-        T m = 0.0;
-        T n = 0.0;
-        T o = 1.0;
-        T p = 0.0;
+        T l = (2.0f * far * near) * idz;
+        T m = 0.0f;
+        T n = 0.0f;
+        T o = 1.0f;
+        T p = 0.0f;
 
         return mat4<T>(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
     }
@@ -129,9 +129,9 @@ class frustum
 
   public:
     frustum()
-        : _near(0.0, 0.0, 0.1), _far(0.0, 0.0, 200.0), _fov(45.0), _ratio(1.33), _zoom(1.0), _dirty(true) {}
+        : _near(0.0f, 0.0f, 0.1f), _far(0.0f, 0.0f, 200.0f), _fov(45.0f), _ratio(1.33f), _zoom(1.0f), _dirty(true) {}
     frustum(const T ratio, const T fov, const T near, const T far)
-        : _near(0.0, 0.0, near), _far(0.0, 0.0, far), _fov(fov), _ratio(ratio), _zoom(1.0), _dirty(true) {}
+        : _near(0.0f, 0.0f, near), _far(0.0f, 0.0f, far), _fov(fov), _ratio(ratio), _zoom(1.0f), _dirty(true) {}
     inline bool between(const vec3<T> &min, const vec3<T> &max) const
     {
         if (not_between_plane(min, max, 0))
@@ -226,7 +226,7 @@ class frustum
     {
         // right: up x forward - left handed coordinates
         right = up.cross(forward);
-        right.y(0.0);
+        right.y(0.0f);
         right.normalize_unsafe();
 
         // up: = forward x right - left handed coordinates
@@ -269,7 +269,7 @@ class frustum
     }
     inline bool point_inside(const vec3<T> &p) const
     {
-        return point_within(p, 0.0);
+        return point_within(p, 0.0f);
     }
     inline bool point_within(const vec3<T> &p, const T d) const
     {
@@ -310,7 +310,7 @@ class frustum
     }
     inline void zoom(const T zoom)
     {
-        _zoom = 1.0 / zoom;
+        _zoom = 1.0f / zoom;
         _dirty = true;
     }
 };

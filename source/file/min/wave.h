@@ -54,7 +54,7 @@ class wave
         if (file.is_open())
         {
             // Get the size of the file
-            const auto size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);

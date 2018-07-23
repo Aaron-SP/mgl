@@ -74,23 +74,23 @@ class mat3
   public:
     // constructs an identity matrix
     mat3()
-        : _a(1.0), _b(0.0), _c(0.0), _d(0.0), _e(1.0), _f(0.0), _g(0.0), _h(0.0), _i(1.0) {}
+        : _a(1.0f), _b(0.0f), _c(0.0f), _d(0.0f), _e(1.0f), _f(0.0f), _g(0.0f), _h(0.0f), _i(1.0f) {}
 
     // constructs a translation matrix
     mat3(const vec2<T> &t)
-        : _a(1.0), _b(0.0), _c(0.0), _d(0.0), _e(1.0), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) {}
+        : _a(1.0f), _b(0.0f), _c(0.0f), _d(0.0f), _e(1.0f), _f(0.0f), _g(t.x()), _h(t.y()), _i(1.0f) {}
 
     // constructs an orthogonal 3D rotation matrix around the Z axis
     mat3(const mat2<T> &r)
-        : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(0.0), _h(0.0), _i(1.0) {}
+        : _a(r._xc), _b(r._ys), _c(0.0f), _d(r._xs), _e(r._yc), _f(0.0f), _g(0.0f), _h(0.0f), _i(1.0f) {}
 
     // constructs a matrix that first rotates then translates in 2D
     mat3(const vec2<T> &t, const mat2<T> &r)
-        : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) {}
+        : _a(r._xc), _b(r._ys), _c(0.0f), _d(r._xs), _e(r._yc), _f(0.0f), _g(t.x()), _h(t.y()), _i(1.0f) {}
 
     // constructs a matrix that first rotates then translates in 2D, then scales the result
     mat3(const vec2<T> &t, const mat2<T> &r, const vec2<T> &s)
-        : _a(r._xc), _b(r._ys), _c(0.0), _d(r._xs), _e(r._yc), _f(0.0), _g(t.x()), _h(t.y()), _i(1.0) { scale(s); }
+        : _a(r._xc), _b(r._ys), _c(0.0f), _d(r._xs), _e(r._yc), _f(0.0f), _g(t.x()), _h(t.y()), _i(1.0f) { scale(s); }
 
     inline void one(vec3<T> &v)
     {
@@ -132,15 +132,15 @@ class mat3
         T xz = r.x() * r.z();
         T yz = r.y() * r.z();
 
-        _a = 1.0 - (2.0 * (yy + zz));
-        _b = 2.0 * (xy + zw);
-        _c = 2.0 * (xz - yw);
-        _d = 2.0 * (xy - zw);
-        _e = 1.0 - (2.0 * (xx + zz));
-        _f = 2.0 * (yz + xw);
-        _g = 2.0 * (xz + yw);
-        _h = 2.0 * (yz - xw);
-        _i = 1.0 - (2.0 * (xx + yy));
+        _a = 1.0f - (2.0f * (yy + zz));
+        _b = 2.0f * (xy + zw);
+        _c = 2.0f * (xz - yw);
+        _d = 2.0f * (xy - zw);
+        _e = 1.0f - (2.0f * (xx + zz));
+        _f = 2.0f * (yz + xw);
+        _g = 2.0f * (xz + yw);
+        _h = 2.0f * (yz - xw);
+        _i = 1.0f - (2.0f * (xx + yy));
     }
     inline mat3<T> operator*(const mat3<T> &A) const
     {
@@ -248,7 +248,7 @@ class mat3
             return false;
         }
 
-        det = 1.0 / det;
+        det = 1.0f / det;
         _a = a * det;
         _b = b * det;
         _c = c * det;

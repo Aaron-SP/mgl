@@ -124,7 +124,7 @@ class md5_mesh
         if (file.is_open())
         {
             // Get the size of the file
-            const auto size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
@@ -449,7 +449,7 @@ class md5_mesh
                 s >> y;
 
                 // Store this UV in the mesh, reverse the uv.y coordinate to match opengl
-                m.uv.emplace_back(x, 1.0 - y);
+                m.uv.emplace_back(x, 1.0f - y);
 
                 // Throw away ')'
                 s >> junk;
@@ -628,7 +628,7 @@ class md5_mesh
                 vertex += (joint.get_position() + rotated) * weight.get_bias();
 
                 // Record the weight index and the weight bias
-                b_index[i] = weight.get_id();
+                b_index[i] = static_cast<T>(weight.get_id());
                 b_weight[i] = weight.get_bias();
             }
 

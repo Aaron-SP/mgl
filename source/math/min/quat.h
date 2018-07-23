@@ -64,19 +64,19 @@ class quat
     }
 
   public:
-    quat() : _w(1.0), _x(0.0), _y(0.0), _z(0.0) {}
+    quat() : _w(1.0f), _x(0.0f), _y(0.0f), _z(0.0f) {}
     quat(const T w, const T x, const T y, const T z) : _w(w), _x(x), _y(y), _z(z) {}
-    quat(const T x, const T y, const T z) : _w(1.0), _x(x), _y(y), _z(z)
+    quat(const T x, const T y, const T z) : _w(1.0f), _x(x), _y(y), _z(z)
     {
         normalize();
     }
-    quat(const vec3<T> &v) : _w(1.0), _x(v.x()), _y(v.y()), _z(v.z())
+    quat(const vec3<T> &v) : _w(1.0f), _x(v.x()), _y(v.y()), _z(v.z())
     {
         normalize();
     }
     quat(const vec3<T> &vector, const T degAngle)
     {
-        const T angle_2 = deg_to_rad(degAngle) * 0.5;
+        const T angle_2 = deg_to_rad(degAngle) * 0.5f;
         const T cos_2 = cos(angle_2);
         const T sin_2 = sin(angle_2);
         _w = cos_2;
@@ -99,24 +99,24 @@ class quat
                 c = v1.cross_x();
             }
             c.normalize();
-            _w = 0.0;
+            _w = 0.0f;
             _x = c.x();
             _y = c.y();
             _z = c.z();
         }
         else if (cos_theta > var<T>::TOL_PONE)
         {
-            _w = 1.0;
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
+            _w = 1.0f;
+            _x = 0.0f;
+            _y = 0.0f;
+            _z = 0.0f;
         }
         else
         {
-            const T s = std::sqrt((1.0 + cos_theta) * 2.0);
-            const T inv_s = 1.0 / s;
+            const T s = std::sqrt((1.0f + cos_theta) * 2.0f);
+            const T inv_s = 1.0f / s;
             const vec3<T> c = v1.cross(v2);
-            _w = s * 0.5;
+            _w = s * 0.5f;
             _x = c.x() * inv_s;
             _y = c.y() * inv_s;
             _z = c.z() * inv_s;
@@ -131,25 +131,25 @@ class quat
         const T cos_theta = x * v1.dot_x();
         if (cos_theta < var<T>::TOL_NONE)
         {
-            q._w = 0.0;
-            q._x = 0.0;
-            q._y = 1.0;
-            q._z = 0.0;
+            q._w = 0.0f;
+            q._x = 0.0f;
+            q._y = 1.0f;
+            q._z = 0.0f;
         }
         else if (cos_theta > var<T>::TOL_PONE)
         {
-            q._w = 1.0;
-            q._x = 0.0;
-            q._y = 0.0;
-            q._z = 0.0;
+            q._w = 1.0f;
+            q._x = 0.0f;
+            q._y = 0.0f;
+            q._z = 0.0f;
         }
         else
         {
-            const T s = std::sqrt((1.0 + cos_theta) * 2.0);
-            const T inv_s = 1.0 / s;
+            const T s = std::sqrt((1.0f + cos_theta) * 2.0f);
+            const T inv_s = 1.0f / s;
             const vec3<T> c = v1.cross_x();
             q._w = s * 0.5;
-            q._x = 0.0;
+            q._x = 0.0f;
             q._y = c.y() * inv_s;
             q._z = c.z() * inv_s;
             q.normalize();
@@ -159,14 +159,14 @@ class quat
     }
     inline void calculate_w()
     {
-        const T t = 1.0 - (_x * _x) - (_y * _y) - (_z * _z);
-        if (t < 0.0)
+        const T t = 1.0f - (_x * _x) - (_y * _y) - (_z * _z);
+        if (t > var<T>::TOL_REL)
         {
-            _w = 0.0;
+            _w = sqrt(t);
         }
         else
         {
-            _w = sqrt(t);
+            _w = 0.0f;
         }
 
         // Normalize the quaternion to ensure unit length
@@ -228,13 +228,13 @@ class quat
         }
         // If dot product is negative reverse the quaternion
         // to take shortest path
-        else if (cos_theta < 0.0)
+        else if (cos_theta < 0.0f)
         {
             v2 = v1.conjugate();
             cos_theta = -cos_theta;
         }
 
-        clamp<T>(cos_theta, -1.0, 1.0);
+        clamp<T>(cos_theta, -1.0f, 1.0f);
         T theta = std::acos(cos_theta) * t;
 
         // v1 - v0 * cos(theta)
@@ -246,7 +246,7 @@ class quat
     inline vec3<T> transform(const vec3<T> &p) const
     {
         // Get the pure quaternion P
-        const quat<T> P = quat<T>(0.0, p.x(), p.y(), p.z());
+        const quat<T> P = quat<T>(0.0f, p.x(), p.y(), p.z());
 
         // Transform to Q
         const quat<T> Q = (*this) * P * conjugate();

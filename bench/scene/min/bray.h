@@ -43,18 +43,18 @@ double bench_ray_aabb(const size_t N, const min::aabbox<T, vec> &world)
     const vec<T> &min = world.get_min();
     const vec<T> &max = world.get_max();
     const vec<T> dir = (max - min).normalize();
-    const T radius = 0.9;
+    const T radius = 0.9f;
 
     // We do this for precision purposes
     // Shooting rays from huge distances can result in errors
-    const T ray_offset = 1000.0;
-    const T angle = 0.01;
+    const T ray_offset = 1000.0f;
+    const T angle = 0.01f;
 
     // Create 'N' random cubic aabbox's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate aabbox center and extent
-        const T step = (i + 1) * 10.0;
+        const T step = (i + 1) * 10.0f;
         const vec<T> center = min + (dir * step);
 
         // Create the aabbox
@@ -170,18 +170,18 @@ double bench_ray_oobb(const size_t N, const min::oobbox<T, vec> &world)
     const vec<T> &min = world.get_min();
     const vec<T> &max = world.get_max();
     const vec<T> dir = (max - min).normalize();
-    const T radius = 0.9;
+    const T radius = 0.9f;
 
     // We do this for precision purposes
     // Shooting rays from huge distances can result in errors
-    const T ray_offset = 1000.0;
-    const T angle = 0.01;
+    const T ray_offset = 1000.0f;
+    const T angle = 0.01f;
 
     // Create 'N' random cubic oobbox's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate oobbox center and extent
-        const T step = (i + 1) * 10.0;
+        const T step = (i + 1) * 10.0f;
         const vec<T> center = min + (dir * step);
 
         // Create the oobbox
@@ -297,18 +297,18 @@ double bench_ray_sphere(const size_t N, const min::sphere<T, vec> &world)
     const vec<T> &min = world.get_min();
     const vec<T> &max = world.get_max();
     const vec<T> dir = (max - min).normalize();
-    const T radius = 0.9;
+    const T radius = 0.9f;
 
     // We do this for single float precision purposes
     // Shooting rays from huge distances can result in errors
-    const T ray_offset = 1000.0;
-    const T angle = 0.01;
+    const T ray_offset = 1000.0f;
+    const T angle = 0.01f;
 
     // Create 'N' random cubic sphere's
     for (size_t i = 0; i < N; i++)
     {
         // Calculate sphere center and extent
-        const T step = (i + 1) * 10.0;
+        const T step = (i + 1) * 10.0f;
         const vec<T> center = min + (dir * step);
 
         // Create the sphere

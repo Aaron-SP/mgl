@@ -47,7 +47,7 @@ class model
         {
             _center += _bounds[i].get_center();
         }
-        _center /= _mesh.size();
+        _center /= static_cast<T>(_mesh.size());
     }
 
   public:

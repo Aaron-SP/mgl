@@ -25,7 +25,7 @@ limitations under the License.
 double bench_static_vector()
 {
     const size_t size = 100000000;
-    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    std::mt19937 gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
     std::uniform_int_distribution<int> dist(1, 128);
 
     // Running vector test

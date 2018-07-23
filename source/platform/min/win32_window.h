@@ -397,7 +397,7 @@ class win32_window
     inline static std::pair<uint_fast16_t, uint_fast16_t> calculate_window_size(const uint_fast16_t width, const uint_fast16_t height)
     {
         // Calculate the size of window to get desired client area
-        RECT wr = {0, 0, width, height};
+        RECT wr = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
         AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
         return std::make_pair<uint_fast16_t, uint_fast16_t>(wr.right - wr.left, wr.bottom - wr.top);

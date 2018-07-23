@@ -68,7 +68,7 @@ class mat4
   public:
     // constructs an identity matrix
     mat4()
-        : _a(1.0), _b(0.0), _c(0.0), _d(0.0), _e(0.0), _f(1.0), _g(0.0), _h(0.0), _i(0.0), _j(0.0), _k(1.0), _l(0.0), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
+        : _a(1.0f), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(1.0f), _l(0.0f), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
 
     // convenience constructor for direct loading
     mat4(T a, T b, T c, T d, T e, T f, T g, T h, T i, T j, T k, T l, T m, T n, T o, T p)
@@ -76,27 +76,27 @@ class mat4
 
     // constructs a translation matrix
     mat4(const vec3<T> &t)
-        : _a(1.0), _b(0.0), _c(0.0), _d(0.0), _e(0.0), _f(1.0), _g(0.0), _h(0.0), _i(0.0), _j(0.0), _k(1.0), _l(0.0), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0) {}
+        : _a(1.0f), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(1.0f), _l(0.0f), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0f) {}
 
     // constructs a 3D rotation matrix
     mat4(const mat3<T> &r)
-        : _a(r._a), _b(r._b), _c(r._c), _d(0.0), _e(r._d), _f(r._e), _g(r._f), _h(0.0), _i(r._g), _j(r._h), _k(r._i), _l(0.0), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
+        : _a(r._a), _b(r._b), _c(r._c), _d(0.0f), _e(r._d), _f(r._e), _g(r._f), _h(0.0f), _i(r._g), _j(r._h), _k(r._i), _l(0.0f), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
 
     // constructs a matrix that first rotates then translates in 3D
     mat4(const vec3<T> &t, const mat3<T> &r)
-        : _a(r._a), _b(r._b), _c(r._c), _d(0.0), _e(r._d), _f(r._e), _g(r._f), _h(0.0), _i(r._g), _j(r._h), _k(r._i), _l(0.0), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0) {}
+        : _a(r._a), _b(r._b), _c(r._c), _d(0.0f), _e(r._d), _f(r._e), _g(r._f), _h(0.0f), _i(r._g), _j(r._h), _k(r._i), _l(0.0f), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0f) {}
 
     // constructs a matrix that first rotates then translates in 3D, then scales the result
     mat4(const vec3<T> &t, const mat3<T> &r, const vec3<T> &s)
-        : _a(r._a), _b(r._b), _c(r._c), _d(0.0), _e(r._d), _f(r._e), _g(r._f), _h(0.0), _i(r._g), _j(r._h), _k(r._i), _l(0.0), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0) { scale(s); }
+        : _a(r._a), _b(r._b), _c(r._c), _d(0.0f), _e(r._d), _f(r._e), _g(r._f), _h(0.0f), _i(r._g), _j(r._h), _k(r._i), _l(0.0f), _m(t.x()), _n(t.y()), _o(t.z()), _p(1.0f) { scale(s); }
 
     // constructs a lookat matrix from 4 vectors: right(x), up(y), forward(z), and eye
     mat4(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z, const vec3<T> &e)
-        : _a(x.x()), _b(x.y()), _c(x.z()), _d(-x.dot(e)), _e(y.x()), _f(y.y()), _g(y.z()), _h(-y.dot(e)), _i(z.x()), _j(z.y()), _k(z.z()), _l(-z.dot(e)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
+        : _a(x.x()), _b(x.y()), _c(x.z()), _d(-x.dot(e)), _e(y.x()), _f(y.y()), _g(y.z()), _h(-y.dot(e)), _i(z.x()), _j(z.y()), _k(z.z()), _l(-z.dot(e)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
 
     // constructs an orthographic projection matrix
     mat4(const T dx, const T dy, const T near, const T far)
-        : _a(1.0 / dx), _b(0.0), _c(0.0), _d(0.0), _e(0.0), _f(1.0 / dy), _g(0.0), _h(0.0), _i(0.0), _j(0.0), _k(-2.0 / (far - near)), _l((far + near) / (far - near)), _m(0.0), _n(0.0), _o(0.0), _p(1.0) {}
+        : _a(1.0f / dx), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f / dy), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(-2.0f / (far - near)), _l((far + near) / (far - near)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
 
     inline void one(vec4<T> &v)
     {
@@ -226,7 +226,7 @@ class mat4
         const T trace = _a + _f + _k;
         if (trace > var<T>::TOL_REL)
         {
-            const T s = std::sqrt(1.0 + trace) * 2.0;
+            const T s = std::sqrt(1.0f + trace) * 2.0f;
             w = 0.25 * s;
             x = (_g - _j) / s;
             y = (_i - _c) / s;
@@ -234,7 +234,7 @@ class mat4
         }
         else if (_a > (_f + var<T>::TOL_REL) && _a > (_k + var<T>::TOL_REL))
         {
-            const T s = std::sqrt(1.0 + _a - _f - _k) * 2.0;
+            const T s = std::sqrt(1.0f + _a - _f - _k) * 2.0f;
             w = (_g - _j) / s;
             x = 0.25 * s;
             y = (_e + _b) / s;
@@ -242,7 +242,7 @@ class mat4
         }
         else if (_f > (_k + var<T>::TOL_REL))
         {
-            const T s = std::sqrt(1.0 + _f - _a - _k) * 2.0;
+            const T s = std::sqrt(1.0f + _f - _a - _k) * 2.0f;
             w = (_i - _c) / s;
             x = (_e + _b) / s;
             y = 0.25 * s;
@@ -250,7 +250,7 @@ class mat4
         }
         else
         {
-            const T s = sqrt(1.0 + _k - _a - _f) * 2.0;
+            const T s = sqrt(1.0f + _k - _a - _f) * 2.0f;
             w = (_b - _e) / s;
             x = (_i + _c) / s;
             y = (_j + _g) / s;
@@ -307,7 +307,7 @@ class mat4
             return false;
         }
 
-        det = 1.0 / det;
+        det = 1.0f / det;
         _a = a * det;
         _b = b * det;
         _c = c * det;

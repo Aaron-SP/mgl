@@ -353,7 +353,7 @@ class tree
         }
 
         // Set the tree cell extent
-        _cell_extent = _root.get_cell().get_extent() / _scale;
+        _cell_extent = _root.get_cell().get_extent() / static_cast<T>(_scale);
     }
     inline void scale(const std::vector<shape<T, vec>> &shapes)
     {
@@ -377,7 +377,7 @@ class tree
         max = std::sqrt(max);
 
         // Calculate the depth of the tree
-        const K depth = std::ceil(std::log2(d2 / max));
+        const K depth = static_cast<K>(std::ceil(std::log2(d2 / max)));
 
         // Set the scale from depth
         set_scale(depth, size);

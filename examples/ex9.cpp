@@ -118,7 +118,7 @@ class character
         // Add bones matrices to uniform buffer
         for (const auto &bone : _md5_model.get_bones())
         {
-            size_t bone_id = _ubuffer.add_matrix(bone);
+            const size_t bone_id = _ubuffer.add_matrix(bone);
             _bone_id.push_back(bone_id);
         }
 
@@ -147,7 +147,7 @@ class character
         // Load the md5 uniforms
         load_uniforms();
     }
-    void draw(min::camera<float> &cam, const double time_step)
+    void draw(min::camera<float> &cam, const float time_step)
     {
         // Update matrix uniforms
         _ubuffer.set_matrix(cam.get_pv_matrix(), _proj_view_id);
@@ -560,7 +560,7 @@ class physics_test
     {
         _win.set_title(title);
     }
-    void solve(const double frame_time, const double damping)
+    void solve(const float frame_time, const float damping)
     {
         // Solve the simulation
         _simulation.solve(frame_time, damping);
@@ -596,7 +596,7 @@ class physics_test
             update_cursor();
         }
     }
-    void draw(const double dt)
+    void draw(const float dt)
     {
         // Update the base and md5 model matrix
         update_base();
@@ -653,7 +653,7 @@ int test_render_loop()
     min::loop_sync sync(frames);
 
     // User can close with Q or use window manager
-    double frame_time = 0.0;
+    float frame_time = 0.0;
     while (!test.is_closed())
     {
         for (int i = 0; i < frames; i++)
@@ -664,7 +664,7 @@ int test_render_loop()
             // Update rigid bodies in simulation
             for (int i = 0; i < 30; i++)
             {
-                test.solve(frame_time / 30.0, 10.0);
+                test.solve(frame_time / 30.0f, 10.0f);
             }
 
             // Clear the background color
@@ -680,7 +680,7 @@ int test_render_loop()
             test.window_update(frame_time);
 
             // Calculate needed delay to hit target
-            frame_time = sync.sync();
+            frame_time = static_cast<float>(sync.sync());
         }
 
         // Calculate the number of 'average' frames per second

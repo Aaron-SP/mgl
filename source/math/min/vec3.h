@@ -50,9 +50,9 @@ class vec3
     }
 
   public:
-    vec3() : _x(0.0), _y(0.0), _z(0.0) { float_assert(); }
+    vec3() : _x(0.0f), _y(0.0f), _z(0.0f) { float_assert(); }
     vec3(const T x, const T y, const T z) : _x(x), _y(y), _z(z) { float_assert(); }
-    vec3(const vec2<T> &v) : _x(v.x()), _y(v.y()), _z(1.0) { float_assert(); }
+    vec3(const vec2<T> &v) : _x(v.x()), _y(v.y()), _z(1.0f) { float_assert(); }
     vec3(const vec4<T> &v) : _x(v.x()), _y(v.y()), _z(v.z()) { float_assert(); }
     inline T x() const
     {
@@ -117,7 +117,7 @@ class vec3
     }
     inline constexpr static coord_sys<T, min::vec3> axes()
     {
-        return coord_sys<T, min::vec3>(vec3<T>(1.0, 0.0, 0.0), vec3<T>(0.0, 1.0, 0.0), vec3<T>(0.0, 0.0, 1.0));
+        return coord_sys<T, min::vec3>(vec3<T>(1.0f, 0.0f, 0.0f), vec3<T>(0.0f, 1.0f, 0.0f), vec3<T>(0.0f, 0.0f, 1.0f));
     }
     inline vec3<T> &clamp(const vec3<T> &min, const vec3<T> &max)
     {
@@ -187,7 +187,7 @@ class vec3
 
         // Calculate the grid dimensions
         const vec3<T> size = max - min;
-        const vec3<T> extent = size / scale;
+        const vec3<T> extent = size / static_cast<T>(scale);
         const T dx = extent.x();
         const T dy = extent.y();
         const T dz = extent.z();
@@ -225,8 +225,8 @@ class vec3
         out.reserve(out.size() + scale * scale * scale);
 
         // Calculate the grid dimensions
-        const vec3<T> extent = (max - min) / scale;
-        const vec3<T> half_extent = extent * 0.5;
+        const vec3<T> extent = (max - min) / static_cast<T>(scale);
+        const vec3<T> half_extent = extent * 0.5f;
         const T dx = extent.x();
         const T dy = extent.y();
         const T dz = extent.z();
@@ -263,9 +263,9 @@ class vec3
         const T ey = extent.y();
         const T ez = extent.z();
 
-        const size_t col = (point.x() - min.x()) / ex;
-        const size_t row = (point.y() - min.y()) / ey;
-        const size_t zin = (point.z() - min.z()) / ez;
+        const size_t col = static_cast<size_t>((point.x() - min.x()) / ex);
+        const size_t row = static_cast<size_t>((point.y() - min.y()) / ey);
+        const size_t zin = static_cast<size_t>((point.z() - min.z()) / ez);
 
         // Return the row / col of cell
         return min::tri<size_t>(col, row, zin);
@@ -321,7 +321,7 @@ class vec3
         const T dz = extent.z();
 
         // Calculate the center cell
-        const vec3<T> center = (b_min + b_max) * 0.5;
+        const vec3<T> center = (b_min + b_max) * 0.5f;
 
         // Center cell indices
         const min::tri<size_t> index = vec3<T>::grid_index(min, extent, center);
@@ -480,7 +480,7 @@ class vec3
         if (std::abs(dir.x()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.x() < 0.0)
+            if (dir.x() < 0.0f)
             {
                 drx = -1;
                 tx = (x - minx) * std::abs(inv_dir.x());
@@ -507,7 +507,7 @@ class vec3
         if (std::abs(dir.y()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.y() < 0.0)
+            if (dir.y() < 0.0f)
             {
                 dry = -1;
                 ty = (y - miny) * std::abs(inv_dir.y());
@@ -534,7 +534,7 @@ class vec3
         if (std::abs(dir.z()) >= var<T>::TOL_RAY)
         {
             // Choose distance based on ray direction
-            if (dir.z() < 0.0)
+            if (dir.z() < 0.0f)
             {
                 drz = -1;
                 tz = (z - minz) * std::abs(inv_dir.z());
@@ -770,25 +770,25 @@ class vec3
     inline vec3<T> &normalize()
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
             _z *= inv_mag;
         }
         else
         {
-            _x = 0.0;
-            _y = 0.0;
-            _z = 0.0;
+            _x = 0.0f;
+            _y = 0.0f;
+            _z = 0.0f;
         }
 
         return *this;
     }
     inline vec3<T> &normalize_unsafe()
     {
-        const T inv_mag = 1.0 / magnitude();
+        const T inv_mag = 1.0f / magnitude();
         _x *= inv_mag;
         _y *= inv_mag;
         _z *= inv_mag;
@@ -798,9 +798,9 @@ class vec3
     inline vec3<T> &normalize_safe(const vec3<T> &safe)
     {
         const T mag = magnitude();
-        if (std::abs(mag) > var<T>::TOL_ZERO)
+        if (mag > var<T>::TOL_ZERO)
         {
-            T inv_mag = 1.0 / mag;
+            const T inv_mag = 1.0f / mag;
             _x *= inv_mag;
             _y *= inv_mag;
             _z *= inv_mag;
@@ -1150,7 +1150,7 @@ class vec3
 
         // normal default up vector return and zero penetration
         vec3<T> normal = vec3<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         // Find the minimum, non-zero penetration index
         T min = std::numeric_limits<T>::max();
@@ -1190,21 +1190,21 @@ class vec3
         // 3 local box axes
 
         // Rotation matrix expressing A2 in A1's coordinate frame
-        const T abs_x1x2 = 1.0 + tolerance;
+        const T abs_x1x2 = 1.0f + tolerance;
         const T abs_x1y2 = tolerance;
         const T abs_x1z2 = tolerance;
         const T abs_y1x2 = tolerance;
-        const T abs_y1y2 = 1.0 + tolerance;
+        const T abs_y1y2 = 1.0f + tolerance;
         const T abs_y1z2 = tolerance;
         const T abs_z1x2 = tolerance;
         const T abs_z1y2 = tolerance;
-        const T abs_z1z2 = 1.0 + tolerance;
+        const T abs_z1z2 = 1.0f + tolerance;
 
         // Bring translation into A1's coordinate frame
         const vec3<T> t = vec3<T>(center2 - center1);
 
         // Store axis and penetration depths
-        const vec3<T> axes[3] = {vec3<T>(1.0, 0.0, 0.0), vec3<T>(0.0, 1.0, 0.0), vec3<T>(0.0, 0.0, 1.0)};
+        const vec3<T> axes[3] = {vec3<T>(1.0f, 0.0f, 0.0f), vec3<T>(0.0f, 1.0f, 0.0f), vec3<T>(0.0f, 0.0f, 1.0f)};
         T penetration[6];
 
         // Test L = A1.x(); d1 and d2 is the length of extents along L
@@ -1239,7 +1239,7 @@ class vec3
 
         // normal default up vector return and zero penetration
         vec3<T> normal = vec3<T>::up();
-        T overlap = 0.0;
+        T overlap = 0.0f;
 
         // Find the minimum, non-zero penetration index
         T min = std::numeric_limits<T>::max();
@@ -1292,9 +1292,9 @@ class vec3
     inline vec3<T> sign() const
     {
         // Get the sign of the vector
-        const T x = sgn<T>(_x);
-        const T y = sgn<T>(_y);
-        const T z = sgn<T>(_z);
+        const T x = static_cast<T>(sgn<T>(_x));
+        const T y = static_cast<T>(sgn<T>(_y));
+        const T z = static_cast<T>(sgn<T>(_z));
 
         return vec3<T>(x, y, z);
     }
@@ -1376,7 +1376,7 @@ class vec3
         out.reserve(out.size() + vec3<T>::sub_size());
 
         // Center of the vector space
-        const vec3<T> c = (max + min) * 0.5;
+        const vec3<T> c = (max + min) * 0.5f;
 
         // Octant 0
         const vec3<T> min0 = vec3<T>(min.x(), min.y(), min.z());
@@ -1428,10 +1428,10 @@ class vec3
         out.reserve(out.size() + vec3<T>::sub_size());
 
         // Quarter extent of vector space
-        const vec3<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
+        const vec3<T> h = ((max - min) * 0.25f) + var<T>::TOL_REL;
 
         // Center of the vector space
-        const vec3<T> c = (max + min) * 0.5;
+        const vec3<T> c = (max + min) * 0.5f;
 
         // Positions
         const T cx_hx = c.x() - h.x();
@@ -1502,7 +1502,7 @@ class vec3
         }
 
         // Center of the vector space
-        const vec3<T> center = (max + min) * 0.5;
+        const vec3<T> center = (max + min) * 0.5f;
 
         // Calculate ray intersections among all axes
         const vec3<T> t = (center - origin) * inv_dir;
@@ -1510,7 +1510,7 @@ class vec3
         // YZ intersection types
         const T pyz_y = origin.y() + (t.x() * dir.y());
         const T pyz_z = origin.z() + (t.x() * dir.z());
-        const bool yz_front = t.x() >= 0.0;
+        const bool yz_front = t.x() >= 0.0f;
         const bool ymin_zmin_out = yz_front && (pyz_y < center.y()) && (pyz_z < center.z());
         const bool ymax_zmin_out = yz_front && (pyz_y >= center.y()) && (pyz_z < center.z());
         const bool ymin_zmax_out = yz_front && (pyz_y < center.y()) && (pyz_z >= center.z());
@@ -1523,7 +1523,7 @@ class vec3
         // XZ intersection types
         const T pxz_x = origin.x() + (t.y() * dir.x());
         const T pxz_z = origin.z() + (t.y() * dir.z());
-        const bool xz_front = t.y() >= 0.0;
+        const bool xz_front = t.y() >= 0.0f;
         const bool xmin_zmin_out = xz_front && (pxz_x < center.x()) && (pxz_z < center.z());
         const bool xmax_zmin_out = xz_front && (pxz_x >= center.x()) && (pxz_z < center.z());
         const bool xmin_zmax_out = xz_front && (pxz_x < center.x()) && (pxz_z >= center.z());
@@ -1536,7 +1536,7 @@ class vec3
         // XY intersection types
         const T pxy_x = origin.x() + (t.z() * dir.x());
         const T pxy_y = origin.y() + (t.z() * dir.y());
-        const bool xy_front = t.z() >= 0.0;
+        const bool xy_front = t.z() >= 0.0f;
         const bool xmin_ymin_out = xy_front && (pxy_x < center.x()) && (pxy_y < center.y());
         const bool xmax_ymin_out = xy_front && (pxy_x >= center.x()) && (pxy_y < center.y());
         const bool xmin_ymax_out = xy_front && (pxy_x < center.x()) && (pxy_y >= center.y());
@@ -1585,7 +1585,7 @@ class vec3
                 const T tmax = far.min();
 
                 // If tmin are >= 0.0 and nearest exit > farthest entry we have an intersection
-                if (tmax >= tmin && tmin >= 0.0)
+                if (tmax >= tmin && tmin >= 0.0f)
                 {
                     // Find the octant the the origin is in
                     const vec3<T> point = (origin + (dir * tmin));
@@ -1614,7 +1614,7 @@ class vec3
         {
             if (ymin_zmin_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymin_zmin)
                     {
@@ -1667,7 +1667,7 @@ class vec3
             }
             else if (ymax_zmin_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymax_zmin)
                     {
@@ -1720,7 +1720,7 @@ class vec3
             }
             else if (ymin_zmax_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymin_zmax)
                     {
@@ -1773,7 +1773,7 @@ class vec3
             }
             else if (ymax_zmax_out)
             {
-                if (dir.x() < 0.0)
+                if (dir.x() < 0.0f)
                 {
                     if (ymax_zmax)
                     {
@@ -1829,7 +1829,7 @@ class vec3
         {
             if (xmin_zmin_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmin_zmin)
                     {
@@ -1882,7 +1882,7 @@ class vec3
             }
             else if (xmax_zmin_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmax_zmin)
                     {
@@ -1935,7 +1935,7 @@ class vec3
             }
             else if (xmin_zmax_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmin_zmax)
                     {
@@ -1988,7 +1988,7 @@ class vec3
             }
             else if (xmax_zmax_out)
             {
-                if (dir.y() < 0.0)
+                if (dir.y() < 0.0f)
                 {
                     if (xmax_zmax)
                     {
@@ -2044,7 +2044,7 @@ class vec3
         {
             if (xmin_ymin_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmin_ymin)
                     {
@@ -2097,7 +2097,7 @@ class vec3
             }
             else if (xmax_ymin_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmax_ymin)
                     {
@@ -2150,7 +2150,7 @@ class vec3
             }
             else if (xmin_ymax_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmin_ymax)
                     {
@@ -2203,7 +2203,7 @@ class vec3
             }
             else if (xmax_ymax_out)
             {
-                if (dir.z() < 0.0)
+                if (dir.z() < 0.0f)
                 {
                     if (xmax_ymax)
                     {
@@ -2257,42 +2257,42 @@ class vec3
         }
         else
         {
-            if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
+            if (dir.x() <= 0.0f && dir.y() <= 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {7, 6, 3, 2, 5, 4, 1, 0};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0f && dir.y() <= 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {6, 2, 7, 3, 4, 0, 5, 1};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
+            else if (dir.x() <= 0.0f && dir.y() > 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {5, 4, 1, 0, 7, 6, 3, 2};
                 out = temp;
             }
-            else if (dir.x() <= 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            else if (dir.x() <= 0.0f && dir.y() > 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {4, 0, 5, 1, 6, 2, 7, 3};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() <= 0.0)
+            else if (dir.x() > 0.0f && dir.y() <= 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {3, 7, 2, 6, 1, 5, 0, 4};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() <= 0.0 && dir.z() > 0.0)
+            else if (dir.x() > 0.0f && dir.y() <= 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {2, 3, 6, 7, 0, 1, 4, 5};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() <= 0.0)
+            else if (dir.x() > 0.0f && dir.y() > 0.0f && dir.z() <= 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {1, 5, 0, 4, 3, 7, 2, 6};
                 out = temp;
             }
-            else if (dir.x() > 0.0 && dir.y() > 0.0 && dir.z() > 0.0)
+            else if (dir.x() > 0.0f && dir.y() > 0.0f && dir.z() > 0.0f)
             {
                 const uint_fast8_t temp[vec3<T>::sub_size()] = {0, 1, 4, 5, 2, 3, 6, 7};
                 out = temp;
@@ -2444,7 +2444,7 @@ class vec3
     }
     inline constexpr static vec3<T> up()
     {
-        return vec3<T>(0.0, 1.0, 0.0);
+        return vec3<T>(0.0f, 1.0f, 0.0f);
     }
     inline bool within(const vec3<T> &min, const vec3<T> &max) const
     {

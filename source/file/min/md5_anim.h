@@ -195,7 +195,7 @@ class md5_anim
         if (file.is_open())
         {
             // Get the size of the file
-            const auto size = file.tellg();
+            const size_t size = static_cast<size_t>(file.tellg());
 
             // Adjust file pointer to beginning
             file.seekg(0, std::ios::beg);
@@ -748,7 +748,7 @@ class md5_anim
 
         // Calculate the two frames to interpolate between
         const T frame_time = _time * _frame_rate;
-        const unsigned frame_low = std::floor(frame_time);
+        const unsigned frame_low = static_cast<unsigned>(std::floor(frame_time));
         const unsigned frame_high = frame_low + 1;
 
         // Calculate position between the two frames for interpolation

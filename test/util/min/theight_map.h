@@ -34,7 +34,7 @@ bool test_height_map()
 #endif
 
     // Create height map, generate a 257x257 image; 2^8 + 1 = 257
-    std::mt19937 gen(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    std::mt19937 gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
     min::height_map<float> map(gen, 8, 4.0, 8.0);
 
     // Test size of height map
@@ -50,7 +50,7 @@ bool test_height_map()
     {
         for (size_t j = 0; j < 257; j++)
         {
-            if (map.get(i, j) < 4.0)
+            if (map.get(i, j) < 4.0f)
             {
                 pass = false;
             }
@@ -63,7 +63,7 @@ bool test_height_map()
     {
         for (size_t j = 0; j < 257; j++)
         {
-            if (map.get(i, j) < 4.0)
+            if (map.get(i, j) < 4.0f)
             {
                 pass = false;
             }
