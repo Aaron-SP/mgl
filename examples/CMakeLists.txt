@@ -38,3 +38,7 @@ add_opengl("ex9")
 # Example 10
 make_program("ex10")
 add_opengl("ex10")
+
+# Example 11
+make_program("ex11")
+add_opengl("ex11")

@@ -1,5 +1,6 @@
 #version 330 core
 
+// Inputs from vertex shader
 in vec4 out_color;
 out vec4 color;
 

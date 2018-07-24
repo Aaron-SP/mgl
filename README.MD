@@ -289,3 +289,12 @@ The example will load two shadowed meshes, one shadowing the other using a shado
 Commands
 - 'MOUSE' move camera
 - 'Q' will exit the example.
+
+#### Example 11
+![Alt text](pictures/ex11.png)
+
+To run this project execute the command 'bin/ex11' in the project root directory. 
+The example will load a flat 2D image on the screen. You can override the default image by passing an image path like 'bin/ex11 path/to/image'.
+
+Commands
+- 'Q' will exit the example.

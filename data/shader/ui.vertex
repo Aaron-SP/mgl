@@ -1,0 +1,14 @@
+#version 330 core
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec2 uv;
+out vec2 out_uv;
+
+void main(void)
+{
+	// Calculate transformed position
+	gl_Position =  position;
+
+	// Pass UV coordinate to fragment shader
+	out_uv = uv;
+}

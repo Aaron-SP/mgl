@@ -20,6 +20,7 @@ BIN_EX7 = bin/ex7
 BIN_EX8 = bin/ex8
 BIN_EX9 = bin/ex9
 BIN_EX10 = bin/ex10
+BIN_EX11 = bin/ex11
 BIN_AL_TEST = bin/al_test
 BIN_BENCH = bin/gl_bench
 BIN_GL_TEST = bin/gl_test
@@ -98,6 +99,7 @@ EX7 = $(EXFLAGS) examples/ex7.cpp
 EX8 = $(EXFLAGS) examples/ex8.cpp
 EX9 = $(EXFLAGS) examples/ex9.cpp
 EX10 = $(EXFLAGS) examples/ex10.cpp
+EX11 = $(EXFLAGS) examples/ex11.cpp
 
 # Enable GS rendering
 ifdef MGL_GS_RENDER
@@ -127,6 +129,7 @@ example7: $(BIN_EX7)
 example8: $(BIN_EX8)
 example9: $(BIN_EX9)
 example10: $(BIN_EX10)
+example11: $(BIN_EX11)
 examples: $(BIN_EX1) $(BIN_EX2) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10)
 install:
 	mkdir -p $(MGL_DESTDIR)
@@ -167,6 +170,8 @@ $(BIN_EX9):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX9) -o $@ $(DYNAMIC)
 $(BIN_EX10):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC)
+$(BIN_EX11):
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX11) -o $@ $(DYNAMIC)
 
 # pattern matching .cpp
 %.o: %.cpp

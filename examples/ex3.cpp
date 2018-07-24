@@ -187,7 +187,7 @@ int test_screen_draw()
     // User can close with Q or use window manager
     while (!test.is_closed())
     {
-        for (int i = 0; i < 60; i++)
+        for (int i = 0; i < frames; i++)
         {
             // Start synchronizing the loop
             sync.start();
