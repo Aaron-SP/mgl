@@ -69,8 +69,13 @@ if (NOT OPENAL_FOUND)
         target_include_directories( ${ex} PUBLIC "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include" )
 
         endif()
+    elseif( WIN32 )
 
-    else()
+        # Find OPENAL on MSVC
+        find_library(openal
+                NAMES OpenAL32.lib)
+
+    elseif( UNIX )
 
         # Find OPENAL on UNIX
         find_library(openal
@@ -138,8 +143,17 @@ if (NOT GLEW_FOUND OR NOT OPENGL_FOUND)
         # Link with opengl
         target_link_libraries( ${ex} gdi32.dll )
         target_link_libraries( ${ex} opengl32.dll )
+    elseif( WIN32 )
 
-    else()
+        # Find GLEW on MSVC
+        find_library(glew 
+                    NAMES glew32.lib)
+
+        # Link with opengl
+        target_link_libraries( ${ex} gdi32.dll )
+        target_link_libraries( ${ex} opengl32.dll )
+
+    elseif( UNIX )
 
         # Find GLEW on UNIX
         find_library(glew 
@@ -191,8 +205,13 @@ if (NOT FREETYPE_FOUND)
                 HINTS  "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/lib" )
 
         endif()
+    elseif( WIN32 )
 
-    else()
+        # Find FREETYPE on MSVC
+        find_library(freetype
+                NAMES freetype.lib)
+
+    elseif( UNIX )
 
         # Find FREETYPE on UNIX
         find_library(freetype
@@ -248,8 +267,13 @@ function( add_vorbis ex )
         target_include_directories( ${ex} PUBLIC "C:/cygwin/usr/i686-w64-mingw32/sys-root/mingw/include" )
 
         endif()
+    elseif( WIN32 )
 
-    else()
+        # Find LIBVORBIS on MSVC
+        find_library(libvorbis
+                NAMES vorbisfile.lib)
+
+    elseif( UNIX )
 
         # Find LIBVORBIS on UNIX
         find_library(libvorbis

@@ -18,11 +18,21 @@ Verify a bin directory exists before compiling with the makefile.
 
 ### CMake
 
-The CMakeLists.txt file builds all example executables, tests, and benchmarks. Building with CMake has been tested on Cygwin, Unix, and Windows + VCpkg environments.
+The CMakeLists.txt file builds all example executables, tests, and benchmarks. Building with CMake has been tested on Cygwin, Unix, and Windows + VCPKG environments.
 
-### CMake + MSVC + VCpkg
+### CMake + MSVC + VCPKG
 
-Add the VCpkg library directory, "vcpkg\installed\*-windows", to your path so that CMake can find the libraries on the system. Install the required dependencies with VCpkg and make sure to run 'vcpkg integrate install' to automatically add the include and linker settings to the MSVC build files, since the CMake files do not try to set them for this environment. Use CMake to generate the Visual Studio projects files. Then run 'msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32' for building optimized x86 executables. You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the VCpkg directory to run the executables as it may not have been automatically copied by MSBuild.
+Install Build Tools for Visual Studio 2017, if you do not have the MSVC compiler on your system at https://visualstudio.microsoft.com/downloads.
+
+Find the VCPKG library directory
+- vcpkg\installed\*-windows
+
+Add the recently found VCPKG library directory to your path so that CMake can find the libraries on the system. Install the required dependencies with VCPKG and make sure to run **'vcpkg integrate install'** to automatically add the include and linker settings to the MSVC build files, since the CMake files do not try to set them for this environment. Use CMake to generate the Visual Studio projects files. 
+
+Then run the following command to build optimized x86 executables.
+- msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32
+
+You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the VCPKG directory to run the executables as it may not have been automatically copied by MSBuild.
 
 ### GNU MAKE
 
@@ -137,16 +147,23 @@ The following GLEW features are required.
 
 #### FREETYPE2
 
-FREETYPE2 is used for converting TTF fonts into bitmap texture atlases for text rendering. You only need this dependency if you wish to use text rendering features (renderer/text_buffer.h).
-No configuration is necessary, but you can find further information about FREETYPE2 at https://www.freetype.org/.
+You only need this dependency if you wish to use text rendering features (renderer/text_buffer.h).
+
+FREETYPE2 is used for converting TTF fonts into bitmap texture atlases for text rendering.
+No configuration is necessary, but you can find further information about FREETYPE2 at https://www.freetype.org.
 
 #### Libvorbis
 
-Libvorbis is used to decompress OGG files for sound playback. You only need this dependency if you wish to play OGG files (file/ogg.h).
+You only need this dependency if you wish to play OGG files (file/ogg.h).
+
+Libvorbis is used to decompress OGG files for sound playback.
+No configuration is necessary, but you can find further information about LIBVORBIS at https://xiph.org/vorbis.
 
 #### OPENAL
 
-OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org/. You only need this dependency if you wish to use sound playback features (sound/sound_buffer.h).
+You only need this dependency if you wish to use sound playback features (sound/sound_buffer.h).
+
+OPENAL is used for adding sound capabilities and requires installing the installer from Creative Labs Inc at https://www.openal.org.
 OpenAL-Soft can also be used for providing a software audio renderer. OpenAL-Soft can be downloaded at http://kcat.strangesoft.net/openal.html.
 
 #### Platform Specific
