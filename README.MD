@@ -16,13 +16,13 @@ If you are running Arch Linux, I have created PKGBUILD's for this project locate
 Verify a bin directory exists before compiling with the makefile. 
 - 'mkdir -p bin'
 
-### CMAKE
+### CMake
 
-The CMakeLists.txt file builds all example executables, tests, and benchmarks. Building with CMake has been tested on Cygwin, Unix, and Windows + Vcpkg environments.
+The CMakeLists.txt file builds all example executables, tests, and benchmarks. Building with CMake has been tested on Cygwin, Unix, and Windows + VCpkg environments.
 
-### CMAKE + MSVC + Vcpkg
+### CMake + MSVC + VCpkg
 
-Add the Vcpkg library directory(vcpkg\installed\*-windows) to your path so that CMake can find the libraries on the system. Install the required dependencies with Vcpkg and make sure to run 'vcpkg integrate install' to automatically add the include and linker settings to the MSVC build files, as the CMake files do not try to set them for this environment. Use CMake to generate the Visual Studio projects files. Then run 'msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32' for building optimized x86 executables. You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the Vcpkg directory to run the executables as it may not have been automatically copied by MSBuild.
+Add the VCpkg library directory, "vcpkg\installed\*-windows", to your path so that CMake can find the libraries on the system. Install the required dependencies with VCpkg and make sure to run 'vcpkg integrate install' to automatically add the include and linker settings to the MSVC build files, since the CMake files do not try to set them for this environment. Use CMake to generate the Visual Studio projects files. Then run 'msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32' for building optimized x86 executables. You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the VCpkg directory to run the executables as it may not have been automatically copied by MSBuild.
 
 ### GNU MAKE
 
@@ -41,10 +41,99 @@ These build targets have been tested for compilation on Arch Linux x64 and Windo
 
 ### Dependencies
 
+#### OPENGL
+
+OpenGL 3.2 is the minimum version required and OpenGL 4.3 is the maximum version required depending on enabled features.
+
+The following OpenGL functions are used for required for rendering. 
+- glActiveTexture
+- glAttachShader
+- glBindBuffer
+- glBindBufferBase
+- glBindFramebuffer
+- glBindTexture
+- glBindVertexArray
+- glBindVertexBuffer
+- glBufferData
+- glBufferSubData
+- glCheckFramebufferStatus
+- glClear
+- glClearBufferfv
+- glCompileShader
+- glCompressedTexImage2D
+- glCreateProgram
+- glCreateShader
+- glDeleteBuffers
+- glDeleteFramebuffers
+- glDeleteProgram
+- glDeleteShader
+- glDeleteTextures
+- glDeleteVertexArrays
+- glDetachShader
+- glDisableVertexAttribArray
+- glDrawArrays
+- glDrawArraysInstanced
+- glDrawBuffer
+- glDrawElements
+- glDrawElementsInstanced
+- glEnableVertexAttribArray
+- glFramebufferTexture
+- glGenBuffers
+- glGenerateMipmap
+- glGenFramebuffers
+- glGenTextures
+- glGenVertexArrays
+- glGetActiveUniformsiv
+- glGetCompressedTexImage
+- glGetIntegerv
+- glGetProgramInfoLog
+- glGetProgramiv
+- glGetShaderInfoLog
+- glGetShaderiv
+- glGetTexLevelParameteriv
+- glGetUniformBlockIndex
+- glGetUniformIndices
+- glGetUniformLocation
+- glHint
+- glIsProgram
+- glIsShader
+- glLinkProgram
+- glPixelStorei
+- glPolygonMode
+- glShaderSource
+- glTexImage2D
+- glTexParameteri
+- glTexSubImage2D
+- glUniform1i
+- glUniform3f
+- glUniform4f
+- glUniformBlockBinding
+- glUseProgram
+- glVertexAttribBinding
+- glVertexAttribFormat
+- glVertexAttribPointer
+- glViewport
+
 #### GLEW
 
 GLEW is used within the engine for adding OpenGL function support.
 No configuration is necessary, but you can find further information about GLEW at http://glew.sourceforge.net/.
+
+The following GLEW features are required.
+- GLEW_ARB_draw_instanced
+- GLEW_ARB_explicit_attrib_location
+- GLEW_ARB_fragment_program
+- GLEW_ARB_framebuffer_object
+- GLEW_ARB_framebuffer_sRGB
+- GLEW_ARB_fragment_shader
+- GLEW_EXT_texture_compression_s3tc
+- GLEW_EXT_texture_sRGB
+- GLEW_ARB_vertex_array_object
+- GLEW_ARB_vertex_attrib_binding
+- GLEW_ARB_vertex_buffer_object
+- GLEW_ARB_vertex_program
+- GLEW_ARB_vertex_shader
+- GLEW_ARB_uniform_buffer_object
 
 #### FREETYPE2
 
