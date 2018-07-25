@@ -7,10 +7,6 @@ This package is the source code distribution of the Minimal Graphics Library, he
 A GNU makefile is available for compilation with GCC|CLANG with MINGW for Windows platforms or GCC|CLANG with X11 for Linux platforms. 
 The makefile should work for both environments without modification.
 
-### PKGBUILD
-
-If you are running Arch Linux, I have created PKGBUILD's for this project located at https://github.com/Aaron-SP/pkgbuild/blob/master/mgl/PKGBUILD.
-
 ### Building
 
 Verify a bin directory exists before compiling with the makefile. 
@@ -46,8 +42,11 @@ The GNU makefile contains various build targets.
 - 'make install' - installs header files into /usr/include/mgl
 - 'make uninstall' - removes header files from /usr/include/mgl
 
-
 These build targets have been tested for compilation on Arch Linux x64 and Windows 7 (x86,x64) platforms.
+
+### PKGBUILD
+
+If you are running Arch Linux, I have created PKGBUILD's for this project located at https://github.com/Aaron-SP/pkgbuild/blob/master/mgl/PKGBUILD.
 
 ### Dependencies
 

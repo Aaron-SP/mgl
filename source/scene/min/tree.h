@@ -341,16 +341,16 @@ class tree
     }
     inline void set_scale(const K depth, const K size)
     {
-        // Set the tree cell scale 2^depth
-        const K bits = std::numeric_limits<K>::digits - 1;
-        _depth = std::min(bits, depth);
-
         // Optimize the tree scale if there are two many items
         if (size > 0)
         {
             const K scale = std::min(static_cast<K>(0x1 << _depth), static_cast<K>(std::ceil(std::cbrt(size))));
             _depth = static_cast<K>(std::ceil(std::log2(scale)));
         }
+
+        // Set the tree cell scale 2^depth
+        const K bits = std::numeric_limits<K>::digits - 1;
+        _depth = std::min(bits, depth);
 
         // Set the tree cell extent
         _scale = static_cast<K>(0x1 << _depth);

@@ -119,8 +119,7 @@ ifdef MGL_TEST_ALIGN
 endif
 
 # Default run target
-all: tests benchmarks examples
-benchmarks: $(BIN_BENCH)
+all: tests gl_bench examples
 example1: $(BIN_EX1)
 example2: $(BIN_EX2)
 example3: $(BIN_EX3)
@@ -141,6 +140,7 @@ lib: $(OBJGRAPH_SOURCES)
 	ar rvs bin/libmin.a $(OBJGRAPH_SOURCES)
 tests: $(BIN_AL_TEST) $(BIN_GL_TEST) $(BIN_WL_TEST)
 al_test: $(BIN_AL_TEST)
+gl_bench: $(BIN_BENCH)
 gl_test: $(BIN_GL_TEST)
 wl_test: $(BIN_WL_TEST)
 uninstall:
