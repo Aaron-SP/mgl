@@ -958,7 +958,7 @@ class vec2
         out.reserve(out.size() + vec2<T>::sub_size());
 
         // quarter extent of vector space
-        const vec2<T> h = ((max - min) * 0.25) + var<T>::TOL_REL;
+        const vec2<T> h = (max - min) * 0.25f;
 
         // Center of the vector space
         const vec2<T> c = (max + min) * 0.5f;

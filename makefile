@@ -21,6 +21,7 @@ BIN_EX8 = bin/ex8
 BIN_EX9 = bin/ex9
 BIN_EX10 = bin/ex10
 BIN_EX11 = bin/ex11
+BIN_EX12 = bin/ex12
 BIN_AL_TEST = bin/al_test
 BIN_BENCH = bin/gl_bench
 BIN_GL_TEST = bin/gl_test
@@ -100,6 +101,7 @@ EX8 = $(EXFLAGS) examples/ex8.cpp
 EX9 = $(EXFLAGS) examples/ex9.cpp
 EX10 = $(EXFLAGS) examples/ex10.cpp
 EX11 = $(EXFLAGS) examples/ex11.cpp
+EX12 = $(EXFLAGS) examples/ex12.cpp
 
 # Enable GS rendering
 ifdef MGL_GS_RENDER
@@ -130,7 +132,8 @@ example8: $(BIN_EX8)
 example9: $(BIN_EX9)
 example10: $(BIN_EX10)
 example11: $(BIN_EX11)
-examples: $(BIN_EX1) $(BIN_EX2) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10)
+example12: $(BIN_EX12)
+examples: $(BIN_EX1) $(BIN_EX2) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10) $(BIN_EX11) $(BIN_EX12)
 install:
 	mkdir -p $(MGL_DESTDIR)
 	cp -r source/* $(MGL_DESTDIR)
@@ -145,9 +148,9 @@ uninstall:
 $(BIN_AL_TEST):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_AL) -o $@ $(DYNAMIC)
 $(BIN_BENCH):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_BENCH) -o $@ $(DYNAMIC)
 $(BIN_GL_TEST):
-	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_GL) -o $@ $(DYNAMIC)
 $(BIN_WL_TEST):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(TEST_WL) -o $@ $(DYNAMIC)
 $(BIN_EX1):
@@ -172,6 +175,8 @@ $(BIN_EX10):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX10) -o $@ $(DYNAMIC)
 $(BIN_EX11):
 	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX11) -o $@ $(DYNAMIC)
+$(BIN_EX12):
+	$(CXX) $(SYMBOLS) $(CXXFLAGS) $(EX12) -o $@ $(DYNAMIC)
 
 # pattern matching .cpp
 %.o: %.cpp

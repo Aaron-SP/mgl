@@ -157,7 +157,7 @@ class physics_test
   public:
     // Load window shaders and program
     physics_test()
-        : _win("Test sphere physics simulation", 720, 480, 3, 3),
+        : _win("Sphere Physics Simulation", 720, 480, 3, 3),
           _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
@@ -299,7 +299,7 @@ int test_render_loop()
         const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
-        test.set_title("Test oobb physics simulation: FPS: " + std::to_string(fps));
+        test.set_title("Sphere Physics Simulation - FPS: " + std::to_string(fps));
     }
 
     return 0;

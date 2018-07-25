@@ -112,7 +112,7 @@ class particle_test
   public:
     // Load window shaders and program
     particle_test()
-        : _win("Example particle system", 720, 480, 3, 3),
+        : _win("Particle System", 720, 480, 3, 3),
           _vertex("data/shader/emitter.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/emitter.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
@@ -277,7 +277,7 @@ int test_render_loop()
         const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
-        test.set_title("Example particle system: FPS: " + std::to_string(fps));
+        test.set_title("Particle System - FPS: " + std::to_string(fps));
     }
 
     return 0;

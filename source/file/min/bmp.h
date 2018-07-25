@@ -205,6 +205,11 @@ class bmp
     {
         load<mem_file>(mem);
     }
+    bmp(const uint32_t w, const uint32_t h, const uint32_t bpp)
+        : _w(w), _h(h), _size(w * h * bpp), _bpp(bpp)
+    {
+        _pixel.resize(_size);
+    }
     inline uint32_t get_width() const
     {
         return _w;
@@ -224,6 +229,27 @@ class bmp
     inline uint32_t get_pixel_size() const
     {
         return _bpp;
+    }
+    inline void set(uint32_t i, const uint8_t r, const uint8_t g, const uint8_t b)
+    {
+        // Convert to byte address
+        i *= 3;
+
+        // Set color channels
+        _pixel[i++] = b;
+        _pixel[i++] = g;
+        _pixel[i++] = r;
+    }
+    inline void set(uint32_t i, const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+    {
+        // Convert to byte address
+        i *= 4;
+
+        // Set color channels
+        _pixel[i++] = r;
+        _pixel[i++] = g;
+        _pixel[i++] = b;
+        _pixel[i++] = a;
     }
 };
 }

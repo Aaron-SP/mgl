@@ -1444,7 +1444,7 @@ class vec4
         out.reserve(out.size() + vec4<T>::sub_size());
 
         // Quarter extent of vector space
-        const vec4<T> h = ((max - min) * 0.25f) + var<T>::TOL_REL;
+        const vec4<T> h = (max - min) * 0.25f;
 
         // Center of the vector space
         const vec4<T> c = (max + min) * 0.5f;

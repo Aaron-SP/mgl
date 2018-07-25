@@ -57,7 +57,7 @@ bool test_sphere_tree()
         max = min::vec2<double>(3.0, 3.0);
         items.push_back(min::sphere<double, min::vec2>(min, max));
 
-        t.insert(items);
+        t.insert(items, 2);
 
         // Maximum extent is sqrt(2*6^2) = sqrt(72) = 8.485 - Box A
         // Extent depth 2 is sqrt(800)/2/2 = 7.071
@@ -234,7 +234,7 @@ bool test_sphere_tree()
         max = min::vec3<double>(3.0, 3.0, 3.0);
         items.push_back(min::sphere<double, min::vec3>(min, max));
 
-        t.insert(items);
+        t.insert(items, 2);
 
         // Maximum extent is sqrt(3*6^2) = sqrt(108) = 10.392 - Box A
         // Extent depth 2 is sqrt(1200)/2/2 = 8.660
@@ -415,7 +415,7 @@ bool test_sphere_tree()
         max = min::vec4<double>(3.0, 3.0, 3.0, 0.0);
         items.push_back(min::sphere<double, min::vec4>(min, max));
 
-        t.insert(std::move(items));
+        t.insert(items, 2);
 
         // Maximum extent is sqrt(3*6^2) = sqrt(108) = 10.392 - Box A
         // Extent depth 2 is sqrt(1200)/2/2 = 8.660

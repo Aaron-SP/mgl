@@ -15,20 +15,24 @@ limitations under the License.
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <min/aabbox.h>
 #include <min/bmp.h>
 #include <min/camera.h>
-#include <min/dds.h>
+#include <min/intersect.h>
 #include <min/loop_sync.h>
 #include <min/program.h>
+#include <min/ray.h>
 #include <min/settings.h>
 #include <min/shader.h>
+#include <min/sphere.h>
 #include <min/texture_buffer.h>
+#include <min/tree.h>
 #include <min/ui_vertex.h>
 #include <min/vertex_buffer.h>
 #include <min/window.h>
 #include <string>
 
-class image_view_test
+class ray_trace_test
 {
   private:
     // OpenGL window
@@ -43,6 +47,11 @@ class image_view_test
     min::vertex_buffer<float, uint32_t, min::ui_vertex, GL_FLOAT, GL_UNSIGNED_INT> _sbuffer;
     min::texture_buffer _tbuffer;
     GLuint _img_id;
+
+    // For casting rays
+    min::aabbox<float, min::vec3> _world;
+    min::vec3<float> _gravity;
+    min::tree<float, uint_fast16_t, uint_fast32_t, min::vec3, min::aabbox, min::sphere> _tree;
 
     inline float x_coord(const float x)
     {
@@ -61,39 +70,24 @@ class image_view_test
         keyboard.add(min::window::key_code::KEYQ);
 
         // Register callback function for closing window
-        keyboard.register_keydown(min::window::key_code::KEYQ, image_view_test::close_window, (void *)&_win);
+        keyboard.register_keydown(min::window::key_code::KEYQ, ray_trace_test::close_window, (void *)&_win);
     }
-    inline void load_image(const char *file_name)
+    inline void load_image()
     {
         // Get the window size
         const uint_fast16_t win_width = _win.get_width();
         const uint_fast16_t win_height = _win.get_height();
 
-        uint_fast16_t img_width = 0;
-        uint_fast16_t img_height = 0;
-        std::string file(file_name);
-        std::string ext = file.substr(file.find_last_of(".") + 1);
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        if (ext == "dds")
-        {
-            // Load DDS image
-            const min::dds d = min::dds(file);
-            img_width = d.get_width();
-            img_height = d.get_height();
+        // Load BMP image
+        const uint_fast16_t img_width = 512;
+        const uint_fast16_t img_height = 512;
+        min::bmp b = min::bmp(img_width, img_height, 3);
 
-            // Load texture buffer
-            _img_id = _tbuffer.add_dds_texture(d);
-        }
-        else
-        {
-            // Load BMP image
-            const min::bmp b = min::bmp(file);
-            img_width = b.get_width();
-            img_height = b.get_height();
+        // Ray trace the image
+        ray_trace(b, img_width, img_height);
 
-            // Load texture buffer
-            _img_id = _tbuffer.add_bmp_texture(b);
-        }
+        // Load texture buffer
+        _img_id = _tbuffer.add_bmp_texture(b);
 
         // Load textures
         uint_fast16_t width = 0;
@@ -162,14 +156,95 @@ class image_view_test
         // Load buffer with data
         _sbuffer.upload();
     }
+    inline void ray_trace(min::bmp &b, const uint_fast16_t width, const uint_fast16_t height)
+    {
+        // Create spheres
+        std::vector<min::sphere<float, min::vec3>> spheres;
+        spheres.reserve(10);
+        spheres.emplace_back(min::vec3<float>(0.0, 0.0, 10.0), 2.0f);
+        spheres.emplace_back(min::vec3<float>(-2.5, -2.5, 10.0), 1.0f);
+        spheres.emplace_back(min::vec3<float>(-2.5, 2.5, 10.0), 1.0f);
+        spheres.emplace_back(min::vec3<float>(2.5, -2.5, 10.0), 1.0f);
+        spheres.emplace_back(min::vec3<float>(2.5, 2.5, 10.0), 1.0f);
+
+        // Add spheres to the tree
+        _tree.insert(spheres);
+
+        // Create screen in 3D space
+        const float x_slope = 2.0f / width;
+        const float y_slope = 2.0f / height;
+
+        // Create ray origin
+        const min::vec3<float> origin;
+        min::vec3<float> point;
+        float min_d = 100.0f;
+        float max_d = 0.0f;
+
+        // Iterate over Y values
+        for (uint32_t i = 0; i < height; i++)
+        {
+            // Calculate Y
+            const float y_coord = -1.0f + (y_slope * i);
+            const uint32_t row = i * height;
+
+            // Iterate over X values
+            for (uint32_t j = 0; j < width; j++)
+            {
+                // Calculate X
+                const float x_coord = -1.0f + (x_slope * j);
+
+                // Create a ray through the pixel
+                const min::ray<float, min::vec3> r(origin, min::vec3<float>(x_coord, y_coord, 2.0));
+
+                // Access the pixel index
+                const uint32_t pixel_index = row + j;
+
+                // Get the intersections with ray
+                const auto inter = _tree.get_collisions(r);
+
+                // If we hit the sphere
+                if (inter.size() > 0)
+                {
+                    // Calculate distance
+                    const float d = (inter[0].second - origin).magnitude();
+                    min_d = std::min(min_d, d);
+                    max_d = std::max(max_d, d);
+
+                    // Calculate distance between [0, 1.0]
+                    constexpr float denom = 11.0f - 8.0f;
+                    const float dist_scale = (d - 8.0f) / denom;
+
+                    // Calculate pixel color
+                    constexpr float contrast = 4.0f;
+                    const float color = 255.0f / (dist_scale * contrast + 1.0f);
+                    const uint8_t value = static_cast<uint8_t>(color);
+
+                    // Write pixel value
+                    b.set(pixel_index, value, value, value);
+                }
+                else
+                {
+                    // Write black pixel
+                    b.set(pixel_index, 0, 0, 0);
+                }
+            }
+        }
+
+        // Alert distance range for scaling pixel values
+        std::cout << "Min Distance: " << min_d << std::endl;
+        std::cout << "Max Distance: " << max_d << std::endl;
+    }
 
   public:
     // Load window shaders and program
-    image_view_test(const char *file)
-        : _win("Image Viewer", 720, 480, 3, 3),
+    ray_trace_test()
+        : _win("Sphere Ray Tracer", 720, 480, 3, 3),
           _vertex("data/shader/ui.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/ui.fragment", GL_FRAGMENT_SHADER),
-          _prog(_vertex, _fragment)
+          _prog(_vertex, _fragment),
+          _world(min::vec3<float>(-2000.0, -2000.0, -2000.0), min::vec3<float>(2000.0, 2000.0, 2000.0)),
+          _gravity(0.0, -10.0, 0.0),
+          _tree(_world)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -178,7 +253,7 @@ class image_view_test
         load_keyboard();
 
         // Load image texture and vertices
-        load_image(file);
+        load_image();
 
         // Show the window
         _win.show();
@@ -195,7 +270,7 @@ class image_view_test
         }
 
         // Alert that we received the call back
-        std::cout << "image_view_test: Shutdown called by user" << std::endl;
+        std::cout << "ray_trace_test: Shutdown called by user" << std::endl;
     }
     inline void clear_background() const
     {
@@ -230,13 +305,10 @@ class image_view_test
     }
 };
 
-int load_image_file(const char *file)
+int load_ray_tracer()
 {
-    // Alert user of loaded file
-    std::cout << "image_view_test: Opening file '" << file << "' " << std::endl;
-
     // Load window shaders and program, enable shader program
-    image_view_test test(file);
+    ray_trace_test test;
 
     // Setup controller to run at 60 frames per second
     const int frames = 60;
@@ -271,13 +343,7 @@ int main(int argc, char *argv[])
 {
     try
     {
-        // See if we are passing an input file
-        if (argc > 1)
-        {
-            return load_image_file(argv[1]);
-        }
-
-        return load_image_file("data/texture/winter_moon.dds");
+        return load_ray_tracer();
     }
     catch (std::exception &ex)
     {

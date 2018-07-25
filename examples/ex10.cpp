@@ -202,7 +202,7 @@ class render_loop_test
   public:
     // Load window shaders and program
     render_loop_test()
-        : _win("Example shadow buffer render loop", 720, 480, 3, 3),
+        : _win("Shadow Model Viewer", 720, 480, 3, 3),
           _v1("data/shader/shadow1.vertex", GL_VERTEX_SHADER),
           _f1("data/shader/shadow1.fragment", GL_FRAGMENT_SHADER),
           _prog1(_v1, _f1),
@@ -356,7 +356,7 @@ int test_render_loop()
         const double fps = sync.get_fps();
 
         // Update the window title with FPS count of last frame
-        test.set_title("Example render loop with first person camera: FPS: " + std::to_string(fps));
+        test.set_title("Shadow Model Viewer - FPS: " + std::to_string(fps));
     }
 
     return 0;

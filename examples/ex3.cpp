@@ -76,7 +76,7 @@ class screen_draw_test
   public:
     // Load window shaders and program
     screen_draw_test()
-        : _win("Test user input: Click 3x to add triangles", 720, 480, 3, 3),
+        : _win("Click 3x to add CW triangles", 720, 480, 3, 3),
           _vertex("data/shader/color.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/color.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment)

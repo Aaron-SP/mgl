@@ -175,7 +175,7 @@ class md5_render_loop_test
   public:
     // Load window shaders and program
     md5_render_loop_test()
-        : _win("Example animated MD5 with dynamic text", 720, 480, 3, 3),
+        : _win("MD5 Model Viewer", 720, 480, 3, 3),
           _vert_vertex("data/shader/md5.vertex", GL_VERTEX_SHADER),
           _vert_fragment("data/shader/md5.fragment", GL_FRAGMENT_SHADER),
           _text_vertex("data/shader/text.vertex", GL_VERTEX_SHADER),

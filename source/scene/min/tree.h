@@ -71,8 +71,8 @@ class tree_node
 
   public:
     tree_node(const cell<T, vec> &c) : _cell(c) {}
-    tree_node(const vec<T> &min, const vec<T> &max) : _cell(min, max, var<T>::TOL_REL) {}
-    tree_node(const vec<T> &c, const T r) : _cell(c, r, var<T>::TOL_REL) {}
+    tree_node(const vec<T> &min, const vec<T> &max) : _cell(min, max) {}
+    tree_node(const vec<T> &c, const T r) : _cell(c, r) {}
     inline const std::vector<tree_node<T, K, L, vec, cell, shape>> &get_children() const
     {
         return _child;
@@ -344,15 +344,16 @@ class tree
         // Set the tree cell scale 2^depth
         const K bits = std::numeric_limits<K>::digits - 1;
         _depth = std::min(bits, depth);
-        _scale = static_cast<K>(0x1 << _depth);
 
         // Optimize the tree scale if there are two many items
         if (size > 0)
         {
-            _scale = std::min(_scale, static_cast<K>(std::ceil(std::cbrt(size))));
+            const K scale = std::min(static_cast<K>(0x1 << _depth), static_cast<K>(std::ceil(std::cbrt(size))));
+            _depth = static_cast<K>(std::ceil(std::log2(scale)));
         }
 
         // Set the tree cell extent
+        _scale = static_cast<K>(0x1 << _depth);
         _cell_extent = _root.get_cell().get_extent() / static_cast<T>(_scale);
     }
     inline void scale(const std::vector<shape<T, vec>> &shapes)

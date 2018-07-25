@@ -396,7 +396,7 @@ bool test_aabb_grid()
         max = min::vec4<double>(4.0, 5.0, 6.0, 1.0);
         items.push_back(min::aabbox<double, min::vec4>(min, max));
 
-        g.insert(std::move(items));
+        g.insert(items);
 
         // Maximum extent is sqrt(3*6^2) = sqrt(108) = 10.392 - Box A
         // Extent scale 2 is sqrt(1200)/2/2 = 8.660; ceil(cbrt(3)) == 2

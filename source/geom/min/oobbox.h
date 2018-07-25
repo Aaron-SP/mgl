@@ -69,8 +69,6 @@ class oobbox_base
     oobbox_base() : _axes(vec<T>::axes()) {}
     oobbox_base(const vec<T> &min, const vec<T> &max)
         : _axes(vec<T>::axes()), _center((max + min) * 0.5), _half_extent((max - min) * 0.5) {}
-    oobbox_base(const vec<T> &min, const vec<T> &max, const T tol)
-        : _axes(vec<T>::axes()), _center((max + min) * 0.5), _half_extent(((max - min) * 0.5) + tol) {}
     oobbox_base(const std::vector<vec<T>> &verts) : _axes(vec<T>::axes())
     {
         add(verts);
@@ -184,7 +182,6 @@ class oobbox<T, vec2> : public oobbox_base<T, vec2, mat2>
   public:
     oobbox() : oobbox_base<T, vec2, mat2>() {}
     oobbox(const vec2<T> &min, const vec2<T> &max) : oobbox_base<T, vec2, mat2>(min, max) {}
-    oobbox(const vec2<T> &min, const vec2<T> &max, const T tol) : oobbox_base<T, vec2, mat2>(min, max, tol) {}
     oobbox(const std::vector<vec2<T>> &verts) : oobbox_base<T, vec2, mat2>(verts) {}
 };
 
@@ -195,7 +192,6 @@ class oobbox<T, vec3> : public oobbox_base<T, vec3, quat>
   public:
     oobbox() : oobbox_base<T, vec3, quat>() {}
     oobbox(const vec3<T> &min, const vec3<T> &max) : oobbox_base<T, vec3, quat>(min, max) {}
-    oobbox(const vec3<T> &min, const vec3<T> &max, const T tol) : oobbox_base<T, vec3, quat>(min, max, tol) {}
     oobbox(const std::vector<vec3<T>> &verts) : oobbox_base<T, vec3, quat>(verts) {}
 };
 
@@ -206,7 +202,6 @@ class oobbox<T, vec4> : public oobbox_base<T, vec4, quat>
   public:
     oobbox() : oobbox_base<T, vec4, quat>() {}
     oobbox(const vec4<T> &min, const vec4<T> &max) : oobbox_base<T, vec4, quat>(min, max) {}
-    oobbox(const vec4<T> &min, const vec4<T> &max, const T tol) : oobbox_base<T, vec4, quat>(min, max, tol) {}
     oobbox(const std::vector<vec4<T>> &verts) : oobbox_base<T, vec4, quat>(verts) {}
 };
 }

@@ -1428,7 +1428,7 @@ class vec3
         out.reserve(out.size() + vec3<T>::sub_size());
 
         // Quarter extent of vector space
-        const vec3<T> h = ((max - min) * 0.25f) + var<T>::TOL_REL;
+        const vec3<T> h = (max - min) * 0.25f;
 
         // Center of the vector space
         const vec3<T> c = (max + min) * 0.5f;
