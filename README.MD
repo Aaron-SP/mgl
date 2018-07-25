@@ -210,7 +210,7 @@ All examples assume that the current working directory is the project root direc
 
 In order to link with the static library all template classes should be declared with 'extern template class' to prevent the automatic instantiation of members.
 
-#### Example 1
+#### Example 1 - Model Viewer
 ![Alt text](pictures/ex1.png)
 
 To run this project execute the command 'bin/ex1' in the project root directory. 
@@ -220,7 +220,7 @@ Commands
 - 'MOUSE' move camera
 - 'Q' will exit the example.
 
-#### Example 2
+#### Example 2 - Texture Compressor
 This example is a texture compressor that will create DDS files using the GPU to perform DDS compression. 
 - Usage definition: 'bin/ex2 <uncompressed.bmp> -o <compressed.dds> -t <compression_type> -m <bool>'
 - <uncompressed.bmp>: File that will serve as input, BMP only.
@@ -231,7 +231,7 @@ This example is a texture compressor that will create DDS files using the GPU to
 Usage example:   'bin/ex2 infile.bmp -o outfile.dds -t DTX1 -m false'
 This will convert a BMP image into a DXT1 DDS file without generating mipmaps.
 
-#### Example 3
+#### Example 3 - Mouse Input Test
 ![Alt text](pictures/ex3.png)
 
 To run this project execute the command 'bin/ex3' in the project root directory. 
@@ -240,7 +240,7 @@ The example will record mouse clicks to the output log and draw CW triangles on 
 Commands
 - 'Q' will exit the example.
 
-#### Example 4
+#### Example 4 - Particle System
 ![Alt text](pictures/ex4.png)
 
 To run this project execute the command 'bin/ex4' in the project root directory. 
@@ -250,7 +250,7 @@ Commands
 - 'ENTER' to change force applicators
 - 'Q' will exit the example.
 
-#### Example 5
+#### Example 5 - MD5 Viewer
 ![Alt text](pictures/ex5.png)
 
 To run this project execute the command 'bin/ex5' in the project root directory. 
@@ -259,7 +259,7 @@ The example will render an animated MD5 model and allow looking around the viewp
 Commands
 - 'Q' will exit the example.
 
-#### Example 6-8
+#### Example 6-8 - Physics Simulation
 ![Alt text](pictures/ex6.png)
 
 To run these projects execute the command 'bin/ex6', 'bin/ex7', or 'bin/ex8' in the project root directory. 
@@ -268,7 +268,7 @@ The example will render an animated physics simulation using spheres, aabb, or o
 Commands
 - 'Q' will exit the example.
 
-#### Example 9
+#### Example 9 - MD5 Physics Simulation
 ![Alt text](pictures/ex9.png)
 
 To run this project execute the command 'bin/ex5' in the project root directory. 
@@ -280,7 +280,7 @@ Commands
 - 'ENTER' spawn a OOBB physics cube
 - 'Q' will exit the example.
 
-#### Example 10
+#### Example 10 - Shadow Model Viewer
 ![Alt text](pictures/ex10.png)
 
 To run this project execute the command 'bin/ex10' in the project root directory. 
@@ -290,11 +290,20 @@ Commands
 - 'MOUSE' move camera
 - 'Q' will exit the example.
 
-#### Example 11
+#### Example 11 - Image Viewer
 ![Alt text](pictures/ex11.png)
 
 To run this project execute the command 'bin/ex11' in the project root directory. 
 The example will load a flat 2D image on the screen. You can override the default image by passing an image path like 'bin/ex11 path/to/image'.
+
+Commands
+- 'Q' will exit the example.
+
+#### Example 12 - Ray Tracer
+![Alt text](pictures/ex12.png)
+
+To run this project execute the command 'bin/ex12' in the project root directory. 
+The example will ray trace 5 spheres and store the scene depth in a texture and then render that texture as a flat 2D image on the screen.
 
 Commands
 - 'Q' will exit the example.
