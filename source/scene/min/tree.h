@@ -339,15 +339,8 @@ class tree
         // Use grid to sort all shapes in tree since it is a global identifier
         return vec<T>::grid_key(_root.get_cell().get_min(), _cell_extent, _scale, point);
     }
-    inline void set_scale(const K depth, const K size)
+    inline void set_scale(const K depth)
     {
-        // Optimize the tree scale if there are two many items
-        if (size > 0)
-        {
-            const K scale = std::min(static_cast<K>(0x1 << _depth), static_cast<K>(std::ceil(std::cbrt(size))));
-            _depth = static_cast<K>(std::ceil(std::log2(scale)));
-        }
-
         // Set the tree cell scale 2^depth
         const K bits = std::numeric_limits<K>::digits - 1;
         _depth = std::min(bits, depth);
@@ -381,7 +374,7 @@ class tree
         const K depth = static_cast<K>(std::ceil(std::log2(d2 / max)));
 
         // Set the scale from depth
-        set_scale(depth, size);
+        set_scale(depth);
     }
     inline void sort(const std::vector<shape<T, vec>> &shapes)
     {
@@ -630,7 +623,7 @@ class tree
         if (size > 0)
         {
             // Set the scale from depth
-            set_scale(depth, 0);
+            set_scale(depth);
 
             // Process and sort shapes by grid key id
             sort(shapes);
