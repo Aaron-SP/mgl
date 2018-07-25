@@ -99,11 +99,13 @@ class static_vector
     }
     inline static_vector<T> &operator=(static_vector<T> &&sv)
     {
-        _beg = sv._beg;
-        _end = sv._end;
-        sv._beg = nullptr;
-        sv._end = nullptr;
-
+        if (this != &sv)
+        {
+            _beg = sv._beg;
+            _end = sv._end;
+            sv._beg = nullptr;
+            sv._end = nullptr;
+        }
         return *this;
     }
     inline const T &operator[](const size_t index) const

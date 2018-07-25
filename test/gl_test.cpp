@@ -44,6 +44,7 @@ limitations under the License.
 #include <min/tray.h>
 #include <min/traygrid.h>
 #include <min/traytree.h>
+#include <min/trenderer_alignment.h>
 #include <min/tsample.h>
 #include <min/tserial.h>
 #include <min/tsort.h>
@@ -110,6 +111,9 @@ int main()
         out = out && test_sphere_intersect();
         out = out && test_sphere_resolve();
         out = out && test_sphere_tree();
+
+        // Renderer tests
+        out = out && test_renderer_align();
 
         // Scene tests
         out = out && test_camera();
