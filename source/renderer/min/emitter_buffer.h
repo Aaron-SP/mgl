@@ -16,6 +16,7 @@ limitations under the License.
 #define _MGL_EMITTERBUFFER_MGL_
 
 #include <cmath>
+#include <min/gl_type.h>
 #include <min/vec3.h>
 #include <min/window.h>
 #include <random>
@@ -34,7 +35,7 @@ limitations under the License.
 namespace min
 {
 
-template <typename T, GLenum FLOAT_TYPE>
+template <typename T>
 class emitter_buffer
 {
   private:
@@ -185,7 +186,7 @@ class emitter_buffer
         glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
         // Specify the vertex attributes in location = 0, tightly packed
-        glVertexAttribPointer(0, 3, FLOAT_TYPE, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(0, 3, FLOAT_TYPE<T>(), GL_FALSE, 0, nullptr);
         glEnableVertexAttribArray(0);
     }
     ~emitter_buffer()

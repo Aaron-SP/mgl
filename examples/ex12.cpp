@@ -44,7 +44,7 @@ class ray_trace_test
     min::program _prog;
 
     // Buffers for model data and textures
-    min::vertex_buffer<float, uint32_t, min::ui_vertex, GL_FLOAT, GL_UNSIGNED_INT> _sbuffer;
+    min::vertex_buffer<float, uint32_t, min::ui_vertex> _sbuffer;
     min::texture_buffer _tbuffer;
     GLuint _img_id;
 

@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef _MGL_TEXTBUFFER_MGL_
 #define _MGL_TEXTBUFFER_MGL_
 
+#include <min/gl_type.h>
 #include <min/program.h>
 #include <min/vec2.h>
 #include <min/vec4.h>
@@ -156,7 +157,7 @@ class text_buffer
 
         // Specify the vertex attributes in location = 0, no offset
 #ifdef MGL_VB43
-        glVertexAttribFormat(0, 4, GL_FLOAT, GL_FALSE, 0);
+        glVertexAttribFormat(0, 4, FLOAT_TYPE<float>(), GL_FALSE, 0);
 
         //  Create the buffer binding point
         glVertexAttribBinding(0, 0);
@@ -164,7 +165,7 @@ class text_buffer
         // No offset, standard stride, binding point 0
         glBindVertexBuffer(0, _vbo[0], 0, sizeof(min::vec4<float>));
 #else
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(0, 4, FLOAT_TYPE<float>(), GL_FALSE, 0, nullptr);
 #endif
     }
 
@@ -559,7 +560,7 @@ class text_buffer
         glBindVertexBuffer(0, _vbo[buffer_index], 0, sizeof(min::vec4<float>));
 #else
         // Redundantly recreate the vertex attributes
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(0, 4, FLOAT_TYPE<float>(), GL_FALSE, 0, nullptr);
 #endif
     }
     inline void unbind() const

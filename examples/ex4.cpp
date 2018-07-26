@@ -37,7 +37,7 @@ class particle_test
     min::program _prog;
 
     // Buffers for particle data and textures
-    min::emitter_buffer<float, GL_FLOAT> _ebuffer;
+    min::emitter_buffer<float> _ebuffer;
     std::mt19937 _gen;
     min::texture_buffer _tbuffer;
     GLuint _bmp_id;

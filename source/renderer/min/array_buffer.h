@@ -16,6 +16,7 @@ limitations under the License.
 #define _MGL_ARRAY_BUFFER_MGL_
 
 #include <cstdint>
+#include <min/gl_type.h>
 #include <min/mesh.h>
 #include <min/window.h>
 #include <stdexcept>
@@ -24,7 +25,7 @@ limitations under the License.
 namespace min
 {
 
-template <typename T, typename K, template <typename, typename, GLenum> class vertex_type, GLenum FLOAT_TYPE>
+template <typename T, typename K, template <typename, typename, GLenum> class vertex_type>
 class array_buffer
 {
   private:
@@ -63,10 +64,10 @@ class array_buffer
         if (attr_size > 0)
         {
             // Check that the mesh is valid for this vertex type
-            vertex_type<T, K, FLOAT_TYPE>::check(m);
+            vertex_type<T, K, FLOAT_TYPE<T>()>::check(m);
 
             // Get the width of the vertex structure, in floats not bytes
-            const size_t width = vertex_type<T, K, FLOAT_TYPE>::width();
+            const size_t width = vertex_type<T, K, FLOAT_TYPE<T>()>::width();
 
             // Resize the vector to hold the new mesh data, 'float_size' is number of floats not bytes
             // 'float_offset' is the number of floats not bytes
@@ -86,7 +87,7 @@ class array_buffer
             _data_index[_index].push_back(std::make_pair(attr_size, attr_offset));
 
             // Interlace the data in the buffer in place
-            vertex_type<T, K, FLOAT_TYPE>::copy(_data[_index], m, float_offset);
+            vertex_type<T, K, FLOAT_TYPE<T>()>::copy(_data[_index], m, float_offset);
         }
         else
         {
@@ -106,7 +107,7 @@ class array_buffer
 
         // Send the data to the GPU, calculate data size in bytes
         const size_t data_bytes = _data[_index].size() * sizeof(T);
-        glBufferData(GL_ARRAY_BUFFER, data_bytes, &_data[_index][0], vertex_type<T, K, FLOAT_TYPE>::buffer_type());
+        glBufferData(GL_ARRAY_BUFFER, data_bytes, &_data[_index][0], vertex_type<T, K, FLOAT_TYPE<T>()>::buffer_type());
     }
 
   public:
@@ -138,7 +139,7 @@ class array_buffer
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[0]);
 
         // vertex specific creation routine
-        vertex_type<T, K, FLOAT_TYPE>::create(_vbo[0]);
+        vertex_type<T, K, FLOAT_TYPE<T>()>::create(_vbo[0]);
     }
     ~array_buffer()
     {
@@ -148,7 +149,7 @@ class array_buffer
             bind();
 
             // Vertex specific destruction routine
-            vertex_type<T, K, FLOAT_TYPE>::destroy();
+            vertex_type<T, K, FLOAT_TYPE<T>()>::destroy();
 
             // Unbind the VBO and delete it
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -192,7 +193,7 @@ class array_buffer
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[_index]);
 
         // vertex specific creation routine
-        vertex_type<T, K, FLOAT_TYPE>::change_bind_buffer(_vbo[_index]);
+        vertex_type<T, K, FLOAT_TYPE<T>()>::change_bind_buffer(_vbo[_index]);
     }
     inline void clear()
     {
@@ -252,7 +253,7 @@ class array_buffer
     inline void reserve(const size_t vertex, const size_t meshes)
     {
         // Get the width of the vertex structure, in floats not bytes
-        const size_t width = vertex_type<T, K, FLOAT_TYPE>::width();
+        const size_t width = vertex_type<T, K, FLOAT_TYPE<T>()>::width();
 
         // Reserve memory for vertex buffer
         _data[_index].reserve(vertex * width);

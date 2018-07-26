@@ -39,7 +39,7 @@ class texture_test
     min::shader _fragment;
     min::program _prog;
 
-    min::vertex_buffer<float, uint16_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_SHORT> _sbuffer;
+    min::vertex_buffer<float, uint16_t, min::static_vertex> _sbuffer;
     min::texture_buffer _tbuffer;
     GLuint _bmp_id;
     GLuint _dds_id;

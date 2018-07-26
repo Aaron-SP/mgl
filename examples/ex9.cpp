@@ -46,7 +46,7 @@ class character
     min::md5_model<float, uint32_t, min::vec4, min::aabbox> _md5_model;
 
     // Buffers for model data and textures
-    min::vertex_buffer<float, uint32_t, min::skeletal_vertex, GL_FLOAT, GL_UNSIGNED_INT> _skbuffer;
+    min::vertex_buffer<float, uint32_t, min::skeletal_vertex> _skbuffer;
     min::texture_buffer _texture_buffer;
     GLuint _bmp_id;
 
@@ -208,7 +208,7 @@ class physics_test
     min::program _prog;
 
     // Buffers for model data and textures
-    min::vertex_buffer<float, uint16_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_SHORT> _sbuffer;
+    min::vertex_buffer<float, uint16_t, min::static_vertex> _sbuffer;
     min::texture_buffer _tbuffer;
     GLuint _base_id;
     GLuint _box_id;

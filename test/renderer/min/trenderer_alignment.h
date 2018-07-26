@@ -29,10 +29,10 @@ limitations under the License.
 #include <min/vertex_buffer.h>
 #include <stdexcept>
 
-typedef min::array_buffer<float, uint16_t, min::static_vertex, GL_FLOAT> array_buffer;
-typedef min::emitter_buffer<float, GL_FLOAT> emitter_buffer;
+typedef min::array_buffer<float, uint16_t, min::static_vertex> array_buffer;
+typedef min::emitter_buffer<float> emitter_buffer;
 typedef min::uniform_buffer<float> uniform_buffer;
-typedef min::vertex_buffer<float, uint16_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_SHORT> vertex_buffer;
+typedef min::vertex_buffer<float, uint16_t, min::static_vertex> vertex_buffer;
 
 bool test_renderer_align()
 {

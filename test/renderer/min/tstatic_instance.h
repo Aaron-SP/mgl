@@ -43,7 +43,7 @@ class instance_test
     min::program _prog;
 
     // Buffers for model data and textures
-    min::vertex_buffer<float, uint16_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_SHORT> _sbuffer;
+    min::vertex_buffer<float, uint16_t, min::static_vertex> _sbuffer;
     min::texture_buffer _tbuffer;
     GLuint _bmp_id;
 

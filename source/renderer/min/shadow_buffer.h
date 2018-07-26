@@ -16,6 +16,7 @@ limitations under the License.
 #define _MGL_SHADOW_BUFFER_MGL_
 
 #include <min/frustum.h>
+#include <min/gl_type.h>
 #include <min/mat4.h>
 #include <min/program.h>
 #include <min/window.h>
@@ -109,7 +110,7 @@ class shadow_buffer
         glBindTexture(GL_TEXTURE_2D, _depth);
 
         // Allocate texture space
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0, GL_DEPTH_COMPONENT, FLOAT_TYPE<float>(), 0);
 
         // To prevent artifacts when sampling texture
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

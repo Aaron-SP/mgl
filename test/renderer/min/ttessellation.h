@@ -52,7 +52,7 @@ class tessellation_test
     GLuint _tex_id;
 
     // Buffers for matrices
-    min::vertex_buffer<float, uint32_t, min::static_vertex, GL_FLOAT, GL_UNSIGNED_INT> _sbuffer;
+    min::vertex_buffer<float, uint32_t, min::static_vertex> _sbuffer;
     min::uniform_buffer<float> _ubuffer;
 
     // Camera and uniform data
