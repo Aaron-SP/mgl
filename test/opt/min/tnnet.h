@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef _MGL_TEST_NEURAL_NET_MGL_
 #define _MGL_TEST_NEURAL_NET_MGL_
 
+#include <min/nn.h>
 #include <min/nnet.h>
 #include <min/test.h>
 #include <min/vec.h>
@@ -22,6 +23,7 @@ limitations under the License.
 bool test_neural_net_fixed()
 {
     bool out = true;
+    std::mt19937 gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
     min::net_rng<double> rng;
 
     // 3X3 Problems
@@ -91,7 +93,7 @@ bool test_neural_net_fixed()
 
         // Try to randomize the net
         cached_output = output;
-        net2.randomize(rng);
+        net2.randomize(gen, rng);
         output = net2.calculate_sigmoid();
         out = out && not_test(cached_output[0], output[0], 1E-4, "Failed net calculate output random");
         out = out && not_test(cached_output[1], output[1], 1E-4, "Failed net calculate output random");
@@ -107,14 +109,14 @@ bool test_neural_net_fixed()
 
         // Mutate the neural net, ensure RNG doesn't screw up our tests
         cached_output = output;
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
-        net2.mutate(rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
+        net2.mutate(gen, rng);
         output = net2.calculate_sigmoid();
         out = out && not_test(cached_output[0], output[0], 1E-4, "Failed net calculate output random breed mutate");
         out = out || not_test(cached_output[1], output[1], 1E-4, "Failed net calculate output random breed mutate");
@@ -237,7 +239,7 @@ bool test_neural_net_fixed()
 
             // Set set point value to train on
             min::vector<double, 1> sp;
-            if (std::abs(x) >= 1E-3)
+            if (std::abs(x) >= 1E-6)
             {
                 sp[0] = std::sin(x) / x;
             }
@@ -261,12 +263,12 @@ bool test_neural_net_fixed()
             output = net.calculate_relu();
 
             // test error rates
-            const double sp = (std::abs(x) >= 1E-3) ? std::sin(x) / x : 1.0;
+            const double sp = (std::abs(x) >= 1E-6) ? std::sin(x) / x : 1.0;
             total_error += (output - sp).square_magnitude();
         }
 
         // This is still pretty far away from perfect, but good enough for a test
-        out = out && test(359.33, total_error, 1E-3, "Failed neural net 1x1 training sin(x) / x");
+        out = out && test(true, (total_error > 359.0) && (total_error < 360.0), "Failed neural net 1x1 training sin(x) / x");
 
         // Test deserialize and serialize
         min::nnet<double, 1, 1> net2;
@@ -291,12 +293,12 @@ bool test_neural_net_fixed()
             output = net2.calculate_relu();
 
             // test error rates
-            const double sp = (std::abs(x) >= 1E-3) ? std::sin(x) / x : 1.0;
+            const double sp = (std::abs(x) >= 1E-6) ? std::sin(x) / x : 1.0;
             total_error += (output - sp).square_magnitude();
         }
 
         // This is still pretty far away from perfect, but good enough for a test
-        out = out && test(359.33, total_error, 1E-3, "Failed neural net 1x1 training sin(x) / x deserialize");
+        out = out && test(true, (total_error > 359.0) && (total_error < 360.0), "Failed neural net 1x1 training sin(x) / x deserialize");
     }
 
     // 2X2 Problems linear model

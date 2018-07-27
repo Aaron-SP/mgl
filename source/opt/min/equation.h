@@ -34,11 +34,11 @@ class equation
   public:
     equation() : _f(nullptr) {}
     equation(const function<T, N> f) : _f(f) {}
-    T operator()(const vector<T, N> &x) const
+    inline T operator()(const vector<T, N> &x) const
     {
         return _f(x);
     }
-    matrix<T, N, N> hessian(const vector<T, N> &x0, const T dx)
+    inline matrix<T, N, N> hessian(const vector<T, N> &x0, const T dx)
     {
         return numeric<T, N>::hessian(*this, x0, dx);
     }

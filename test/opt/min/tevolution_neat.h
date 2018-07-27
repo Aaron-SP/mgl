@@ -28,9 +28,11 @@ bool test_evolve_neat()
     min::vector<double, 3> in;
     min::nneat<double, 3, 3> seed;
     seed.set_topology_constants(11, 13, 11, 3);
+    // Create a threadpool for doing work in parallel
+    min::thread_pool pool;
 
     // Create evolution
-    min::evolution<double, 3, 3, min::nneat, 512, 8, 1, 60> evolve(seed);
+    min::evolution<double, 3, 3, min::nneat, 512, 8, 1, 60> evolve(pool, seed);
 
     // Create fitness function
     const std::function<double(const min::nneat<double, 3, 3> &)> &fitness = [&in](const min::nneat<double, 3, 3> &net) {
@@ -41,7 +43,7 @@ bool test_evolve_neat()
         min::vector<double, 3> out = net.calculate();
 
         // Calculate fitness
-        float fitness = 1.0;
+        double fitness = 1.0;
         for (size_t i = 0; i < 3; i++)
         {
             // Testing XOR bit, error should always be 1.0
@@ -64,7 +66,7 @@ bool test_evolve_neat()
             unsigned bit = (count >> j) & 0x1;
 
             // Set input XOR bit
-            in[j] = static_cast<float>(bit);
+            in[j] = static_cast<double>(bit);
         }
 
         // Increment count, b111 = d7
@@ -75,7 +77,7 @@ bool test_evolve_neat()
         }
 
         // Evolve loop
-        evolve.evolve(fitness);
+        evolve.evolve(pool, fitness);
     }
 
     min::nneat<double, 3, 3> test_nn = evolve.top_net();
@@ -92,7 +94,7 @@ bool test_evolve_neat()
             unsigned bit = (count >> j) & 0x1;
 
             // Set input XOR bit
-            in[j] = static_cast<float>(bit);
+            in[j] = static_cast<double>(bit);
         }
 
         // Increment count, b111 = d7

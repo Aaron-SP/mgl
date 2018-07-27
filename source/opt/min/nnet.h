@@ -29,7 +29,8 @@ template <typename T>
 class nnode
 {
   private:
-    static constexpr T _weight_range = 1E6;
+    static constexpr T _low_range = -1E6;
+    static constexpr T _high_range = 1E6;
     std::vector<T> _weights;
     std::vector<T> _delta_weights;
     mutable std::vector<T> _inputs;
@@ -40,7 +41,13 @@ class nnode
 
     inline static void range(T &weight)
     {
-        weight = std::max(-_weight_range, std::min(weight, _weight_range));
+// BUG HERE IN MSVC COMPILER
+#if _MSC_VER && !__INTEL_COMPILER
+        const T min1 = (weight < _high_range) ? weight : _high_range;
+        weight = (min1 > _low_range) ? min1 : _low_range;
+#else
+        weight = std::max(_low_range, std::min(weight, _high_range));
+#endif
     }
     inline static T transfer_deriv_identity(const T output)
     {
@@ -136,12 +143,12 @@ class nnode
     nnode(const size_t size)
         : _weights(size, 1.0), _delta_weights(size, 0), _inputs(size, 0),
           _bias(0.0), _sum(0.0), _output(0.0), _delta(0.0) {}
-    inline void reset(min::net_rng<T> &ran)
+    inline void reset(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Randomize weights
         for (T &w : _weights)
         {
-            w = ran.random();
+            w = ran.random(gen);
         }
 
         // Zero out weights vectors
@@ -149,7 +156,7 @@ class nnode
         std::fill(_inputs.begin(), _inputs.end(), 0.0);
 
         // Reset node values
-        _bias = ran.random();
+        _bias = ran.random(gen);
         _sum = 0.0;
         _output = 0.0;
         _delta = 0.0;
@@ -251,40 +258,40 @@ class nnode
     {
         return _weights;
     }
-    void mutate(min::net_rng<T> &ran)
+    inline void mutate(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Calculate a mutation type
-        const unsigned r = ran.random_int();
+        const unsigned r = ran.random_int(gen);
 
         // calculate random weight index
-        const unsigned index = ran.random_int() % _weights.size();
+        const unsigned index = ran.random_int(gen) % _weights.size();
 
         // Mutate the node based on type
         if (r % 2 == 0)
         {
             // Mutate the weight with mult
-            _weights[index] *= ran.mutation();
+            _weights[index] *= ran.mutation(gen);
         }
         else if (r % 3 == 0)
         {
             // Mutate the bias with mult
-            _bias += ran.mutation();
+            _bias += ran.mutation(gen);
         }
         else if (r % 5 == 0)
         {
             // Mutate the weight with add
-            _weights[index] += ran.mutation();
+            _weights[index] += ran.mutation(gen);
         }
         else if (r % 7 == 0)
         {
             // Mutate the bias with add
-            _bias *= ran.mutation();
+            _bias *= ran.mutation(gen);
         }
         else if (r % 11 == 0)
         {
             // Assign random values
-            _weights[index] = ran.random();
-            _bias = ran.random();
+            _weights[index] = ran.random(gen);
+            _bias = ran.random(gen);
         }
 
         // Check for weight and bias overflow
@@ -553,7 +560,7 @@ class nnet
         // Initialize dimensions with p1
         nnet<T, IN, OUT> out = p1;
 
-        const auto f = [&p1, &p2](nnode<T> &node, const size_t i, const size_t j) {
+        const auto f = [&p2](nnode<T> &node, const size_t i, const size_t j) {
             node *= p2._layers[i][j];
         };
 
@@ -671,7 +678,7 @@ class nnet
         // Print out bias
         std::cout << "Bias " << _layers[i][j].get_bias() << std::endl;
     }
-    void debug_connections() const
+    inline void debug_connections() const
     {
         // Print out entire neural net
         const size_t layers = _layers.size();
@@ -701,22 +708,22 @@ class nnet
     {
         _linear_output = mode;
     }
-    inline void mutate(min::net_rng<T> &ran)
+    inline void mutate(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Calculate a random layer index
-        const unsigned layer_index = ran.random_int() % _layers.size();
+        const unsigned layer_index = ran.random_int(gen) % _layers.size();
 
         // Calculate a random node index
-        const unsigned node_index = ran.random_int() % _layers[layer_index].size();
+        const unsigned node_index = ran.random_int(gen) % _layers[layer_index].size();
 
         // Mutate this node
-        _layers[layer_index][node_index].mutate(ran);
+        _layers[layer_index][node_index].mutate(gen, ran);
     }
-    inline void randomize(min::net_rng<T> &ran)
+    inline void randomize(std::mt19937 &gen, min::net_rng<T> &ran)
     {
-        const auto f = [&ran](nnode<T> &node, const size_t i, const size_t j) {
+        const auto f = [&gen, &ran](nnode<T> &node, const size_t i, const size_t j) {
             // Randomize weights
-            node.reset(ran);
+            node.reset(gen, ran);
         };
 
         // Randomize the net
@@ -795,7 +802,7 @@ class nnet
         const int size = static_cast<int>(data[2]);
 
         // Check last layer size special case
-        const int last = data[2 + size];
+        const int last = static_cast<int>(data[2 + size]);
         if (last != OUT)
         {
             throw std::runtime_error("nnet: can't deserialize, expected last size '" + std::to_string(OUT) + "' but got '" + std::to_string(last) + "'");

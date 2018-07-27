@@ -30,7 +30,7 @@ template <typename T, size_t N>
 class backward
 {
   public:
-    inline static vector<T, N> gradient(const equation<T, N, backward> &f, const vector<T, N> &x1, const T dx)
+    inline static vector<T, N> gradient(const equation<T, N, min::backward> &f, const vector<T, N> &x1, const T dx)
     {
         // Initialize backward point
         vector<T, N> x0 = x1;
@@ -52,7 +52,7 @@ class backward
         // Return the gradient of f
         return out;
     }
-    inline static matrix<T, N, N> hessian(const equation<T, N, backward> f, const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> hessian(const equation<T, N, min::backward> f, const vector<T, N> &x1, const T dx)
     {
         // H_ij = d_2f/dx_i*dx_j
         matrix<T, N, N> hes;
@@ -80,7 +80,7 @@ class backward
         // Return hessian matrix of equation
         return hes;
     }
-    inline static matrix<T, N, N> jacobian(const equation<T, N, backward> f[N], const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> jacobian(const equation<T, N, min::backward> f[N], const vector<T, N> &x1, const T dx)
     {
         // J_ij = df_i/dx_j
         matrix<T, N, N> jac;
@@ -108,7 +108,7 @@ template <typename T, size_t N>
 class center
 {
   public:
-    inline static vector<T, N> gradient(const equation<T, N, center> &f, const vector<T, N> &x1, const T dx)
+    inline static vector<T, N> gradient(const equation<T, N, min::center> &f, const vector<T, N> &x1, const T dx)
     {
         // Initialize backward and forward point
         const T half_dx = dx * 0.5;
@@ -138,7 +138,7 @@ class center
         // Return the gradient of f
         return out;
     }
-    inline static matrix<T, N, N> hessian(const equation<T, N, center> f, const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> hessian(const equation<T, N, min::center> f, const vector<T, N> &x1, const T dx)
     {
         // H_ij = d_2f/dx_i*dx_j
         matrix<T, N, N> hes;
@@ -174,7 +174,7 @@ class center
         // return hessian matrix of equation
         return hes;
     }
-    inline static matrix<T, N, N> jacobian(const equation<T, N, center> f[N], const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> jacobian(const equation<T, N, min::center> f[N], const vector<T, N> &x1, const T dx)
     {
         // J_ij = df_i/dx_j
         matrix<T, N, N> jac;
@@ -202,7 +202,7 @@ template <typename T, size_t N>
 class forward
 {
   public:
-    inline static vector<T, N> gradient(const equation<T, N, forward> &f, const vector<T, N> &x1, const T dx)
+    inline static vector<T, N> gradient(const equation<T, N, min::forward> &f, const vector<T, N> &x1, const T dx)
     {
         // Initialize forward point
         vector<T, N> x2 = x1;
@@ -224,7 +224,7 @@ class forward
         // Return the gradient of f
         return out;
     }
-    inline static matrix<T, N, N> hessian(const equation<T, N, forward> f, const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> hessian(const equation<T, N, min::forward> f, const vector<T, N> &x1, const T dx)
     {
         // H_ij = d_2f/dx_i*dx_j
         matrix<T, N, N> hes;
@@ -252,7 +252,7 @@ class forward
         // return hessian matrix of equation
         return hes;
     }
-    inline static matrix<T, N, N> jacobian(const equation<T, N, forward> f[N], const vector<T, N> &x1, const T dx)
+    inline static matrix<T, N, N> jacobian(const equation<T, N, min::forward> f[N], const vector<T, N> &x1, const T dx)
     {
         // J_ij = df_i/dx_j
         matrix<T, N, N> jac;

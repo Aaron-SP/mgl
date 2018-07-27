@@ -18,6 +18,7 @@ limitations under the License.
 #include <algorithm>
 #include <functional>
 #include <min/nn.h>
+#include <min/thread_pool.h>
 #include <utility>
 
 namespace min
@@ -46,24 +47,23 @@ class evolution
     T _average_fitness;
     bool _cataclysm;
     unsigned _mutations;
-    net_rng<T> _rng;
     net<T, IN, OUT> _top_net;
     T _top_score;
     unsigned _year;
 
-    void average_fitness_score()
+    inline void average_fitness_score()
     {
         // Initialize statistical variables
         _average_top = 0.0;
         _average_fitness = 0.0;
-        for (size_t i = 0; i < _species; i++)
-        {
-            _ave[i] = 0.0;
-        }
 
         // Calculate sum of scores per species
         for (size_t i = 0; i < _species; i++)
         {
+            // Zero out the average
+            _ave[i] = 0.0;
+
+            // Calculate species sum
             for (size_t j = 0; j < _species_size; j++)
             {
                 _ave[i] += _scores[i][j];
@@ -147,27 +147,30 @@ class evolution
             _top_score = top_fitness();
         }
     }
-    void evolve()
+    inline void evolve_pool(min::thread_pool &pool)
     {
         // Create index vector to sort 0 to N
         average_fitness_score();
 
-        for (size_t i = 0; i < _species; i++)
-        {
+        // Evolve the gene pool
+        const auto evolve = [this](std::mt19937 &gen, const size_t i) {
             // Kill off species if average species performance is below kill threshold
-            if (_cataclysm && _ave[i] < _average_fitness)
+            if (this->_cataclysm && this->_ave[i] < this->_average_fitness)
             {
+                // Create a RNG scaler
+                net_rng<T> rng = this->make_rng();
+
                 // Reseed this species with top performer
-                for (size_t j = 0; j < _species_size; j++)
+                for (size_t j = 0; j < this->_species_size; j++)
                 {
                     // Reset the score, and start life a new man
-                    _scores[i][j] = _top_score;
+                    this->_scores[i][j] = this->_top_score;
 
                     // Let the top net structure take over this species
-                    _nets[i][j] = _top_net;
+                    this->_nets[i][j] = this->_top_net;
 
                     // Try to improve a winning formula
-                    _nets[i][j].mutate(_rng);
+                    this->_nets[i][j].mutate(gen, rng);
                 }
             }
             // Breed species groups
@@ -176,23 +179,23 @@ class evolution
                 // Create breeding stock
                 size_t alpha = 0; // Parent A
                 size_t beta = 1;  // Parent B
-                for (size_t j = 0; j < _species_size; j++)
+                for (size_t j = 0; j < this->_species_size; j++)
                 {
-                    if (_scores[i][j] < _ave[i])
+                    if (this->_scores[i][j] < this->_ave[i])
                     {
                         // Reset the score, and start life a new man
-                        _scores[i][j] = _ave[i];
+                        this->_scores[i][j] = this->_ave[i];
 
                         // Breed new workers
-                        const size_t m = _breed_stock[i][alpha];
-                        const size_t n = _breed_stock[i][beta];
-                        _nets[i][j] = net<T, IN, OUT>::breed(_nets[i][m], _nets[i][n]);
+                        const size_t m = this->_breed_stock[i][alpha];
+                        const size_t n = this->_breed_stock[i][beta];
+                        this->_nets[i][j] = net<T, IN, OUT>::breed(this->_nets[i][m], this->_nets[i][n]);
 
                         // Increment parent B
                         beta++;
 
                         // (N^2 - N)/2 breeding pairs
-                        if (beta > _species_half_size)
+                        if (beta > this->_species_half_size)
                         {
                             alpha++;
                             beta = alpha + 1;
@@ -200,48 +203,61 @@ class evolution
                     }
                 }
             }
-        }
+        };
+
+        // Run the job in parallel
+        pool.run(std::cref(evolve), 0, _species);
 
         // Calculate mutations from max fitness
         if (_average_fitness > 0.0)
         {
             const T one = 1.0;
             const T approx_max_fitness = std::max(one, std::abs(_average_top - _average_fitness));
-            _mutations = (_mutation_rate / approx_max_fitness);
+            _mutations = static_cast<unsigned>(std::ceil(_mutation_rate / approx_max_fitness));
         }
         else
         {
             _mutations = _mutation_rate;
         }
 
+        // Create a RNG scaler
+        net_rng<T> rng = make_rng();
+
+        // Get the main thread generator
+        std::mt19937 &gen = pool.get_generator();
+
         // Mutate random nets
         for (size_t i = 0; i < _mutations; i++)
         {
             // Safe non negative, see constructor
-            const size_t j = _rng.random_int() % _species;
-            const size_t k = _rng.random_int() % _species_size;
+            const size_t j = rng.random_int(gen) % _species;
+            const size_t k = rng.random_int(gen) % _species_size;
 
             // Validation set has better convergence when preserving top species
             if (k != _species_top[j])
             {
-                _nets[j][k].mutate(_rng);
+                _nets[j][k].mutate(gen, rng);
             }
         }
 
         // Increment year count
         _year++;
     }
+    inline net_rng<T> make_rng() const
+    {
+        return net_rng<T>(
+            std::uniform_real_distribution<T>(-2.0, 2.0),
+            std::uniform_real_distribution<T>(-2.0, 2.0),
+            std::uniform_int_distribution<unsigned>(0, _pool_size - 1));
+    }
 
   public:
-    evolution(const net<double, IN, OUT> &seed)
+    evolution(min::thread_pool &pool, const net<double, IN, OUT> &seed)
         : _nets(_species, std::vector<net<T, IN, OUT>>(_species_size)),
           _scores(_species, std::vector<T>(_species_size, 0.0)),
           _breed_stock(_species, std::vector<size_t>(_species_size, 0)),
           _average_top(0.0), _average_fitness(0.0),
           _cataclysm(false), _mutations(0),
-          _rng(std::uniform_real_distribution<T>(-2.0, 2.0),
-               std::uniform_real_distribution<T>(-2.0, 2.0),
-               std::uniform_int_distribution<unsigned>(0, _pool_size - 1)),
           _top_score(0.0), _year(0)
     {
         // Assert we are not stupid
@@ -250,15 +266,23 @@ class evolution
         // Assert we are not stupid
         static_assert(_pool_size % _species == 0, "Speciation must perfectly divide the pool size");
 
+        // Wake up the workers
+        pool.wake();
+
         // Initialize seeded nets
-        for (size_t i = 0; i < _species; i++)
-        {
+        const auto init = [this, &seed](std::mt19937 &gen, const size_t i) {
             for (size_t j = 0; j < _species_size; j++)
             {
                 // Initialize networks
-                _nets[i][j] = seed;
+                this->_nets[i][j] = seed;
             }
-        }
+        };
+
+        // Initialize the neural nets in parallel
+        pool.run(std::cref(init), 0, _species);
+
+        // Put the workers to sleep
+        pool.sleep();
     }
     inline T average_fitness() const
     {
@@ -273,19 +297,28 @@ class evolution
         // Return top fitness
         return _scores[_top.first][_top.second];
     }
-    T evolve(const std::function<T(const net<T, IN, OUT> &)> &fitness)
+    inline T evolve(min::thread_pool &pool, const std::function<T(const net<T, IN, OUT> &)> &fitness)
     {
-        for (size_t i = 0; i < _species; i++)
-        {
+        // Wake up the workers
+        pool.wake();
+
+        // Calculate fitness for each species
+        const auto calc = [this, &fitness](std::mt19937 &gen, const size_t i) {
             for (size_t j = 0; j < _species_size; j++)
             {
                 // Run fitness calculation
                 this->_scores[i][j] = fitness(this->_nets[i][j]);
             }
-        }
+        };
+
+        // Calculate fitness in parallel
+        pool.run(std::cref(calc), 0, _species);
 
         // Evolve the pool
-        evolve();
+        evolve_pool(pool);
+
+        // Put the workers to sleep
+        pool.sleep();
 
         // return average fitness
         return _average_fitness;

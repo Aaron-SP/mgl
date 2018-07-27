@@ -15,6 +15,7 @@ limitations under the License.
 #ifndef _MGL_TEST_NEURAL_NET_AUGMENTED_MGL_
 #define _MGL_TEST_NEURAL_NET_AUGMENTED_MGL_
 
+#include <min/nn.h>
 #include <min/nneat.h>
 #include <min/test.h>
 #include <min/vec.h>
@@ -23,6 +24,7 @@ limitations under the License.
 bool test_neural_net_augmented()
 {
     bool out = true;
+    std::mt19937 gen(static_cast<uint32_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
     min::net_rng<double> rng;
 
     // 3X3 Problems
@@ -132,7 +134,7 @@ bool test_neural_net_augmented()
         // Test mutate
         for (size_t i = 0; i < 30; i++)
         {
-            net2.mutate(rng);
+            net2.mutate(gen, rng);
         }
 
         // Test different calculation
@@ -142,7 +144,7 @@ bool test_neural_net_augmented()
         out = out && not_test(0.7297, output[2], 1E-4, "Failed neat random mutate");
 
         // Test randomize
-        net2.randomize(rng);
+        net2.randomize(gen, rng);
 
         // Test different calculation
         output = net2.calculate();

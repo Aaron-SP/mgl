@@ -110,7 +110,7 @@ class nanode
         for (int i = 0; i < weight_size; i++)
         {
             // Calculate read offset
-            const size_t index = data[w_offset + (i * 2)];
+            const size_t index = static_cast<size_t>(data[w_offset + (i * 2)]);
             const T weight = data[w_offset + (i * 2) + 1];
 
             // Insert weight into map
@@ -120,15 +120,15 @@ class nanode
         // Increment data pointer
         start += 3 + edge_size + weight_size * 2;
     }
-    void calculate() const
+    inline void calculate() const
     {
         _output = transfer_sigmoid(_sum);
     }
-    void connect_edge(const size_t index)
+    inline void connect_edge(const size_t index)
     {
         _edges.push_back(index);
     }
-    bool connect_weight(const T weight, const size_t index)
+    inline bool connect_weight(const T weight, const size_t index)
     {
         // Insert connection into node
         const auto p = _weights.insert(std::make_pair(index, weight));
@@ -136,11 +136,11 @@ class nanode
         // return if success
         return p.second;
     }
-    void fixed(const T out) const
+    inline void fixed(const T out) const
     {
         _output = out;
     }
-    T get_weight(const size_t index) const
+    inline T get_weight(const size_t index) const
     {
         // Check if key exists or throw error
         const auto w_iter = _weights.find(index);
@@ -155,7 +155,7 @@ class nanode
 
         return 0.0;
     }
-    void mutate(min::net_rng<T> &ran)
+    inline void mutate(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Don't mutate if no connections
         if (_weights.size() == 0)
@@ -164,10 +164,10 @@ class nanode
         }
 
         // Calculate a mutation type
-        const unsigned r = ran.random_int();
+        const unsigned r = ran.random_int(gen);
 
         // Calculate map random index iterator
-        const unsigned index = ran.random_int() % _weights.size();
+        const unsigned index = ran.random_int(gen) % _weights.size();
 
         // Advanced iterator
         auto iter = _weights.begin();
@@ -177,28 +177,28 @@ class nanode
         if (r % 2 == 0)
         {
             // Mutate the weight with mult
-            iter->second *= ran.mutation();
+            iter->second *= ran.mutation(gen);
         }
         else if (r % 3 == 0)
         {
             // Mutate the bias with mult
-            _bias += ran.mutation();
+            _bias += ran.mutation(gen);
         }
         else if (r % 5 == 0)
         {
             // Mutate the weight with add
-            iter->second += ran.mutation();
+            iter->second += ran.mutation(gen);
         }
         else if (r % 7 == 0)
         {
             // Mutate the bias with add
-            _bias *= ran.mutation();
+            _bias *= ran.mutation(gen);
         }
         else if (r % 11 == 0)
         {
             // Assign random values
-            iter->second = ran.random();
-            _bias = ran.random();
+            iter->second = ran.random(gen);
+            _bias = ran.random(gen);
         }
 
         // Check for weight and bias overflow
@@ -237,12 +237,12 @@ class nanode
         // return this node
         return *this;
     }
-    void remove_edge(const size_t index)
+    inline void remove_edge(const size_t index)
     {
         // connections can occur multiple times
         _edges.erase(std::remove(_edges.begin(), _edges.end(), index), _edges.end());
     }
-    bool remove_weight(const size_t index)
+    inline bool remove_weight(const size_t index)
     {
         // Check if key exists and erase
         const auto w_iter = _weights.find(index);
@@ -257,38 +257,38 @@ class nanode
 
         return false;
     }
-    const std::vector<size_t> &get_edges() const
+    inline const std::vector<size_t> &get_edges() const
     {
         return _edges;
     }
-    size_t get_edge_size() const
+    inline size_t get_edge_size() const
     {
         return _edges.size();
     }
-    size_t get_weight_size() const
+    inline size_t get_weight_size() const
     {
         return _weights.size();
     }
-    T output() const
+    inline T output() const
     {
         return _output;
     }
-    void randomize(min::net_rng<T> &ran)
+    inline void randomize(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Randomize all weights
         for (auto &p : _weights)
         {
-            p.second = ran.random();
+            p.second = ran.random(gen);
         }
 
         // Randomize bias
-        _bias = ran.random();
+        _bias = ran.random(gen);
     }
-    void reset() const
+    inline void reset() const
     {
         _sum = _bias;
     }
-    void serialize(std::vector<T> &data) const
+    inline void serialize(std::vector<T> &data) const
     {
         // Get stream sizes
         const size_t edge_size = _edges.size();
@@ -312,7 +312,7 @@ class nanode
             data.push_back(p.second);
         }
     }
-    void sum(const T input, const size_t index) const
+    inline void sum(const T input, const size_t index) const
     {
         // Check errors here
         if (_weights.count(index) == 0)
@@ -577,7 +577,7 @@ class nneat
 
         return _output;
     }
-    void debug_connections() const
+    inline void debug_connections() const
     {
         // print out connection order
         const size_t nodes = _nodes.size();
@@ -619,16 +619,16 @@ class nneat
     {
         return _nodes.size();
     }
-    inline void mutate_connections(min::net_rng<T> &ran)
+    inline void mutate_connections(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // 'to' can't be an input
         const unsigned not_input_size = _nodes.size() - IN;
 
         // Between IN and END, even though OUT can't be a 'from'
-        const unsigned from = ran.random_int() % _nodes.size();
+        const unsigned from = ran.random_int(gen) % _nodes.size();
 
         // Between OUT and END
-        const unsigned to = (ran.random_int() % not_input_size) + IN;
+        const unsigned to = (ran.random_int(gen) % not_input_size) + IN;
 
         // Skip invalid connections, to prevent draining connections
         if (!prevent_cycles(from, to))
@@ -644,7 +644,7 @@ class nneat
         if (edges > 0)
         {
             // Calculate random index
-            const unsigned j = (ran.random_int() % edges);
+            const unsigned j = (ran.random_int(gen) % edges);
 
             // Read old 'to' node
             const size_t old_to = e[j];
@@ -653,25 +653,25 @@ class nneat
             remove_connection(from, old_to);
 
             // Add new connection with random weight
-            const T v = ran.random();
+            const T v = ran.random(gen);
             add_connection(from, to, v);
         }
     }
-    inline void mutate_topology(min::net_rng<T> &ran)
+    inline void mutate_topology(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Roll dice
-        const unsigned r = ran.random_int();
-        const unsigned s = ran.random_int();
-        const unsigned t = ran.random_int();
+        const unsigned r = ran.random_int(gen);
+        const unsigned s = ran.random_int(gen);
+        const unsigned t = ran.random_int(gen);
 
         // Between IN and END, even though OUT can't be a 'from'
-        const unsigned from = ran.random_int() % _nodes.size();
+        const unsigned from = ran.random_int(gen) % _nodes.size();
 
         // Choose mutation type, connections are more probable
         if (r % _r == 0)
         {
             // 'to' must be an output, enforce only OUT
-            const unsigned out = (ran.random_int() % OUT) + IN;
+            const unsigned out = (ran.random_int(gen) % OUT) + IN;
             add_node_between(from, out);
         }
         else if (s % _s == 0)
@@ -680,7 +680,7 @@ class nneat
             const unsigned not_input_size = _nodes.size() - IN;
 
             // Between OUT and END
-            const unsigned to = (ran.random_int() % not_input_size) + IN;
+            const unsigned to = (ran.random_int(gen) % not_input_size) + IN;
 
             // Remove connection between from and to
             remove_connection(from, to);
@@ -688,7 +688,7 @@ class nneat
         else if (t % _t == 0)
         {
             // Mutate connections on a single node
-            mutate_connections(ran);
+            mutate_connections(gen, ran);
         }
         else
         {
@@ -696,40 +696,40 @@ class nneat
             const unsigned not_input_size = _nodes.size() - IN;
 
             // Between OUT and END
-            const unsigned to = (ran.random_int() % not_input_size) + IN;
+            const unsigned to = (ran.random_int(gen) % not_input_size) + IN;
 
             // Add connection between from and to
-            const T v = ran.random();
+            const T v = ran.random(gen);
             add_connection(from, to, v);
         }
     }
-    inline void mutate_weight(min::net_rng<T> &ran)
+    inline void mutate_weight(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Calculate a random layer index
         const unsigned not_input_size = _nodes.size() - IN;
 
         // Protect input nodes that have NO WEIGHTS
         // Between OUT and END
-        const unsigned node_index = (ran.random_int() % not_input_size) + IN;
+        const unsigned node_index = (ran.random_int(gen) % not_input_size) + IN;
 
         // Mutate this node
-        _nodes[node_index].mutate(ran);
+        _nodes[node_index].mutate(gen, ran);
     }
-    inline void mutate(min::net_rng<T> &ran)
+    inline void mutate(std::mt19937 &gen, min::net_rng<T> &ran)
     {
-        const unsigned q = ran.random_int();
+        const unsigned q = ran.random_int(gen);
 
         // choose mutation type, weight mutations are more probable
         if (q % _q == 0)
         {
-            mutate_topology(ran);
+            mutate_topology(gen, ran);
         }
         else
         {
-            mutate_weight(ran);
+            mutate_weight(gen, ran);
         }
     }
-    inline void randomize(min::net_rng<T> &ran)
+    inline void randomize(std::mt19937 &gen, min::net_rng<T> &ran)
     {
         // Skip input nodes since no weights
         const size_t node_beg = IN;
@@ -738,7 +738,7 @@ class nneat
         // randomize all hidden nodes
         for (size_t i = node_beg; i < nodes; i++)
         {
-            _nodes[i].randomize(ran);
+            _nodes[i].randomize(gen, ran);
         }
     }
     inline void set_connection_limit(const size_t limit)
@@ -758,7 +758,7 @@ class nneat
             _nodes[i].fixed(input[i]);
         }
     }
-    void set_topology_constants(const unsigned q, const unsigned r, const unsigned s, const unsigned t)
+    inline void set_topology_constants(const unsigned q, const unsigned r, const unsigned s, const unsigned t)
     {
         _q = q;
         _r = r;

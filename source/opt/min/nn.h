@@ -51,40 +51,25 @@ class net_rng
     std::uniform_real_distribution<T> _mut_dist;
     std::uniform_real_distribution<T> _ran_dist;
     std::uniform_int_distribution<unsigned> _int_dist;
-    std::mt19937 _rgen;
 
   public:
     net_rng()
-        : _mut_dist(-10.0, 10.0),
-          _ran_dist(-1.0, 1.0),
-          _int_dist(0, 100),
-          _rgen(std::chrono::high_resolution_clock::now().time_since_epoch().count())
-    {
-    }
+        : _mut_dist(-10.0, 10.0), _ran_dist(-1.0, 1.0), _int_dist(0, 100) {}
     net_rng(const std::uniform_real_distribution<T> &mut_dist,
             const std::uniform_real_distribution<T> &ran_dist,
             const std::uniform_int_distribution<unsigned> &int_dist)
-        : _mut_dist(mut_dist),
-          _ran_dist(ran_dist),
-          _int_dist(int_dist),
-          _rgen(std::chrono::high_resolution_clock::now().time_since_epoch().count())
+        : _mut_dist(mut_dist), _ran_dist(ran_dist), _int_dist(int_dist) {}
+    inline T mutation(std::mt19937 &gen)
     {
+        return _mut_dist(gen);
     }
-    inline T mutation()
+    inline T random(std::mt19937 &gen)
     {
-        return _mut_dist(_rgen);
+        return _ran_dist(gen);
     }
-    inline T random()
+    inline unsigned random_int(std::mt19937 &gen)
     {
-        return _ran_dist(_rgen);
-    }
-    inline unsigned random_int()
-    {
-        return _int_dist(_rgen);
-    }
-    inline void reseed()
-    {
-        _rgen.seed(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+        return _int_dist(gen);
     }
 };
 }

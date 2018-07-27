@@ -255,6 +255,10 @@ class thread_pool
             _threads[i].join();
         }
     }
+    inline std::mt19937 &get_generator()
+    {
+        return _gen;
+    }
     inline void kill()
     {
         // Wait for threads to finish work
