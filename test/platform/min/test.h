@@ -50,6 +50,16 @@ bool compare(const T one, const identity_t<T> two)
     return one == two;
 }
 template <typename T>
+bool compare(const T one, const identity_t<T> two, const identity_t<T> threshold)
+{
+    return std::abs(one - two) <= threshold;
+}
+bool compare(const std::string &s1, const std::string &s2)
+{
+    // Compare string
+    return s1 == s2;
+}
+template <typename T>
 bool test(const T one, const identity_t<T> two, const char *fail)
 {
     const bool out = compare<T>(one, two);
@@ -58,11 +68,6 @@ bool test(const T one, const identity_t<T> two, const char *fail)
         throw std::runtime_error(fail);
     }
     return out;
-}
-template <typename T>
-bool compare(const T one, const identity_t<T> two, const identity_t<T> threshold)
-{
-    return std::abs(one - two) <= threshold;
 }
 template <typename T>
 bool test(const T one, const identity_t<T> two, const identity_t<T> tol, const char *fail)
@@ -74,11 +79,25 @@ bool test(const T one, const identity_t<T> two, const identity_t<T> tol, const c
     }
     return out;
 }
-
-bool compare(const std::string &s1, const std::string &s2)
+template <typename T>
+bool not_test(const T one, const identity_t<T> two, const char *fail)
 {
-    // Compare string
-    return s1 == s2;
+    const bool out = compare<T>(one, two);
+    if (out)
+    {
+        throw std::runtime_error(fail);
+    }
+    return !out;
+}
+template <typename T>
+bool not_test(const T one, const identity_t<T> two, const identity_t<T> tol, const char *fail)
+{
+    const bool out = compare(one, two, tol);
+    if (out)
+    {
+        throw std::runtime_error(fail);
+    }
+    return !out;
 }
 
 #endif

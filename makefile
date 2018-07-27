@@ -56,8 +56,8 @@ else
 endif
 
 # Include directories
-LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/platform -Isource/renderer -Isource/scene -Isource/sound -Isource/util $(FREETYPE2_INCLUDE)
-TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/platform -Itest/renderer -Itest/scene -Itest/sound -Itest/util
+LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/opt -Isource/platform -Isource/renderer -Isource/scene -Isource/sound -Isource/util $(FREETYPE2_INCLUDE)
+TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/opt -Itest/platform -Itest/renderer -Itest/scene -Itest/sound -Itest/util
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
 # Compile flags

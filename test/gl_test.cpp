@@ -23,9 +23,12 @@ limitations under the License.
 #include <min/tcamera.h>
 #include <min/tcubic.h>
 #include <min/tdds.h>
+#include <min/tequation.h>
+#include <min/tevolution_neat.h>
 #include <min/tfrustinter.h>
 #include <min/tfrustum.h>
 #include <min/theight_map.h>
+#include <min/tmat.h>
 #include <min/tmat2.h>
 #include <min/tmat3.h>
 #include <min/tmat4.h>
@@ -34,6 +37,9 @@ limitations under the License.
 #include <min/tmd5model.h>
 #include <min/tmem_chunk.h>
 #include <min/tmodel.h>
+#include <min/tmult.h>
+#include <min/tneat.h>
+#include <min/tnnet.h>
 #include <min/toobbox.h>
 #include <min/toobboxinter.h>
 #include <min/toobbresolve.h>
@@ -55,7 +61,9 @@ limitations under the License.
 #include <min/tsphtree.h>
 #include <min/tstack_vector.h>
 #include <min/tstatic_vector.h>
+#include <min/tsystem.h>
 #include <min/tthread_pool.h>
+#include <min/tvec.h>
 #include <min/tvec2.h>
 #include <min/tvec3.h>
 #include <min/tvec4.h>
@@ -111,6 +119,16 @@ int main()
         out = out && test_sphere_intersect();
         out = out && test_sphere_resolve();
         out = out && test_sphere_tree();
+
+        // Opt tests
+        out = out && test_matrix();
+        out = out && test_evolve_neat();
+        out = out && test_neural_net_augmented();
+        out = out && test_neural_net_fixed();
+        out = out && test_vector();
+        out = out && test_matrix_multiply();
+        out = out && test_equation();
+        out = out && test_system();
 
         // Renderer tests
         out = out && test_renderer_align();
