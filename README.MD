@@ -28,7 +28,7 @@ Add the recently found VCPKG library directory to your path so that CMake can fi
 Then run the following command to build optimized x86 executables.
 - msbuild.exe MGL.sln /p:Configuration=Release /p:Platform=Win32
 
-You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the VCPKG directory to run the executables as it may not have been automatically copied by MSBuild.
+You can modify the arguments to MSBuild as needed based on your own build criteria. The compiled binaries will be placed in project root bin/(Debug|Release) directory. Visual Studio places these binaries in a secondary folder 'Debug|Release'. You will need to copy the binaries out of that folder to run properly. You may need to copy glew32.dll from the VCPKG directory to run the executables as it may not have been automatically copied by MSBuild.
 
 ### GNU MAKE
 
@@ -54,7 +54,7 @@ If you are running Arch Linux, I have created PKGBUILD's for this project locate
 
 OpenGL 3.2 is the minimum version required and OpenGL 4.3 is the maximum version required depending on enabled features.
 
-The following OpenGL functions are used for required for rendering. 
+The following OpenGL functions are required for rendering. 
 - glActiveTexture
 - glAttachShader
 - glBindBuffer
@@ -169,7 +169,7 @@ OpenAL-Soft can also be used for providing a software audio renderer. OpenAL-Sof
 
 Additional dependencies that are required and not distributed in this package include:
 - 'g++-5.4' - all platforms
-- 'opengl3.3+' - all platforms
+- 'opengl3.2+' - all platforms
 - 'openal' - all platforms
 - 'libvorbis' - all platforms
 - 'openal-soft' - for linux only
