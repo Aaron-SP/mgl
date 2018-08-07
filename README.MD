@@ -5,7 +5,7 @@ Welcome to the Minimal Graphics Library! This is the prerelease alpha version 0.
 
 This package is the source code distribution of the Minimal Graphics Library, hence abbreviated MGL. The library builds on Linux and Windows platforms. 
 A GNU makefile is available for compilation with GCC|CLANG with MINGW for Windows platforms or GCC|CLANG with X11 for Linux platforms. 
-The makefile should work for both environments without modification.
+The makefile should work for both environments without modification. CMAKE is supported for both Windows/VCPKG and Linux environments.
 
 ### Building
 
