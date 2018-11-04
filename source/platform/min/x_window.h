@@ -327,7 +327,7 @@ class x_window
         int context_attr[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, major,
             GLX_CONTEXT_MINOR_VERSION_ARB, minor,
-            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
             None, None};
 
         // Create GL context

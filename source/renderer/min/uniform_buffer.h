@@ -60,12 +60,14 @@ class uniform_buffer
 
     inline void check_extensions() const
     {
-        const bool ubo = GLEW_ARB_uniform_buffer_object;
-
         // Check that we have the extensions we need
-        if (!ubo)
+        if (!GLEW_VERSION_3_2)
         {
-            throw std::runtime_error("uniform_buffer: minimum extensions not met");
+            const bool ubo = GLEW_ARB_uniform_buffer_object;
+            if (!ubo)
+            {
+                throw std::runtime_error("uniform_buffer: minimum extensions not met");
+            }
         }
     }
     inline size_t get_light_bytes() const

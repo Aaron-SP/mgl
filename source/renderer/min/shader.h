@@ -32,17 +32,20 @@ class shader
     inline void check_extensions() const
     {
         // Check that we have vertex shader support
-        const bool vs = GLEW_ARB_vertex_shader;
-        if (!vs)
+        if (!GLEW_VERSION_3_2)
         {
-            throw std::runtime_error("shader: vertex shader not supported!");
-        }
+            const bool vs = GLEW_ARB_vertex_shader;
+            if (!vs)
+            {
+                throw std::runtime_error("shader: vertex shader not supported!");
+            }
 
-        // Check that we have fragment shader support
-        const bool fs = GLEW_ARB_fragment_shader;
-        if (!fs)
-        {
-            throw std::runtime_error("shader: fragment shader not supported!");
+            // Check that we have fragment shader support
+            const bool fs = GLEW_ARB_fragment_shader;
+            if (!fs)
+            {
+                throw std::runtime_error("shader: fragment shader not supported!");
+            }
         }
 
         // No need to check for GLEW_ARB_geometry_shader4, it is not the core geometry shader extension

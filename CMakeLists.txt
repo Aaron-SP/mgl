@@ -94,6 +94,12 @@ endfunction ( add_openal )
 # Add OpenGL support to executable
 function( add_opengl ex )
 
+# Find X11 on the system
+if( UNIX )
+    find_package(X11 REQUIRED)
+    target_link_libraries( ${ex} ${X11_LIBRARIES} )
+endif()
+
 # Find OpenGL on the system
 find_package(OpenGL)
 if(OPENGL_FOUND)
@@ -160,7 +166,6 @@ if (NOT GLEW_FOUND OR NOT OPENGL_FOUND)
                 NAMES GLEW)
 
         # Link with opengl
-        target_link_libraries( ${ex} X11 )
         target_link_libraries( ${ex} GL )
 
     endif()

@@ -30,13 +30,15 @@ class program
 
     inline void check_extensions() const
     {
-        const bool vp = GLEW_ARB_vertex_program;
-        const bool fp = GLEW_ARB_fragment_program;
-
         // Check that we have the extensions we need
-        if (!vp || !fp)
+        if (!GLEW_VERSION_3_2)
         {
-            throw std::runtime_error("program: minimum extensions not met");
+            const bool vp = GLEW_ARB_vertex_program;
+            const bool fp = GLEW_ARB_fragment_program;
+            if (!vp || !fp)
+            {
+                throw std::runtime_error("program: minimum extensions not met");
+            }
         }
     }
     inline void create_program()
