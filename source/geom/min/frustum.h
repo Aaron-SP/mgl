@@ -98,8 +98,8 @@ class frustum
         T h = 0.0f;
         T i = 0.0f;
         T j = 0.0f;
-        T k = -(far + near) * idz;
-        T l = (2.0f * far * near) * idz;
+        T k = far * idz;
+        T l = -(far * near) * idz;
         T m = 0.0f;
         T n = 0.0f;
         T o = 1.0f;

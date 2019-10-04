@@ -29,9 +29,9 @@ class settings
     {
         // Depth settings
         glEnable(GL_DEPTH_TEST);
-        glClearDepth(0.0);
+        glClearDepth(1.0);
         glClear(GL_DEPTH_BUFFER_BIT);
-        glDepthFunc(GL_GEQUAL);
+        glDepthFunc(GL_LESS);
 
         // Face culling settings
         glEnable(GL_CULL_FACE);

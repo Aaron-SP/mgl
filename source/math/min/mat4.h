@@ -96,7 +96,7 @@ class mat4
 
     // constructs an orthographic projection matrix
     mat4(const T dx, const T dy, const T near, const T far)
-        : _a(1.0f / dx), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f / dy), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(-2.0f / (far - near)), _l((far + near) / (far - near)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
+        : _a(1.0f / dx), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f / dy), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(1.0f / (far - near)), _l(-near / (far - near)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
 
     inline void one(vec4<T> &v)
     {
