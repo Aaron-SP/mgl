@@ -237,7 +237,7 @@ class dds
     inline min::static_vector<uint8_t> to_file() const
     {
         // Write out the dds file to a byte buffer for writing to file
-        size_t size = DDS_HEADER_SIZE + _size;
+        const size_t size = DDS_HEADER_SIZE + _size;
         min::static_vector<uint8_t> out(size);
 
         // The DDS header

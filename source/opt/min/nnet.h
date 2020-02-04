@@ -29,8 +29,6 @@ template <typename T>
 class nnode
 {
   private:
-    static constexpr T _low_range = -1E6;
-    static constexpr T _high_range = 1E6;
     std::vector<T> _weights;
     std::vector<T> _delta_weights;
     mutable std::vector<T> _inputs;
@@ -41,6 +39,8 @@ class nnode
 
     inline static void range(T &weight)
     {
+        constexpr T _low_range = -1E6;
+        constexpr T _high_range = 1E6;
 // BUG HERE IN MSVC COMPILER
 #if _MSC_VER && !__INTEL_COMPILER
         const T min1 = (weight < _high_range) ? weight : _high_range;

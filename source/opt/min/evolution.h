@@ -303,7 +303,7 @@ class evolution
         pool.wake();
 
         // Calculate fitness for each species
-        const auto calc = [this, &fitness](std::mt19937 &gen, const size_t i) {
+        const auto fit_func = [this, &fitness](std::mt19937 &gen, const size_t i) {
             for (size_t j = 0; j < _species_size; j++)
             {
                 // Run fitness calculation
@@ -312,7 +312,7 @@ class evolution
         };
 
         // Calculate fitness in parallel
-        pool.run(std::cref(calc), 0, _species);
+        pool.run(std::cref(fit_func), 0, _species);
 
         // Evolve the pool
         evolve_pool(pool);
@@ -322,6 +322,26 @@ class evolution
 
         // return average fitness
         return _average_fitness;
+    }
+    inline void train(min::thread_pool &pool, const std::function<void(net<T, IN, OUT> &)> &training)
+    {
+        // Wake up the workers
+        pool.wake();
+
+        // Refine species neural network with custom training
+        const auto train_func = [this, &training](std::mt19937 &gen, const size_t i) {
+            for (size_t j = 0; j < _species_size; j++)
+            {
+                // Run training calculation
+                training(this->_nets[i][j]);
+            }
+        };
+
+        // Run training in parallel
+        pool.run(std::cref(train_func), 0, _species);
+
+        // Put the workers to sleep
+        pool.sleep();
     }
 };
 }

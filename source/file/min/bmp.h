@@ -251,6 +251,88 @@ class bmp
         _pixel[i++] = b;
         _pixel[i++] = a;
     }
+    inline min::static_vector<uint8_t> to_file() const
+    {
+        // BITMAPV4HEADER type
+        const uint32_t BMP_HEADER_SIZE = 14;
+        const uint32_t BMP_DIB_SIZE = (_bpp == 4) ? 108 : 40;
+        const uint32_t BMP_OFFSET = BMP_HEADER_SIZE + BMP_DIB_SIZE;
+
+        // Create file memory buffer
+        const uint32_t file_size = BMP_OFFSET + _size;
+        min::static_vector<uint8_t> out(file_size);
+
+        // Zero out the rest of the header
+        std::memset(out.data(), 0u, BMP_OFFSET * sizeof(char));
+
+        // The BMP header
+        const char *head = "BM";
+        std::memcpy(out.data(), head, 2 * sizeof(char));
+
+        // 4 bytes the size of the image file
+        write_le<uint32_t>(out, file_size, 2);
+
+        // 4 bytes data offset
+        write_le<uint32_t>(out, BMP_OFFSET, 10);
+
+        // 4 size of BMP DIB header in bytes
+        write_le<uint32_t>(out, BMP_DIB_SIZE, 14);
+
+        // 4 size of BMP width
+        write_le<uint32_t>(out, _w, 18);
+
+        // 4 size of BMP height
+        write_le<uint32_t>(out, _h, 22);
+
+        // 2 number of color planes (must be 1)
+        write_le<uint16_t>(out, 1u, 26);
+
+        // 2 number of bits per pixel
+        write_le<uint16_t>(out, _bpp * 8u, 28);
+
+        // 4 the compression method being used
+        if (_bpp == 4)
+        {
+            write_le<uint32_t>(out, 3, 30);
+        }
+
+        // 4 Image pixel size
+        write_le<uint32_t>(out, _size, 34);
+
+        // 4 print horizontal resolution
+        write_le<uint32_t>(out, 2835u, 38);
+
+        // 4 print horizontal resolution
+        write_le<uint32_t>(out, 2835u, 42);
+
+        // For extended DIB
+        if (_bpp == 4)
+        {
+            // 4 Red mask
+            write_le<uint32_t>(out, 0xFF000000, 54);
+
+            // 4 Green mask
+            write_le<uint32_t>(out, 0xFF0000, 58);
+
+            // 4 Blue mask
+            write_le<uint32_t>(out, 0xFF00, 62);
+
+            // 4 Alpha mask
+            write_le<uint32_t>(out, 0xFF, 66);
+
+            // 4 little endian, color space LCS_WINDOWS_COLOR_SPACE
+            write_le<char>(out, 0x20, 70);
+            write_le<char>(out, 0x6E, 71);
+            write_le<char>(out, 0x69, 72);
+            write_le<char>(out, 0x57, 73);
+        }
+
+        // Write the pixel data
+        std::memcpy(&out[BMP_OFFSET], _pixel.data(), _size);
+
+        // Return
+        return out;
+    }
 };
 }
 #endif
