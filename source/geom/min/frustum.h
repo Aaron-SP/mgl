@@ -99,10 +99,10 @@ class frustum
         T i = 0.0f;
         T j = 0.0f;
         T k = far * idz;
-        T l = -(far * near) * idz;
+        T l = 1.0f;
         T m = 0.0f;
         T n = 0.0f;
-        T o = 1.0f;
+        T o = -(far * near) * idz;
         T p = 0.0f;
 
         return mat4<T>(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);

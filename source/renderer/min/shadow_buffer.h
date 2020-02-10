@@ -79,9 +79,7 @@ class shadow_buffer
         const mat4<float> proj(_v_width, _v_height, _v_near, _v_far);
 
         // Update the projection-view matrix
-        // (A*B)^T = (B^T*A^T)
-        // A*B = ((A*B)^T)^T = ((B^T*A^T)^T)
-        _pv = (proj).transpose_multiply(_v);
+        _pv = _v * proj;
 
         // Update the shadow matrix
         _shadow = _pv * _scale_bias;

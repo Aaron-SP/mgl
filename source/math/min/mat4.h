@@ -92,11 +92,11 @@ class mat4
 
     // constructs a lookat matrix from 4 vectors: right(x), up(y), forward(z), and eye
     mat4(const vec3<T> &x, const vec3<T> &y, const vec3<T> &z, const vec3<T> &e)
-        : _a(x.x()), _b(x.y()), _c(x.z()), _d(-x.dot(e)), _e(y.x()), _f(y.y()), _g(y.z()), _h(-y.dot(e)), _i(z.x()), _j(z.y()), _k(z.z()), _l(-z.dot(e)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
+        : _a(x.x()), _b(y.x()), _c(z.x()), _d(0.0f), _e(x.y()), _f(y.y()), _g(z.y()), _h(0.0f), _i(x.z()), _j(y.z()), _k(z.z()), _l(0.0f), _m(-x.dot(e)), _n(-y.dot(e)), _o(-z.dot(e)), _p(1.0f) {}
 
     // constructs an orthographic projection matrix
     mat4(const T dx, const T dy, const T near, const T far)
-        : _a(1.0f / dx), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f / dy), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(1.0f / (far - near)), _l(-near / (far - near)), _m(0.0f), _n(0.0f), _o(0.0f), _p(1.0f) {}
+        : _a(1.0f / dx), _b(0.0f), _c(0.0f), _d(0.0f), _e(0.0f), _f(1.0f / dy), _g(0.0f), _h(0.0f), _i(0.0f), _j(0.0f), _k(1.0f / (far - near)), _l(0.0f), _m(0.0f), _n(0.0f), _o(-near / (far - near)), _p(1.0f) {}
 
     inline void one(vec4<T> &v)
     {
@@ -412,30 +412,6 @@ class mat4
         _o = temp;
 
         return *this;
-    }
-    inline mat4<T> transpose_multiply(const mat4<T> &A) const
-    {
-        // This multiplies two matrices and returns the transpose of the product
-        mat4<T> out;
-
-        out._a = _a * A._a + _b * A._e + _c * A._i + _d * A._m;
-        out._b = _e * A._a + _f * A._e + _g * A._i + _h * A._m;
-        out._c = _i * A._a + _j * A._e + _k * A._i + _l * A._m;
-        out._d = _m * A._a + _n * A._e + _o * A._i + _p * A._m;
-        out._e = _a * A._b + _b * A._f + _c * A._j + _d * A._n;
-        out._f = _e * A._b + _f * A._f + _g * A._j + _h * A._n;
-        out._g = _i * A._b + _j * A._f + _k * A._j + _l * A._n;
-        out._h = _m * A._b + _n * A._f + _o * A._j + _p * A._n;
-        out._i = _a * A._c + _b * A._g + _c * A._k + _d * A._o;
-        out._j = _e * A._c + _f * A._g + _g * A._k + _h * A._o;
-        out._k = _i * A._c + _j * A._g + _k * A._k + _l * A._o;
-        out._l = _m * A._c + _n * A._g + _o * A._k + _p * A._o;
-        out._m = _a * A._d + _b * A._h + _c * A._l + _d * A._p;
-        out._n = _e * A._d + _f * A._h + _g * A._l + _h * A._p;
-        out._o = _i * A._d + _j * A._h + _k * A._l + _l * A._p;
-        out._p = _m * A._d + _n * A._h + _o * A._l + _p * A._p;
-
-        return out;
     }
 };
 }

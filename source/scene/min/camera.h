@@ -47,12 +47,14 @@ class camera
             _v = _f.look_at(_p, _forward, _right, _up, _center);
 
             // Update the projection-view matrix
-            // (A*B)^T = (B^T*A^T)
-            // A*B = ((A*B)^T)^T = ((B^T*A^T)^T)
             if (_proj_ortho)
-                _pv = _f.orthographic().transpose_multiply(_v);
+            {
+                _pv = _v * _f.orthographic();
+            }
             else
-                _pv = _f.perspective().transpose_multiply(_v);
+            {
+                _pv = _v * _f.perspective();
+            }
 
             // No longer dirty
             _dirty = false;
