@@ -57,7 +57,7 @@ class render_loop_test
     min::uniform_buffer<float> _ubuffer;
     min::shadow_buffer _shadow_buffer;
     size_t _proj_view_id;
-    size_t _view_id;
+    size_t _cam_id;
     size_t _shadow_id;
     size_t _proj_light_id;
     size_t _model_id;
@@ -182,10 +182,12 @@ class render_loop_test
 
         // Load projection, view matrix, model & shadow into uniform buffer
         _proj_view_id = _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _view_id = _ubuffer.add_matrix(_cam.get_v_matrix());
         _shadow_id = _ubuffer.add_matrix(_shadow_buffer.get_shadow_matrix());
         _proj_light_id = _ubuffer.add_matrix(_shadow_buffer.get_pv_matrix());
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
+
+        // Load camera position into uniform buffer
+        _cam_id = _ubuffer.add_vector(_cam.get_position());
 
         // Load the uniform buffer with program we will use
         _ubuffer.set_program_matrix(_prog1);
@@ -209,7 +211,7 @@ class render_loop_test
           _v2("data/shader/shadow2.vertex", GL_VERTEX_SHADER),
           _f2("data/shader/shadow2.fragment", GL_FRAGMENT_SHADER),
           _prog2(_v2, _f2),
-          _ubuffer(1, 5, 0),
+          _ubuffer(1, 5, 1),
           _shadow_buffer(1024, 1024)
     {
         // Set depth and cull settings
@@ -265,7 +267,9 @@ class render_loop_test
     {
         // Update camera uniform matrices
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
-        _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
+
+        // Update vector uniforms
+        _ubuffer.set_vector(_cam.get_position(), _cam_id);
 
         // Create shadow map in pass1
         pass1();

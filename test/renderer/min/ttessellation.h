@@ -68,7 +68,7 @@ class tessellation_test
           _fragment("data/shader/height_map.fragment", GL_FRAGMENT_SHADER),
           _shaders({_vertex.id(), _tcs.id(), _tes.id(), _fragment.id()}),
           _prog(_shaders),
-          _ubuffer(0, 2, 0)
+          _ubuffer(0, 1, 0)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -116,7 +116,6 @@ class tessellation_test
 
         // Load projection and view matrix into uniform buffer
         _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _ubuffer.add_matrix(_cam.get_v_matrix());
 
         // Load the buffer with data
         _ubuffer.update();

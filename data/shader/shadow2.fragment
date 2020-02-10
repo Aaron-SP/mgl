@@ -4,8 +4,8 @@
 in vec4 _vertex;
 in vec2 _uv;
 in vec3 _normal;
-in vec3 _eye;
 in vec4 _shadow;
+in vec3 _view_dir;
 
 // Create the light struct and the uniform blocks
 // This is the maximum light count and is needed since UBO expires an explicit array count
@@ -55,7 +55,7 @@ void main(void)
         float angle = dot(_normal, light_direction);
         float cos_theta = clamp(angle, 0.0, 1.0);
         vec3 reflection = reflect(-light_direction, _normal);
-        float cos_alpha = clamp(dot(_eye, reflection), 0, 1.0);
+        float cos_alpha = max(dot(_view_dir, reflection), 0);
 
         // Calculate ambient, diffuse and specular
         float ambient = lights[i].power.x;

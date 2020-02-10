@@ -14,9 +14,9 @@ layout(std140) uniform matrix_block
 void main(void)
 {
     // Get the model matrix from the uniform buffer
-    mat4 shadow = matrix[3];
-    mat4 model = matrix[4];
+    mat4 proj_light = matrix[2];
+    mat4 model = matrix[3];
 
 	// Calculate transformed position
-	gl_Position =  shadow * model * vertex;
+	gl_Position =  proj_light * model * vertex;
 }

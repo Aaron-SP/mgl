@@ -59,7 +59,7 @@ class md5_render_loop_test
     min::camera<float> _cam;
     min::uniform_buffer<float> _ubuffer;
     size_t _proj_view_id;
-    size_t _view_id;
+    size_t _cam_id;
     size_t _model_id;
 
     // Light properties for editing
@@ -146,7 +146,9 @@ class md5_render_loop_test
 
         // Load projection and view matrix into uniform buffer
         _proj_view_id = _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _view_id = _ubuffer.add_matrix(_cam.get_v_matrix());
+
+        // Load camera position into uniform buffer
+        _cam_id = _ubuffer.add_vector(_cam.get_position());
 
         // Set initial model orientation
         _model_matrix = min::mat4<float>(min::mat3<float>().set_rotation_x(-90.0));
@@ -184,7 +186,7 @@ class md5_render_loop_test
           _text_prog(_text_vertex, _text_fragment),
           _md5_model(min::md5_mesh<float, uint32_t>("data/models/mech_warrior.md5mesh")),
           _text_buffer("data/fonts/open_sans.ttf", 14),
-          _ubuffer(1, 100, 0),
+          _ubuffer(1, 100, 1),
           _light_color(1.0, 1.0, 1.0, 1.0),
           _light_position(-9.0, 10.0, 0.0, 1.0),
           _light_power(0.1, 200.0, 100.0, 1.0)
@@ -248,8 +250,10 @@ class md5_render_loop_test
 
         // Update matrix uniforms
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
-        _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
         _ubuffer.set_matrix(_model_matrix, _model_id);
+
+        // Update vector uniforms
+        _ubuffer.set_vector(_cam.get_position(), _cam_id);
 
         // Increase the loop iteration count so it doesnt stop
         _md5_model.get_current_animation().set_loop_count(1);

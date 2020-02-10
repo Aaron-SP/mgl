@@ -6,7 +6,7 @@ layout (location = 2) in vec3 normal;
 
 // Create the light struct and the uniform blocks
 // This is the maximum light count and is needed since UBO expires an explicit array count
-#define MAX_NUM_TOTAL_LIGHTS 100
+#define MAX_NUM_TOTAL_LIGHTS 1
 struct light
 {
     vec4 color;
@@ -20,11 +20,18 @@ layout(std140) uniform light_block
     int light_size;
 };
 
-#define MAX_NUM_TOTAL_MATRIX 100
+#define MAX_NUM_TOTAL_MATRIX 2
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];
     int matrix_size;
+};
+
+#define MAX_NUM_TOTAL_VECTOR 1
+layout(std140) uniform vector_block
+{
+    vec4 vector[MAX_NUM_TOTAL_VECTOR];
+    int vector_size;
 };
 
 out vec2 out_uv;
@@ -34,8 +41,10 @@ void main(void)
 {
     // Get the model matrix from the uniform buffer
     mat4 pv = matrix[0];
-    mat4 view = matrix[1];
-    mat4 model = matrix[2];
+    mat4 model = matrix[1];
+
+    // Get the camera position
+    vec4 cam_position = vector[0];
 
 	// Calculate transformed position
 	gl_Position =  pv * model * vertex;
@@ -44,7 +53,7 @@ void main(void)
     vec4 vertex_world = model * vertex;
 
     // Calculate the camera direction
-    vec3 eye_camera = normalize(vec3(0, 0, 0) - (view * vertex_world).xyz);
+    vec3 view_dir = normalize(cam_position.xyz - vertex_world.xyz);
 
     // Calculate the normal in world coordinates
     vec3 normal_world = normalize(mat3(model) * normal);
@@ -62,8 +71,8 @@ void main(void)
 
         // Calculate reflection and drop off
         float cos_theta = max(dot(normal_world, light_direction), 0);
-        vec3 reflection = -reflect(light_direction , normal_world);
-        float cos_alpha = max(dot(eye_camera, reflection), 0);
+        vec3 reflection = reflect(-light_direction, normal_world);
+        float cos_alpha = max(dot(view_dir, reflection), 0);
 
         // Calculate ambient, diffuse and specular
         float ambient = lights[i].power.x;

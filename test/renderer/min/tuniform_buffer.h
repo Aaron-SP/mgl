@@ -57,7 +57,7 @@ class uniform_test
           _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(100, 100, 0)
+          _ubuffer(1, 2, 1)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -132,10 +132,12 @@ class uniform_test
 
         // Load projection and view matrix into uniform buffer
         _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _ubuffer.add_matrix(_cam.get_v_matrix());
 
         // Get model ID for later use
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
+
+        // Load camera position into uniform buffer
+        _ubuffer.add_vector(_cam.get_position());
 
         // Load the buffer with data
         _ubuffer.update();

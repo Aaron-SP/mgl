@@ -12,7 +12,7 @@ out control_out
     vec2 uv;
 } c_out[];
 
-#define MAX_NUM_TOTAL_MATRIX 2
+#define MAX_NUM_TOTAL_MATRIX 1
 layout(std140) uniform matrix_block
 {
     mat4 matrix[MAX_NUM_TOTAL_MATRIX];

@@ -7,7 +7,6 @@ layout (location = 2) in vec3 normal;
 out vec3 out_normal;
 out vec2 out_uv;
 out vec4 out_vertex;
-flat out mat4 out_view;
 
 #define MAX_NUM_TOTAL_MATRIX 102
 layout(std140) uniform matrix_block
@@ -16,12 +15,23 @@ layout(std140) uniform matrix_block
     int matrix_size;
 };
 
+#define MAX_NUM_TOTAL_VECTOR 1
+layout(std140) uniform vector_block
+{
+    vec4 vector[MAX_NUM_TOTAL_VECTOR];
+    int vector_size;
+};
+
+out vec4 out_cam_position;
+
 void main(void)
 {
     // Get the model matrix from the uniform buffer
     mat4 pv = matrix[0];
-    mat4 view = matrix[1];
-    mat4 model = matrix[2 + gl_InstanceID];
+    mat4 model = matrix[1 + gl_InstanceID];
+
+    // Get the camera position
+    out_cam_position = vector[0];
 
 	// Calculate transformed position
 	gl_Position =  pv * model * vertex;
@@ -34,7 +44,4 @@ void main(void)
 
     // Calculate the vertex in world coordinates
     out_vertex = model * vertex;
-
-    // Pass the view matrix to the fragment shader
-    out_view = view;
 }

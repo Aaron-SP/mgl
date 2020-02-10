@@ -46,7 +46,7 @@ class render_loop_test
     min::camera<float> _cam;
     min::uniform_buffer<float> _ubuffer;
     size_t _proj_view_id;
-    size_t _view_id;
+    size_t _cam_id;
     size_t _model_id;
 
     // Model matrix for rotating suzanne
@@ -118,7 +118,9 @@ class render_loop_test
 
         // Load projection and view matrix into uniform buffer
         _proj_view_id = _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _view_id = _ubuffer.add_matrix(_cam.get_v_matrix());
+
+        // Load camera position into uniform buffer
+        _cam_id = _ubuffer.add_vector(_cam.get_position());
 
         // Get model ID for later use
         _model_id = _ubuffer.add_matrix(min::mat4<float>());
@@ -141,7 +143,7 @@ class render_loop_test
           _vertex("data/shader/light.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/light.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(100, 100, 0)
+          _ubuffer(1, 2, 1)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -199,8 +201,10 @@ class render_loop_test
 
         // Update matrix uniforms
         _ubuffer.set_matrix(_cam.get_pv_matrix(), _proj_view_id);
-        _ubuffer.set_matrix(_cam.get_v_matrix(), _view_id);
         _ubuffer.set_matrix(_model_matrix, _model_id);
+
+        // Update vector uniforms
+        _ubuffer.set_vector(_cam.get_position(), _cam_id);
 
         // Update the data in the uniform buffer
         _ubuffer.update();

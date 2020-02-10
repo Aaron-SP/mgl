@@ -59,7 +59,7 @@ class instance_test
           _vertex("data/shader/instance.vertex", GL_VERTEX_SHADER),
           _fragment("data/shader/instance.fragment", GL_FRAGMENT_SHADER),
           _prog(_vertex, _fragment),
-          _ubuffer(10, 102, 0)
+          _ubuffer(10, 102, 1)
     {
         // Set depth and cull settings
         min::settings::initialize();
@@ -121,7 +121,9 @@ class instance_test
 
         // Load projection and view matrix into uniform buffer
         _ubuffer.add_matrix(_cam.get_pv_matrix());
-        _ubuffer.add_matrix(_cam.get_v_matrix());
+
+        // Load camera position into uniform buffer
+        _ubuffer.add_vector(_cam.get_position());
 
         // Generate random positions in a circle
         // The objects will be between radius

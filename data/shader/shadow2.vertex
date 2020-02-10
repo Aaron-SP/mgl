@@ -11,19 +11,28 @@ layout(std140) uniform matrix_block
     int matrix_size;
 };
 
+#define MAX_NUM_TOTAL_VECTOR 1
+layout(std140) uniform vector_block
+{
+    vec4 vector[MAX_NUM_TOTAL_VECTOR];
+    int vector_size;
+};
+
 out vec4 _vertex;
 out vec2 _uv;
 out vec3 _normal;
-out vec3 _eye;
 out vec4 _shadow;
+out vec3 _view_dir;
 
 void main(void)
 {
     // Get the model matrix from the uniform buffer
     mat4 pv = matrix[0];
-    mat4 view = matrix[1];
-    mat4 shadow = matrix[2];
-    mat4 model = matrix[4];
+    mat4 shadow = matrix[1];
+    mat4 model = matrix[3];
+
+    // Get the camera position
+    vec4 cam_position = vector[0];
 
 	// Calculate the vertex world coordinates
     vec4 vertex_world = model * vertex;
@@ -41,7 +50,7 @@ void main(void)
     _normal = normalize(mat3(model) * normal);
 
     // Calculate the camera direction
-    _eye = normalize(vec3(0, 0, 0) - (view * vertex_world).xyz);
+    _view_dir = normalize(cam_position.xyz - vertex_world.xyz);
 
     // Pass the shadow coordinate to the fragment shader
     _shadow = shadow * vertex_world;

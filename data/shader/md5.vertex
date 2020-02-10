@@ -13,23 +13,32 @@ layout(std140) uniform matrix_block
     int matrix_size;
 };
 
+#define MAX_NUM_TOTAL_VECTOR 1
+layout(std140) uniform vector_block
+{
+    vec4 vector[MAX_NUM_TOTAL_VECTOR];
+    int vector_size;
+};
+
+out vec4 out_cam_position;
+out vec3 out_normal;
 out vec2 out_uv;
 out vec4 out_vertex;
-out vec3 out_normal;
-flat out mat4 out_view;
 
 void main(void)
 {
     // Get the model matrix from the uniform buffer
     mat4 pv = matrix[0];
-    mat4 view = matrix[1];
-    mat4 model = matrix[2];
+    mat4 model = matrix[1];
+
+    // Get the camera position
+    out_cam_position = vector[0];
 
     // Perform vertex skinning
-    mat4 bone_transform = matrix[int(bone_index.x) + 3] * bone_weight.x;
-	bone_transform += matrix[int(bone_index.y) + 3] * bone_weight.y;
-	bone_transform += matrix[int(bone_index.z) + 3] * bone_weight.z;
-	bone_transform += matrix[int(bone_index.w) + 3] * bone_weight.w;
+    mat4 bone_transform = matrix[int(bone_index.x) + 2] * bone_weight.x;
+	bone_transform += matrix[int(bone_index.y) + 2] * bone_weight.y;
+	bone_transform += matrix[int(bone_index.z) + 2] * bone_weight.z;
+	bone_transform += matrix[int(bone_index.w) + 2] * bone_weight.w;
 
     // Calculate the vertex in world coordinates
     out_vertex = model * bone_transform * vertex;
@@ -42,7 +51,4 @@ void main(void)
 
 	// Pass texture coordinates to fragment shader
 	out_uv = uv;
-
-    // Pass the view matrix to the fragment shader
-    out_view = view;
 }
