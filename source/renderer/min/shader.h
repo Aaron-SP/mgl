@@ -31,6 +31,7 @@ class shader
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         // Check that we have vertex shader support
         if (!GLEW_VERSION_3_2)
         {
@@ -57,6 +58,7 @@ class shader
         }
 #endif
         // Might need to test for GLEW_ARB_tessellation_shader if running < 4.0 context
+#endif
     }
     inline void load_file(const std::string path, const GLenum type)
     {

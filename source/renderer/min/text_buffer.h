@@ -129,6 +129,7 @@ class text_buffer
     }
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         const bool vao = GLEW_ARB_vertex_array_object;
         const bool vbo = GLEW_ARB_vertex_buffer_object;
 
@@ -137,6 +138,7 @@ class text_buffer
         {
             throw std::runtime_error("text_buffer: minimum extensions not met");
         }
+#endif
     }
     inline void create_vertex_buffer(const size_t size)
     {
@@ -191,7 +193,7 @@ class text_buffer
         }
 
         // Allocate memory for texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     }
 
     inline void calculate_texture_dimensions(const FT_Face &face)
@@ -286,7 +288,10 @@ class text_buffer
             const unsigned char_h = static_cast<unsigned>(c.height);
 
             // Upload part of the image to the opengl texture
-            glTexSubImage2D(GL_TEXTURE_2D, 0, offset_w, offset_h, char_w, char_h, GL_RED, GL_UNSIGNED_BYTE, glyph_slot->bitmap.buffer);
+            if (char_w > 0 && char_h > 0)
+            {
+                glTexSubImage2D(GL_TEXTURE_2D, 0, offset_w, offset_h, char_w, char_h, GL_RED, GL_UNSIGNED_BYTE, glyph_slot->bitmap.buffer);
+            }
 
             // calculate the offset in texture coordinates
             c.offset_x = offset_w / static_cast<float>(_w);

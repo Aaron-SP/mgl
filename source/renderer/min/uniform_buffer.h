@@ -60,6 +60,7 @@ class uniform_buffer
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         // Check that we have the extensions we need
         if (!GLEW_VERSION_3_2)
         {
@@ -69,6 +70,7 @@ class uniform_buffer
                 throw std::runtime_error("uniform_buffer: minimum extensions not met");
             }
         }
+#endif
     }
     inline size_t get_light_bytes() const
     {

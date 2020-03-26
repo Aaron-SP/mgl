@@ -110,6 +110,7 @@ class emitter_buffer
     }
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         const bool vao = GLEW_ARB_vertex_array_object;
         const bool vbo = GLEW_ARB_vertex_buffer_object;
 
@@ -118,6 +119,7 @@ class emitter_buffer
         {
             throw std::runtime_error("emitter_buffer: minimum extensions not met");
         }
+#endif
     }
     inline vec3<T> compute_force(const vec3<T> &position, const vec3<T> &speed)
     {

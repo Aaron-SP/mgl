@@ -29,7 +29,7 @@ class settings
     {
         // Depth settings
         glEnable(GL_DEPTH_TEST);
-        glClearDepth(1.0);
+        glClearDepthf(1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthFunc(GL_LESS);
 
@@ -37,8 +37,10 @@ class settings
         glEnable(GL_CULL_FACE);
         glFrontFace(GL_CW);
 
-        // Allow setting point size in vertex shader for particles
+// Allow setting point size in vertex shader for particles
+#if !__EMSCRIPTEN__
         glEnable(GL_PROGRAM_POINT_SIZE);
+#endif
 
         // Enable blending for rendering text
         glEnable(GL_BLEND);
@@ -46,6 +48,7 @@ class settings
     }
     inline static void enable_gamma_correction()
     {
+#if !__EMSCRIPTEN__
         if (GLEW_ARB_framebuffer_sRGB)
         {
             glEnable(GL_FRAMEBUFFER_SRGB);
@@ -54,6 +57,7 @@ class settings
         {
             throw std::runtime_error("settings: SRGB framebuffer not supported");
         }
+#endif
     }
 };
 }

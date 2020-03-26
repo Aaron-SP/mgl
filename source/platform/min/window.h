@@ -24,6 +24,15 @@ namespace min
 using window = min::win32_window;
 }
 
+#elif __EMSCRIPTEN__
+
+#include <min/sdl_window.h>
+
+namespace min
+{
+using window = min::sdl_window;
+}
+
 #else
 
 #include <min/x_window.h>

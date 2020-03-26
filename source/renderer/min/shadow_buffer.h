@@ -42,6 +42,7 @@ class shadow_buffer
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         const bool fbo = GLEW_ARB_framebuffer_object;
 
         // Check that we have the extensions we need
@@ -49,6 +50,7 @@ class shadow_buffer
         {
             throw std::runtime_error("shadow_buffer: minimum extensions not met");
         }
+#endif
     }
     inline void set_light_view(const vec3<float> &eye, const vec3<float> &look, const vec3<float> &up)
     {
@@ -108,8 +110,11 @@ class shadow_buffer
         glBindTexture(GL_TEXTURE_2D, _depth);
 
         // Allocate texture space
+#if !__EMSCRIPTEN__
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _width, _height, 0, GL_DEPTH_COMPONENT, FLOAT_TYPE<float>(), 0);
-
+#else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, _width, _height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
+#endif
         // To prevent artifacts when sampling texture
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -119,7 +124,7 @@ class shadow_buffer
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 
         // Attach this texture to the framebuffer
-        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, _depth, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depth, 0);
 
         // Check that the frame buffer is valid
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -134,8 +139,10 @@ class shadow_buffer
             throw std::runtime_error("shadow_buffer: Failed framebuffer status check.");
         }
 
-        // Do not draw to the color buffer
+// Do not draw to the color buffer
+#if !__EMSCRIPTEN__
         glDrawBuffer(GL_NONE);
+#endif
 
         // Switch back to the default framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

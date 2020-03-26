@@ -193,7 +193,34 @@ class bmp
 
         // Read the image data starting at data offset
         _pixel.resize(_size);
+#if !__EMSCRIPTEN__
         std::memcpy(_pixel.data(), &data[data_start], _size);
+#else
+        // Reset endianness
+        if (_bpp == 3)
+        {
+            for (size_t i = 0; i < _w * _h; i++)
+            {
+                const size_t pixel_write = i * _bpp;
+                const size_t pixel_start = data_start + pixel_write;
+                _pixel[pixel_write + 2] = data[pixel_start + 0];
+                _pixel[pixel_write + 1] = data[pixel_start + 1];
+                _pixel[pixel_write + 0] = data[pixel_start + 2];
+            }
+        }
+        else if (_bpp == 4)
+        {
+            for (size_t i = 0; i < _w * _h; i++)
+            {
+                const size_t pixel_write = i * _bpp;
+                const size_t pixel_start = data_start + pixel_write;
+                _pixel[pixel_write + 3] = data[pixel_start + 0];
+                _pixel[pixel_write + 2] = data[pixel_start + 1];
+                _pixel[pixel_write + 1] = data[pixel_start + 2];
+                _pixel[pixel_write + 0] = data[pixel_start + 3];
+            }
+        }
+#endif
     }
 
   public:

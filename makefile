@@ -56,7 +56,7 @@ else
 endif
 
 # Include directories
-LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/opt -Isource/platform -Isource/renderer -Isource/scene -Isource/sound -Isource/util $(FREETYPE2_INCLUDE)
+LIB_SOURCES = -Isource/file -Isource/geom -Isource/math -Isource/opt -Isource/platform -Isource/renderer -Isource/scene -Isource/sound -Isource/util
 TEST_SOURCES = -Itest/file -Itest/geom -Itest/math -Itest/opt -Itest/platform -Itest/renderer -Itest/scene -Itest/sound -Itest/util
 BENCH_SOURCES = -Ibench/math -Ibench/geom -Ibench/scene -Ibench/file
 
@@ -69,17 +69,47 @@ RELEASEFLAGS = -std=c++14 $(WARNFLAGS) -O3 -fomit-frame-pointer -freciprocal-mat
 ifeq ($(BUILD),debug)
 	CXXFLAGS += $(DEBUGFLAGS)
 	SYMBOLS = -g
+	LIB_SOURCES += $(FREETYPE2_INCLUDE)
 else
 ifeq ($(BUILD),arch32)
 	CXXFLAGS += $(RELEASEFLAGS) -m32
 	SYMBOLS = -s
+	LIB_SOURCES += $(FREETYPE2_INCLUDE)
 else
 ifeq ($(BUILD),arch64)
 	CXXFLAGS += $(RELEASEFLAGS) -m64
 	SYMBOLS = -s
+	LIB_SOURCES += $(FREETYPE2_INCLUDE)
+else
+ifeq ($(BUILD),web)
+	undefine LINKER
+	undefine STATIC
+	undefine DYNAMIC
+	DYNAMIC = --preload-file data
+	BIN_EX1 := $(BIN_EX1).js
+	BIN_EX2 := $(BIN_EX2).js
+	BIN_EX3 := $(BIN_EX3).js
+	BIN_EX4 := $(BIN_EX4).js
+	BIN_EX5 := $(BIN_EX5).js
+	BIN_EX6 := $(BIN_EX6).js
+	BIN_EX7 := $(BIN_EX7).js
+	BIN_EX8 := $(BIN_EX8).js
+	BIN_EX9 := $(BIN_EX9).js
+	BIN_EX10 := $(BIN_EX10).js
+	BIN_EX11 := $(BIN_EX11).js
+	BIN_EX12 := $(BIN_EX12).js
+	BIN_AL_TEST := $(BIN_AL_TEST).js
+	BIN_BENCH := $(BIN_BENCH).js
+	BIN_GL_TEST := $(BIN_GL_TEST).js
+	BIN_WL_TEST := $(BIN_WL_TEST).js
+	CXX = emcc
+	CXXFLAGS = -std=c++14 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s DISABLE_EXCEPTION_CATCHING=0 -s ASSERTIONS=2 -s WASM=1 -s USE_SDL=2 -s USE_FREETYPE=1 -s USE_VORBIS=1 -s USE_OGG=1 -s USE_WEBGL2=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM_MEM_MAX=2GB
+	SYMBOLS = -O3
 else
 	CXXFLAGS += $(RELEASEFLAGS) -march=native
 	SYMBOLS = -s
+	LIB_SOURCES += $(FREETYPE2_INCLUDE)
+endif
 endif
 endif
 endif
@@ -133,6 +163,7 @@ example10: $(BIN_EX10)
 example11: $(BIN_EX11)
 example12: $(BIN_EX12)
 examples: $(BIN_EX1) $(BIN_EX2) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10) $(BIN_EX11) $(BIN_EX12)
+web_examples: $(BIN_EX1) $(BIN_EX3) $(BIN_EX4) $(BIN_EX5) $(BIN_EX6) $(BIN_EX7) $(BIN_EX8) $(BIN_EX9) $(BIN_EX10) $(BIN_EX11) $(BIN_EX12)
 install:
 	mkdir -p $(MGL_DESTDIR)
 	cp -r source/* $(MGL_DESTDIR)

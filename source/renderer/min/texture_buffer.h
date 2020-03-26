@@ -34,6 +34,7 @@ class texture_buffer
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         const bool fbo = GLEW_ARB_framebuffer_object;
         const bool s3tc = GLEW_EXT_texture_compression_s3tc;
         const bool srgb = GLEW_EXT_texture_sRGB;
@@ -43,6 +44,7 @@ class texture_buffer
         {
             throw std::runtime_error("texture_buffer: minimum extensions not met");
         }
+#endif
     }
     inline void check_texture_size(const uint32_t width, const uint32_t height)
     {
@@ -72,6 +74,8 @@ class texture_buffer
 
             // Set min/mag filter settings
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+#if !__EMSCRIPTEN__
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
             // Tell opengl how many mipmaps we will use
@@ -81,6 +85,20 @@ class texture_buffer
                 // 'index' = size - 1
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mips - 1);
             }
+#else
+            // Tell opengl how many mipmaps we will use
+            if (mips > 1)
+            {
+                // The parameter is the maximum mip max 'index' not actual size
+                // 'index' = size - 1
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mips - 1);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            }
+            else
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            }
+#endif
         }
 
         return out;
@@ -135,6 +153,7 @@ class texture_buffer
             }
 
             // If gamma correcting texture
+#if !__EMSCRIPTEN__
             if (srgb)
             {
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
@@ -143,10 +162,21 @@ class texture_buffer
             {
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, &pixels[0]);
             }
+#else
+            if (srgb)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
+#endif
         }
         else if (pixel_size == 4)
         {
             // If gamma correcting texture
+#if !__EMSCRIPTEN__
             if (srgb)
             {
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &pixels[0]);
@@ -155,6 +185,16 @@ class texture_buffer
             {
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, &pixels[0]);
             }
+#else
+            if (srgb)
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
+            else
+            {
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+            }
+#endif
         }
         else
         {
@@ -271,8 +311,10 @@ class texture_buffer
         }
         else if (mips == 1)
         {
-            // Check if the mips need to be generated
+// Check if the mips need to be generated
+#if !__EMSCRIPTEN__
             glGenerateMipmap(GL_TEXTURE_2D);
+#endif
         }
         else if (mips == 0)
         {

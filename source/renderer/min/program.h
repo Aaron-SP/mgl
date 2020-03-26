@@ -30,6 +30,7 @@ class program
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         // Check that we have the extensions we need
         if (!GLEW_VERSION_3_2)
         {
@@ -40,6 +41,7 @@ class program
                 throw std::runtime_error("program: minimum extensions not met");
             }
         }
+#endif
     }
     inline void create_program()
     {

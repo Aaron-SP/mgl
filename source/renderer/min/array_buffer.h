@@ -37,6 +37,7 @@ class array_buffer
 
     inline void check_extensions() const
     {
+#if !__EMSCRIPTEN__
         const bool vao = GLEW_ARB_vertex_array_object;
         const bool vbo = GLEW_ARB_vertex_buffer_object;
         const bool inst = GLEW_ARB_draw_instanced;
@@ -55,6 +56,7 @@ class array_buffer
         {
             throw std::runtime_error("array_buffer: minimum extensions not met");
         }
+#endif
 #endif
     }
     inline void push_back_mesh(const mesh<T, K> &m)

@@ -27,11 +27,14 @@ constexpr inline GLenum FLOAT_TYPE<float>()
 {
     return GL_FLOAT;
 }
+
+#if !__EMSCRIPTEN__
 template <>
 constexpr inline GLenum FLOAT_TYPE<double>()
 {
     return GL_DOUBLE;
 }
+#endif
 
 template <class Tenum>
 constexpr inline GLenum INT_TYPE();
