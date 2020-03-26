@@ -1,4 +1,4 @@
-#version 330 core
+#version 300 es
 
 layout (location = 0) in vec4 position;
 
@@ -29,7 +29,7 @@ void main(void)
 	else if(len > 5.5 && len < 10.0)
 	{
 		float d = clamp(11.0 / len - 1.0, 0.0, 2.0);
-		vcolor = vec4(d*4, d*1.333, d*0.8333, 1.0);
+		vcolor = vec4(d*4.0, d*1.333, d*0.8333, 1.0);
 	}
 	else if(len > 10.15)
 	{

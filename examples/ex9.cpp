@@ -385,15 +385,6 @@ class physics_test
         _ubuffer.set_program_lights(_prog);
         _ubuffer.set_program_matrix(_prog);
     }
-    void update_cursor()
-    {
-        // Get the screen dimensions
-        uint_fast16_t h = _win.get_height();
-        uint_fast16_t w = _win.get_width();
-
-        // Center cursor in middle of window
-        _win.set_cursor(w / 2, h / 2);
-    }
     void update_base()
     {
         // Get all rigid bodies in the scene
@@ -578,14 +569,9 @@ class physics_test
     }
     void update_camera()
     {
-        // Get the cursor coordinates
-        const auto c = _win.get_cursor();
-
-        // Get the offset from screen center
-        const uint_fast16_t w2 = _win.get_width() / 2;
-        const uint_fast16_t h2 = _win.get_height() / 2;
-        const int_fast16_t dx = c.first - w2;
-        const int_fast16_t dy = c.second - h2;
+        // Get the relative cursor coordinates
+        int dx, dy;
+        SDL_GetRelativeMouseState(&dx, &dy);
         constexpr float sensitivity = 0.25;
         float x = dx * sensitivity;
         float y = dy * sensitivity;
@@ -599,9 +585,6 @@ class physics_test
 
             // Adjust the camera by the offset from screen center
             _cam.move_look_at(x, y);
-
-            // Move the cursor back
-            update_cursor();
         }
     }
     void draw(const float dt)
@@ -651,52 +634,58 @@ class physics_test
     }
 };
 
+Uint64 last_time = 0;
+Uint64 now_time = SDL_GetPerformanceCounter();
+float frame_time = 0.0f;
+
+void main_tick(void *data)
+{
+    // Cast data point
+    physics_test &test = *static_cast<physics_test *>(data);
+
+    // Update rigid bodies in simulation
+    for (int i = 0; i < 30; i++)
+    {
+        test.solve(frame_time / 30.0f, 10.0f);
+    }
+
+    // Clear the background color
+    test.clear_background();
+
+    // Update the camera movement
+    test.update_camera();
+
+    // Draw the model
+    test.draw(frame_time);
+
+    // Update the window after draw command
+    test.window_update(frame_time);
+
+    // Update the particles
+    last_time = now_time;
+    now_time = SDL_GetPerformanceCounter();
+    frame_time = (now_time - last_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+}
+
+void main_loop(physics_test &test)
+{
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, &test, 0, true);
+#else
+    while (0 == quit)
+    {
+        main_tick(&test);
+    }
+#endif
+}
+
 int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     physics_test test;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    float frame_time = 0.0;
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Update rigid bodies in simulation
-            for (int i = 0; i < 30; i++)
-            {
-                test.solve(frame_time / 30.0f, 10.0f);
-            }
-
-            // Clear the background color
-            test.clear_background();
-
-            // Update the camera movement
-            test.update_camera();
-
-            // Draw the model
-            test.draw(frame_time);
-
-            // Update the window after draw command
-            test.window_update(frame_time);
-
-            // Calculate needed delay to hit target
-            frame_time = static_cast<float>(sync.sync());
-        }
-
-        // Calculate the number of 'average' frames per second
-        double fps = sync.get_fps();
-
-        // Update the window title with FPS count of last frame
-        test.set_title("MD5 Physics Simulation - FPS: " + std::to_string(fps));
-    }
+    main_loop(test);
 
     return 0;
 }

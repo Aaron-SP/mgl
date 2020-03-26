@@ -221,14 +221,9 @@ class render_loop_test
     }
     void update_camera()
     {
-        // Get the cursor coordinates
-        const auto c = _win.get_cursor();
-
-        // Get the offset from screen center
-        const uint_fast16_t w2 = _win.get_width() / 2;
-        const uint_fast16_t h2 = _win.get_height() / 2;
-        const int_fast16_t dx = c.first - w2;
-        const int_fast16_t dy = c.second - h2;
+        // Get the relative cursor coordinates
+        int dx, dy;
+        SDL_GetRelativeMouseState(&dx, &dy);
         constexpr float sensitivity = 0.25;
         float x = dx * sensitivity;
         float y = dy * sensitivity;
@@ -242,19 +237,7 @@ class render_loop_test
 
             // Adjust the camera by the offset from screen center
             _cam.move_look_at(x, y);
-
-            // Move the cursor back
-            update_cursor();
         }
-    }
-    void update_cursor()
-    {
-        // Get the screen dimensions
-        const uint_fast16_t h = _win.get_height();
-        const uint_fast16_t w = _win.get_width();
-
-        // Center cursor in middle of window
-        _win.set_cursor(w / 2, h / 2);
     }
     void window_update()
     {
@@ -264,51 +247,49 @@ class render_loop_test
     }
 };
 
+void main_tick(void *data)
+{
+    // Cast data point
+    render_loop_test &test = *static_cast<render_loop_test *>(data);
+
+    // Clear the background color
+    test.clear_background();
+
+    // Update the camera movement
+    test.update_camera();
+
+    // Draw the model
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+}
+
+void main_loop(render_loop_test &test)
+{
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, &test, 0, true);
+#else
+    while (0 == quit)
+    {
+        main_tick(&test);
+    }
+#endif
+}
+
+// Load window shaders and program, enable shader program
+render_loop_test test;
+
 int test_render_loop()
 {
-    // Load window shaders and program, enable shader program
-    render_loop_test test;
-
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Update the camera movement
-            test.update_camera();
-
-            // Draw the model
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Calculate needed delay to hit target
-            sync.sync();
-        }
-
-        // Calculate the number of 'average' frames per second
-        const double fps = sync.get_fps();
-
-        // Update the window title with FPS count of last frame
-        test.set_title("Model Viewer - FPS: " + std::to_string(fps));
-    }
+    main_loop(test);
 
     return 0;
 }
 
 int main()
 {
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     try
     {
         return test_render_loop();

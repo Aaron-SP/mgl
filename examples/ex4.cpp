@@ -242,43 +242,48 @@ class particle_test
     }
 };
 
+Uint64 last_time = 0;
+Uint64 now_time = SDL_GetPerformanceCounter();
+
+void main_tick(void *data)
+{
+    // Cast data point
+    particle_test &test = *static_cast<particle_test *>(data);
+
+    // Clear the background color
+    test.clear_background();
+
+    // Draw the model
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+
+    // Update the particles
+    last_time = now_time;
+    now_time = SDL_GetPerformanceCounter();
+    const float dt = (now_time - last_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+    test.step(dt);
+}
+
+void main_loop(particle_test &test)
+{
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, &test, 0, true);
+#else
+    while (0 == quit)
+    {
+        main_tick(&test);
+    }
+#endif
+}
+
 int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     particle_test test;
 
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Draw the model
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Update the particles
-            const float dt = static_cast<float>(sync.sync());
-            test.step(dt);
-        }
-
-        // Calculate the number of 'average' frames per second
-        const double fps = sync.get_fps();
-
-        // Update the window title with FPS count of last frame
-        test.set_title("Particle System - FPS: " + std::to_string(fps));
-    }
+    main_loop(test);
 
     return 0;
 }

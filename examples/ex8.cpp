@@ -259,52 +259,57 @@ class physics_test
     }
 };
 
+Uint64 last_time = 0;
+Uint64 now_time = SDL_GetPerformanceCounter();
+float frame_time = 0.0f;
+
+void main_tick(void *data)
+{
+    // Cast data point
+    physics_test &test = *static_cast<physics_test *>(data);
+
+    // Update rigid bodies in simulation
+    for (int i = 0; i < 30; i++)
+    {
+        test.solve(frame_time / 30.0f, 0.1f);
+    }
+
+    // Update the bodies buffer information
+    test.update_bodies();
+
+    // Clear the background color
+    test.clear_background();
+
+    // Draw the model
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+
+    // Update the particles
+    last_time = now_time;
+    now_time = SDL_GetPerformanceCounter();
+    frame_time = (now_time - last_time) / static_cast<float>(SDL_GetPerformanceFrequency());
+}
+
+void main_loop(physics_test &test)
+{
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, &test, 0, true);
+#else
+    while (0 == quit)
+    {
+        main_tick(&test);
+    }
+#endif
+}
+
 int test_render_loop()
 {
     // Load window shaders and program, enable shader program
     physics_test test;
 
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    float frame_time = 0.0;
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Update rigid bodies in simulation
-            for (int i = 0; i < 30; i++)
-            {
-                test.solve(frame_time / 30.0f, 0.1f);
-            }
-
-            // Update the bodies buffer information
-            test.update_bodies();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Draw the model
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Calculate needed delay to hit target
-            frame_time = static_cast<float>(sync.sync());
-        }
-
-        // Calculate the number of 'average' frames per second
-        const double fps = sync.get_fps();
-
-        // Update the window title with FPS count of last frame
-        test.set_title("OOBB Physics Simulation - FPS: " + std::to_string(fps));
-    }
+    main_loop(test);
 
     return 0;
 }

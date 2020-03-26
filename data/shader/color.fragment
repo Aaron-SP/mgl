@@ -1,4 +1,7 @@
-#version 330 core
+#version 300 es
+
+// This must be in fragment shader
+precision mediump float;
 
 // Inputs from vertex shader
 in vec4 out_color;

@@ -1,4 +1,7 @@
-#version 330 core
+#version 300 es
+
+// This must be in fragment shader
+precision mediump float;
 
 in vec2 out_uv;
 uniform sampler2D in_texture;

@@ -230,39 +230,43 @@ class image_view_test
     }
 };
 
+void main_tick(void *data)
+{
+    // Cast data point
+    image_view_test &test = *static_cast<image_view_test *>(data);
+
+    // Clear the background color
+    test.clear_background();
+
+    // Draw the model at first position
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+}
+
+void main_loop(void *data)
+{
+
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, data, 0, true);
+#else
+    while (true)
+    {
+        main_tick(data);
+    }
+#endif
+}
+
+// Load window shaders and program, enable shader program
+image_view_test test("data/texture/winter_moon.dds");
+
 int load_image_file(const char *file)
 {
     // Alert user of loaded file
     std::cout << "image_view_test: Opening file '" << file << "' " << std::endl;
 
-    // Load window shaders and program, enable shader program
-    image_view_test test(file);
-
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Draw the model at first position
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Calculate needed delay to hit target
-            sync.sync();
-        }
-    }
+    main_loop(&test);
 
     return 0;
 }

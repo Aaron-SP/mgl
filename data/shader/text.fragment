@@ -1,4 +1,7 @@
-#version 330
+#version 300 es
+
+// This must be in fragment shader
+precision mediump float;
 
 // UV coordinate
 in vec2 out_uv;

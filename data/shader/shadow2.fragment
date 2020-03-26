@@ -1,4 +1,7 @@
-#version 330 core
+#version 300 es
+
+// This must be in fragment shader
+precision mediump float;
 
 // Inputs from vertex shader
 in vec4 _vertex;
@@ -27,7 +30,7 @@ layout(std140) uniform light_block
 uniform sampler2D in_texture;
 
 // Shadow input
-uniform sampler2DShadow shadow_texture;
+uniform mediump sampler2DShadow shadow_texture;
 
 // Output color
 out vec4 color;
@@ -55,12 +58,12 @@ void main(void)
         float angle = dot(_normal, light_direction);
         float cos_theta = clamp(angle, 0.0, 1.0);
         vec3 reflection = reflect(-light_direction, _normal);
-        float cos_alpha = max(dot(_view_dir, reflection), 0);
+        float cos_alpha = max(dot(_view_dir, reflection), 0.0);
 
         // Calculate ambient, diffuse and specular
         float ambient = lights[i].power.x;
         float diffuse = lights[i].power.y * cos_theta;
-        float specular = lights[i].power.z * pow(cos_alpha, 5);
+        float specular = lights[i].power.z * pow(cos_alpha, 5.0);
 
         // Weighted sum of passing depth test from texture depth (0.0 or 1.0)
         // Sum is proportional to the number of samples in the shadow texture that pass the comparison

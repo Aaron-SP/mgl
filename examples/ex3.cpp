@@ -158,9 +158,6 @@ class screen_draw_test
         // Bind VAO
         _sbuffer.bind();
 
-        // Set point size to 40 pixels
-        glPointSize(40.0);
-
         // Use the shader program to draw models
         _prog.use();
 
@@ -175,36 +172,39 @@ class screen_draw_test
     }
 };
 
+void main_tick(void *data)
+{
+    // Cast data point
+    screen_draw_test &test = *static_cast<screen_draw_test *>(data);
+
+    /// Clear the background color
+    test.clear_background();
+
+    // Draw the model at first position
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+}
+
+void main_loop(screen_draw_test &test)
+{
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, &test, 0, true);
+#else
+    while (0 == quit)
+    {
+        main_tick(&test);
+    }
+#endif
+}
+
 int test_screen_draw()
 {
-    // Load window shaders and program, enable shader program
     screen_draw_test test;
 
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Draw the model at first position
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Calculate needed delay to hit target
-            sync.sync();
-        }
-    }
+    // Load window shaders and program, enable shader program
+    main_loop(test);
 
     return 0;
 }

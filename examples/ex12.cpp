@@ -305,36 +305,40 @@ class ray_trace_test
     }
 };
 
+void main_tick(void *data)
+{
+    // Cast data point
+    ray_trace_test &test = *static_cast<ray_trace_test *>(data);
+
+    // Clear the background color
+    test.clear_background();
+
+    // Draw the model at first position
+    test.draw();
+
+    // Update the window after draw command
+    test.window_update();
+}
+
+void main_loop(void *data)
+{
+
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(main_tick, data, 0, true);
+#else
+    while (true)
+    {
+        main_tick(data);
+    }
+#endif
+}
+
 int load_ray_tracer()
 {
     // Load window shaders and program, enable shader program
     ray_trace_test test;
 
-    // Setup controller to run at 60 frames per second
-    const int frames = 60;
-    min::loop_sync sync(frames);
-
-    // User can close with Q or use window manager
-    while (!test.is_closed())
-    {
-        for (int i = 0; i < frames; i++)
-        {
-            // Start synchronizing the loop
-            sync.start();
-
-            // Clear the background color
-            test.clear_background();
-
-            // Draw the model at first position
-            test.draw();
-
-            // Update the window after draw command
-            test.window_update();
-
-            // Calculate needed delay to hit target
-            sync.sync();
-        }
-    }
+    main_loop(&test);
 
     return 0;
 }

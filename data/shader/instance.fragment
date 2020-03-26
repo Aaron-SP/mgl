@@ -1,4 +1,7 @@
-#version 330 core
+#version 300 es
+
+// This must be in fragment shader
+precision mediump float;
 
 // Inputs from vertex shader
 in vec4 out_cam_position;
@@ -47,14 +50,14 @@ void main(void)
         light_direction = normalize(light_direction);
 
         // Calculate reflection and drop off
-        float cos_theta = max(dot(out_normal, light_direction), 0);
+        float cos_theta = max(dot(out_normal, light_direction), 0.0);
         vec3 reflection = reflect(-light_direction, out_normal);
-        float cos_alpha = max(dot(view_dir, reflection), 0);
+        float cos_alpha = max(dot(view_dir, reflection), 0.0);
 
         // Calculate ambient, diffuse and specular
         float ambient = lights[i].power.x;
         float diffuse = lights[i].power.y * cos_theta * inv_d;
-        float specular = lights[i].power.z * pow(cos_alpha, 5) * inv_d;
+        float specular = lights[i].power.z * pow(cos_alpha, 5.0) * inv_d;
 
         // Calculate the output color
         color += lights[i].color * (ambient + diffuse + specular);
