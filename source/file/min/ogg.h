@@ -39,7 +39,7 @@ struct fake_file
 inline size_t fake_read_ogg(void *const dest, const size_t byte_size, const size_t size_to_read, void *const fake)
 {
     // Get the fake_file handle
-    fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
+    fake_file *const ff = reinterpret_cast<fake_file *>(fake);
 
     // Size of the read
     const size_t read_length = byte_size * size_to_read;
@@ -63,7 +63,7 @@ inline size_t fake_read_ogg(void *const dest, const size_t byte_size, const size
 inline int fake_seek_ogg(void *const fake, const ogg_int64_t to, const int type)
 {
     // Get the fake_file handle
-    fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
+    fake_file *const ff = reinterpret_cast<fake_file *>(fake);
 
     // Implement the seek operation in the fake file
     switch (type)
@@ -105,7 +105,7 @@ inline int fake_close_ogg(void *const fake)
 inline long fake_tell_ogg(void *const fake)
 {
     // Get the fake_file handle
-    fake_file *const ff = reinterpret_cast<fake_file *const>(fake);
+    fake_file *const ff = reinterpret_cast<fake_file *>(fake);
 
     // Return the location from the start of the file
     return (ff->_head - ff->_start);

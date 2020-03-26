@@ -239,7 +239,7 @@ class sound_buffer
         const ALenum format = al_format(stereo, bits);
 
         // Copy WAVE data into buffer
-        const ALvoid *const data = reinterpret_cast<const ALvoid *const>(wave.data().data());
+        const ALvoid *const data = reinterpret_cast<const ALvoid *>(wave.data().data());
         const ALsizei size = wave.data().size();
         const ALsizei freq = wave.get_sample_rate();
 
@@ -254,7 +254,7 @@ class sound_buffer
         const ALenum format = al_format(stereo, bits);
 
         // Copy OGG data into buffer
-        const ALvoid *const data = reinterpret_cast<const ALvoid *const>(ogg.data().data());
+        const ALvoid *const data = reinterpret_cast<const ALvoid *>(ogg.data().data());
         const ALsizei size = ogg.data().size();
         const ALsizei freq = ogg.get_sample_rate();
 
@@ -345,7 +345,7 @@ class sound_buffer
     }
     inline void set_source_at_listener(const size_t source) const
     {
-        const ALfloat *const data = reinterpret_cast<const ALfloat *const>(&_listener);
+        const ALfloat *const data = reinterpret_cast<const ALfloat *>(&_listener);
         alSourcefv(_sources[source], AL_POSITION, data);
     }
     inline void set_source_direction(const size_t source, const min::vec3<float> &d) const
