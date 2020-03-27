@@ -592,7 +592,10 @@ class text_buffer
             const auto &t = _text[index];
 
             // Draw the specific string from index
-            glDrawArrays(GL_TRIANGLES, t.offset(), t.size());
+            if (t.size() > 0)
+            {
+                glDrawArrays(GL_TRIANGLES, t.offset(), t.size());
+            }
         }
     }
     inline void draw_all() const
@@ -605,13 +608,19 @@ class text_buffer
             const size_t size = t.offset() + t.size();
 
             // Draw all of the text in one pass
-            glDrawArrays(GL_TRIANGLES, 0, size);
+            if (size > 0)
+            {
+                glDrawArrays(GL_TRIANGLES, 0, size);
+            }
         }
     }
     inline void draw_batch(const size_t size) const
     {
         // Draw all of the text in one pass
-        glDrawArrays(GL_TRIANGLES, 0, size);
+        if (size > 0)
+        {
+            glDrawArrays(GL_TRIANGLES, 0, size);
+        }
     }
     inline void draw(const size_t from, const size_t to) const
     {
@@ -623,7 +632,10 @@ class text_buffer
         const size_t size = stop.size() + (stop.offset() - start.offset());
 
         // Draw all of the text from 'start' to index 'stop'
-        glDrawArrays(GL_TRIANGLES, start.offset(), size);
+        if (size > 0)
+        {
+            glDrawArrays(GL_TRIANGLES, start.offset(), size);
+        }
     }
     inline std::pair<uint_fast16_t, uint_fast16_t> get_screen_size() const
     {
