@@ -137,17 +137,17 @@ class sdl_window
         RSHIFT = SDLK_RSHIFT,
         LCONTROL = SDLK_LCTRL,
         RCONTROL = SDLK_RCTRL,
-        TAB = SDLK_KP_TAB,
+        TAB = SDLK_TAB,
         ENTER = SDLK_RETURN,
         BACKSPACE = SDLK_BACKSPACE,
-        SPACE = SDLK_KP_SPACE,
+        SPACE = SDLK_SPACE,
         LALT = SDLK_LALT,
         RALT = SDLK_RALT,
         ESCAPE = SDLK_ESCAPE,
         APOSTROPHE = SDLK_BACKQUOTE,
         QUOTE = SDLK_QUOTE,
         COMMA = SDLK_COMMA,
-        PERIOD = SDLK_KP_PERIOD,
+        PERIOD = SDLK_PERIOD,
         SEMICOLON = SDLK_SEMICOLON
     };
 
