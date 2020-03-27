@@ -211,7 +211,10 @@ class array_buffer
         const size_t size = p.first;
 
         // Draw the specific vertices from index
-        glDrawArrays(mode, offset, size);
+        if (size > 0)
+        {
+            glDrawArrays(mode, offset, size);
+        }
     }
     inline void draw(const GLenum mode, const size_t from, const size_t to) const
     {
@@ -224,7 +227,10 @@ class array_buffer
         const size_t size = stop.first + (stop.second - start.second);
 
         // Draw all of the vertices from 'start' to index 'stop'
-        glDrawArrays(mode, offset, size);
+        if (size > 0)
+        {
+            glDrawArrays(mode, offset, size);
+        }
     }
     inline void draw_all(const GLenum mode) const
     {
@@ -236,7 +242,10 @@ class array_buffer
             const size_t size = p.second + p.first;
 
             // Draw all of the vertices in one pass
-            glDrawArrays(mode, 0, size);
+            if (size > 0)
+            {
+                glDrawArrays(mode, 0, size);
+            }
         }
     }
     inline void draw_many(const GLenum mode, const size_t index, const size_t primcount) const
@@ -249,7 +258,10 @@ class array_buffer
             const size_t size = p.first;
 
             // Draw the specific vertices from index 'primcount' times
-            glDrawArraysInstanced(mode, offset, size, primcount);
+            if (size > 0)
+            {
+                glDrawArraysInstanced(mode, offset, size, primcount);
+            }
         }
     }
     inline void reserve(const size_t vertex, const size_t meshes)

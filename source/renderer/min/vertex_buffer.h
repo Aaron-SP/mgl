@@ -383,8 +383,11 @@ class vertex_buffer
     {
         // Draw object at index 'n'
         const auto &n = _element_index[_index][index];
-        const size_t byte_offset = n.second * sizeof(K);
-        glDrawElements(mode, n.first, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        if (n.first > 0)
+        {
+            const size_t byte_offset = n.second * sizeof(K);
+            glDrawElements(mode, n.first, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        }
     }
     inline void draw(const GLenum mode, const size_t start, const size_t stop) const
     {
@@ -392,8 +395,11 @@ class vertex_buffer
         const auto &start_n = _element_index[_index][start];
         const auto &stop_n = _element_index[_index][stop];
         const size_t draw_size = stop_n.first + (stop_n.second - start_n.second);
-        const size_t byte_offset = start_n.second * sizeof(K);
-        glDrawElements(mode, draw_size, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        if (draw_size > 0)
+        {
+            const size_t byte_offset = start_n.second * sizeof(K);
+            glDrawElements(mode, draw_size, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        }
     }
     inline void draw_all(const GLenum mode) const
     {
@@ -410,8 +416,11 @@ class vertex_buffer
         const auto &n = _element_index[_index][index];
         const size_t draw_offset = (n.first + n.second);
         const size_t draw_size = _element[_index].size() - draw_offset;
-        const size_t byte_offset = draw_offset * sizeof(K);
-        glDrawElements(mode, draw_size, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        if (draw_size > 0)
+        {
+            const size_t byte_offset = draw_offset * sizeof(K);
+            glDrawElements(mode, draw_size, INT_TYPE<K>(), (GLvoid *)byte_offset);
+        }
     }
     inline void draw_many(const GLenum mode, const size_t index, const size_t count) const
     {
@@ -420,8 +429,11 @@ class vertex_buffer
         {
             // Draw 'count' times objects at index 'n'
             const auto &n = _element_index[_index][index];
-            const size_t byte_offset = n.second * sizeof(K);
-            glDrawElementsInstanced(mode, n.first, INT_TYPE<K>(), (GLvoid *)byte_offset, count);
+            if (n.first > 0)
+            {
+                const size_t byte_offset = n.second * sizeof(K);
+                glDrawElementsInstanced(mode, n.first, INT_TYPE<K>(), (GLvoid *)byte_offset, count);
+            }
         }
     }
     inline void reserve(const size_t vertex, const size_t index, const size_t meshes)
