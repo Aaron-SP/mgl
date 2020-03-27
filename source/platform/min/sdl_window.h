@@ -195,7 +195,13 @@ class sdl_window
         window = SDL_CreateWindow(
             title.c_str(),
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _w, _h,
-            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
+
+        // Get the window size if different than asked for
+        int w, h;
+        SDL_GetWindowSize(window, &w, &h);
+        _w = static_cast<uint_fast16_t>(w);
+        _h = static_cast<uint_fast16_t>(h);
 
         // Check if window is created
         if (!window)
