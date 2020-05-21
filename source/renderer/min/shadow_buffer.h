@@ -139,10 +139,9 @@ class shadow_buffer
             throw std::runtime_error("shadow_buffer: Failed framebuffer status check.");
         }
 
-// Do not draw to the color buffer
-#if !__EMSCRIPTEN__
-        glDrawBuffer(GL_NONE);
-#endif
+        // Do not draw to the color buffer
+        const GLenum color_buffers[1] = {GL_NONE};
+        glDrawBuffers(1, color_buffers);
 
         // Switch back to the default framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
