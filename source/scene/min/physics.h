@@ -25,7 +25,7 @@ limitations under the License.
 // m = mass
 // I = inertia
 // k = damping parameter
-// 1.) dV/dt = a = (F - k*V + G) / m
+// 1.) dV/dt = a = (F - k*V + m*G) / m
 // 2.) domega/dt = alpha = ((C - P) x F - k*omega) / I
 
 // These equations are solved using RK4

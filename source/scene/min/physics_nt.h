@@ -26,7 +26,7 @@ limitations under the License.
 // G = Gravity
 // m = mass
 // k = damping parameter
-// 1.) dV/dt = a = (F - k*V + G) / m
+// 1.) dV/dt = a = (F - k*V + m*G) / m
 
 // These equations are solved using RK4
 // dy/dt = f(t, y)
